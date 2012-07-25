@@ -1,0 +1,47 @@
+﻿Microsoft Windows, Visual Studio 2008
+
+Что бы собрать проект, необходимо:
+1. Запустить в консоли "premake4.exe vs2008"
+2. Собрать build\blowmorph.sln с помощью Visual Studio 2008
+
+Проекты внутри:
+client - клиент игры
+server - сервер игры
+sample-client - пример клиента, использующего enet
+sample-server - пример сервера, использующего enet
+alex-test - проект для тестирования
+interpolator - не используется
+
+How-to compile SDL2 under linux:
+  hg clone ...
+  cd SDL2
+  rm -r .hg
+  ./autogen.sh
+  ./configure
+  make
+  sudo make install
+
+TODO:
+
+-- Build process :
+  Избавиться от копирования папки data после билда.
+  Сборка всего под Win64.
+  Сборка всего под Linux.
+  Починка мышки под Linux.
+
+-- Refactoring :
+  Отрефакторить клиент.
+  Отрефакторить TextWriter.
+  Убрать фиксированные размеры объектов. Загружать из файла, например.
+
+-- Game features : 
+  Центрирование камеры по игроку.
+  Рисовать игрока поверх всего остального.
+
+-- Documentation : 
+  Дописать комментарии в enet-wrapper.
+
+-- Other :
+  Избавиться от Event::DestroyPacket().
+  Тесты для shape.hpp.
+  Корректно завершать сервер.
