@@ -228,6 +228,29 @@ namespace {
       glPopAttrib(); 
   }
   
+  std::vector<std::string> SplitLines(const char* text) {
+    // Split text into lines.   
+    const char *start_line = text; 
+    std::vector<std::string> lines; 
+    const char* c;
+    
+    for (c = text; *c; c++) {
+      if (*c == '\n') {
+        std::string line;
+        for(const char *n = start_line; n < c; n++) line.append(1, *n); 
+        lines.push_back(line); 
+        start_line = c + 1; 
+      }
+    }
+    if (start_line) {
+      std::string line; 
+      for(const char *n = start_line; n < c; n++) line.append(1, *n); 
+      lines.push_back(line); 
+    }
+    
+    return lines;
+  }
+  
   void RenderText(const FontDataPrivate &font, float x, float y, glm::vec4 color, const char *fmt, va_list arg_pointers)  {
       
       // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
@@ -247,24 +270,7 @@ namespace {
           vsprintf(text, fmt, arg_pointers);                             
       }
       
-      // TODO[24.7.2012 alex]: make a separate method
-      // Split text into lines.   
-      const char *start_line = text; 
-      std::vector<std::string>  lines; 
-      char* c;
-      for(c = text; *c; c++) {
-        if(*c == '\n') {
-          std::string line;
-          for(const char *n = start_line; n < c; n++) line.append(1, *n); 
-          lines.push_back(line); 
-          start_line = c + 1; 
-        }
-      }
-      if(start_line) {
-        std::string line; 
-        for(const char *n = start_line; n < c; n++) line.append(1, *n); 
-        lines.push_back(line); 
-      }
+      std::vector<std::string> lines = SplitLines(text);
    
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT); 
       glMatrixMode(GL_MODELVIEW); 
