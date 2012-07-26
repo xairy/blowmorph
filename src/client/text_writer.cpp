@@ -11,8 +11,7 @@ namespace {
   // TODO[24.7.2012 alex]: separate into classes/structs for glyph info/font info
   // TODO[24.7.2012 alex]: rename everything to comply with codestyle
   
-  // This holds all of the information related to any
-  // FreeType font that we want to create. 
+  // Holds all the information related to font.
   struct FontDataPrivate {
     float h;                                        // Holds the height of the font.
     GLuint * textures;                              // Holds the texture id's.
@@ -26,11 +25,6 @@ namespace {
     // Free All The Resources Associated With The Font.
     void clean();
   };
- 
-  // This thing will print out text at window coordinates X, Y, using the font 
-  // ft_font. The current modelview matrix will also be applied to the text.
-  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  va_list arg_pointers);
-  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...);
 
   // XXX[24.7.2012 alex]: should we use bm::texture?
   GLubyte* GetFTBitmapData(FT_Bitmap& bitmap) {
@@ -206,7 +200,7 @@ namespace {
   }
 
   // Coordinates Identical To Window Coordinates.
-  inline void pushScreenCoordinateMatrix() {
+  void pushScreenCoordinateMatrix() {
       glPushAttrib(GL_TRANSFORM_BIT); 
       GLint   viewport[4]; 
       glGetIntegerv(GL_VIEWPORT, viewport); 
@@ -220,8 +214,8 @@ namespace {
       glPopAttrib(); 
   }
    
-  // Pops The Projection Matrix Without Changing The Current MatrixMode.
-  inline void pop_projection_matrix() {
+  // Pops current projection matrix without changing the current matrix mode.
+  void popProjectionMatrix() {
       glPushAttrib(GL_TRANSFORM_BIT); 
       glMatrixMode(GL_PROJECTION); 
       glPopMatrix(); 
@@ -251,8 +245,8 @@ namespace {
     return lines;
   }
   
-  void RenderText(const FontDataPrivate &font, float x, float y, glm::vec4 color, const char *fmt, va_list arg_pointers)  {
-      CHECK(fmt != NULL);
+  void RenderText(const FontDataPrivate &font, float x, float y, const glm::vec4& color, const char* text)  {
+      CHECK(text != NULL);
       
       // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
       pushScreenCoordinateMatrix();                                   
@@ -261,9 +255,7 @@ namespace {
       // We Make The Height A Little Bigger. There Will Be Some Space Between Lines.
       float line_height = font.h / .63f;
       
-      char buf[256];
-      vsnprintf(buf, sizeof(buf) - 1, fmt, arg_pointers);
-      std::vector<std::string> lines = SplitLines(buf);
+      std::vector<std::string> lines = SplitLines(text);
    
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT); 
       glMatrixMode(GL_MODELVIEW); 
@@ -287,38 +279,20 @@ namespace {
       
       glColor4f(color.r, color.g, color.b, color.a);
       for(size_t i = 0; i < lines.size(); i++) {
-        glPushMatrix(); 
-        glLoadIdentity(); 
+        glPushMatrix();
+        glLoadIdentity();
         glTranslatef(x, y + line_height * i, 0); 
-        glMultMatrixf(modelview_matrix); 
-   
-        // The Commented Out Raster Position Stuff Can Be Useful If You Need To
-        // Know The Length Of The Text That You Are Creating.
-        // If You Decide To Use It Make Sure To Also Uncomment The glBitmap Command
-        // In makeDisplayCharacterList().
-
-        //glRasterPos2f(0, 0); 
+        glMultMatrixf(modelview_matrix);
         glCallLists(lines[i].length(), GL_UNSIGNED_BYTE, lines[i].c_str()); 
-        //float rpos[4]; 
-        //glGetFloatv(GL_CURRENT_RASTER_POSITION , rpos); 
-        glPopMatrix(); 
+        glPopMatrix();
       }
    
       glPopAttrib();
    
-      pop_projection_matrix();
-  }
-  
-  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...) {
-    CHECK(fmt != NULL);
-    
-    va_list arg_pointers;
-    va_start(arg_pointers, fmt);
-    RenderText(ft_font, x, y, glm::vec4(1, 1, 1, 1), fmt, arg_pointers);
-    va_end(arg_pointers);
+      popProjectionMatrix();
   }
 
-}  // Close the namespace freetype
+}; // anonymous namespace
 
 namespace bm {
 
@@ -326,11 +300,7 @@ struct TextWriter::FontData {
   FontDataPrivate fontData;
 };
 
-TextWriter::TextWriter() {
-  //_printing_string = "";
-  //_x = _y = -1;
-  //_color = glm::vec4(1, 1, 1, 1);
-};
+TextWriter::TextWriter() { }
 
 TextWriter::~TextWriter() {
   CHECK(_state = STATE_DELETED);
@@ -358,43 +328,16 @@ void TextWriter::Destroy() {
   _state = STATE_DELETED;
 }
 
-//void TextWriter::PrintText(float x, float y, const char *text, ...) {
-//  CHECK(_state == STATE_INITIALIZED);
-//  
-//  va_list arg_pointers;
-//  va_start(arg_pointers,  text);  
-//  freetype::print(_our_font->fontData, x, y, _color, text, arg_pointers);
-//  va_end(arg_pointers);
-//} 
-
-void TextWriter::PrintText(glm::vec4 color, float x, float y, const char *text, ...) {
+void TextWriter::PrintText(glm::vec4 color, float x, float y, const char *fmt, ...) {
   CHECK(_state == STATE_INITIALIZED);
-  
-  va_list arg_pointers;
-  va_start(arg_pointers,  text);  
-  RenderText(_our_font->fontData, x, y, color, text, arg_pointers);
-  va_end(arg_pointers);
-}
 
-//void TextWriter::SetPrintingString(std::string printing_string) {
-//  _printing_string = printing_string;
-//}
-//
-//void TextWriter::Render(float x, float y) {
-//  freetype::print(_our_font->fontData, x, y, _color, "%s", _printing_string.c_str());
-//}
-//
-//void TextWriter::SetCoordinates(float x, float y) {
-//  _x = x;
-//  _y = y;
-//}
-//
-//void TextWriter::Render() {
-//  if(_x < 0 || _y < 0) {
-//    fprintf(stderr, "Uninitialized or non-correct coordinates\n");
-//    return;
-//  }
-//  freetype::print(_our_font->fontData, _x, _y, _color, "%s", _printing_string.c_str());
-//}
+  char buf[1024];
+  va_list args;
+  va_start(args, fmt);  
+  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
+  va_end(args);
+  
+  RenderText(_our_font->fontData, x, y, color, buf);
+}
 
 }; // namespace bm
