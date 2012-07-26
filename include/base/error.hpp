@@ -6,7 +6,7 @@
 // TODO: make it thread safe.
 
 #include <cstdio>
-#include <strstream>
+#include <sstream>
 #include <cstdarg>
 #include <vector>
 #include <string>
@@ -40,7 +40,7 @@ public:
     _error = error;
   }
   
-  static void Error::Throw(const char* file, unsigned int line, const char* fmt, ...) {
+  static void Throw(const char* file, unsigned int line, const char* fmt, ...) {
     static char buf[1024];
     
     va_list args;
@@ -48,7 +48,7 @@ public:
     vsnprintf(buf, sizeof(buf) - 1, fmt, args);
     va_end(args);
     
-    std::strstream ss;
+    std::stringstream ss;
     ss << "Error in file " << file << " on line " << line << ":" << std::endl;
     ss << buf << std::endl << '\0';
     

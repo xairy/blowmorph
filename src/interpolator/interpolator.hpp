@@ -65,7 +65,7 @@ public:
     time -= timeOffset;
 
     // get the last two frames
-    std::list<TimedFrame>::reverse_iterator it = frames.rbegin();
+    typename std::list<TimedFrame>::reverse_iterator it = frames.rbegin();
     TimedFrame frame2 = *it;
     TimedFrame frame1 = *(++it);
     

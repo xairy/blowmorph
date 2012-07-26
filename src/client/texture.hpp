@@ -1,6 +1,7 @@
 ﻿#ifndef BLOWMORPH_TEXTURE_HPP_
 #define BLOWMORPH_TEXTURE_HPP_
 
+#include <cstring>
 #include <string>
 #include <glm/glm.hpp>
 
@@ -89,7 +90,7 @@ template<class T>
 void copy(texture<T>& dst, const texture<T>& src) {
   // if it's the same texture, do nothing
   if (dst.ptr() == src.ptr()) {
-    return *this;
+    return;
   }
   
   dst.setSize(src.width(), src.height());
