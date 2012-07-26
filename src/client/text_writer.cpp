@@ -259,11 +259,10 @@ namespace {
       
       GLuint list_base = font.list_base;
       // We Make The Height A Little Bigger. There Will Be Some Space Between Lines.
-      float h = font.h/.63f;
+      float line_height = font.h / .63f;
+      
       char buf[256];
-      
       vsnprintf(buf, sizeof(buf) - 1, fmt, arg_pointers);
-      
       std::vector<std::string> lines = SplitLines(buf);
    
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT); 
@@ -290,7 +289,7 @@ namespace {
       for(size_t i = 0; i < lines.size(); i++) {
         glPushMatrix(); 
         glLoadIdentity(); 
-        glTranslatef(x, y + h * i, 0); 
+        glTranslatef(x, y + line_height * i, 0); 
         glMultMatrixf(modelview_matrix); 
    
         // The Commented Out Raster Position Stuff Can Be Useful If You Need To
