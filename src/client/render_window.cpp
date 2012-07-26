@@ -72,8 +72,10 @@ bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool 
 
   /* Sets up OpenGL double buffering */
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1 );
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  #ifdef _WIN32
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  #endif
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
   _sdl_surface = SDL_SetVideoMode(width, height, 24, videoFlags);

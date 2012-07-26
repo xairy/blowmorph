@@ -1,4 +1,4 @@
-#include <strstream>
+#include <sstream>
 #include <cstdarg>
 #include "base/error.hpp"
 
