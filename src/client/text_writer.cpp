@@ -7,14 +7,13 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-// TODO[24.7.2012 alex]: make anonymous namespace instead
 namespace {  
   // TODO[24.7.2012 alex]: separate into classes/structs for glyph info/font info
   // TODO[24.7.2012 alex]: rename everything to comply with codestyle
   
   // This holds all of the information related to any
   // FreeType font that we want to create. 
-  struct font_data {
+  struct FontDataPrivate {
     float h;                                        // Holds the height of the font.
     GLuint * textures;                              // Holds the texture id's.
     GLuint list_base;                               // Holds the first display list id.
@@ -30,8 +29,8 @@ namespace {
  
   // This thing will print out text at window coordinates X, Y, using the font 
   // ft_font. The current modelview matrix will also be applied to the text.
-  void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt,  va_list arg_pointers);
-  void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...);
+  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  va_list arg_pointers);
+  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...);
 
   // XXX[24.7.2012 alex]: should we use bm::texture?
   GLubyte* GetFTBitmapData(FT_Bitmap& bitmap) {
@@ -153,7 +152,7 @@ namespace {
     glEndList(); 
   }
 
-  bool font_data::init(const char * fname, unsigned int height) {
+  bool FontDataPrivate::init(const char * fname, unsigned int height) {
     // Allocate Some Memory To Store The Texture Ids.
     // XXX[24.7.2012 alex]: unicode?
     textures = new GLuint[128]; 
@@ -200,7 +199,7 @@ namespace {
     return true;
   }
   
-  void font_data::clean() {
+  void FontDataPrivate::clean() {
     glDeleteLists(list_base, 128); 
     glDeleteTextures(128, textures); 
     delete [] textures; 
@@ -229,20 +228,20 @@ namespace {
       glPopAttrib(); 
   }
   
-  void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt, va_list arg_pointers)  {
+  void RenderText(const FontDataPrivate &font, float x, float y, glm::vec4 color, const char *fmt, va_list arg_pointers)  {
       
       // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
       pushScreenCoordinateMatrix();                                   
       
-      GLuint font = ft_font.list_base; 
+      GLuint list_base = font.list_base;
       // We Make The Height A Little Bigger. There Will Be Some Space Between Lines.
-      float h = ft_font.h/.63f;                                                 
-      char text[256];                              
+      float h = font.h/.63f;
+      char text[256];
                                      
       // If There's No Text Do Nothing
-      if (fmt  ==  NULL)
+      if (fmt  ==  NULL) {
           *text = 0; 
-      else {
+      } else {
       // Parses The String For Variables And Converts Symbols To Actual Numbers
       // Results Are Stored In Text.
           vsprintf(text, fmt, arg_pointers);                             
@@ -255,7 +254,7 @@ namespace {
       char* c;
       for(c = text; *c; c++) {
         if(*c == '\n') {
-          std::string line; 
+          std::string line;
           for(const char *n = start_line; n < c; n++) line.append(1, *n); 
           lines.push_back(line); 
           start_line = c + 1; 
@@ -275,7 +274,7 @@ namespace {
       glEnable(GL_BLEND); 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      
    
-      glListBase(font); 
+      glListBase(list_base); 
 
       float modelview_matrix[16];     
       glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix); 
@@ -311,10 +310,10 @@ namespace {
       pop_projection_matrix(); 
   }
   
-  void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...) {
+  void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...) {
     va_list arg_pointers;
     va_start(arg_pointers, fmt);
-    print(ft_font, x, y, glm::vec4(1, 1, 1, 1), fmt, arg_pointers);
+    RenderText(ft_font, x, y, glm::vec4(1, 1, 1, 1), fmt, arg_pointers);
     va_end(arg_pointers);
   }
 
@@ -323,7 +322,7 @@ namespace {
 namespace bm {
 
 struct TextWriter::FontData {
-  font_data fontData;
+  FontDataPrivate fontData;
 };
 
 TextWriter::TextWriter() {
@@ -372,7 +371,7 @@ void TextWriter::PrintText(glm::vec4 color, float x, float y, const char *text, 
   
   va_list arg_pointers;
   va_start(arg_pointers,  text);  
-  print(_our_font->fontData, x, y, color, text, arg_pointers);
+  RenderText(_our_font->fontData, x, y, color, text, arg_pointers);
   va_end(arg_pointers);
 }
 
