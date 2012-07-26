@@ -252,6 +252,7 @@ namespace {
   }
   
   void RenderText(const FontDataPrivate &font, float x, float y, glm::vec4 color, const char *fmt, va_list arg_pointers)  {
+      CHECK(fmt != NULL);
       
       // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
       pushScreenCoordinateMatrix();                                   
@@ -259,18 +260,11 @@ namespace {
       GLuint list_base = font.list_base;
       // We Make The Height A Little Bigger. There Will Be Some Space Between Lines.
       float h = font.h/.63f;
-      char text[256];
-                                     
-      // If There's No Text Do Nothing
-      if (fmt  ==  NULL) {
-          *text = 0; 
-      } else {
-      // Parses The String For Variables And Converts Symbols To Actual Numbers
-      // Results Are Stored In Text.
-          vsprintf(text, fmt, arg_pointers);                             
-      }
+      char buf[256];
       
-      std::vector<std::string> lines = SplitLines(text);
+      vsnprintf(buf, sizeof(buf) - 1, fmt, arg_pointers);
+      
+      std::vector<std::string> lines = SplitLines(buf);
    
       glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT); 
       glMatrixMode(GL_MODELVIEW); 
@@ -311,12 +305,14 @@ namespace {
         glPopMatrix(); 
       }
    
-      glPopAttrib();          
+      glPopAttrib();
    
-      pop_projection_matrix(); 
+      pop_projection_matrix();
   }
   
   void RenderText(const FontDataPrivate &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...) {
+    CHECK(fmt != NULL);
+    
     va_list arg_pointers;
     va_start(arg_pointers, fmt);
     RenderText(ft_font, x, y, glm::vec4(1, 1, 1, 1), fmt, arg_pointers);
