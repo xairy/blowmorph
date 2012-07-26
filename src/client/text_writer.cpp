@@ -8,7 +8,7 @@
 #include <freetype/fttrigon.h>
 
 // TODO[24.7.2012 alex]: make anonymous namespace instead
-namespace freetype {  
+namespace {  
   // TODO[24.7.2012 alex]: separate into classes/structs for glyph info/font info
   // TODO[24.7.2012 alex]: rename everything to comply with codestyle
   
@@ -32,9 +32,7 @@ namespace freetype {
   // ft_font. The current modelview matrix will also be applied to the text.
   void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt,  va_list arg_pointers);
   void print(const font_data &ft_font, float x, float y, glm::vec4 color, const char *fmt,  ...);
-}
 
-namespace freetype {
   // XXX[24.7.2012 alex]: should we use bm::texture?
   GLubyte* GetFTBitmapData(FT_Bitmap& bitmap) {
     // We are including an alpha channel so that the black parts of the bitmap 
@@ -325,7 +323,7 @@ namespace freetype {
 namespace bm {
 
 struct TextWriter::FontData {
-  freetype::font_data fontData;
+  font_data fontData;
 };
 
 TextWriter::TextWriter() {
@@ -374,7 +372,7 @@ void TextWriter::PrintText(glm::vec4 color, float x, float y, const char *text, 
   
   va_list arg_pointers;
   va_start(arg_pointers,  text);  
-  freetype::print(_our_font->fontData, x, y, color, text, arg_pointers);
+  print(_our_font->fontData, x, y, color, text, arg_pointers);
   va_end(arg_pointers);
 }
 
