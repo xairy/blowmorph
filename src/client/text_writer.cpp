@@ -8,11 +8,7 @@
 #include <freetype/fttrigon.h>
 
 // TODO[24.7.2012 alex]: make anonymous namespace instead
-namespace freetype {
-  // TODO[24.7.2012 alex]: remove
-  using std::vector;
-  using std::string;
-  
+namespace freetype {  
   // TODO[24.7.2012 alex]: separate into classes/structs for glyph info/font info
   // TODO[24.7.2012 alex]: rename everything to comply with codestyle
   
@@ -257,18 +253,18 @@ namespace freetype {
       // TODO[24.7.2012 alex]: make a separate method
       // Split text into lines.   
       const char *start_line = text; 
-      vector < string >  lines; 
+      std::vector<std::string>  lines; 
       char* c;
       for(c = text; *c; c++) {
         if(*c == '\n') {
-          string line; 
+          std::string line; 
           for(const char *n = start_line; n < c; n++) line.append(1, *n); 
           lines.push_back(line); 
           start_line = c + 1; 
         }
       }
       if(start_line) {
-        string line; 
+        std::string line; 
         for(const char *n = start_line; n < c; n++) line.append(1, *n); 
         lines.push_back(line); 
       }
