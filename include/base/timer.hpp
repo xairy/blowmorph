@@ -3,30 +3,49 @@
 
 // WARNING: Timer is NOT thread safe.
 
-#include <ctime>
+#include <cstdio>
+#include <cstdlib>
 
+#ifdef WIN32
+# include <ctime>
+#else
+# include "sys/time.h"
+#endif
+
+#include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 namespace bm {
 
+#ifdef WIN32
+
 class Timer {
 public:
   Timer();
-  ~Timer();
 
   // Returns elapsed time in ms since timer's creation.
   uint32_t GetTime() const;
 
-  // Returns elapsed time since the start of the program.
-  static uint32_t GetAbsoluteTime();
+private:
+  clock_t _start;
+};
 
-  // Sleeps for 'timeout' ms.
-  static void Sleep(uint32_t timeout);
+#else
+
+class Timer {
+public:
+  Timer();
+
+  // Returns elapsed time in ms since timer's creation.
+  uint32_t GetTime() const;
 
 private:
-  clock_t _clock_start;
+  timeval _start;
 };
+
+#endif
 
 } // namespace bm
 
 #endif //BLOWMORPH_BASE_TIMER_HPP_
+
