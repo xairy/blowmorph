@@ -33,16 +33,19 @@ solution "blowmorph"
     location "build"
     targetdir "bin"
     
+    flags { "FatalWarnings", "NoRTTI" }
+    
+    configuration { "windows" }
+      defines { "WIN32", "_WIN32" }
+      defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE" }
+      
     configuration { "debug" }
-        defines { "DEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        flags { "Symbols", "FatalWarnings", "NoRTTI" }
+        defines { "DEBUG" }
+        flags { "Symbols" }
 
     configuration { "release" }
-        defines { "NDEBUG", "_CRT_SECURE_NO_WARNINGS" }
-        flags { "Optimize", "FatalWarnings", "NoRTTI" }
-        
-    configuration { "windows" }
-        defines { "WIN32" }
+        defines { "NDEBUG" }
+        flags { "Optimize" }
     
     project "client"
         kind "ConsoleApp"
