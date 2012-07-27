@@ -11,6 +11,7 @@
 #include "id_manager.hpp"
 #include "vector.hpp"
 #include "shape.hpp"
+//#include "world_manager.hpp"
 
 namespace bm {
 
@@ -20,7 +21,6 @@ class Player;
 class Dummy;
 class Bullet;
 class Wall;
-//class Chunk;
 
 class Entity {
 public:
@@ -71,13 +71,7 @@ public:
   virtual bool Collide(Dummy* other) = 0;
   virtual bool Collide(Bullet* other) = 0;
   virtual bool Collide(Wall* other) = 0;
-  //virtual bool Collide(Chunk* other) = 0;
 
-  //static bool Collide(Chunk* chunk1, Chunk* chunk2);
-  //static bool Collide(Chunk* chunk, Wall* wall);
-  //static bool Collide(Chunk* chunk, Player* player);
-  //static bool Collide(Chunk* chunk, Dummy* dummy);
-  //static bool Collide(Chunk* chunk, Bullet* bullet);
   static bool Collide(Wall* wall1, Wall* wall2);
   static bool Collide(Wall* wall, Player* player2);
   static bool Collide(Wall* wall, Dummy* dummy);
@@ -140,6 +134,7 @@ public:
     player->_last_event_time = 0;
     player->_last_fire_time = 0;
     player->_fire_delay = fire_delay;
+    player->_spawn_position = Vector2(0.0f, 0.0f);
 
     player->_keyboard_state.up = false;
     player->_keyboard_state.down = false;
@@ -274,6 +269,14 @@ public:
     return _speed;
   }
 
+  void SetSpawnPosition(const Vector2& position) {
+    _spawn_position = position;
+  }
+
+  void Respawn() {
+    SetPosition(_spawn_position);
+  }
+
   // Double dispatch. Collision detection.
 
   virtual bool Collide(Entity* entity) {
@@ -292,9 +295,6 @@ public:
   virtual bool Collide(Wall* other) {
     return Entity::Collide(other, this);
   }
-  //virtual bool Collide(Chunk* other) {
-  //  return Entity::Collide(other, this);
-  //}
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Player);
@@ -314,6 +314,8 @@ protected:
 
   uint32_t _fire_delay;
   uint32_t _last_fire_time;
+
+  Vector2 _spawn_position;
 };
 
 class Dummy : public Entity {
@@ -388,9 +390,6 @@ public:
   virtual bool Collide(Wall* other) {
     return Entity::Collide(other, this);
   }
-  //virtual bool Collide(Chunk* other) {
-  //  return Entity::Collide(other, this);
-  //}
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Dummy);
@@ -501,9 +500,6 @@ public:
   virtual bool Collide(Wall* other) {
     return Entity::Collide(other, this);
   }
-  //virtual bool Collide(Chunk* other) {
-  //  return Entity::Collide(other, this);
-  //}
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Bullet);
@@ -590,124 +586,11 @@ public:
   virtual bool Collide(Wall* other) {
     return Entity::Collide(other, this);
   }
-  //virtual bool Collide(Chunk* other) {
-  //  return Entity::Collide(other, this);
-  //}
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Wall);
   Wall(uint32_t id) : Entity(id) { }
 };
-
-/*
-class Chunk : public Entity {
-  friend class Entity;
-
-public:
-  Chunk* Create(
-    uint32_t id,
-    Vector2 position,
-    uint32_t width,
-    uint32_t height,
-    float block_size
-  ) {
-    std::auto_ptr<Chunk> chunk(new Chunk(id));
-    if(chunk.get() == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
-      return NULL;
-    }
-    // TODO: 'position' should be the position of the left top corner? 
-    std::auto_ptr<Shape> shape(new Rectangle(position, width * block_size, height * block_size));
-    if(shape.get() == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
-      return NULL;
-    }
-
-    chunk->_shape = shape.release();
-    chunk->_width = width;
-    chunk->_height = height;
-    chunk->_block_size = block_size;
-    chunk->_data.resize(width, std::vector<bool>(height, false));
-
-    return chunk.release();
-  }
-
-  virtual ~Chunk() { }
-
-  virtual void Update(uint32_t time) { }
-
-  // TODO: fix this.
-  virtual EntitySnapshot GetSnapshot(uint32_t time) {
-    EntitySnapshot result;
-    result.type = BM_ENTITY_WALL;
-    result.time = time;
-    result.id = _id;
-    result.x = _shape->GetPosition().x;
-    result.y = _shape->GetPosition().y;
-    return result;
-  }
-
-  virtual void SetBlock(uint32_t x, uint32_t y, bool value = true) {
-    CHECK(x < _width && y < _height);
-    _data[x][y] = value;
-  }
-  virtual bool GetBlock(uint32_t x, uint32_t y) {
-    CHECK(x < _width && y < _height);
-    return _data[x][y];
-  }
-
-  // Double dispatch. Collision detection.
-
-  virtual bool Collide(Entity* entity) {
-    return entity->Collide(this);
-  }
-
-  virtual bool Collide(Player* other) {
-    return Entity::Collide(this, other);
-  }
-  virtual bool Collide(Dummy* other) {
-    return Entity::Collide(this, other);
-  }
-  virtual bool Collide(Bullet* other) {
-    return Entity::Collide(this, other);
-  }
-  virtual bool Collide(Wall* other) {
-    return Entity::Collide(this, other);
-  }
-  virtual bool Collide(Chunk* other) {
-    return Entity::Collide(other, this);
-  }
-
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Chunk);
-  Chunk(uint32_t id) : Entity(id) { }
-
-  uint32_t _width;
-  uint32_t _height;
-  float _block_size;
-  std::vector<std::vector<bool> > _data;
-};
-*/
-
-/*
-bool Entity::Collide(Chunk* chunk1, Chunk* chunk2) {
-  return false;
-}
-bool Entity::Collide(Chunk* chunk, Wall* wall) {
-  return false;
-}
-bool Entity::Collide(Chunk* chunk, Player* player) {
-  // TODO.
-  return false;
-}
-bool Entity::Collide(Chunk* chunk, Dummy* dummy) {
-  return false;
-}
-bool Entity::Collide(Chunk* chunk, Bullet* bullet) {
-  // TODO.
-  return false;
-}
-*/
 
 bool Entity::Collide(Wall* wall1, Wall* wall2) {
   return false;
@@ -763,7 +646,7 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
   }
   if(player->_shape->Collide(bullet->_shape)) {
     // TODO: fix it.
-    player->SetPosition(Vector2(100.0f, 100.0f));
+    player->Respawn();
     bullet->Destroy();
     return true;
   }

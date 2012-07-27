@@ -1,32 +1,39 @@
-#include <base/timer.hpp>
+#include "base/timer.hpp"
 
 namespace bm {
 
-// TODO[alex]: code doesn't work on linux, fix it
 // XXX[alex]: we better measure time as int64_t or double
 
-Timer::Timer() {
-  _clock_start = clock();
-}
-Timer::~Timer() { }
+#ifdef WIN32
 
-// Returns elapsed time in ms since timer's creation.
+Timer::Timer() {
+  _start = clock();
+}
+
 uint32_t Timer::GetTime() const {
-  uint64_t clock_diff = static_cast<uint64_t>(clock() - _clock_start);
+  uint64_t clock_diff = static_cast<uint64_t>(clock() - _start);
   uint32_t result = static_cast<uint32_t>(clock_diff * 1000 / CLOCKS_PER_SEC);
   return result;
 }
 
-// Returns elapsed time since the start of the program.
-uint32_t Timer::GetAbsoluteTime() {
-  return clock();
+#else
+
+Timer::Timer() {
+  int rv = gettimeofday(&_start, NULL);
+  CHECK(rv == 0);
 }
 
-// Sleeps for 'timeout' ms.
-void Timer::Sleep(uint32_t timeout) {
-  uint32_t start = GetAbsoluteTime();
-  uint32_t end = start + timeout;
-  while(GetAbsoluteTime() < end);
+uint32_t Timer::GetTime() const {
+  timeval current;
+  int rv = gettimeofday(&current, NULL);
+  long seconds = current.tv_sec - _start.tv_sec;
+  long useconds = current.tv_usec - _start.tv_usec;
+  long time = seconds * 1000 + useconds / 1000;
+  CHECK(time >= 0);
+  return static_cast<uint32_t>(time);
 }
+
+#endif
 
 }; // namespace bm
+

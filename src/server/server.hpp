@@ -44,7 +44,7 @@ public:
     _host = NULL;
     _event = NULL;
 
-    _spawn_position = Vector2(100.0f, 100.0f);
+    _spawn_position = Vector2(0.0f, 0.0f);
 
     _player_speed = 0.1f;
     _player_size = 32.0f;
@@ -81,33 +81,16 @@ public:
 
 
     for(int i = 1; i <= 20; i++) {
-      rv = _world_manager.CreateDummy(rs / 2, rs / 2, 100.0f, 0.1f * i, 5.0f);
+      rv = _world_manager.CreateDummy(0.0f, 0.0f, 100.0f, 0.1f * i, 5.0f);
       CHECK(rv);
     }
 
-    /*for(int i = 0; i < rs / ws + 1; i++) {
-      rv = _world_manager.CreateWall(i * ws, 0.0f, ws / 2, 128);
-      CHECK(rv);
-      rv = _world_manager.CreateWall(i * ws, rs, ws / 2, 128);
-      CHECK(rv);
-    }
-    for(int i = 1; i < rs / 8; i++) {
-      rv = _world_manager.CreateWall(0.0f, i * ws, ws / 2, 128);
-      CHECK(rv);
-      rv = _world_manager.CreateWall(rs, i * ws, ws / 2, 128);
-      CHECK(rv);
-    }*/
-
-    for(int i = 0; i < 10; i++) {
-      for(int j = 0; j < 10; j++) {
-        rv = _world_manager.CreateWall(150.0f + i * ws, 150.0f + j * ws, _wall_size);
+    for(int i = -5; i <= 5; i++) {
+      for(int j = -5; j <= 5; j++) {
+        rv = _world_manager.CreateWall(300.0f + i * ws, 0.0f + j * ws, _wall_size);
         CHECK(rv);
       }
     }
-
-    /*rv = _world_manager.CreateBullet(2, Vector2(180.0f + 3 * ws, 180.0f + 3 * ws),
-      Vector2(0.0f, 0.0f), 0.01f, 31.0f, 30.0f, _timer.GetTime());
-    CHECK(rv);*/
 
     // Map.
 
