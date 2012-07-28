@@ -12,10 +12,15 @@ def copytree (src, dst):
     for n in names:        
         src_name = os.path.join(src, n)
         dst_name = os.path.join(dst, n)
-
+        
+        if os.path.exists(dst_name):
+          if os.path.getmtime(src_name) <= os.path.getmtime(dst_name):
+            continue
+        
         if os.path.isdir(src_name):
             copytree(src_name, dst_name)
         else:
+            print "Copying %s to %s" % (src_name, dst_name)
             copyfile(src_name, dst_name)
 
 if len(sys.argv) != 4:
