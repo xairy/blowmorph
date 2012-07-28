@@ -27,24 +27,3 @@ How-to compile SDL2 under linux:
   sample-server - пример сервера, использующего enet
   interpolator
 
-TODO:
-
--- Build process :
-  Избавиться от копирования папки data после билда.
-  Сборка всего под Win64.
-
--- Refactoring :
-  Убрать фиксированные размеры объектов на клиенте.
-  Убрать фиксированные размеры объектов на сервере.
-  Избавиться от Event::DestroyPacket().
-
--- Game features : 
-  Рисовать игрока поверх всего остального.
-
--- Documentation : 
-  Дописать комментарии в enet-wrapper.
-
--- Other :
-  Тесты для shape.hpp.
-  Корректно завершать сервер.
-
