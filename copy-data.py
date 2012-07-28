@@ -9,10 +9,7 @@ def copytree (src, dst):
 
     mkpath(dst)
 
-    for n in names:
-        if n == ".svn":
-          continue
-        
+    for n in names:        
         src_name = os.path.join(src, n)
         dst_name = os.path.join(dst, n)
 
