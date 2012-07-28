@@ -738,43 +738,48 @@ private:
 
       if(current_time - _last_tick > 1000.0 / _tickrate) {
         _last_tick = current_time;
-   
-        std::vector<char> message;
-
-        for(size_t i = 0; i < _keyboard_events.size(); i++) {
-          message.clear();
-          PacketType message_type = BM_PACKET_KEYBOARD_EVENT;
-          KeyboardEvent* event = &_keyboard_events[i];
-          message.insert(message.end(), reinterpret_cast<char*>(&message_type),
-            reinterpret_cast<char*>(&message_type) + sizeof(message_type));
-          message.insert(message.end(), reinterpret_cast<char*>(event),
-            reinterpret_cast<char*>(event) + sizeof(*event));
-          bool rv = _peer->Send(&message[0], message.size());
-          if(rv == false) {
-            return false;
-          }
-        }
-        _keyboard_events.clear();
-        
-        for(size_t i = 0; i < _mouse_events.size(); i++) {
-          message.clear();
-          PacketType message_type = BM_PACKET_MOUSE_EVENT;
-          MouseEvent* event = &_mouse_events[i];
-          message.insert(message.end(), reinterpret_cast<char*>(&message_type),
-            reinterpret_cast<char*>(&message_type) + sizeof(message_type));
-          message.insert(message.end(), reinterpret_cast<char*>(event),
-            reinterpret_cast<char*>(event) + sizeof(*event));
-          bool rv = _peer->Send(&message[0], message.size());
-          if(rv == false) {
-            return false;
-          }
-        }
-        _mouse_events.clear();
+        _SendInputEvents();
       }
     }
     
     PumpPackets(0);
     
+    return true;
+  }
+
+  bool _SendInputEvents() {
+    std::vector<char> message;
+
+    for(size_t i = 0; i < _keyboard_events.size(); i++) {
+      message.clear();
+      PacketType message_type = BM_PACKET_KEYBOARD_EVENT;
+      KeyboardEvent* event = &_keyboard_events[i];
+      message.insert(message.end(), reinterpret_cast<char*>(&message_type),
+        reinterpret_cast<char*>(&message_type) + sizeof(message_type));
+      message.insert(message.end(), reinterpret_cast<char*>(event),
+        reinterpret_cast<char*>(event) + sizeof(*event));
+      bool rv = _peer->Send(&message[0], message.size());
+      if(rv == false) {
+        return false;
+      }
+    }
+    _keyboard_events.clear();
+    
+    for(size_t i = 0; i < _mouse_events.size(); i++) {
+      message.clear();
+      PacketType message_type = BM_PACKET_MOUSE_EVENT;
+      MouseEvent* event = &_mouse_events[i];
+      message.insert(message.end(), reinterpret_cast<char*>(&message_type),
+        reinterpret_cast<char*>(&message_type) + sizeof(message_type));
+      message.insert(message.end(), reinterpret_cast<char*>(event),
+        reinterpret_cast<char*>(event) + sizeof(*event));
+      bool rv = _peer->Send(&message[0], message.size());
+      if(rv == false) {
+        return false;
+      }
+    }
+    _mouse_events.clear();
+
     return true;
   }
 
