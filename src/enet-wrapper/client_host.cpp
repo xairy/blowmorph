@@ -44,12 +44,21 @@ ClientHost::~ClientHost() {
 bool ClientHost::Service(Event* event, uint32_t timeout) {
   CHECK(_state == STATE_INITIALIZED);
 
-  if(enet_host_service(_client, &event->_event, timeout) >= 0) {
-    return true;
-  } else {
+  if(event != NULL) {
+    event->_DestroyPacket();
+  }
+
+  int rv = enet_host_service(_client, (event == NULL) ? NULL : &event->_event, timeout);
+
+  if(rv < 0) {
     bm::Error::Set(bm::Error::TYPE_ENET_SERVICE);
     return false;
   }
+  if(rv > 0) {
+    event->_is_packet_destroyed = false;
+  }
+  // TODO: what should we do if rv == 0 (no event has been dispatched)?
+  return true;
 }
 
 Peer* ClientHost::Connect(
