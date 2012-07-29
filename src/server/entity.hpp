@@ -105,6 +105,7 @@ public:
   virtual void SetPosition(const Vector2& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
+  void OnMouseEvent(const MouseEvent& event);
 
   bool CanFire(uint32_t time) const;
   void Fire(uint32_t time);
