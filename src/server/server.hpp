@@ -264,8 +264,8 @@ private:
     uint32_t client_id = Singleton<IdManager>::GetInstance()->NewId();
     peer->SetData(reinterpret_cast<void*>(client_id));
 
-    Player* player = Player::Create(client_id, _spawn_position,
-      _player_speed, _player_size, _fire_delay);
+    Player* player = Player::Create(&_world_manager, client_id,
+      _spawn_position, _player_speed, _player_size, _fire_delay);
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return false;
