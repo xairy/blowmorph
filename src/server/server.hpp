@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <memory>
+
 #include "enet-wrapper/enet.hpp"
 
 #include "base/error.hpp"

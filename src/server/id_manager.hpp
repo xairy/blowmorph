@@ -8,16 +8,13 @@ namespace bm {
 
 class IdManager {
 public:
-  uint32_t NewId() {
-    _max_id += 1;
-    return _max_id;
-  }
+  uint32_t NewId();
 
 private:
   friend class Singleton<IdManager>;
 
-  IdManager() : _max_id(0) { }
-  ~IdManager() { }
+  IdManager();
+  ~IdManager();
 
   uint32_t _max_id;
 };
