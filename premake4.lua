@@ -185,6 +185,12 @@ solution "blowmorph"
         
         links { "enet" }
         
+        configuration "windows"
+            links {
+                "ws2_32",
+                "winmm"
+            }
+        
         for _,arch in pairs({"x32", "x64"}) do
             for _,conf in pairs({"debug", "release"}) do
                 local confpath = arch .. "/" .. conf
@@ -209,6 +215,12 @@ solution "blowmorph"
                 "src/enet-sample/client.cpp" }
         
         links { "enet" }
+        
+        configuration "windows"
+            links {
+                "ws2_32",
+                "winmm"
+            }
         
         for _,arch in pairs({"x32", "x64"}) do
             for _,conf in pairs({"debug", "release"}) do
