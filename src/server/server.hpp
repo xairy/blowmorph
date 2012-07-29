@@ -368,7 +368,6 @@ private:
 
     std::vector<char> message;
     _event->GetData(&message);
-    _event->DestroyPacket();
 
     PacketType packet_type;
     bool rv = _ExtractPacketType(message, &packet_type);
