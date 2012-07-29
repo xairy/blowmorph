@@ -11,6 +11,8 @@
 
 namespace bm {
 
+class Entity;
+
 class WorldManager {
 public:
   WorldManager();

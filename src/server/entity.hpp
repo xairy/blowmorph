@@ -14,6 +14,8 @@ namespace bm {
 
 using namespace protocol;
 
+class WorldManager;
+
 class Player;
 class Dummy;
 class Bullet;
@@ -21,7 +23,7 @@ class Wall;
 
 class Entity {
 public:
-  Entity(uint32_t id);
+  Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
   virtual bool IsStatic() = 0; 
@@ -61,9 +63,11 @@ public:
   static bool Collide(Bullet* bullet1, Bullet* bullet2);
 
 protected:
+  WorldManager* _world_manager;
+
   uint32_t _id;
   Shape* _shape;
-  bool _is_destroyed;
+  bool _is_destroyed;  
 };
 
 class Player : public Entity {
@@ -86,6 +90,7 @@ class Player : public Entity {
 
 public:
   static Player* Create(
+    WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
     float speed,
@@ -120,7 +125,7 @@ public:
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Player);
-  Player(uint32_t id);
+  Player(WorldManager* world_manager, uint32_t id);
 
   // Player's position before the last 'Update'.
   Vector2 _prev_position;
@@ -145,6 +150,7 @@ class Dummy : public Entity {
 
 public:
   static Dummy* Create(
+    WorldManager* world_manager,
     uint32_t id,
     float radius,
     float speed,
@@ -168,7 +174,7 @@ public:
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Dummy);
-  Dummy(uint32_t id);
+  Dummy(WorldManager* world_manager, uint32_t id);
 
   // Actual speed in any direction.
   float _speed;
@@ -182,6 +188,7 @@ class Bullet : public Entity {
 
 public:
   static Bullet* Create(
+    WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
     const Vector2& start,
@@ -212,7 +219,7 @@ public:
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Bullet);
-  Bullet(uint32_t id);
+  Bullet(WorldManager* world_manager, uint32_t id);
 
   uint32_t _owner_id;
 
@@ -239,6 +246,7 @@ class Wall : public Entity {
 
 public:
   static Wall* Create(
+    WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
     float size
@@ -260,7 +268,7 @@ public:
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Wall);
-  Wall(uint32_t id);
+  Wall(WorldManager* world_manager, uint32_t id);
 };
 
 } // namespace bm
