@@ -49,8 +49,7 @@ public:
     EVENT_RECEIVE
   };
 
-  // TODO: get rid of this method.
-  void DestroyPacket();
+  ~Event();
 
   // Returns the type of the event.
   EventType GetType() const;
@@ -58,7 +57,10 @@ public:
   // Returns the channel id on the peer that generated the event.
   uint8_t GetChannelId() const;
 
-  // Returns the data associated with the event.
+  // Returns the data associated with the event. Data will be lost if
+  // another event is delivered using 'ClientHost::Service()' or
+  // 'ServerHost::Service()' using this instance of 'Event' class.
+  // This method will fail on 'CHECK' in this case.
   void GetData(std::vector<char>* output) const;
 
   // TODO: Get rid of this method.
@@ -74,6 +76,9 @@ public:
   uint16_t GetPeerPort() const;
   void* GetPeerData() const;
 
+  // Left here for backward compatibility.
+  void DestroyPacket() const;
+
 private:
   DISALLOW_COPY_AND_ASSIGN(Event);
 
@@ -81,7 +86,15 @@ private:
   // You can create an 'Event' by using 'Enet::CreateEvent'.
   Event();
 
+  // Destroys the packet that is hold by '_event'. If it hasn't been
+  // received yet or has been destroyed already - nothing happens.
+  void _DestroyPacket();
+
   ENetEvent _event;
+  
+  // 'False' if a packet received using 'ClientHost::Service()' or
+  // 'ServerHost::Service()' hasn't been deallocated yet.
+  bool _is_packet_destroyed;
 };
 
 } // namespace bm

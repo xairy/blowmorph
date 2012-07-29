@@ -24,7 +24,7 @@ public:
   // Checks for events with a timeout. 'event' is an 'Event' class where event
   // details will be placed if one occurs. If a timeout of '0' is specified,
   // 'Service()' will return immediately if there are no events to dispatch.
-  // If 'event' is NULL then no events will be delivered.
+  // If 'event' is 'NULL' then no events will be delivered.
   // Should be called to send all queued with Peer::Send() packets.
   // Returns 'true' on success, returns 'false' on error.
   bool Service(Event* event, uint32_t timeout = 0);
@@ -37,7 +37,7 @@ public:
   Peer* Connect(std::string server_ip, uint16_t port, size_t channel_count = 1);
 
   // This function is needed only be used in circumstances where one wishes to
-  // send queued packets earlier than in a call to SeverHost::Service().
+  // send queued packets earlier than in a call to 'ServerHost::Service()'.
   void Flush();
 
   // Cleans up. Automatically called in the destructor.

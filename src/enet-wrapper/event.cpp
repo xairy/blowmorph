@@ -12,9 +12,8 @@
 
 namespace bm {
 
-void Event::DestroyPacket() {
-  CHECK(_event.type == ENET_EVENT_TYPE_RECEIVE);
-  enet_packet_destroy(_event.packet);
+Event::~Event() {
+  DestroyPacket();
 }
 
 Event::EventType Event::GetType() const {
@@ -37,6 +36,7 @@ uint8_t Event::GetChannelId() const {
 
 void Event::GetData(std::vector<char>* output) const {
   CHECK(_event.type == ENET_EVENT_TYPE_RECEIVE);
+  CHECK(_is_packet_destroyed == false);
   output->assign(_event.packet->data, _event.packet->data +
     _event.packet->dataLength);
 }
@@ -67,6 +67,17 @@ void* Event::GetPeerData() const {
   return _event.peer->data;
 }
 
-Event::Event() { }
+Event::Event() : _is_packet_destroyed(true) { }
+
+void Event::_DestroyPacket() {
+  if(!_is_packet_destroyed && _event.type == ENET_EVENT_TYPE_RECEIVE) {
+    enet_packet_destroy(_event.packet);
+    _is_packet_destroyed = true;
+  }
+}
+
+void Event::DestroyPacket() const {
+
+}
 
 } // namespace bm
