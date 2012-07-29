@@ -408,6 +408,9 @@ private:
         return true;
       }
 
+      client->entity->OnMouseEvent(mouse_event);
+
+      // TODO: move it to 'Player::OnMouseEvent()'.
       if(mouse_event.event_type == MouseEvent::EVENT_KEYDOWN &&
         mouse_event.button_type == MouseEvent::BUTTON_LEFT) {
         if(client->entity->CanFire(mouse_event.time)) {
