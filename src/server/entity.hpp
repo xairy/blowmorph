@@ -95,7 +95,10 @@ public:
     const Vector2& position,
     float speed,
     float size,
-    uint32_t fire_delay
+    uint32_t fire_delay,
+    float bullet_radius,
+    float bullet_speed,
+    float bullet_explosion_radius
   );
   virtual ~Player();
 
@@ -105,10 +108,7 @@ public:
   virtual void SetPosition(const Vector2& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
-  void OnMouseEvent(const MouseEvent& event);
-
-  bool CanFire(uint32_t time) const;
-  void Fire(uint32_t time);
+  bool OnMouseEvent(const MouseEvent& event);
 
   float GetSpeed() const;
 
@@ -134,6 +134,8 @@ protected:
   // Speed in vertical and horizontal directions.
   float _speed;
 
+  Vector2 _spawn_position;
+
   KeyboardState _keyboard_state;
   KeyboardUpdateTime _keyboard_update_time;
 
@@ -143,7 +145,10 @@ protected:
   uint32_t _fire_delay;
   uint32_t _last_fire_time;
 
-  Vector2 _spawn_position;
+  // Bullet information.
+  float _bullet_radius;
+  float _bullet_speed;
+  float _bullet_explosion_radius;
 };
 
 class Dummy : public Entity {
