@@ -180,7 +180,7 @@ public:
     _resolution_y = 600;
 
     // TODO: think about more accurate name.
-    _max_error = 5;
+    _max_error = 10;
 
     _manager = NULL;
     _player_texture = NULL;
