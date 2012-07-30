@@ -11,8 +11,10 @@ void LoadGLTexture(GLuint id, const bm::texture<bm::rgba>& tex) {
   glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   
   // load texture data
+  // XXX[29.7.2012 alex]: casts size_t to GLsizei
   glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, 
-    tex.width(), tex.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.ptr());
+    static_cast<GLsizei>(tex.width()), static_cast<GLsizei>(tex.height()), 
+    0, GL_RGBA, GL_UNSIGNED_BYTE, tex.ptr());
 }
 
 // Makes an OpenGL texture.
