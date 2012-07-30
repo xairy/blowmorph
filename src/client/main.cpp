@@ -501,12 +501,10 @@ private:
     std::vector<char> message;
     
     do {
-      // TODO: different timeout?
       bool rv = _client->Service(_event, timeout);
       if(rv == false) {
         return false;
       }
-      
       switch(_event->GetType()) {
         case Event::EVENT_RECEIVE: {
           _event->GetData(&message);
@@ -818,7 +816,7 @@ private:
 
     // TODO: make some attempts?
     while(true) {
-      bool rv = _client->Service(_event);
+      bool rv = _client->Service(_event, _connect_timeout);
       if(rv == false) {
         return false;
       }
