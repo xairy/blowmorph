@@ -139,7 +139,8 @@ bool LoadRGBA(texture<rgba>& tex, const std::string& path) {
 }
 
 bool SaveRGBA(const std::string& path, const texture<rgba>& src) {
-  FIBITMAP* dib = FreeImage_Allocate(src.width(), src.height(), 32);
+  // XXX[29.7.2012 alex]: casts size_t to int
+  FIBITMAP* dib = FreeImage_Allocate(static_cast<int>(src.width()), static_cast<int>(src.height()), 32);
   if (dib == NULL) {
     return false;
   }
