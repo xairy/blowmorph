@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include <memory>
+
 #include "enet-wrapper/enet.hpp"
 
 #include "base/error.hpp"
@@ -262,8 +264,9 @@ private:
     uint32_t client_id = Singleton<IdManager>::GetInstance()->NewId();
     peer->SetData(reinterpret_cast<void*>(client_id));
 
-    Player* player = Player::Create(client_id, _spawn_position,
-      _player_speed, _player_size, _fire_delay);
+    Player* player = Player::Create(&_world_manager, client_id,
+      _spawn_position, _player_speed, _player_size, _fire_delay,
+      _bullet_radius, _bullet_speed, _bullet_explosion_radius);
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return false;
@@ -365,7 +368,6 @@ private:
 
     std::vector<char> message;
     _event->GetData(&message);
-    _event->DestroyPacket();
 
     PacketType packet_type;
     bool rv = _ExtractPacketType(message, &packet_type);
@@ -406,20 +408,8 @@ private:
         return true;
       }
 
-      if(mouse_event.event_type == MouseEvent::EVENT_KEYDOWN &&
-        mouse_event.button_type == MouseEvent::BUTTON_LEFT) {
-        if(client->entity->CanFire(mouse_event.time)) {
-          client->entity->Fire(mouse_event.time);
-          Vector2 start = client->entity->GetPosition();
-          Vector2 end(static_cast<float>(mouse_event.x),
-            static_cast<float>(mouse_event.y));
-          if(_world_manager.CreateBullet(id, start, end, _bullet_speed,
-            _bullet_radius, _bullet_explosion_radius,
-            _timer.GetTime()) == false)
-          {
-            return false;
-          }
-        }
+      if(!client->entity->OnMouseEvent(mouse_event)) {
+        return false;
       }
     } else if(packet_type == BM_PACKET_SYNC_TIME_REQUEST) {
       if(message.size() != sizeof(PacketType) + sizeof(TimeSyncData)) {

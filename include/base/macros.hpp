@@ -2,6 +2,7 @@
 #define BLOWMORPH_BASE_MACROS_HPP_
 
 #include <cstdio>
+#include <cstdlib>
 
 // The CHECK() macro is used for checking assertions, and will cause
 // an immediate crash if its assertion is not met. DCHECK() is like
