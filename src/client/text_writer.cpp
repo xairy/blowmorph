@@ -283,7 +283,8 @@ namespace {
         glLoadIdentity();
         glTranslatef(x, y + line_height * i, 0); 
         glMultMatrixf(modelview_matrix);
-        glCallLists(lines[i].length(), GL_UNSIGNED_BYTE, lines[i].c_str()); 
+        // XXX[29.7.2012 alex]: casts size_t to GLsizei
+        glCallLists(static_cast<GLsizei>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str()); 
         glPopMatrix();
       }
    

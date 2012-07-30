@@ -115,7 +115,11 @@ solution "blowmorph"
                     resource(proj, "ext-libs/SDL1.2/bin/vs2008/" .. confpath .. "/SDL.dll", "SDL.dll")
                     resource(proj, "ext-libs/glew/bin/vs2008/" .. confpath .. "/glew32.dll", "glew32.dll")
                     resource(proj, "ext-libs/FreeImage/bin/vs2008/" .. confpath .. "/FreeImage.dll", "FreeImage.dll")
-                    resource(proj, "ext-libs/freetype2/bin/vs2008/" .. confpath .. "/freetype6.dll", "freetype6.dll")
+                    if arch == "x64" then
+                      resource(proj, "ext-libs/freetype2/bin/vs2008/" .. confpath .. "/freetype.dll", "freetype.dll")
+                    else
+                      resource(proj, "ext-libs/freetype2/bin/vs2008/" .. confpath .. "/freetype6.dll", "freetype6.dll")
+                    end
                     resource(proj, "data", "data")
             end
         end

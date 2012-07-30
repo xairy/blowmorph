@@ -78,7 +78,8 @@ bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool 
   #endif
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-  _sdl_surface = SDL_SetVideoMode(width, height, 24, videoFlags);
+  // XXX[29.7.2012 alex]: casts size_t to int
+  _sdl_surface = SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 24, videoFlags);
   if (!_sdl_surface) {
     BM_ERROR("Unable to set video mode.");
     return false;
