@@ -87,7 +87,7 @@ bool ServerHost::Service(Event* event, uint32_t timeout) {
   if(rv > 0) {
     event->_is_packet_destroyed = false;
   }
-  // TODO: what should we do if rv == 0 (no event has been dispatched)?
+
   return true;
 }
 
