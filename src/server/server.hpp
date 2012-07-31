@@ -153,7 +153,10 @@ private:
       _last_update = _timer.GetTime();
     }
 
-    _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
+    bool rv = _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
+    if(rv == false) {
+      return false;
+    }
 
     return true;
   }
@@ -219,10 +222,10 @@ private:
 
   bool _PumpEvents() {
     do {
-      if(_host->Service(_event) == false) {
+      if(_host->Service(_event, 0) == false) {
         return false;
       }
-
+      
       switch(_event->GetType()) {
         case Event::EVENT_CONNECT: {
           if(!_OnConnect()) {

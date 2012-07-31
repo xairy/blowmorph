@@ -21,13 +21,16 @@ class ClientHost {
 public:
   ~ClientHost();
 
-  // Checks for events with a timeout. 'event' is an 'Event' class where event
-  // details will be placed if one occurs. If a timeout of '0' is specified,
-  // 'Service()' will return immediately if there are no events to dispatch.
-  // If 'event' is 'NULL' then no events will be delivered.
-  // Should be called to send all queued with Peer::Send() packets.
+  // Checks for events with a timeout. Should be called to send all queued
+  // with 'Peer::Send()' packets. 'event' is an 'Event' class where event
+  // details will be placed if one occurs.
+  // If a timeout of '0' is specified, 'Service()' will return immediately
+  // if there are no events to dispatch. If 'event' is 'NULL' then no events
+  // will be delivered.
+  // An 'Event' with type 'EVENT_NONE' will be placed in 'event' if no event
+  // occured within the specified time limit.
   // Returns 'true' on success, returns 'false' on error.
-  bool Service(Event* event, uint32_t timeout = 0);
+  bool Service(Event* event, uint32_t timeout);
 
   // Initiates connection procedure to another host. To complete connection,
   // an event 'EVENT_CONNECT' should be dispatched using 'Service()'.
