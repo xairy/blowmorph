@@ -14,7 +14,10 @@ def copytree (src, dst):
         dst_name = os.path.join(dst, n)
         
         if os.path.exists(dst_name):
-          if os.path.getmtime(src_name) <= os.path.getmtime(dst_name):
+          sizesEqual = os.path.getsize(dst_name) == os.path.getsize(src_name)
+          sourceIsNewer = os.path.getmtime(src_name) > os.path.getmtime(dst_name)
+          
+          if sizesEqual and not sourceIsNewer:
             continue
         
         if os.path.isdir(src_name):
