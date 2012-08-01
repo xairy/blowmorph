@@ -30,6 +30,8 @@
 #include "glmext.hpp"
 #include "render_window.hpp"
 
+#include <base/ini_file.hpp>
+
 using namespace bm;
 using namespace protocol;
 
@@ -237,6 +239,10 @@ public:
   }
 
   bool Execute() {
+    if (!bm::ini::LoadINI("data/client.ini", settings)) {
+      return false;
+    }
+  
     // XXX[24.7.2012 alex]: switch to a FSM
     if(!_Initialize()) {
       return false;
@@ -343,7 +349,10 @@ private:
       return false;
     }
 
-    std::auto_ptr<Peer> peer(client->Connect("127.0.0.1", 4242));
+    std::string host = bm::ini::GetValue<std::string>(settings, "server.host", "127.0.0.1");
+    bm::uint16_t port = bm::ini::GetValue(settings, "server.port", 4242);
+
+    std::auto_ptr<Peer> peer(client->Connect(host, port));
     if(peer.get() == NULL) {
       return false;
     }
@@ -895,6 +904,8 @@ private:
     NETWORK_STATE_LOGGED_IN
   };
   NetworkState _network_state;
+  
+  bm::ini::RecordMap settings;
 };
 
 int main(int argc, char** argv) { 
