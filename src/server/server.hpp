@@ -485,7 +485,7 @@ private:
     if(message.size() < sizeof(PacketType)) {
       return false;
     }
-    memcpy(type, &message[0], sizeof(type));
+    memcpy(type, &message[0], sizeof(PacketType));
     return true;
   }
 
