@@ -9,6 +9,7 @@
 #include "enet-wrapper/enet.hpp"
 
 #include "base/error.hpp"
+#include "base/ini_file.hpp"
 #include "base/macros.hpp"
 #include "base/protocol.hpp"
 #include "base/pstdint.hpp"
@@ -29,37 +30,7 @@ using namespace protocol;
 
 class Server {
 public:
-  Server() {
-    _is_running = false;
-    _server_port = 4242;
-
-    _tickrate = 20;
-    _ticktime = 1000 / _tickrate;
-    _last_broadcast = 0;
-
-    _update_rate = 100;
-    _update_time = 1000 / _update_rate;
-    _last_update = 0;
-
-    _latency_limit = 500;
-    
-    _host = NULL;
-    _event = NULL;
-
-    _spawn_position = Vector2(0.0f, 0.0f);
-
-    _player_speed = 0.1f;
-    _player_size = 30.0f;
-
-    _bullet_speed = 0.3f;
-    _bullet_radius = 5.0f;
-    _bullet_explosion_radius = 20.0f;
-    _fire_delay = 100;
-
-    _wall_size = 16.0f;
-
-    _max_coordinate = 600.0f;
-  }
+  Server() { }
 
   ~Server() {
     _Destroy();
@@ -109,6 +80,40 @@ public:
 
 private:
   bool _Initialize() {
+    if (!bm::ini::LoadINI("data/server.ini", _settings)) {
+      return false;
+    }
+
+    _is_running = false;
+    _server_port = bm::ini::GetValue(_settings, "server.host", 4242);
+
+    _tickrate = bm::ini::GetValue(_settings, "server.tickrate", 20);
+    _ticktime = 1000 / _tickrate;
+    _last_broadcast = 0;
+
+    _update_rate = bm::ini::GetValue(_settings, "server.updaterate", 100);
+    _update_time = 1000 / _update_rate;
+    _last_update = 0;
+
+    _latency_limit = 500;
+
+    _host = NULL;
+    _event = NULL;
+
+    _spawn_position = Vector2(0.0f, 0.0f);
+
+    _player_speed = 0.1f;
+    _player_size = 30.0f;
+
+    _bullet_speed = 0.3f;
+    _bullet_radius = 5.0f;
+    _bullet_explosion_radius = 30.0f;
+    _fire_delay = 100;
+
+    _wall_size = 16.0f;
+
+    _max_coordinate = 600.0f;
+
     std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
       return false;
@@ -535,6 +540,8 @@ private:
   // Entities with x or y coordinate more than '_max_coordinate'
   // will be destroyed.
   float _max_coordinate;
+
+  bm::ini::RecordMap _settings;
 };
 
 } // namespace bm
