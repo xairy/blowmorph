@@ -15,6 +15,34 @@ function resource(proj, src, dst)
   end
 end
 
+function windows_libdir(basePath)
+  for _,arch in pairs({"x32", "x64"}) do
+    for _,conf in pairs({"debug", "release"}) do
+      for _, plat in pairs({"vs2008"}) do
+        local confpath = plat .. "/" .. arch .. "/" .. conf
+        configuration { arch, conf, plat }
+          libdirs { path.join(basePath, confpath) }
+      end
+    end
+  end
+  
+  configuration "*"
+end
+
+function windows_binary(basePath, dllName, proj)
+  for _,arch in pairs({"x32", "x64"}) do
+    for _,conf in pairs({"debug", "release"}) do
+      for _, plat in pairs({"vs2008"}) do
+        local confpath = plat .. "/" .. arch .. "/" .. conf
+        configuration { arch, conf, plat }
+          resource(proj, path.join(path.join(basePath, confpath), dllName), dllName)
+      end
+    end
+  end
+  
+  configuration "*"
+end
+
 newaction {
   trigger = 'clean',
   description = 'Cleans up the project.',
@@ -50,8 +78,6 @@ newaction {
     project "client"
         kind "ConsoleApp"
         language "C++"
-        
-        targetdir "bin/client"
         
         includedirs { "include/", "src/" }
         files { "src/client/**.cpp",
@@ -97,24 +123,18 @@ newaction {
             "winmm"
           }
         
-        for _,arch in pairs({"x32", "x64"}) do
-            for _,conf in pairs({"debug", "release"}) do
-                local confpath = arch .. "/" .. conf
-                configuration { arch, conf, "vs2008" }
-                    libdirs { path.join("ext-libs/SDL1.2/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/glew/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/FreeImage/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/freetype2/bin/vs2008", confpath) }
-                    
-                    local proj = "client"
-                    resource(proj, "ext-libs/SDL1.2/bin/vs2008/" .. confpath .. "/SDL.dll", "SDL.dll")
-                    resource(proj, "ext-libs/glew/bin/vs2008/" .. confpath .. "/glew32.dll", "glew32.dll")
-                    resource(proj, "ext-libs/FreeImage/bin/vs2008/" .. confpath .. "/FreeImage.dll", "FreeImage.dll")
-                    resource(proj, "ext-libs/freetype2/bin/vs2008/" .. confpath .. "/freetype.dll", "freetype.dll")
-                    resource(proj, "data", "data")
-            end
-        end
+        windows_libdir("ext-libs/SDL1.2/bin")
+        windows_libdir("ext-libs/glew/bin")
+        windows_libdir("ext-libs/enet/bin")
+        windows_libdir("ext-libs/FreeImage/bin")
+        windows_libdir("ext-libs/freetype2/bin")
+        
+        windows_binary("ext-libs/SDL1.2/bin", "SDL.dll", nil)
+        windows_binary("ext-libs/glew/bin", "glew32.dll", nil)
+        windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll", nil)
+        windows_binary("ext-libs/freetype2/bin", "freetype.dll", nil)
+        
+        resource(nil, "data", "data")
     
     project "bm-base"
       kind "SharedLib"
@@ -155,8 +175,6 @@ newaction {
     project "interpolator"
         kind "StaticLib"
         language "C++"
-        
-        targetdir "bin/interpolator"
                       
         includedirs { "include/", "src/" }
         
@@ -167,8 +185,6 @@ newaction {
         kind "ConsoleApp"
         language "C++"
         
-        targetdir "bin/server"
-        
         includedirs { "include/", "src/" }
         files { "src/server/**.cpp",
                 "src/server/**.hpp" }
@@ -177,13 +193,13 @@ newaction {
         links { "bm-enet" }
         
         --temporary hack
-        includedirs { "ext-libs/enet/include" }  
+        includedirs { "ext-libs/enet/include" }
+        
+        resource(nil, "data", "data")
     
     project "sample-server"
         kind "ConsoleApp"
         language "C++"
-        
-        targetdir "bin/enet-sample"
         
         includedirs { "include/", "src/" }
         files { "src/enet-sample/server.cpp" }
@@ -197,8 +213,6 @@ newaction {
     project "sample-client"
         kind "ConsoleApp"
         language "C++"
-        
-        targetdir "bin/enet-sample"
         
         includedirs { "include/", "src/" }
         files { "src/enet-sample/client.cpp" }
