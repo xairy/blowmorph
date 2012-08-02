@@ -6,7 +6,7 @@ function copy(src, dst)
   postbuildcommands { action .. " " .. cwd .. " " .. src .. " " .. dst }
 end
 
-function resource(proj, src, dst)
+function resource(src, dst, proj)
   copy(src, path.join("build", dst))
   if proj == nil then
     copy(src, path.join("bin", dst))
@@ -35,7 +35,7 @@ function windows_binary(basePath, dllName, proj)
       for _, plat in pairs({"vs2008"}) do
         local confpath = plat .. "/" .. arch .. "/" .. conf
         configuration { arch, conf, plat }
-          resource(proj, path.join(path.join(basePath, confpath), dllName), dllName)
+          resource(path.join(path.join(basePath, confpath), dllName), dllName, proj)
       end
     end
   end
@@ -129,12 +129,12 @@ newaction {
         windows_libdir("ext-libs/FreeImage/bin")
         windows_libdir("ext-libs/freetype2/bin")
         
-        windows_binary("ext-libs/SDL1.2/bin", "SDL.dll", nil)
-        windows_binary("ext-libs/glew/bin", "glew32.dll", nil)
-        windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll", nil)
-        windows_binary("ext-libs/freetype2/bin", "freetype.dll", nil)
+        windows_binary("ext-libs/SDL1.2/bin", "SDL.dll")
+        windows_binary("ext-libs/glew/bin", "glew32.dll")
+        windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll")
+        windows_binary("ext-libs/freetype2/bin", "freetype.dll")
         
-        resource(nil, "data", "data")
+        resource("data", "data")
     
     project "bm-base"
       kind "SharedLib"
@@ -195,7 +195,7 @@ newaction {
         --temporary hack
         includedirs { "ext-libs/enet/include" }
         
-        resource(nil, "data", "data")
+        resource("data", "data")
     
     project "sample-server"
         kind "ConsoleApp"
