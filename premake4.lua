@@ -26,7 +26,7 @@ newaction {
   end
 }
 
-solution "blowmorph"
+  solution "blowmorph"
     configurations { "debug", "release" }
     platforms { "x32", "x64" }
 
@@ -53,12 +53,12 @@ solution "blowmorph"
         
         targetdir "bin/client"
         
-        includedirs { "include/" }
+        includedirs { "include/", "src/" }
         
         files { "src/client/**.cpp",
-                "src/client/**.hpp",
-                "src/base/**.cpp",
-                "include/base/**.hpp" }
+                "src/client/**.hpp" }
+        
+        links { "bm-base" }
         
         includedirs { "ext-libs/enet/include" }
         files { "src/enet-wrapper/**.cpp",
@@ -119,7 +119,18 @@ solution "blowmorph"
                     resource(proj, "data", "data")
             end
         end
-        
+    
+    project "bm-base"
+      kind "SharedLib"
+      language "C++"
+      
+      defines { "BM_BASE_DLL" }
+      
+      includedirs { "include/", "src/" }
+      
+      files { "src/base/**.cpp",
+              "src/base/**.hpp" }
+    
     project "interpolator"
         kind "StaticLib"
         language "C++"
@@ -142,12 +153,12 @@ solution "blowmorph"
         
         includedirs { "ext-libs/enet/include" }
 
-        includedirs { "include/" }
+        includedirs { "include/", "src/" }
+        
+        links { "bm-base" }
         
         files { "src/server/**.cpp",
-                "src/server/**.hpp",
-                "src/base/**.cpp",
-                "include/base/**.hpp" }
+                "src/server/**.hpp" }
 
         includedirs { "ext-libs/enet/include" }  
         files { "src/enet-wrapper/**.cpp",
@@ -174,13 +185,14 @@ solution "blowmorph"
         
         targetdir "bin/enet-sample"
         
-        includedirs { "include/" }
+        includedirs { "include/", "src/" }
+        
+        links { "bm-base" }
         
         includedirs { "ext-libs/enet/include" }
 
         files { "src/enet-wrapper/**.cpp",
                 "include/enet-wrapper/**.hpp",
-                "src/base/**.cpp",
                 "src/enet-sample/server.cpp" }
         
         links { "enet" }
@@ -205,13 +217,14 @@ solution "blowmorph"
         
         targetdir "bin/enet-sample"
         
-        includedirs { "include/" }
+        includedirs { "include/", "src/" }
+        
+        links { "bm-base" }
         
         includedirs { "ext-libs/enet/include" }
 
         files { "src/enet-wrapper/**.cpp",
                 "include/enet-wrapper/**.hpp",
-                "src/base/**.cpp",
                 "src/enet-sample/client.cpp" }
         
         links { "enet" }

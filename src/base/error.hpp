@@ -11,7 +11,8 @@
 #include <vector>
 #include <string>
 
-#include "base/macros.hpp"
+#include <base/base.hpp>
+#include <base/macros.hpp>
 
 namespace bm {
 
@@ -101,8 +102,8 @@ public:
 private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Error);
 
-  static ErrorType _error;
-  static std::string message;
+  BM_BASE_DECL static ErrorType _error;
+  BM_BASE_DECL static std::string message;
 };
 
 // TODO[24.7.2012 alex]: VA_ARGS?

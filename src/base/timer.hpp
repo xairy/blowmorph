@@ -12,8 +12,9 @@
 # include "sys/time.h"
 #endif
 
-#include "base/macros.hpp"
-#include "base/pstdint.hpp"
+#include <base/base.hpp>
+#include <base/macros.hpp>
+#include <base/pstdint.hpp>
 
 namespace bm {
 
@@ -21,10 +22,10 @@ namespace bm {
 
 class Timer {
 public:
-  Timer();
+  BM_BASE_DECL Timer();
 
   // Returns elapsed time in ms since timer's creation.
-  uint32_t GetTime() const;
+  BM_BASE_DECL uint32_t GetTime() const;
 
 private:
   clock_t _start;
@@ -34,10 +35,10 @@ private:
 
 class Timer {
 public:
-  Timer();
+  BM_BASE_DECL Timer();
 
   // Returns elapsed time in ms since timer's creation.
-  uint32_t GetTime() const;
+  BM_BASE_DECL uint32_t GetTime() const;
 
 private:
   timeval _start;

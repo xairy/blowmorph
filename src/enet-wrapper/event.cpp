@@ -1,14 +1,11 @@
-#include "enet-wrapper/event.hpp"
-
 #include <string>
 #include <vector>
 
-#include <enet/enet.h>
+#include <base/error.hpp>
+#include <base/pstdint.hpp>
 
-#include "base/error.hpp"
-#include "base/pstdint.hpp"
-
-#include "enet-wrapper/peer.hpp"
+#include <enet-wrapper/event.hpp>
+#include <enet-wrapper/peer.hpp>
 
 namespace bm {
 
