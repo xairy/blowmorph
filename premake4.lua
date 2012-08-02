@@ -125,11 +125,30 @@ newaction {
       language "C++"
       
       defines { "BM_BASE_DLL" }
-      
       includedirs { "include/", "src/" }
-      
       files { "src/base/**.cpp",
               "src/base/**.hpp" }
+	
+    project "bm-enet"
+      kind "SharedLib"
+      language "C++"
+        
+      defines { "BM_ENET_DLL" }
+      includedirs { "include/", "src/" }
+      files { "src/enet-wrapper/**.cpp",
+              "src/enet-wrapper/**.hpp" }
+       
+      links { "bm-base" }
+          
+      includedirs { "ext-libs/enet/include" }      
+      links { "enet" }
+      for _,arch in pairs({"x32", "x64"}) do
+          for _,conf in pairs({"debug", "release"}) do
+              local confpath = arch .. "/" .. conf
+              configuration { arch, conf, "vs2008" }
+                  libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
+          end
+      end
     
     project "interpolator"
         kind "StaticLib"
@@ -137,13 +156,10 @@ newaction {
         
         targetdir "bin/interpolator"
                       
-        includedirs { "include/" }
+        includedirs { "include/", "src/" }
         
         files { "src/interpolator/**.cpp",
-                "src/interpolator/**.hpp",
-                "include/base/**.hpp" }
-        
-        includedirs { "ext-libs/glm/include" }
+                "src/interpolator/**.hpp" }
         
     project "server"
         kind "ConsoleApp"
