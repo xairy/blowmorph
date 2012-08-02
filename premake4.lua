@@ -120,14 +120,11 @@ solution "blowmorph"
         "opengl32",
         "glu32",
         "glew32",
-        "freetype",
-        "ws2_32",
-        "winmm"
+        "freetype"
       }
     
     windows_libdir("ext-libs/SDL1.2/bin")
     windows_libdir("ext-libs/glew/bin")
-    windows_libdir("ext-libs/enet/bin")
     windows_libdir("ext-libs/FreeImage/bin")
     windows_libdir("ext-libs/freetype2/bin")
     
@@ -160,13 +157,7 @@ solution "blowmorph"
         
     includedirs { "ext-libs/enet/include" }      
     links { "enet" }
-    for _,arch in pairs({"x32", "x64"}) do
-      for _,conf in pairs({"debug", "release"}) do
-        local confpath = arch .. "/" .. conf
-        configuration { arch, conf, "vs2008" }
-          libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
-      end
-    end
+    windows_libdir("ext-libs/enet/bin")
     
     configuration "windows"
       links {
