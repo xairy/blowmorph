@@ -1,6 +1,6 @@
-#include "enet-wrapper/enet.hpp"
+#include <base/error.hpp>
 
-#include "base/error.hpp"
+#include <enet-wrapper/enet.hpp>
 
 using namespace bm;
 

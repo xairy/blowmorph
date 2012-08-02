@@ -1,11 +1,8 @@
-#include "enet-wrapper/server_host.hpp"
+#include <base/error.hpp>
+#include <base/pstdint.hpp>
 
-#include <enet/enet.h>
-
-#include "base/error.hpp"
-#include "base/pstdint.hpp"
-
-#include "enet-wrapper/event.hpp"
+#include <enet-wrapper/server_host.hpp>
+#include <enet-wrapper/event.hpp>
 
 namespace bm {
 

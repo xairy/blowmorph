@@ -27,7 +27,7 @@ void WriteRecords(std::ofstream& ofs, const RecordMap& records) {
 
 namespace bm { namespace ini {
 
-void Flatten(const SectionMap& in, RecordMap& out) {
+BM_BASE_DECL void Flatten(const SectionMap& in, RecordMap& out) {
   out.clear();
 
   for (SectionMap::const_iterator i = in.begin(); i != in.end(); ++i) {
@@ -47,7 +47,7 @@ void Flatten(const SectionMap& in, RecordMap& out) {
   }
 }
 
-void UnFlatten(const RecordMap& in, SectionMap& out) {
+BM_BASE_DECL void UnFlatten(const RecordMap& in, SectionMap& out) {
   out.clear();
   
   for (RecordMap::const_iterator i = in.begin(); i != in.end(); ++i) {
@@ -72,7 +72,7 @@ void UnFlatten(const RecordMap& in, SectionMap& out) {
 }
 
 // XXX[31.7.2012 alex]: error handling
-bool LoadINI(const std::string& path, std::map<std::string, std::string>& ini) {
+BM_BASE_DECL bool LoadINI(const std::string& path, std::map<std::string, std::string>& ini) {
   std::ifstream is(path.c_str());
 	if (!is.is_open()) return false;
 
@@ -127,7 +127,7 @@ bool LoadINI(const std::string& path, std::map<std::string, std::string>& ini) {
   return true;
 }
 
-bool SaveINI(const std::string& path, const std::map<std::string, std::string>& ini) {
+BM_BASE_DECL bool SaveINI(const std::string& path, const std::map<std::string, std::string>& ini) {
   SectionMap sections;
   UnFlatten(ini, sections);
   
@@ -148,7 +148,7 @@ bool SaveINI(const std::string& path, const std::map<std::string, std::string>& 
   return true;
 }
 
-template<> std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue) {
+template<> BM_BASE_DECL std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     return it->second;
@@ -156,7 +156,7 @@ template<> std::string GetValue(const RecordMap& ini, const std::string& key, st
   
   return defValue;
 }
-template<> int GetValue(const RecordMap& ini, const std::string& key, int defValue) {
+template<> BM_BASE_DECL int GetValue(const RecordMap& ini, const std::string& key, int defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     // XXX[31.7.2012 alex]: malformed int?
@@ -165,7 +165,7 @@ template<> int GetValue(const RecordMap& ini, const std::string& key, int defVal
   
   return defValue;
 }
-template<> bool GetValue(const RecordMap& ini, const std::string& key, bool defValue) {
+template<> BM_BASE_DECL bool GetValue(const RecordMap& ini, const std::string& key, bool defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     std::string value = it->second;

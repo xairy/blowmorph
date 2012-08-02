@@ -4,9 +4,9 @@
 #include <map>
 #include <vector>
 
-#include "enet-wrapper/enet.hpp"
+#include <base/pstdint.hpp>
 
-#include "base/pstdint.hpp"
+#include <enet-wrapper/enet.hpp>
 
 #include "entity.hpp"
 

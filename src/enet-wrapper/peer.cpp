@@ -1,12 +1,10 @@
-#include "enet-wrapper/peer.hpp"
-
 #include <string>
 
-#include <enet/enet.h>
+#include <base/error.hpp>
+#include <base/macros.hpp>
+#include <base/pstdint.hpp>
 
-#include "base/error.hpp"
-#include "base/macros.hpp"
-#include "base/pstdint.hpp"
+#include <enet-wrapper/peer.hpp>
 
 namespace bm {
 
