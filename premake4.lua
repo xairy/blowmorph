@@ -1,5 +1,5 @@
 function copy(src, dst)
-  local action = "python \"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
+  local action = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
@@ -61,7 +61,10 @@ solution "blowmorph"
   location "build"
   targetdir "bin"
   
-  flags { "FatalWarnings", "NoRTTI", "NoExceptions" }
+  flags { "FatalWarnings", "NoRTTI" }
+  
+  configuration { "linux" }
+    flags { "NoExceptions" }
   
   configuration { "windows" }
     defines { "WIN32", "_WIN32" }
