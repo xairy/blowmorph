@@ -61,7 +61,7 @@ solution "blowmorph"
   location "build"
   targetdir "bin"
   
-  flags { "FatalWarnings", "NoRTTI" }
+  flags { "FatalWarnings", "NoRTTI", "NoExceptions" }
   
   configuration { "windows" }
     defines { "WIN32", "_WIN32" }
