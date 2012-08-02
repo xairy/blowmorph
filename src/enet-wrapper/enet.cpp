@@ -7,6 +7,10 @@
 #include <enet-wrapper/client_host.hpp>
 #include <enet-wrapper/event.hpp>
 
+#include <enet/enet.h>
+// XXX[2.8.2012 alex]: windows sucks
+#undef CreateEvent
+
 namespace bm {
 
 Enet::Enet() : _state(STATE_CREATED) {

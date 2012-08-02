@@ -7,6 +7,8 @@
 #include <enet-wrapper/peer.hpp>
 #include <enet-wrapper/client_host.hpp>
 
+#include <enet/enet.h>
+
 namespace bm {
 
 ClientHost* ClientHost::Create (
@@ -45,7 +47,7 @@ bool ClientHost::Service(Event* event, uint32_t timeout) {
     event->_DestroyPacket();
   }
 
-  int rv = enet_host_service(_client, (event == NULL) ? NULL : &event->_event, timeout);
+  int rv = enet_host_service(_client, (event == NULL) ? NULL : event->_event, timeout);
 
   if(rv < 0) {
     bm::Error::Set(bm::Error::TYPE_ENET_SERVICE);

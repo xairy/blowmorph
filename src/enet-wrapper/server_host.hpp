@@ -1,12 +1,12 @@
 #ifndef BLOWMORPH_ENET_WRAPPER_SERVER_HOST_HPP_
 #define BLOWMORPH_ENET_WRAPPER_SERVER_HOST_HPP_
 
-#include <enet/enet.h>
-
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 #include "library.hpp"
+
+struct _ENetHost;
 
 namespace bm {
 
@@ -71,7 +71,7 @@ private:
     STATE_DESTROYED
   } _state;
 
-  ENetHost* _server;
+  _ENetHost* _server;
 };
 
 } // namespace bm

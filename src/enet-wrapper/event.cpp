@@ -7,47 +7,50 @@
 #include <enet-wrapper/event.hpp>
 #include <enet-wrapper/peer.hpp>
 
+#include <enet/enet.h>
+
 namespace bm {
 
 Event::~Event() {
   DestroyPacket();
+  delete _event;
 }
 
 Event::EventType Event::GetType() const {
-  if(_event.type == ENET_EVENT_TYPE_CONNECT) {
+  if(_event->type == ENET_EVENT_TYPE_CONNECT) {
     return Event::EVENT_CONNECT;
   }
-  if(_event.type == ENET_EVENT_TYPE_DISCONNECT) {
+  if(_event->type == ENET_EVENT_TYPE_DISCONNECT) {
     return Event::EVENT_DISCONNECT;
   }
-  if(_event.type == ENET_EVENT_TYPE_RECEIVE) {
+  if(_event->type == ENET_EVENT_TYPE_RECEIVE) {
     return Event::EVENT_RECEIVE;
   }
   return Event::EVENT_NONE;
 }
 
 uint8_t Event::GetChannelId() const {
-  CHECK(_event.type != ENET_EVENT_TYPE_NONE);
-  return _event.channelID;
+  CHECK(_event->type != ENET_EVENT_TYPE_NONE);
+  return _event->channelID;
 }
 
 void Event::GetData(std::vector<char>* output) const {
-  CHECK(_event.type == ENET_EVENT_TYPE_RECEIVE);
+  CHECK(_event->type == ENET_EVENT_TYPE_RECEIVE);
   CHECK(_is_packet_destroyed == false);
-  output->assign(_event.packet->data, _event.packet->data +
-    _event.packet->dataLength);
+  output->assign(_event->packet->data, _event->packet->data +
+    _event->packet->dataLength);
 }
 
 Peer* Event::GetPeer() {
-  CHECK(_event.type != ENET_EVENT_TYPE_NONE);
-  return new Peer(_event.peer);
+  CHECK(_event->type != ENET_EVENT_TYPE_NONE);
+  return new Peer(_event->peer);
 }
 
 std::string Event::GetPeerIp() const {
-  CHECK(_event.type != ENET_EVENT_TYPE_NONE);
+  CHECK(_event->type != ENET_EVENT_TYPE_NONE);
   const size_t size = 32;
   char buffer[size];
-  if(enet_address_get_host_ip(&_event.peer->address, buffer, size) != 0) {
+  if(enet_address_get_host_ip(&_event->peer->address, buffer, size) != 0) {
     bm::Error::Set(bm::Error::TYPE_ENET_GET_HOST_IP);
     buffer[0] = 0;
   }
@@ -55,20 +58,22 @@ std::string Event::GetPeerIp() const {
 }
 
 uint16_t Event::GetPeerPort() const {
-  CHECK(_event.type != ENET_EVENT_TYPE_NONE);
-  return _event.peer->address.port;
+  CHECK(_event->type != ENET_EVENT_TYPE_NONE);
+  return _event->peer->address.port;
 }
 
 void* Event::GetPeerData() const {
-  CHECK(_event.type != ENET_EVENT_TYPE_NONE);
-  return _event.peer->data;
+  CHECK(_event->type != ENET_EVENT_TYPE_NONE);
+  return _event->peer->data;
 }
 
-Event::Event() : _is_packet_destroyed(true) { }
+Event::Event() : _is_packet_destroyed(true) {
+  _event = new ENetEvent();
+}
 
 void Event::_DestroyPacket() {
-  if(!_is_packet_destroyed && _event.type == ENET_EVENT_TYPE_RECEIVE) {
-    enet_packet_destroy(_event.packet);
+  if(!_is_packet_destroyed && _event->type == ENET_EVENT_TYPE_RECEIVE) {
+    enet_packet_destroy(_event->packet);
     _is_packet_destroyed = true;
   }
 }

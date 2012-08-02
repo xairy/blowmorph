@@ -3,12 +3,12 @@
 
 #include <string>
 
-#include <enet/enet.h>
-
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 #include "library.hpp"
+
+struct _ENetHost;
 
 namespace bm {
 
@@ -74,7 +74,7 @@ private:
     STATE_DESTROYED
   } _state;
 
-  ENetHost* _client;
+  _ENetHost* _client;
 };
 
 } // namespace bm
