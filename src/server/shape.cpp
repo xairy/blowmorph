@@ -130,7 +130,7 @@ bool Shape::Collide(Rectangle* rectangle1, Rectangle* rectangle2) {
   float dy = abs(rectangle1->GetCenter().y - rectangle2->GetCenter().y);
   float allowed_x = (rectangle1->GetWidth() + rectangle2->GetWidth()) / 2;
   float allowed_y = (rectangle1->GetHeight() + rectangle2->GetHeight()) / 2;
-  return (dx <= allowed_x && dy <= allowed_y);
+  return (dx < allowed_x && dy < allowed_y);
 }
 
 } // namespace bm
