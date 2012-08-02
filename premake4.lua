@@ -1,18 +1,20 @@
-function copy(src, dst)
+function copy(src, dst, always)
   local action = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
-  postbuildcommands { action .. " " .. cwd .. " " .. src .. " " .. dst }
+  postbuildcommands { action .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
 end
 
-function resource(src, dst, proj)
-  copy(src, path.join("build", dst))
-  if proj == nil then
-    copy(src, path.join("bin", dst))
+function resource(src, dst, always)
+  if always == nil then
+    always = false
   else
-    copy(src, path.join(path.join("bin", proj), dst))
+    always = true
   end
+
+  copy(src, path.join("build", dst), always)
+  copy(src, path.join("bin", dst), always)
 end
 
 function windows_libdir(basePath)
@@ -29,13 +31,13 @@ function windows_libdir(basePath)
   configuration "*"
 end
 
-function windows_binary(basePath, dllName, proj)
+function windows_binary(basePath, dllName)
   for _,arch in pairs({"x32", "x64"}) do
     for _,conf in pairs({"debug", "release"}) do
       for _, plat in pairs({"vs2008"}) do
         local confpath = plat .. "/" .. arch .. "/" .. conf
         configuration { arch, conf, plat }
-          resource(path.join(path.join(basePath, confpath), dllName), dllName, proj)
+          resource(path.join(path.join(basePath, confpath), dllName), dllName, true)
       end
     end
   end
