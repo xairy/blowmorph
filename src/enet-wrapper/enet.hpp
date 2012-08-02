@@ -9,21 +9,24 @@
 #include "enet-wrapper/event.hpp"
 #include "enet-wrapper/peer.hpp"
 
+#include "library.hpp"
+
 namespace bm {
 
 // TODO: write comments.
 class Enet {
 public:
   // TODO: write comments.
-  Enet();
+  BM_ENET_DECL Enet();
 
   // TODO: write comments.
-  ~Enet();
+  BM_ENET_DECL ~Enet();
 
   // Call this to ensure that ENet has been successfully initialized.
+  // XXX[2.8.2012 alex]: fixme written in cp1251
   // FIXME: непонятно, при какой ситуации может вернуться false.
   // FIXME: почему бы не сделать этот класс синглтоном?
-  bool IsInitialized() const;
+  BM_ENET_DECL bool IsInitialized() const;
 
   // Creates 'ServerHost' bound to 'port'.
   // You may specify 'channel_count' - number of channels to be used.
@@ -31,7 +34,7 @@ public:
   // per second. Specifying '0' for these two options will cause ENet to rely
   // entirely upon its dynamic throttling algorithm to manage bandwidth.
   // Returned 'ServerHost' should be deallocated manually using 'delete'.
-  ServerHost* CreateServerHost(
+  BM_ENET_DECL ServerHost* CreateServerHost(
     uint16_t port,
     size_t peer_count = 32,
     size_t channel_count = 1,
@@ -45,7 +48,7 @@ public:
   // per second. Specifying '0' for these two options will cause ENet to rely
   // entirely upon its dynamic throttling algorithm to manage bandwidth.
   // Returned 'ClientHost' should be deallocated manually using 'delete'.
-  ClientHost* CreateClientHost(
+  BM_ENET_DECL ClientHost* CreateClientHost(
     size_t channel_count = 1,
     uint32_t incoming_bandwith = 0,
     uint32_t outgoing_bandwith = 0
@@ -53,7 +56,7 @@ public:
 
   // Creates non-initialized Event.
   // Returned 'Event' should be deallocated manually using 'delete'.
-  Event* CreateEvent();
+  BM_ENET_DECL Event* CreateEvent();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Enet);

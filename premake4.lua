@@ -54,19 +54,15 @@ newaction {
         targetdir "bin/client"
         
         includedirs { "include/", "src/" }
-        
         files { "src/client/**.cpp",
                 "src/client/**.hpp" }
         
         links { "bm-base" }
-        
-        includedirs { "ext-libs/enet/include" }
-        files { "src/enet-wrapper/**.cpp",
-                "include/enet-wrapper/**.hpp" }
-        links { "enet" }
-        
+        links { "bm-enet" }
         links { "interpolator" }
-        includedirs { "src/interpolator" }
+        
+        --temporary hack
+        includedirs { "ext-libs/enet/include" }  
         
         configuration "linux"
           includedirs {
@@ -149,6 +145,12 @@ newaction {
                   libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
           end
       end
+      
+      configuration "windows"
+        links {
+          "ws2_32",
+          "winmm"
+        }
     
     project "interpolator"
         kind "StaticLib"
@@ -167,33 +169,15 @@ newaction {
         
         targetdir "bin/server"
         
-        includedirs { "ext-libs/enet/include" }
-
         includedirs { "include/", "src/" }
-        
-        links { "bm-base" }
-        
         files { "src/server/**.cpp",
                 "src/server/**.hpp" }
-
+        
+        links { "bm-base" }
+        links { "bm-enet" }
+        
+        --temporary hack
         includedirs { "ext-libs/enet/include" }  
-        files { "src/enet-wrapper/**.cpp",
-                "include/enet-wrapper/**.hpp" }           
-        links { "enet" }
-        
-        for _,arch in pairs({"x32", "x64"}) do
-            for _,conf in pairs({"debug", "release"}) do
-                local confpath = arch .. "/" .. conf
-                configuration { arch, conf, "vs2008" }
-                    libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
-            end
-        end
-        
-        configuration "windows"
-            links {
-                "ws2_32",
-                "winmm"
-            }
     
     project "sample-server"
         kind "ConsoleApp"
@@ -202,30 +186,13 @@ newaction {
         targetdir "bin/enet-sample"
         
         includedirs { "include/", "src/" }
+        files { "src/enet-sample/server.cpp" }
         
         links { "bm-base" }
+        links { "bm-enet" }
         
-        includedirs { "ext-libs/enet/include" }
-
-        files { "src/enet-wrapper/**.cpp",
-                "include/enet-wrapper/**.hpp",
-                "src/enet-sample/server.cpp" }
-        
-        links { "enet" }
-        
-        configuration "windows"
-            links {
-                "ws2_32",
-                "winmm"
-            }
-        
-        for _,arch in pairs({"x32", "x64"}) do
-            for _,conf in pairs({"debug", "release"}) do
-                local confpath = arch .. "/" .. conf
-                configuration { arch, conf, "vs2008" }
-                    libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
-            end
-        end
+        --temporary hack
+        includedirs { "ext-libs/enet/include" }  
         
     project "sample-client"
         kind "ConsoleApp"
@@ -234,87 +201,10 @@ newaction {
         targetdir "bin/enet-sample"
         
         includedirs { "include/", "src/" }
+        files { "src/enet-sample/client.cpp" }
         
         links { "bm-base" }
+        links { "bm-enet" }
         
-        includedirs { "ext-libs/enet/include" }
-
-        files { "src/enet-wrapper/**.cpp",
-                "include/enet-wrapper/**.hpp",
-                "src/enet-sample/client.cpp" }
-        
-        links { "enet" }
-        
-        configuration "windows"
-            links {
-                "ws2_32",
-                "winmm"
-            }
-        
-        for _,arch in pairs({"x32", "x64"}) do
-            for _,conf in pairs({"debug", "release"}) do
-                local confpath = arch .. "/" .. conf
-                configuration { arch, conf, "vs2008" }
-                    libdirs { path.join("ext-libs/enet/bin/vs2008", confpath) }
-            end
-        end
-        
-    --[[project "alex-test"
-        kind "ConsoleApp"
-        language "C++"
-        
-        targetdir "bin/alex-test"
-                      
-        includedirs { "include/", "include/alex-test/" }
-        
-        files { "src/alex-test/**.cpp",
-                "src/alex-test/**.hpp" }
-        
-        configuration "linux"
-          includedirs { 
-            "/usr/include/freetype2",
-            "ext-libs/glm/include"
-          }
-          links { 
-            "SDLmain", 
-            "SDL", 
-            "freeimage",
-            "GLEW",
-            "freetype"
-          }
-        
-        configuration "windows"
-          includedirs { 
-            "ext-libs/SDL1.2/include",
-            "ext-libs/glew/include",
-            "ext-libs/glm/include",
-            "ext-libs/FreeImage/include",
-            "ext-libs/freetype2/include"
-          }
-          links { 
-            "SDLmain", 
-            "SDL", 
-            "freeimage", 
-            "opengl32", 
-            "glu32", 
-            "glew32",
-            "freetype2"
-          }
-        
-        for _,arch in pairs({"x32", "x64"}) do
-            for _,conf in pairs({"debug", "release"}) do
-                local confpath = arch .. "/" .. conf
-                configuration { arch, conf, "vs2008" }
-                    libdirs { path.join("ext-libs/SDL1.2/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/glew/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/FreeImage/bin/vs2008", confpath) }
-                    libdirs { path.join("ext-libs/freetype2/bin/vs2008", confpath) }
-                    
-                    local proj = "alex-test"
-                    resource(proj, "ext-libs/SDL1.2/bin/vs2008/" .. confpath .. "/SDL.dll", "SDL.dll")
-                    resource(proj, "ext-libs/glew/bin/vs2008/" .. confpath .. "/glew32.dll", "glew32.dll")
-                    resource(proj, "ext-libs/FreeImage/bin/vs2008/" .. confpath .. "/FreeImage.dll", "FreeImage.dll")
-                    resource(proj, "data", "data")
-            end
-        end
-]]--
+        --temporary hack
+        includedirs { "ext-libs/enet/include" }  

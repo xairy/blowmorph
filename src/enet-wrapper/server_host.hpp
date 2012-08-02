@@ -6,6 +6,8 @@
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
+#include "library.hpp"
+
 namespace bm {
 
 class Enet;
@@ -16,12 +18,12 @@ class ServerHost {
   friend class Enet;
 
 public:
-  ~ServerHost();
+  BM_ENET_DECL ~ServerHost();
 
   // Broadcast data from 'data' with length of 'length' to all Peer's on 
   // selected channel, associated with 'channel_id'.
   // Returns 'true' on success, returns 'false' on error.
-  bool Broadcast(const char* data, size_t length, bool reliable = true, uint8_t channel_id = 0);
+  BM_ENET_DECL bool Broadcast(const char* data, size_t length, bool reliable = true, uint8_t channel_id = 0);
 
   // Checks for events with a timeout. Should be called to send all queued
   // with 'Peer::Send()' packets. 'event' is an 'Event' class where event
@@ -32,14 +34,14 @@ public:
   // An 'Event' with type 'EVENT_NONE' will be placed in 'event' if no event
   // occured within the specified time limit.
   // Returns 'true' on success, returns 'false' on error.
-  bool Service(Event* event, uint32_t timeout);
+  BM_ENET_DECL bool Service(Event* event, uint32_t timeout);
 
   // This function need only be used in circumstances where one wishes to send
   // queued packets earlier than in a call to ClientHost::Service().
-  void Flush();
+  BM_ENET_DECL void Flush();
 
   // Cleans up. Automatically called in the destructor.
-  void Destroy();
+  BM_ENET_DECL void Destroy();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ServerHost);
