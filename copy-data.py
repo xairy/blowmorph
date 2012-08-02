@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys, os, os.path
 from distutils.dir_util import mkpath
 from shutil import copyfile
