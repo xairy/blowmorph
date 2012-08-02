@@ -1,4 +1,7 @@
-#include <base/ini_file.hpp>
+#include "base/ini_file.hpp"
+
+#include <cstdlib>
+
 #include <iostream>
 #include <fstream>
 
@@ -145,7 +148,7 @@ bool SaveINI(const std::string& path, const std::map<std::string, std::string>& 
   return true;
 }
 
-template<> std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue = std::string()) {
+template<> std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     return it->second;
@@ -153,7 +156,7 @@ template<> std::string GetValue(const RecordMap& ini, const std::string& key, st
   
   return defValue;
 }
-template<> int GetValue(const RecordMap& ini, const std::string& key, int defValue = int()) {
+template<> int GetValue(const RecordMap& ini, const std::string& key, int defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     // XXX[31.7.2012 alex]: malformed int?
@@ -162,7 +165,7 @@ template<> int GetValue(const RecordMap& ini, const std::string& key, int defVal
   
   return defValue;
 }
-template<> bool GetValue(const RecordMap& ini, const std::string& key, bool defValue = bool()) {
+template<> bool GetValue(const RecordMap& ini, const std::string& key, bool defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     std::string value = it->second;
