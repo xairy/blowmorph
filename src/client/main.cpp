@@ -19,7 +19,7 @@
 #include "base/protocol.hpp"
 #include "base/pstdint.hpp"
 
-#include <interpolator.hpp>
+#include <interpolator/interpolator.hpp>
 
 #include <glm/glm.hpp>
 #include <FreeImage.h>

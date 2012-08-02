@@ -8,6 +8,8 @@
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
+#include "library.hpp"
+
 namespace bm {
 
 class Enet;
@@ -19,7 +21,7 @@ class ClientHost {
   friend class Enet;
 
 public:
-  ~ClientHost();
+  BM_ENET_DECL ~ClientHost();
 
   // Checks for events with a timeout. Should be called to send all queued
   // with 'Peer::Send()' packets. 'event' is an 'Event' class where event
@@ -30,21 +32,21 @@ public:
   // An 'Event' with type 'EVENT_NONE' will be placed in 'event' if no event
   // occured within the specified time limit.
   // Returns 'true' on success, returns 'false' on error.
-  bool Service(Event* event, uint32_t timeout);
+  BM_ENET_DECL bool Service(Event* event, uint32_t timeout);
 
   // Initiates connection procedure to another host. To complete connection,
   // an event 'EVENT_CONNECT' should be dispatched using 'Service()'.
   // 'channel_count' is the number of channels to be used.
   // Returns 'Peer' on success, returns 'NULL' on error.
   // Returned 'Peer' should be deallocated manually using 'delete'.
-  Peer* Connect(std::string server_ip, uint16_t port, size_t channel_count = 1);
+  BM_ENET_DECL Peer* Connect(std::string server_ip, uint16_t port, size_t channel_count = 1);
 
   // This function is needed only be used in circumstances where one wishes to
   // send queued packets earlier than in a call to 'ServerHost::Service()'.
-  void Flush();
+  BM_ENET_DECL void Flush();
 
   // Cleans up. Automatically called in the destructor.
-  void Destroy();
+  BM_ENET_DECL void Destroy();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ClientHost);

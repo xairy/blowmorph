@@ -9,6 +9,8 @@
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
+#include "library.hpp"
+
 namespace bm {
 
 class Enet;
@@ -49,35 +51,35 @@ public:
     EVENT_RECEIVE
   };
 
-  ~Event();
+  BM_ENET_DECL ~Event();
 
   // Returns the type of the event.
-  EventType GetType() const;
+  BM_ENET_DECL EventType GetType() const;
 
   // Returns the channel id on the peer that generated the event.
-  uint8_t GetChannelId() const;
+  BM_ENET_DECL uint8_t GetChannelId() const;
 
   // Returns the data associated with the event. Data will be lost if
   // another event is delivered using 'ClientHost::Service()' or
   // 'ServerHost::Service()' using this instance of 'Event' class.
   // This method will fail on 'CHECK' in this case.
-  void GetData(std::vector<char>* output) const;
+  BM_ENET_DECL void GetData(std::vector<char>* output) const;
 
   // TODO: Get rid of this method.
   // Returns 'Peer', which caused the event. Returned 'Peer' should be
   // deallocated manually using 'delete'.
   // WARNING: This method allocates new 'Peer' even if a 'Peer' associated
   // with a remote peer already exists.
-  Peer* GetPeer();
+  BM_ENET_DECL Peer* GetPeer();
 
   // Use this instead of 'GetPeer()' if you need to call only 'Peer's getters.
   // The description of these methods can be found in 'Peer' declaration.
-  std::string GetPeerIp() const;
-  uint16_t GetPeerPort() const;
-  void* GetPeerData() const;
+  BM_ENET_DECL std::string GetPeerIp() const;
+  BM_ENET_DECL uint16_t GetPeerPort() const;
+  BM_ENET_DECL void* GetPeerData() const;
 
   // Left here for backward compatibility.
-  void DestroyPacket() const;
+  BM_ENET_DECL void DestroyPacket() const;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Event);
