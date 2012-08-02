@@ -24,8 +24,8 @@ public:
 
   // Call this to ensure that ENet has been successfully initialized.
   // XXX[2.8.2012 alex]: fixme written in cp1251
-  // FIXME: непонятно, при какой ситуации может вернуться false.
-  // FIXME: почему бы не сделать этот класс синглтоном?
+  // FIXME: РЅРµРїРѕРЅСЏС‚РЅРѕ, РїСЂРё РєР°РєРѕР№ СЃРёС‚СѓР°С†РёРё РјРѕР¶РµС‚ РІРµСЂРЅСѓС‚СЊСЃСЏ false.
+  // FIXME: РїРѕС‡РµРјСѓ Р±С‹ РЅРµ СЃРґРµР»Р°С‚СЊ СЌС‚РѕС‚ РєР»Р°СЃСЃ СЃРёРЅРіР»С‚РѕРЅРѕРј?
   BM_ENET_DECL bool IsInitialized() const;
 
   // Creates 'ServerHost' bound to 'port'.
