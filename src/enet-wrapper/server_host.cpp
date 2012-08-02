@@ -4,6 +4,8 @@
 #include <enet-wrapper/server_host.hpp>
 #include <enet-wrapper/event.hpp>
 
+#include <enet/enet.h>
+
 namespace bm {
 
 ServerHost* ServerHost::Create(
@@ -75,7 +77,7 @@ bool ServerHost::Service(Event* event, uint32_t timeout) {
     event->_DestroyPacket();
   }
 
-  int rv = enet_host_service(_server, (event == NULL) ? NULL : &event->_event, timeout);
+  int rv = enet_host_service(_server, (event == NULL) ? NULL : event->_event, timeout);
 
   if(rv < 0) {
     bm::Error::Set(bm::Error::TYPE_ENET_SERVICE);

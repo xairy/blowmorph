@@ -6,6 +6,8 @@
 
 #include <enet-wrapper/peer.hpp>
 
+#include <enet/enet.h>
+
 namespace bm {
 
 bool Peer::Send(

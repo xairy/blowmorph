@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include <enet/enet.h>
-
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 #include "library.hpp"
+
+struct _ENetEvent;
 
 namespace bm {
 
@@ -92,7 +92,7 @@ private:
   // received yet or has been destroyed already - nothing happens.
   void _DestroyPacket();
 
-  ENetEvent _event;
+  _ENetEvent* _event;
   
   // 'False' if a packet received using 'ClientHost::Service()' or
   // 'ServerHost::Service()' hasn't been deallocated yet.

@@ -92,9 +92,6 @@ solution "blowmorph"
     links { "bm-enet" }
     links { "interpolator" }
     
-    --temporary hack
-    includedirs { "ext-libs/enet/include" }  
-    
     configuration "linux"
       includedirs {
         "/usr/include/freetype2",
@@ -197,9 +194,6 @@ solution "blowmorph"
     links { "bm-base" }
     links { "bm-enet" }
     
-    --temporary hack
-    includedirs { "ext-libs/enet/include" }
-    
     resource("data", "data")
   
   project "sample-server"
@@ -211,9 +205,6 @@ solution "blowmorph"
     
     links { "bm-base" }
     links { "bm-enet" }
-    
-    --temporary hack
-    includedirs { "ext-libs/enet/include" }  
       
   project "sample-client"
     kind "ConsoleApp"
@@ -224,6 +215,3 @@ solution "blowmorph"
     
     links { "bm-base" }
     links { "bm-enet" }
-    
-    --temporary hack
-    includedirs { "ext-libs/enet/include" }  

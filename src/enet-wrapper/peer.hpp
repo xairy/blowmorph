@@ -3,12 +3,12 @@
 
 #include <string>
 
-#include <enet/enet.h>
-
 #include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 #include "library.hpp"
+
+struct _ENetPeer;
 
 namespace bm {
 
@@ -63,9 +63,9 @@ private:
 
   // Creates a 'Peer' associated with the ENet peer 'peer'. 
   // This is an internal constructor, don't use it.
-  Peer(ENetPeer* peer);
+  Peer(_ENetPeer* peer);
   
-  ENetPeer* _peer;
+  _ENetPeer* _peer;
 };
 
 } // namespace bm
