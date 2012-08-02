@@ -1,5 +1,5 @@
 function copy(src, dst)
-  local action = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
+  local action = "python \"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
