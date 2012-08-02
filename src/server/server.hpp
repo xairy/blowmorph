@@ -49,11 +49,11 @@ public:
     _spawn_position = Vector2(0.0f, 0.0f);
 
     _player_speed = 0.1f;
-    _player_size = 32.0f;
+    _player_size = 30.0f;
 
     _bullet_speed = 0.3f;
     _bullet_radius = 5.0f;
-    _bullet_explosion_radius = 40.0f;
+    _bullet_explosion_radius = 20.0f;
     _fire_delay = 100;
 
     _wall_size = 16.0f;

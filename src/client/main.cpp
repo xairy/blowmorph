@@ -182,7 +182,7 @@ public:
     _resolution_y = 600;
 
     // TODO: think about more accurate name.
-    _max_error = 10;
+    _max_error = 0.1;
 
     _manager = NULL;
     _player_texture = NULL;
@@ -202,7 +202,7 @@ public:
     _time_correction = 0;
 
     _wall_size = 16;
-    _player_size = 32;
+    _player_size = 30;
     _state = STATE_FINALIZED;
   }
 
@@ -310,7 +310,7 @@ private:
     // XXX[24.7.2012 alex]: awful lot of copypasta
     
     //_player_texture = _manager->Load("data/ufo.png", (8 << 16) + (54 << 8) + 129);
-    _player_texture = _manager->Load("data/player.png", 0);
+    _player_texture = _manager->Load("data/player2.png", 0);
     if(_player_texture == NULL) {
       // TODO: set error.
       return false;
