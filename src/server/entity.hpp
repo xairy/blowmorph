@@ -3,9 +3,11 @@
 
 #include <cmath>
 
-#include "base/macros.hpp"
-#include "base/protocol.hpp"
-#include "base/pstdint.hpp"
+#include <string>
+
+#include <base/macros.hpp>
+#include <base/protocol.hpp>
+#include <base/pstdint.hpp>
 
 #include "vector.hpp"
 #include "shape.hpp"
@@ -26,10 +28,14 @@ public:
   Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
+  virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0; 
 
   virtual void Update(uint32_t time) = 0;
   virtual EntitySnapshot GetSnapshot(uint32_t time) = 0;
+
+  virtual void OnEntityAppearance(Entity* entity) = 0;
+  virtual void OnEntityDisappearance(Entity* entity) = 0;
   
   virtual uint32_t GetId() const;
 
@@ -37,7 +43,7 @@ public:
   virtual void SetShape(Shape* shape);
 
   virtual Vector2 GetPosition() const;
-  virtual void SetPosition(const Vector2& position) ;
+  virtual void SetPosition(const Vector2& position);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;
@@ -102,9 +108,15 @@ public:
   );
   virtual ~Player();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
+
   virtual void SetPosition(const Vector2& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
@@ -158,16 +170,23 @@ public:
   static Dummy* Create(
     WorldManager* world_manager,
     uint32_t id,
+    const Vector2& position,
     float radius,
     float speed,
-    const Vector2& path_center,
-    float path_radius
+    uint32_t time
   );
   virtual ~Dummy();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
+
+  virtual void SetPosition(const Vector2& position);
 
   // Double dispatch. Collision detection.
 
@@ -182,11 +201,10 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(Dummy);
   Dummy(WorldManager* world_manager, uint32_t id);
 
-  // Actual speed in any direction.
   float _speed;
-
-  Vector2 _path_center;
-  float _path_radius;
+  Entity* _meat;
+  uint32_t _last_update;
+  Vector2 _prev_position;
 };
 
 class Bullet : public Entity {
@@ -206,9 +224,14 @@ public:
   );
   virtual ~Bullet();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
 
   // The bullet will be exploded after the next 'Update()' call.
   virtual void Explode();
@@ -259,9 +282,14 @@ public:
   );
   virtual ~Wall();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
 
   // Double dispatch. Collision detection.
 
