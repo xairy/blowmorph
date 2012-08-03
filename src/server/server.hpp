@@ -53,10 +53,13 @@ public:
     bool rv;
 
 
-    for(int i = 1; i <= 20; i++) {
+    /*for(int i = 1; i <= 20; i++) {
       rv = _world_manager.CreateDummy(0.0f, 0.0f, 100.0f, 0.1f * i, 5.0f);
       CHECK(rv);
-    }
+    }*/
+
+    rv = _world_manager.CreateDummy(Vector2(-100.0f, -100.0f), 5.0f, 0.01f);
+    CHECK(rv);
 
     for(int i = -5; i <= 5; i++) {
       for(int j = -5; j <= 5; j++) {
