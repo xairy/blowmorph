@@ -1,8 +1,8 @@
 #ifndef BLOWMORPH_SERVER_ID_MANAGER_HPP_
 #define BLOWMORPH_SERVER_ID_MANAGER_HPP_
 
-#include "base/pstdint.hpp"
-#include "base/singleton.hpp"
+#include <base/pstdint.hpp>
+#include <base/singleton.hpp>
 
 namespace bm {
 

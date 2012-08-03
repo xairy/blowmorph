@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "base/macros.hpp"
-#include "base/pstdint.hpp"
+#include <base/macros.hpp>
+#include <base/pstdint.hpp>
 
 #include "entity.hpp"
 #include "id_manager.hpp"
@@ -29,20 +29,47 @@ void WorldManager::AddEntity(uint32_t id, Entity* entity) {
   } else {
     _dynamic_entities[id] = entity;
   }
+  
+  std::map<uint32_t, Entity*>::iterator itr;
+  for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
+    itr->second->OnEntityAppearance(entity);
+    entity->OnEntityAppearance(itr->second);
+  }
+  for(itr = _dynamic_entities.begin(); itr != _dynamic_entities.end(); ++itr) {
+    itr->second->OnEntityAppearance(entity);
+    entity->OnEntityAppearance(itr->second);
+  }
 }
 
 void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
   CHECK(_static_entities.count(id) + _dynamic_entities.count(id) == 1);
+  Entity* entity = NULL;
   if(_static_entities.count(id) == 1) {
-    if(deallocate) {
-      delete _static_entities[id];
-    }
+    entity = _static_entities[id];
     _static_entities.erase(id);
   } else if(_dynamic_entities.count(id) == 1) {
-    if(deallocate) {
-      delete _dynamic_entities[id];
-    }
+    entity = _dynamic_entities[id];
     _dynamic_entities.erase(id);
+  }
+  CHECK(entity != NULL);
+
+  std::map<uint32_t, Entity*>::iterator itr;
+  for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
+    itr->second->OnEntityDisappearance(entity);
+  }
+  for(itr = _dynamic_entities.begin(); itr != _dynamic_entities.end(); ++itr) {
+    itr->second->OnEntityDisappearance(entity);
+  }
+
+  if(deallocate) {
+    delete entity;
+  }
+}
+
+void WorldManager::DeleteEntities(const std::vector<uint32_t>& input, bool deallocate) {
+  size_t size = input.size();
+  for(size_t i = 0; i < size; i++) {
+    DeleteEntity(input[i], deallocate);
   }
 }
 
@@ -80,13 +107,6 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
-void WorldManager::DeleteEntities(const std::vector<uint32_t>& input, bool deallocate) {
-  size_t size = input.size();
-  for(size_t i = 0; i < size; i++) {
-    DeleteEntity(input[i], deallocate);
-  }
-}
-
 void WorldManager::UpdateEntities(uint32_t time) {
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
@@ -114,8 +134,6 @@ void WorldManager::CollideEntities() {
 }
 
 void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
-  // TODO: 'Player' entities should not be destroyed.
-
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
     Entity* entity = i->second;
@@ -128,8 +146,8 @@ void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
     if(position.x > max_coordinate || position.y > max_coordinate) {
-      // Temporary solution.
-      if(entity->GetSnapshot(1).type != BM_ENTITY_PLAYER) {
+      // Temporary solution?
+      if(entity->GetType() != "Player") {
         entity->Destroy();
       }
     }
@@ -154,14 +172,17 @@ bool WorldManager::CreateBullet(
     return false;
   }
   AddEntity(id, bullet);
-  //printf("Bullet %u created.\n", id);
   return true;
 }
 
-bool WorldManager::CreateDummy(float x, float y, float r, float speed, float radius) {
+bool WorldManager::CreateDummy(
+  const Vector2& position,
+  float radius,
+  float speed,
+  uint32_t time
+) {
   uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
-  Vector2 position(x, y);
-  Dummy* dummy = Dummy::Create(this, id, radius, speed, position, r);
+  Dummy* dummy = Dummy::Create(this, id, position, radius, speed, time);
   if(dummy == NULL) {
     return false;
   }

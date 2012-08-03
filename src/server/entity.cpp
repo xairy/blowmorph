@@ -3,11 +3,12 @@
 #include <cmath>
 
 #include <memory>
+#include <string>
 
-#include "base/error.hpp"
-#include "base/macros.hpp"
-#include "base/protocol.hpp"
-#include "base/pstdint.hpp"
+#include <base/error.hpp>
+#include <base/macros.hpp>
+#include <base/protocol.hpp>
+#include <base/pstdint.hpp>
 
 #include "id_manager.hpp"
 #include "vector.hpp"
@@ -106,6 +107,9 @@ Player* Player::Create(
 }
 Player::~Player() { }
 
+std::string Player::GetType() {
+  return "Player";
+}
 bool Player::IsStatic() {
   return false;
 }
@@ -132,8 +136,16 @@ EntitySnapshot Player::GetSnapshot(uint32_t time) {
   return result;
 }
 
+void Player::OnEntityAppearance(Entity* entity) {
+
+}
+void Player::OnEntityDisappearance(Entity* entity) {
+
+}
+
 void Player::SetPosition(const Vector2& position) {
-  _prev_position = _shape->GetPosition();
+  //_prev_position = _shape->GetPosition();
+  _prev_position = position;
   _shape->SetPosition(position);
 }
 
@@ -267,17 +279,17 @@ Player::Player(WorldManager* world_manager, uint32_t id) : Entity(world_manager,
 Dummy* Dummy::Create(
   WorldManager* world_manager,
   uint32_t id,
+  const Vector2& position,
   float radius,
   float speed,
-  const Vector2& path_center,
-  float path_radius
+  uint32_t time
 ) {
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   if(dummy.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Circle> shape(new Circle(path_center, radius));
+  std::auto_ptr<Circle> shape(new Circle(position, radius));
   if(shape.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
@@ -285,26 +297,32 @@ Dummy* Dummy::Create(
 
   dummy->_shape = shape.release();
   dummy->_speed = speed;
-  dummy->_path_center = path_center;
-  dummy->_path_radius = path_radius;
+  dummy->_meat = NULL;
+  dummy->_last_update = time;
+  dummy->_prev_position = position;
 
   return dummy.release();
 }
 
 Dummy::~Dummy() { }
 
+std::string Dummy::GetType() {
+  return "Dummy";
+}
 bool Dummy::IsStatic() {
   return false;
 }
 
 void Dummy::Update(uint32_t time) {
-  float t = static_cast<float>(time);
-  Vector2 position;
-  position.x = _path_center.x + _path_radius * sin(t * _speed / 1000.0f);
-  position.y = _path_center.y + _path_radius * cos(t * _speed / 1000.0f);
-  _shape->SetPosition(position);
+  _prev_position = _shape->GetPosition();
+  if(_meat != NULL) {
+    bm::uint32_t dt = time - _last_update;
+    Vector2 direction = _meat->GetPosition() - GetPosition();
+    direction.Normalize();
+    _shape->Move(direction * _speed * static_cast<float>(dt));
+  }
+  _last_update = time;
 }
-
 EntitySnapshot Dummy::GetSnapshot(uint32_t time) {
   EntitySnapshot result;
   result.type = BM_ENTITY_DUMMY;
@@ -313,6 +331,30 @@ EntitySnapshot Dummy::GetSnapshot(uint32_t time) {
   result.x = _shape->GetPosition().x;
   result.y = _shape->GetPosition().y;
   return result;
+}
+
+void Dummy::OnEntityAppearance(Entity* entity) {
+  if(entity->GetType() == "Player") {
+    if(_meat == NULL) {
+      _meat = entity;
+    } else {
+      float current_distance = (_meat->GetPosition() - GetPosition()).Magnitude();
+      float new_distance = (entity->GetPosition() - GetPosition()).Magnitude();
+      if(new_distance < current_distance) {
+        _meat = entity;
+      }
+    }
+  }
+}
+void Dummy::OnEntityDisappearance(Entity* entity) {
+  if(_meat == entity) {
+    _meat = NULL;
+  }
+}
+
+void Dummy::SetPosition(const Vector2& position) {
+  _prev_position = position;
+  _shape->SetPosition(position);
 }
 
 bool Dummy::Collide(Entity* entity) {
@@ -372,6 +414,9 @@ Bullet* Bullet::Create(
 
 Bullet::~Bullet() { }
 
+std::string Bullet::GetType() {
+  return "Bullet";
+}
 bool Bullet::IsStatic() {
   return false;
 }
@@ -402,6 +447,13 @@ EntitySnapshot Bullet::GetSnapshot(uint32_t time) {
   result.x = _shape->GetPosition().x;
   result.y = _shape->GetPosition().y;
   return result;
+}
+
+void Bullet::OnEntityAppearance(Entity* entity) {
+
+}
+void Bullet::OnEntityDisappearance(Entity* entity) {
+
 }
 
 bool Bullet::IsExploded() const {
@@ -460,6 +512,9 @@ Wall* Wall::Create(
 
 Wall::~Wall() { }
 
+std::string Wall::GetType() {
+  return "Wall";
+}
 bool Wall::IsStatic() {
   return true;
 }
@@ -474,6 +529,13 @@ EntitySnapshot Wall::GetSnapshot(uint32_t time) {
   result.x = _shape->GetPosition().x;
   result.y = _shape->GetPosition().y;
   return result;
+}
+
+void Wall::OnEntityAppearance(Entity* entity) {
+
+}
+void Wall::OnEntityDisappearance(Entity* entity) {
+
 }
 
 // Double dispatch. Collision detection.
@@ -527,7 +589,28 @@ bool Entity::Collide(Wall* wall, Player* player) {
   return result;
 }
 bool Entity::Collide(Wall* wall, Dummy* dummy) {
-  return false;
+  bool result = false;
+
+  Vector2 px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
+  Vector2 py(dummy->_shape->GetPosition().x, dummy->_prev_position.y);
+
+  Vector2 position = dummy->_shape->GetPosition();
+
+  dummy->_shape->SetPosition(px);
+  if(dummy->_shape->Collide(wall->_shape)) {
+    position.y = dummy->_prev_position.y;
+    result &= true;
+  }
+
+  dummy->_shape->SetPosition(py);
+  if(dummy->_shape->Collide(wall->_shape)) {
+    position.x = dummy->_prev_position.x;
+    result &= true;
+  }
+
+  dummy->_shape->SetPosition(position);
+
+  return result;
 }
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
   if(wall->_shape->Collide(bullet->_shape)) {
@@ -545,6 +628,11 @@ bool Entity::Collide(Player* player1, Player* player2) {
   return false;
 }
 bool Entity::Collide(Player* player, Dummy* dummy) {
+  if(player->_shape->Collide(dummy->_shape)) {
+    player->Respawn();
+    dummy->Destroy();
+    return true;
+  }
   return false;
 }
 bool Entity::Collide(Player* player, Bullet* bullet) {
@@ -552,7 +640,6 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
     return false;
   }
   if(player->_shape->Collide(bullet->_shape)) {
-    // TODO: fix it.
     player->Respawn();
     bullet->Destroy();
     return true;
@@ -564,8 +651,12 @@ bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
 }
 bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   if(dummy->_shape->Collide(bullet->_shape)) {
-    dummy->Destroy();
-    bullet->Destroy();
+    if(bullet->IsExploded()) {
+      bullet->Destroy();
+      dummy->Destroy();
+    } else {
+      bullet->Explode();
+    }
     return true;
   }
   return false;
