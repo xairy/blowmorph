@@ -13,6 +13,7 @@ def needs_update(src, dst):
       return False
     
     return True
+  return True
 
 def copy_file(src, dst, always):
   if not always and not needs_update(src, dst):

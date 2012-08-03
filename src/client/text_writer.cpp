@@ -1,5 +1,7 @@
 ﻿#include "text_writer.hpp"
 
+#include <map>
+
 // FreeType Headers
 #include <ft2build.h>
 #include <freetype/freetype.h>
@@ -7,15 +9,34 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-namespace {  
+#include <base/pstdint.hpp>
+
+namespace {
+  struct GlyphInfo {
+    double advance_x;
+    double advance_y;
+    
+    double offset_x;
+    double offset_y;
+    
+    size_t size_x;
+    size_t size_y;
+    
+    GLuint texture_id;
+  };
+
+  typedef std::map<bm::uchar, GlyphInfo> GlyphMap;
+
   // TODO[24.7.2012 alex]: separate into classes/structs for glyph info/font info
   // TODO[24.7.2012 alex]: rename everything to comply with codestyle
   
   // Holds all the information related to font.
   struct FontDataPrivate {
-    float h;                                        // Holds the height of the font.
-    GLuint * textures;                              // Holds the texture id's.
-    GLuint list_base;                               // Holds the first display list id.
+    float font_height;                              // Holds the height of the font.
+    //GLuint * textures;                              // Holds the texture id's.
+    //GLuint list_base;                               // Holds the first display list id.
+   
+    GlyphMap glyphs;
    
     // TODO[24.7.2012 alex]: move methods outside of the struct
     // The init function will create a font with the height h From The File 
@@ -51,7 +72,95 @@ namespace {
     return data;
   }
 
-  // TODO[24.7.2012 alex]: would be great to decompose this long method
+  void LoadGlyphInfo(FT_GlyphSlot glyph, GlyphInfo& info) {
+    info.advance_x = glyph->advance.x / 64.0;
+    info.advance_y = glyph->advance.y / 64.0;
+
+    info.offset_x = glyph->bitmap_left;
+    info.offset_y = glyph->bitmap_top;
+
+    info.size_x = glyph->bitmap.width;
+    info.size_y = glyph->bitmap.rows;
+  }
+  
+  void LoadGlyphTexture(FT_GlyphSlot glyph, GlyphInfo& info) {
+    // generate a texture
+    glGenTextures(1, &info.texture_id);
+    CHECK(info.texture_id != 0);
+    
+    // get texture data
+    GLubyte* data = GetFTBitmapData(glyph->bitmap);
+    
+    // XXX[24.7.2012 alex]: should I use GL_TEXTURE_2D instead?
+    // Now we just setup some texture parameters.
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, info.texture_id); 
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+    // Here We Actually Create The Texture Itself, Notice That We Are Using 
+    // GL_LUMINANCE_ALPHA To Indicate That We Are Using 2 Channel Data.
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, info.size_x, info.size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); 
+
+    delete [] data; 
+  }
+  
+  void LoadAsciiGlyphs(FT_Face face, FontDataPrivate& font_data) {
+    for (bm::uchar ch = 1; ch <= 127; ch++) {
+      // Load the glyph for our character.
+      if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_RENDER))
+        BM_ERROR("FT_Load_Glyph failed");
+
+      GlyphInfo info;
+      LoadGlyphInfo(face->glyph, info);
+      LoadGlyphTexture(face->glyph, info);
+
+      font_data.glyphs[ch] = info;
+    }
+  }
+  
+  void UnloadGlyphs(GlyphMap& glyphs) {
+    for (GlyphMap::iterator it = glyphs.begin(); it != glyphs.end(); ++it) {
+      glDeleteTextures(1, &it->second.texture_id);
+    }
+    glyphs.clear();
+  }
+  
+  void RenderGlyph(const GlyphInfo& info) {
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, info.texture_id); 
+    glPushMatrix(); 
+
+    // First we need to move over a little so that the character has the right
+    // amount of space between it and the one before it.
+    glTranslated(info.offset_x, 0, 0);
+
+    // Now we move down a little in the case that the bitmap extends past the 
+    // bottom of the line this is only true for characters like 'g' or 'y'.
+    glTranslated(0, -info.offset_y, 0);
+
+    // Here we draw the texturemapped quads. The bitmap that we got from 
+    // FreeType was not oriented quite like we would like it to be, but we link
+    // the texture to the quad in such a way that the result will be properly 
+    // aligned.
+    glBegin(GL_QUADS);
+      glTexCoord2d(0, 0);  
+      glVertex2d(0, info.size_y);
+
+      glTexCoord2d(0, info.size_y);
+      glVertex2d(0, 0);
+
+      glTexCoord2d(info.size_x, info.size_y);  
+      glVertex2d(info.size_x, 0); 
+
+      glTexCoord2d(info.size_x, 0);  
+      glVertex2d(info.size_x, info.size_y);
+    glEnd();
+
+    glPopMatrix(); 
+
+    glTranslated(info.advance_x, 0, 0); 
+  }
+
+  /*// TODO[24.7.2012 alex]: would be great to decompose this long method
 
   // The makeDisplayCharacterList takes in an FT_Face, which is an object that 
   // FreeType uses to store information about a font, and creates a display 
@@ -63,7 +172,7 @@ namespace {
     
     // Load The Glyph For Our Character.
     if(FT_Load_Glyph (face, FT_Get_Char_Index (face, ch), FT_LOAD_DEFAULT))
-        BM_ERROR("FT_Load_Glyph failed"); 
+        BM_ERROR("FT_Load_Glyph failed");
 
     // Move The Face's Glyph Into A Glyph Object.
     FT_Glyph glyph; 
@@ -144,14 +253,14 @@ namespace {
 
     // Finish The Display List
     glEndList(); 
-  }
+  }*/
 
   bool FontDataPrivate::init(const char * fname, unsigned int height) {
     // Allocate Some Memory To Store The Texture Ids.
     // XXX[24.7.2012 alex]: unicode?
-    textures = new GLuint[128]; 
+    //textures = new GLuint[128]; 
  
-    this-> h = (float) height;
+    this-> font_height = (float) height;
  
     // XXX[24.7.2012 alex]: init library for every font?
     // Create And Initilize A FreeType Font Library.
@@ -172,17 +281,20 @@ namespace {
        BM_ERROR("FT_New_Face failed (there is probably a problem with your font file)"); 
        return false;
     }
+    
     // For Some Twisted Reason, FreeType Measures Font Size In Terms Of 1/64ths
     // Of Pixels.  Thus, To Make A Font height Pixels High, We Need To Request
-    // A Size Of h * 64.
+    // A Size Of font_height * 64.
     FT_Set_Char_Size(face, height << 6, height << 6, 90, 90); 
  
-    list_base = glGenLists(128); 
-    glGenTextures (128, textures); 
+    LoadAsciiGlyphs(face, *this);
+ 
+    //list_base = glGenLists(128); 
+    //glGenTextures (128, textures); 
  
     // This Is Where We Actually Create Each Of The Fonts Display Lists.
-    for(unsigned char i = 0; i < 128; i++)
-        makeDisplayCharacterList(face, i, list_base, textures); 
+    //for(unsigned char i = 0; i < 128; i++)
+        //makeDisplayCharacterList(face, i, list_base, textures); 
  
     // We Don't Need The Face Information Now That The Display Lists Have Been
     // Created, So We Free The Assosiated Resources.
@@ -194,9 +306,10 @@ namespace {
   }
   
   void FontDataPrivate::clean() {
-    glDeleteLists(list_base, 128); 
-    glDeleteTextures(128, textures); 
-    delete [] textures; 
+    //glDeleteLists(list_base, 128); 
+    //glDeleteTextures(128, textures); 
+    //delete [] textures;
+    UnloadGlyphs(glyphs);
   }
 
   // Coordinates Identical To Window Coordinates.
@@ -251,9 +364,9 @@ namespace {
       // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
       pushScreenCoordinateMatrix();                                   
       
-      GLuint list_base = font.list_base;
+      //GLuint list_base = font.list_base;
       // We Make The Height A Little Bigger. There Will Be Some Space Between Lines.
-      float line_height = font.h / .63f;
+      float line_height = font.font_height / .63f;
       
       std::vector<std::string> lines = SplitLines(text);
    
@@ -265,7 +378,7 @@ namespace {
       glEnable(GL_BLEND); 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);      
    
-      glListBase(list_base); 
+      //glListBase(list_base); 
 
       float modelview_matrix[16];     
       glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix); 
@@ -273,7 +386,7 @@ namespace {
       // This Is Where The Text Display Actually Happens. For Each Line Of Text
       // We Reset The Modelview Matrix So That The Line's Text Will Start In 
       // The Correct Position. Notice That We Need To Reset The Matrix, Rather 
-      // Than Just Translating Down By h. This Is Because When Each Character
+      // Than Just Translating Down By font_height. This Is Because When Each Character
       // Is Drawn It Modifies The Current Matrix So That The Next Character
       // Will Be Drawn Immediately After It. 
       
@@ -284,7 +397,14 @@ namespace {
         glTranslatef(x, y + line_height * i, 0); 
         glMultMatrixf(modelview_matrix);
         // XXX[29.7.2012 alex]: casts size_t to GLsizei
-        glCallLists(static_cast<GLsizei>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str()); 
+        for (size_t k = 0; k < lines[i].size(); k++) {
+          bm::uchar ch = lines[i][k];
+          GlyphMap::const_iterator it = font.glyphs.find(ch);
+          if (it != font.glyphs.end()) {
+            RenderGlyph(it->second);
+          }
+        }
+        //glCallLists(static_cast<GLsizei>(lines[i].length()), GL_UNSIGNED_BYTE, lines[i].c_str()); 
         glPopMatrix();
       }
    
