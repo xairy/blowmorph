@@ -144,7 +144,8 @@ void Player::OnEntityDisappearance(Entity* entity) {
 }
 
 void Player::SetPosition(const Vector2& position) {
-  _prev_position = _shape->GetPosition();
+  //_prev_position = _shape->GetPosition();
+  _prev_position = position;
   _shape->SetPosition(position);
 }
 
@@ -298,6 +299,7 @@ Dummy* Dummy::Create(
   dummy->_speed = speed;
   dummy->_meat = NULL;
   dummy->_last_update = time;
+  dummy->_prev_position = position;
 
   return dummy.release();
 }
@@ -312,11 +314,12 @@ bool Dummy::IsStatic() {
 }
 
 void Dummy::Update(uint32_t time) {
+  _prev_position = _shape->GetPosition();
   if(_meat != NULL) {
     bm::uint32_t dt = time - _last_update;
     Vector2 direction = _meat->GetPosition() - GetPosition();
     direction.Normalize();
-    SetPosition(GetPosition() + direction * _speed * static_cast<float>(dt));
+    _shape->Move(direction * _speed * static_cast<float>(dt));
   }
   _last_update = time;
 }
@@ -347,6 +350,11 @@ void Dummy::OnEntityDisappearance(Entity* entity) {
   if(_meat == entity) {
     _meat = NULL;
   }
+}
+
+void Dummy::SetPosition(const Vector2& position) {
+  _prev_position = position;
+  _shape->SetPosition(position);
 }
 
 bool Dummy::Collide(Entity* entity) {
@@ -581,7 +589,28 @@ bool Entity::Collide(Wall* wall, Player* player) {
   return result;
 }
 bool Entity::Collide(Wall* wall, Dummy* dummy) {
-  return false;
+  bool result = false;
+
+  Vector2 px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
+  Vector2 py(dummy->_shape->GetPosition().x, dummy->_prev_position.y);
+
+  Vector2 position = dummy->_shape->GetPosition();
+
+  dummy->_shape->SetPosition(px);
+  if(dummy->_shape->Collide(wall->_shape)) {
+    position.y = dummy->_prev_position.y;
+    result &= true;
+  }
+
+  dummy->_shape->SetPosition(py);
+  if(dummy->_shape->Collide(wall->_shape)) {
+    position.x = dummy->_prev_position.x;
+    result &= true;
+  }
+
+  dummy->_shape->SetPosition(position);
+
+  return result;
 }
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
   if(wall->_shape->Collide(bullet->_shape)) {

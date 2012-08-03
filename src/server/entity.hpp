@@ -43,7 +43,7 @@ public:
   virtual void SetShape(Shape* shape);
 
   virtual Vector2 GetPosition() const;
-  virtual void SetPosition(const Vector2& position) ;
+  virtual void SetPosition(const Vector2& position);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;
@@ -186,6 +186,8 @@ public:
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
+  virtual void SetPosition(const Vector2& position);
+
   // Double dispatch. Collision detection.
 
   virtual bool Collide(Entity* entity);
@@ -201,8 +203,8 @@ protected:
 
   float _speed;
   Entity* _meat;
-
   uint32_t _last_update;
+  Vector2 _prev_position;
 };
 
 class Bullet : public Entity {
