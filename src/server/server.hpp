@@ -6,17 +6,17 @@
 
 #include <memory>
 
+#include <enet-wrapper/enet.hpp>
+
 #include <base/error.hpp>
+#include <base/ini_file.hpp>
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
 #include <base/timer.hpp>
 
-#include <enet-wrapper/enet.hpp>
-#include <base/ini_file.hpp>
-
-#include "entity.hpp"
 #include "client_manager.hpp"
+#include "entity.hpp"
 #include "id_manager.hpp"
 #include "vector.hpp"
 #include "shape.hpp"
