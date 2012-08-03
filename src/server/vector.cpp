@@ -11,6 +11,14 @@ float Vector2::Magnitude() const {
   return sqrt(x * x + y * y);
 }
 
+void Vector2::Normalize() {
+  float magnitude = Magnitude();
+  if(magnitude != 0.0f) {
+    x /= magnitude;
+    y /= magnitude;
+  }
+}
+
 Vector2& Vector2::operator *= (float scalar) {
   x *= scalar;
   y *= scalar;
