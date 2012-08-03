@@ -175,9 +175,14 @@ bool WorldManager::CreateBullet(
   return true;
 }
 
-bool WorldManager::CreateDummy(const Vector2& position, float radius, float speed) {
+bool WorldManager::CreateDummy(
+  const Vector2& position,
+  float radius,
+  float speed,
+  uint32_t time
+) {
   uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
-  Dummy* dummy = Dummy::Create(this, id, position, radius, speed);
+  Dummy* dummy = Dummy::Create(this, id, position, radius, speed, time);
   if(dummy == NULL) {
     return false;
   }
