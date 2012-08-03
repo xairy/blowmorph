@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+#include <string>
+
 #include "base/macros.hpp"
 #include "base/protocol.hpp"
 #include "base/pstdint.hpp"
@@ -26,6 +28,7 @@ public:
   Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
+  virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0; 
 
   virtual void Update(uint32_t time) = 0;
@@ -102,7 +105,9 @@ public:
   );
   virtual ~Player();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
   virtual void SetPosition(const Vector2& position);
@@ -165,7 +170,9 @@ public:
   );
   virtual ~Dummy();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
 
@@ -206,7 +213,9 @@ public:
   );
   virtual ~Bullet();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
 
@@ -259,7 +268,9 @@ public:
   );
   virtual ~Wall();
 
+  virtual std::string GetType();
   virtual bool IsStatic();
+
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
 

@@ -114,8 +114,6 @@ void WorldManager::CollideEntities() {
 }
 
 void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
-  // TODO: 'Player' entities should not be destroyed.
-
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
     Entity* entity = i->second;
@@ -128,8 +126,8 @@ void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
     if(position.x > max_coordinate || position.y > max_coordinate) {
-      // Temporary solution.
-      if(entity->GetSnapshot(1).type != BM_ENTITY_PLAYER) {
+      // Temporary solution?
+      if(entity->GetType() != "Player") {
         entity->Destroy();
       }
     }

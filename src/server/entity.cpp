@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <memory>
+#include <string>
 
 #include "base/error.hpp"
 #include "base/macros.hpp"
@@ -106,6 +107,9 @@ Player* Player::Create(
 }
 Player::~Player() { }
 
+std::string Player::GetType() {
+  return "Player";
+}
 bool Player::IsStatic() {
   return false;
 }
@@ -293,6 +297,9 @@ Dummy* Dummy::Create(
 
 Dummy::~Dummy() { }
 
+std::string Dummy::GetType() {
+  return "Dummy";
+}
 bool Dummy::IsStatic() {
   return false;
 }
@@ -372,6 +379,9 @@ Bullet* Bullet::Create(
 
 Bullet::~Bullet() { }
 
+std::string Bullet::GetType() {
+  return "Bullet";
+}
 bool Bullet::IsStatic() {
   return false;
 }
@@ -460,6 +470,9 @@ Wall* Wall::Create(
 
 Wall::~Wall() { }
 
+std::string Wall::GetType() {
+  return "Wall";
+}
 bool Wall::IsStatic() {
   return true;
 }
