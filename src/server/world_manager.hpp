@@ -40,7 +40,12 @@ public:
     float explosion_radius,
     uint32_t time
   );
-  bool CreateDummy(const Vector2& position, float radius, float speed);
+  bool CreateDummy(
+    const Vector2& position,
+    float radius,
+    float speed,
+    uint32_t time
+  );
   bool CreateWall(float x, float y, float size);
 
 private:

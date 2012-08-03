@@ -52,18 +52,9 @@ public:
 
     bool rv;
 
-
-    /*for(int i = 1; i <= 20; i++) {
-      rv = _world_manager.CreateDummy(0.0f, 0.0f, 100.0f, 0.1f * i, 5.0f);
-      CHECK(rv);
-    }*/
-
-    rv = _world_manager.CreateDummy(Vector2(-100.0f, -100.0f), 5.0f, 0.01f);
-    CHECK(rv);
-
     for(int i = -5; i <= 5; i++) {
       for(int j = -5; j <= 5; j++) {
-        rv = _world_manager.CreateWall(300.0f + i * ws, 0.0f + j * ws, _wall_size);
+        rv = _world_manager.CreateWall(300.0f + i * ws, 0.0f + j * ws, ws);
         CHECK(rv);
       }
     }
@@ -150,7 +141,6 @@ private:
       _last_broadcast = _timer.GetTime();
     }
 
-    // TODO: different timeout for '_PumpEvents'?
     if(_timer.GetTime() - _last_update >= _update_time) {
       if(!_PumpEvents()) {
         return false;
@@ -170,6 +160,17 @@ private:
   }
 
   bool _UpdateWorld() {
+    // Temporary.
+    static int counter = 0;
+    if(counter == 300) {
+      float x = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
+      float y = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
+      _world_manager.CreateDummy(Vector2(x, y), 5.0f, 0.1f, _timer.GetTime());
+      counter = 0;
+      //printf("Dummy spawned at (%.2f, %.2f)\n", x, y);
+    }
+    counter++;
+
     _world_manager.UpdateEntities(_timer.GetTime());
 
     _world_manager.CollideEntities();

@@ -280,7 +280,8 @@ Dummy* Dummy::Create(
   uint32_t id,
   const Vector2& position,
   float radius,
-  float speed
+  float speed,
+  uint32_t time
 ) {
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   if(dummy.get() == NULL) {
@@ -296,7 +297,7 @@ Dummy* Dummy::Create(
   dummy->_shape = shape.release();
   dummy->_speed = speed;
   dummy->_meat = NULL;
-  dummy->_last_update = 0;
+  dummy->_last_update = time;
 
   return dummy.release();
 }
@@ -621,8 +622,12 @@ bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
 }
 bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   if(dummy->_shape->Collide(bullet->_shape)) {
-    dummy->Destroy();
-    bullet->Destroy();
+    if(bullet->IsExploded()) {
+      bullet->Destroy();
+      dummy->Destroy();
+    } else {
+      bullet->Explode();
+    }
     return true;
   }
   return false;
