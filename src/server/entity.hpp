@@ -33,6 +33,9 @@ public:
 
   virtual void Update(uint32_t time) = 0;
   virtual EntitySnapshot GetSnapshot(uint32_t time) = 0;
+
+  virtual void OnEntityAppearance(Entity* entity) = 0;
+  virtual void OnEntityDisappearance(Entity* entity) = 0;
   
   virtual uint32_t GetId() const;
 
@@ -110,6 +113,10 @@ public:
 
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
+
   virtual void SetPosition(const Vector2& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
@@ -163,10 +170,9 @@ public:
   static Dummy* Create(
     WorldManager* world_manager,
     uint32_t id,
+    const Vector2& position,
     float radius,
-    float speed,
-    const Vector2& path_center,
-    float path_radius
+    float speed
   );
   virtual ~Dummy();
 
@@ -175,6 +181,9 @@ public:
 
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
 
   // Double dispatch. Collision detection.
 
@@ -189,11 +198,10 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(Dummy);
   Dummy(WorldManager* world_manager, uint32_t id);
 
-  // Actual speed in any direction.
   float _speed;
+  Entity* _meat;
 
-  Vector2 _path_center;
-  float _path_radius;
+  uint32_t _last_update;
 };
 
 class Bullet : public Entity {
@@ -218,6 +226,9 @@ public:
 
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
 
   // The bullet will be exploded after the next 'Update()' call.
   virtual void Explode();
@@ -273,6 +284,9 @@ public:
 
   virtual void Update(uint32_t time);
   virtual EntitySnapshot GetSnapshot(uint32_t time);
+
+  virtual void OnEntityAppearance(Entity* entity);
+  virtual void OnEntityDisappearance(Entity* entity);
 
   // Double dispatch. Collision detection.
 

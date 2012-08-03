@@ -136,6 +136,13 @@ EntitySnapshot Player::GetSnapshot(uint32_t time) {
   return result;
 }
 
+void Player::OnEntityAppearance(Entity* entity) {
+
+}
+void Player::OnEntityDisappearance(Entity* entity) {
+
+}
+
 void Player::SetPosition(const Vector2& position) {
   _prev_position = _shape->GetPosition();
   _shape->SetPosition(position);
@@ -271,17 +278,16 @@ Player::Player(WorldManager* world_manager, uint32_t id) : Entity(world_manager,
 Dummy* Dummy::Create(
   WorldManager* world_manager,
   uint32_t id,
+  const Vector2& position,
   float radius,
-  float speed,
-  const Vector2& path_center,
-  float path_radius
+  float speed
 ) {
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   if(dummy.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Circle> shape(new Circle(path_center, radius));
+  std::auto_ptr<Circle> shape(new Circle(position, radius));
   if(shape.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
@@ -289,8 +295,8 @@ Dummy* Dummy::Create(
 
   dummy->_shape = shape.release();
   dummy->_speed = speed;
-  dummy->_path_center = path_center;
-  dummy->_path_radius = path_radius;
+  dummy->_meat = NULL;
+  dummy->_last_update = 0;
 
   return dummy.release();
 }
@@ -305,13 +311,14 @@ bool Dummy::IsStatic() {
 }
 
 void Dummy::Update(uint32_t time) {
-  float t = static_cast<float>(time);
-  Vector2 position;
-  position.x = _path_center.x + _path_radius * sin(t * _speed / 1000.0f);
-  position.y = _path_center.y + _path_radius * cos(t * _speed / 1000.0f);
-  _shape->SetPosition(position);
+  if(_meat != NULL) {
+    bm::uint32_t dt = time - _last_update;
+    Vector2 direction = _meat->GetPosition() - GetPosition();
+    direction.Normalize();
+    SetPosition(GetPosition() + direction * _speed * static_cast<float>(dt));
+  }
+  _last_update = time;
 }
-
 EntitySnapshot Dummy::GetSnapshot(uint32_t time) {
   EntitySnapshot result;
   result.type = BM_ENTITY_DUMMY;
@@ -320,6 +327,25 @@ EntitySnapshot Dummy::GetSnapshot(uint32_t time) {
   result.x = _shape->GetPosition().x;
   result.y = _shape->GetPosition().y;
   return result;
+}
+
+void Dummy::OnEntityAppearance(Entity* entity) {
+  if(entity->GetType() == "Player") {
+    if(_meat == NULL) {
+      _meat = entity;
+    } else {
+      float current_distance = (_meat->GetPosition() - GetPosition()).Magnitude();
+      float new_distance = (entity->GetPosition() - GetPosition()).Magnitude();
+      if(new_distance < current_distance) {
+        _meat = entity;
+      }
+    }
+  }
+}
+void Dummy::OnEntityDisappearance(Entity* entity) {
+  if(_meat == entity) {
+    _meat = NULL;
+  }
 }
 
 bool Dummy::Collide(Entity* entity) {
@@ -414,6 +440,13 @@ EntitySnapshot Bullet::GetSnapshot(uint32_t time) {
   return result;
 }
 
+void Bullet::OnEntityAppearance(Entity* entity) {
+
+}
+void Bullet::OnEntityDisappearance(Entity* entity) {
+
+}
+
 bool Bullet::IsExploded() const {
   return _state == STATE_EXPLODED;
 }
@@ -489,6 +522,13 @@ EntitySnapshot Wall::GetSnapshot(uint32_t time) {
   return result;
 }
 
+void Wall::OnEntityAppearance(Entity* entity) {
+
+}
+void Wall::OnEntityDisappearance(Entity* entity) {
+
+}
+
 // Double dispatch. Collision detection.
 
 bool Wall::Collide(Entity* entity) {
@@ -558,6 +598,11 @@ bool Entity::Collide(Player* player1, Player* player2) {
   return false;
 }
 bool Entity::Collide(Player* player, Dummy* dummy) {
+  if(player->_shape->Collide(dummy->_shape)) {
+    player->Respawn();
+    dummy->Destroy();
+    return true;
+  }
   return false;
 }
 bool Entity::Collide(Player* player, Bullet* bullet) {
@@ -565,7 +610,6 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
     return false;
   }
   if(player->_shape->Collide(bullet->_shape)) {
-    // TODO: fix it.
     player->Respawn();
     bullet->Destroy();
     return true;
