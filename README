@@ -7,9 +7,10 @@
   2. Установить glew
   3. Установить FreeImage
   4. Установить FreeType
-  5. ./premake4 gmake
-  6. cd build
-  7. make
+  5. Установить pugixml-1.2
+  6. ./premake4 gmake
+  7. cd build
+  8. make
 
 How-to compile SDL2 under linux:
   hg clone ...
@@ -19,11 +20,4 @@ How-to compile SDL2 under linux:
   ./configure
   make
   sudo make install
-
-Проекты внутри:
-  client - клиент игры
-  server - сервер игры
-  sample-client - пример клиента, использующего enet
-  sample-server - пример сервера, использующего enet
-  interpolator
 
