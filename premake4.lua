@@ -22,7 +22,7 @@ function windows_libdir(basePath)
     for _,conf in pairs({"debug", "release"}) do
       for _, plat in pairs({"vs2008"}) do
         local confpath = plat .. "/" .. arch .. "/" .. conf
-        configuration { arch, conf, plat }
+        configuration { "windows", arch, conf, plat }
           libdirs { path.join(basePath, confpath) }
       end
     end
@@ -36,7 +36,7 @@ function windows_binary(basePath, dllName)
     for _,conf in pairs({"debug", "release"}) do
       for _, plat in pairs({"vs2008"}) do
         local confpath = plat .. "/" .. arch .. "/" .. conf
-        configuration { arch, conf, plat }
+        configuration { "windows", arch, conf, plat }
           resource(path.join(path.join(basePath, confpath), dllName), dllName, true)
       end
     end
@@ -91,53 +91,102 @@ solution "blowmorph"
     links { "bm-base" }
     links { "bm-enet" }
     links { "interpolator" }
-    
-    configuration "linux"
-      includedirs {
-        "/usr/include/freetype2",
-        "ext-libs/glm/include"
-      }
-      links {
-        "SDLmain",
-        "SDL", 
-        "freeimage",
-        "GLEW",
-        "freetype"
-      }
-    
-    configuration "windows"
-      includedirs { 
-        "ext-libs/SDL1.2/include",
-        "ext-libs/glew/include",
-        "ext-libs/glm/include",
-        "ext-libs/FreeImage/include",
-        "ext-libs/freetype2/include"
-      }
-      links {
-        "SDLmain",
-        "SDL",
-        "freeimage",
-        "opengl32",
-        "glu32",
-        "glew32",
-        "freetype"
-      }
-    
-    windows_libdir("ext-libs/SDL1.2/bin")
-    windows_libdir("ext-libs/glew/bin")
-    windows_libdir("ext-libs/FreeImage/bin")
-    windows_libdir("ext-libs/freetype2/bin")
-    
-    includedirs { "ext-libs/pugixml/include" }
-    windows_libdir("ext-libs/pugixml/bin")
-    links { "pugixml" }
-    
-    windows_binary("ext-libs/SDL1.2/bin", "SDL.dll")
-    windows_binary("ext-libs/glew/bin", "glew32.dll")
-    windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll")
-    windows_binary("ext-libs/freetype2/bin", "freetype.dll")
-    
+      
     resource("data", "data")
+      
+    -- GLM
+    includedirs { "ext-libs/glm/include" }
+      
+    -- OpenGL
+    configuration "windows"
+      links { "opengl32" }
+      links { "glu32" }
+      
+    -- FreeType2
+    configuration "windows"
+      includedirs { "ext-libs/freetype2/include" }
+      windows_libdir("ext-libs/freetype2/bin")
+      windows_binary("ext-libs/freetype2/bin", "freetype.dll")
+      links { "freetype" }
+    configuration "linux"
+      includedirs { "/usr/include/freetype2" }
+      links { "freetype" }
+      
+    -- FreeImage
+    configuration "windows"
+      includedirs { "ext-libs/FreeImage/include" }
+      windows_libdir("ext-libs/FreeImage/bin")
+      windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll")
+      links { "freeimage" }
+    configuration "linux"
+      links { "freeimage" }
+    
+    -- GLEW
+    configuration { "windows" }
+      includedirs { "ext-libs/glew/include" }
+      windows_libdir("ext-libs/glew/bin")
+      windows_binary("ext-libs/glew/bin", "glew32.dll")
+      links { "glew32" }
+    configuration "linux"
+      links { "GLEW" }
+    
+    -- SDL1.2
+    configuration "windows"
+      includedirs { "ext-libs/SDL1.2/include" }
+      windows_libdir("ext-libs/SDL1.2/bin")
+      windows_binary("ext-libs/SDL1.2/bin", "SDL.dll")
+      links { "SDLmain" }
+      links { "SDL" }
+    configuration "linux"
+      links { "SDLmain" }
+      links { "SDL" }
+    
+    -- PugiXML
+    configuration "windows"
+      includedirs { "ext-libs/pugixml/include" }
+      windows_libdir("ext-libs/pugixml/bin")
+    configuration "*"
+    links { "pugixml" }
+  
+  project "server"
+    kind "ConsoleApp"
+    language "C++"
+    
+    includedirs { "include/", "src/" }
+    files { "src/server/**.cpp",
+            "src/server/**.hpp" }
+    
+    links { "bm-base" }
+    links { "bm-enet" }
+
+    resource("data", "data")
+    
+    -- PugiXML
+    configuration "windows"
+      includedirs { "ext-libs/pugixml/include" }
+      windows_libdir("ext-libs/pugixml/bin")
+    configuration "*"
+    links { "pugixml" }
+  
+  project "sample-server"
+    kind "ConsoleApp"
+    language "C++"
+    
+    includedirs { "include/", "src/" }
+    files { "src/enet-sample/server.cpp" }
+    
+    links { "bm-base" }
+    links { "bm-enet" }
+      
+  project "sample-client"
+    kind "ConsoleApp"
+    language "C++"
+    
+    includedirs { "include/", "src/" }
+    files { "src/enet-sample/client.cpp" }
+    
+    links { "bm-base" }
+    links { "bm-enet" }
   
   project "bm-base"
     kind "SharedLib"
@@ -177,40 +226,3 @@ solution "blowmorph"
     
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }
-      
-  project "server"
-    kind "ConsoleApp"
-    language "C++"
-    
-    includedirs { "include/", "src/" }
-    files { "src/server/**.cpp",
-            "src/server/**.hpp" }
-    
-    links { "bm-base" }
-    links { "bm-enet" }
-
-    includedirs { "ext-libs/pugixml/include" }
-    windows_libdir("ext-libs/pugixml/bin")
-    links { "pugixml" }
-    
-    resource("data", "data")
-  
-  project "sample-server"
-    kind "ConsoleApp"
-    language "C++"
-    
-    includedirs { "include/", "src/" }
-    files { "src/enet-sample/server.cpp" }
-    
-    links { "bm-base" }
-    links { "bm-enet" }
-      
-  project "sample-client"
-    kind "ConsoleApp"
-    language "C++"
-    
-    includedirs { "include/", "src/" }
-    files { "src/enet-sample/client.cpp" }
-    
-    links { "bm-base" }
-    links { "bm-enet" }
