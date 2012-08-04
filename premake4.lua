@@ -128,6 +128,10 @@ solution "blowmorph"
     windows_libdir("ext-libs/FreeImage/bin")
     windows_libdir("ext-libs/freetype2/bin")
     
+    includedirs { "ext-libs/pugixml/include" }
+    windows_libdir("ext-libs/pugixml/bin")
+    links { "pugixml" }
+    
     windows_binary("ext-libs/SDL1.2/bin", "SDL.dll")
     windows_binary("ext-libs/glew/bin", "glew32.dll")
     windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll")
@@ -185,6 +189,8 @@ solution "blowmorph"
     links { "bm-base" }
     links { "bm-enet" }
 
+    includedirs { "ext-libs/pugixml/include" }
+    windows_libdir("ext-libs/pugixml/bin")
     links { "pugixml" }
     
     resource("data", "data")
