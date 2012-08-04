@@ -43,28 +43,9 @@ public:
 
     _is_running = true;
 
-    // Map.
-
-    float rs = 600.0f;
-    float ws = _wall_size;
-
-    bool rv;
-
-    for(int i = -5; i <= 5; i++) {
-      for(int j = -5; j <= 5; j++) {
-        rv = _world_manager.CreateWall(300.0f + i * ws, 0.0f + j * ws, ws);
-        CHECK(rv);
-      }
-    }
-
-    // Map.
-
-    std::string source = "data/map.xml";
-    if(!_world_manager.LoadMap(source)) {
+    if(!_world_manager.LoadMap(_map_file)) {
       return false;
     }
-
-    // Map.
 
     while(_is_running) {
       if(!_Tick()) {
@@ -112,6 +93,8 @@ private:
     _wall_size = 16.0f;
 
     _max_coordinate = 600.0f;
+
+    _map_file = "data/map.xml";
 
     std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
@@ -549,6 +532,8 @@ private:
   // Entities with x or y coordinate more than '_max_coordinate'
   // will be destroyed.
   float _max_coordinate;
+
+  std::string _map_file;
 
   bm::ini::RecordMap _settings;
 };
