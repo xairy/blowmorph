@@ -223,11 +223,34 @@ bool WorldManager::LoadMap(const std::string& file) {
       pugi::xml_attribute y = node.attribute("y");
       pugi::xml_attribute size = node.attribute("size");
       if(!x || !y || !size) {
-        fprintf(stderr, "Warning: incorrect node format, ignored.\n");
+        fprintf(stderr, "Warning: incorrect xml node format, ignored.\n");
       } else {
         bool rv = CreateWall(x.as_float(), y.as_float(), size.as_float());
         if(rv == false) {
           return false;
+        }
+      }
+    } else if(std::string(node.name()) == "chunk") {
+      pugi::xml_attribute x = node.attribute("x");
+      pugi::xml_attribute y = node.attribute("y");
+      pugi::xml_attribute width = node.attribute("width");
+      pugi::xml_attribute height = node.attribute("height");
+      pugi::xml_attribute size = node.attribute("size");
+      if(!x || !y || !width || !height || !size) {
+        fprintf(stderr, "Warning: incorrect xml node format, ignored.\n");
+      } else {
+        float x_value = x.as_float();
+        float y_value = y.as_float();
+        int w_value = width.as_int();
+        int h_value = height.as_int();
+        float s_value = size.as_float();
+        for(int i = 0; i < w_value; i++) {
+          for(int j = 0; j < h_value; j++) {
+            bool rv = CreateWall(x_value + i * s_value, y_value + j * s_value, s_value);
+            if(rv == false) {
+              return false;
+            }
+          }
         }
       }
     }
