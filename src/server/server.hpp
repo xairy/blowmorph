@@ -22,8 +22,6 @@
 #include "shape.hpp"
 #include "world_manager.hpp"
 
-// What would happen if a player is 'Destroy()'ed?
-
 namespace bm {
 
 using namespace protocol;
@@ -57,6 +55,13 @@ public:
         rv = _world_manager.CreateWall(300.0f + i * ws, 0.0f + j * ws, ws);
         CHECK(rv);
       }
+    }
+
+    // Map.
+
+    std::string source = "data/map.xml";
+    if(!_world_manager.LoadMap(source)) {
+      return false;
     }
 
     // Map.

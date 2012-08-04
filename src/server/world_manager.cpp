@@ -2,6 +2,9 @@
 
 #include <map>
 
+#include <pugixml.hpp>
+
+#include <base/error.hpp>
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
 
@@ -198,6 +201,38 @@ bool WorldManager::CreateWall(float x, float y, float size) {
     return false;
   }
   AddEntity(id, wall);
+  return true;
+}
+
+bool WorldManager::LoadMap(const std::string& file) {
+  pugi::xml_document document;
+  pugi::xml_parse_result parse_result = document.load_file(file.c_str());
+  if(!parse_result) {
+    Error::Throw(__FILE__, __LINE__, "Unable to parse %s!\n", file.c_str());
+    return false;
+  }
+  pugi::xml_node map_node = document.child("map");
+  if(!map_node) {
+    Error::Throw(__FILE__, __LINE__, "Incorrect format of %s!\n", file.c_str());
+    return false;
+  }
+
+  for(pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
+    if(std::string(node.name()) == "wall") {
+      pugi::xml_attribute x = node.attribute("x");
+      pugi::xml_attribute y = node.attribute("y");
+      pugi::xml_attribute size = node.attribute("size");
+      if(!x || !y || !size) {
+        fprintf(stderr, "Warning: incorrect node format, ignored.\n");
+      } else {
+        bool rv = CreateWall(x.as_float(), y.as_float(), size.as_float());
+        if(rv == false) {
+          return false;
+        }
+      }
+    }
+  }
+
   return true;
 }
 

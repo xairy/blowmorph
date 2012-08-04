@@ -184,6 +184,8 @@ solution "blowmorph"
     
     links { "bm-base" }
     links { "bm-enet" }
+
+    links { "pugixml" }
     
     resource("data", "data")
   
