@@ -31,6 +31,8 @@ public:
   void CollideEntities();
   void DestroyOutlyingEntities(float max_coordinate);
 
+  bool LoadMap(const std::string& file);
+
   bool CreateBullet(
     uint32_t owner_id,
     const Vector2& start,
