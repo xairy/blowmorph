@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <map>
-  <wall x="100.0" y="100.0" size="16.0"></wall>
-  <wall x="116.0" y="100.0" size="16.0"></wall>
-  <wall x="132.0" y="100.0" size="16.0"></wall>
-  <wall x="148.0" y="100.0" size="16.0"></wall>
+  <wall x="100.0" y="200.0" size="16.0"></wall>
+  <wall x="116.0" y="200.0" size="16.0"></wall>
+  <wall x="132.0" y="200.0" size="16.0"></wall>
+  <wall x="148.0" y="200.0" size="16.0"></wall>
+
+  <chunk x="100.0" y="0.0" width="10" height="10" size="16.0"></chunk>
 </map>

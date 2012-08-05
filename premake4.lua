@@ -84,7 +84,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/client/**.cpp",
             "src/client/**.hpp" }
     
@@ -145,14 +145,15 @@ solution "blowmorph"
     configuration "windows"
       includedirs { "ext-libs/pugixml/include" }
       windows_libdir("ext-libs/pugixml/bin")
-    configuration "*"
-    links { "pugixml" }
+      links { "pugixml" }
+    configuration "linux"
+      links { "pugixml" }
   
   project "server"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/server/**.cpp",
             "src/server/**.hpp" }
     
@@ -165,14 +166,15 @@ solution "blowmorph"
     configuration "windows"
       includedirs { "ext-libs/pugixml/include" }
       windows_libdir("ext-libs/pugixml/bin")
-    configuration "*"
-    links { "pugixml" }
+      links { "pugixml" }
+    configuration "linux"
+      links { "pugixml" }
   
   project "sample-server"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/enet-sample/server.cpp" }
     
     links { "bm-base" }
@@ -182,7 +184,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/enet-sample/client.cpp" }
     
     links { "bm-base" }
@@ -193,7 +195,7 @@ solution "blowmorph"
     language "C++"
     
     defines { "BM_BASE_DLL" }
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/base/**.cpp",
             "src/base/**.hpp" }
 
@@ -202,27 +204,26 @@ solution "blowmorph"
     language "C++"
       
     defines { "BM_ENET_DLL" }
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     files { "src/enet-wrapper/**.cpp",
             "src/enet-wrapper/**.hpp" }
      
     links { "bm-base" }
         
-    includedirs { "ext-libs/enet/include" }      
-    links { "enet" }
-    windows_libdir("ext-libs/enet/bin")
-    
+    -- ENet
     configuration "windows"
-      links {
-        "ws2_32",
-        "winmm"
-      }
-  
+      includedirs { "ext-libs/enet/include" }      
+      windows_libdir("ext-libs/enet/bin")
+      links { "enet" }
+      links { "ws2_32", "winmm" }
+    configuration "linux"
+      links { "enet" }
+    
   project "interpolator"
     kind "StaticLib"
     language "C++"
                   
-    includedirs { "include/", "src/" }
+    includedirs { "src" }
     
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }
