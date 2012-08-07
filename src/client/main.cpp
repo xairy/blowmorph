@@ -322,7 +322,7 @@ private:
       return false;
     }
 
-    _wall_texture = _manager->Load("data/middle_wall.png", 0);
+    _wall_texture = _manager->Load("data/wall_green.png", 0);
     if(_wall_texture == NULL) {
       // TODO: set error.
       return false;
