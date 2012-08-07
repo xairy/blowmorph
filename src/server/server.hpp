@@ -43,10 +43,6 @@ public:
 
     _is_running = true;
 
-    if(!_world_manager.LoadMap(_map_file)) {
-      return false;
-    }
-
     while(_is_running) {
       if(!_Tick()) {
         return false;
@@ -93,6 +89,10 @@ private:
     _max_coordinate = 600.0f;
 
     _map_file = ini::GetValue(_settings, "server.map", std::string("data/map.xml"));
+
+    if(!_world_manager.LoadMap(_map_file)) {
+      return false;
+    }
 
     std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
