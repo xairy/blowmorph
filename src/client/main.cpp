@@ -10,27 +10,24 @@
 
 #include <GL/glew.h>
 #include <SDL/SDL.h>
-
-// XXX[24.7.2012 alex]: use "includedirs" instead of "files"
-#include "enet-wrapper/enet.hpp"
-
-#include "base/error.hpp"
-#include "base/macros.hpp"
-#include "base/protocol.hpp"
-#include "base/pstdint.hpp"
-
-#include <interpolator/interpolator.hpp>
-
 #include <glm/glm.hpp>
 #include <FreeImage.h>
+
+#include <base/error.hpp>
+#include <base/macros.hpp>
+#include <base/protocol.hpp>
+#include <base/pstdint.hpp>
+#include <base/ini_file.hpp>
+
+#include <enet-wrapper/enet.hpp>
+
+#include <interpolator/interpolator.hpp>
 
 #include "texture_manager.hpp"
 #include "text_writer.hpp"
 #include "sprite.hpp"
 #include "glmext.hpp"
 #include "render_window.hpp"
-
-#include <base/ini_file.hpp>
 
 using namespace bm;
 using namespace protocol;
