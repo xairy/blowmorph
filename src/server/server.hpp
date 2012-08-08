@@ -80,7 +80,13 @@ private:
 
     _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
     _player_size = ini::GetValue(_settings, "player.size", 30.0f);
-    _fire_delay = ini::GetValue(_settings, "player.attack_delay", 100);
+
+    _blow_capacity = ini::GetValue(_settings, "blow.capacity", 0);
+    _blow_consumption = ini::GetValue(_settings, "blow.consumption", 1);
+    _blow_regeneration = ini::GetValue(_settings, "blow.regeneration", 0);
+    _morph_capacity = ini::GetValue(_settings, "morph.capacity", 0);
+    _morph_consumption = ini::GetValue(_settings, "morph.consumption", 1);
+    _morph_regeneration = ini::GetValue(_settings, "morph.regeneration", 0);
 
     _bullet_speed = ini::GetValue(_settings, "bullet.speed", 0.3f);
     _bullet_radius = ini::GetValue(_settings, "bullet.radius", 5.0f);
@@ -262,9 +268,22 @@ private:
     uint32_t client_id = Singleton<IdManager>::GetInstance()->NewId();
     peer->SetData(reinterpret_cast<void*>(client_id));
 
-    Player* player = Player::Create(&_world_manager, client_id,
-      _spawn_position, _player_speed, _player_size, _fire_delay,
-      _bullet_radius, _bullet_speed, _bullet_explosion_radius);
+    Player* player = Player::Create(
+      &_world_manager,
+      client_id,
+      _spawn_position,
+      _player_speed,
+      _player_size,
+      _blow_capacity,
+      _blow_consumption,
+      _blow_regeneration,
+      _morph_capacity,
+      _morph_consumption,
+      _morph_regeneration,
+      _bullet_radius,
+      _bullet_speed,
+      _bullet_explosion_radius
+    );
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return false;
@@ -523,10 +542,16 @@ private:
   float _player_speed;
   float _player_size;
 
+  int _blow_capacity;
+  int _blow_consumption;
+  int _blow_regeneration;
+  int _morph_capacity;
+  int _morph_consumption;
+  int _morph_regeneration;
+
   float _bullet_speed;
   float _bullet_radius;
   float _bullet_explosion_radius;
-  uint32_t _fire_delay;
 
   // Entities with x or y coordinate more than '_max_coordinate'
   // will be destroyed.

@@ -95,13 +95,21 @@ class Player : public Entity {
   };
 
 public:
+  // TODO: add Player::Data structure and pass it to the constructor.
+  // XXX: create Shape in WorldManager? What to do with bullet creation?
+  // TODO: BlowTool, MorphTool.
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
     float speed,
     float size,
-    uint32_t fire_delay,
+    int blow_capacity,
+    int blow_consumption,
+    int blow_regeneration,
+    int morph_capacity,
+    int morph_consumption,
+    int morph_regeneration,
     float bullet_radius,
     float bullet_speed,
     float bullet_explosion_radius
@@ -148,19 +156,25 @@ protected:
 
   Vector2 _spawn_position;
 
-  KeyboardState _keyboard_state;
-  KeyboardUpdateTime _keyboard_update_time;
-
-  uint32_t _last_event_time;
   uint32_t _last_update_time;
 
-  uint32_t _fire_delay;
-  uint32_t _last_fire_time;
+  // Regeneration - points per ms.
+  int _blow_charge;
+  int _blow_capacity;
+  int _blow_consumption;
+  int _blow_regeneration;
+  int _morph_charge;
+  int _morph_capacity;
+  int _morph_consumption;
+  int _morph_regeneration;
 
   // Bullet information.
   float _bullet_radius;
   float _bullet_speed;
   float _bullet_explosion_radius;
+
+  KeyboardState _keyboard_state;
+  KeyboardUpdateTime _keyboard_update_time;
 };
 
 class Dummy : public Entity {
