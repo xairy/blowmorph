@@ -1,5 +1,7 @@
 #include "world_manager.hpp"
 
+#include <cmath>
+
 #include <map>
 
 #include <pugixml.hpp>
@@ -14,7 +16,7 @@
 
 namespace bm {
 
-WorldManager::WorldManager() { }
+WorldManager::WorldManager() : _map_type(MAP_NONE) { }
 WorldManager::~WorldManager() {
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
@@ -204,6 +206,22 @@ bool WorldManager::CreateWall(float x, float y, float size) {
   return true;
 }
 
+bool WorldManager::CreateAlignedWall(int x, int y) {
+  CHECK(_map_type == MAP_GRID);
+
+  return CreateWall(x * _block_size, y * _block_size, _block_size);
+}
+
+bool WorldManager::CreateAlignedWall(float x, float y) {
+  CHECK(_map_type == MAP_GRID);
+
+  int xa = static_cast<int>(round(x / _block_size));
+  int ya = static_cast<int>(round(y / _block_size));
+
+  return CreateAlignedWall(xa, ya);
+}
+
+
 bool WorldManager::LoadMap(const std::string& file) {
   pugi::xml_document document;
   pugi::xml_parse_result parse_result = document.load_file(file.c_str());
@@ -213,43 +231,122 @@ bool WorldManager::LoadMap(const std::string& file) {
   }
   pugi::xml_node map_node = document.child("map");
   if(!map_node) {
-    Error::Throw(__FILE__, __LINE__, "Incorrect format of %s!\n", file.c_str());
+    Error::Throw(__FILE__, __LINE__, "Tag 'map' not found in %s!\n", file.c_str());
     return false;
+  }
+
+  pugi::xml_attribute map_type = map_node.attribute("type");
+  if(!map_type) {
+    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'type' in %s!\n", file.c_str());
+    return false;
+  }
+
+  if(std::string(map_type.value()) == "grid") {
+    pugi::xml_attribute block_size = map_node.attribute("block_size");
+    if(!block_size) {
+      Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
+      return false;
+    }
+    _block_size = block_size.as_float();
+    _map_type = MAP_GRID;
+  } else {
+    _map_type = MAP_ARBITRARY;
   }
 
   for(pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
     if(std::string(node.name()) == "wall") {
-      pugi::xml_attribute x = node.attribute("x");
-      pugi::xml_attribute y = node.attribute("y");
-      pugi::xml_attribute size = node.attribute("size");
-      if(!x || !y || !size) {
-        fprintf(stderr, "Warning: incorrect xml node format, ignored.\n");
-      } else {
-        bool rv = CreateWall(x.as_float(), y.as_float(), size.as_float());
-        if(rv == false) {
-          return false;
-        }
+      if(!LoadWall(node)) {
+        return false;
       }
     } else if(std::string(node.name()) == "chunk") {
-      pugi::xml_attribute x = node.attribute("x");
-      pugi::xml_attribute y = node.attribute("y");
-      pugi::xml_attribute width = node.attribute("width");
-      pugi::xml_attribute height = node.attribute("height");
-      pugi::xml_attribute size = node.attribute("size");
-      if(!x || !y || !width || !height || !size) {
-        fprintf(stderr, "Warning: incorrect xml node format, ignored.\n");
-      } else {
-        float x_value = x.as_float();
-        float y_value = y.as_float();
-        int w_value = width.as_int();
-        int h_value = height.as_int();
-        float s_value = size.as_float();
-        for(int i = 0; i < w_value; i++) {
-          for(int j = 0; j < h_value; j++) {
-            bool rv = CreateWall(x_value + i * s_value, y_value + j * s_value, s_value);
-            if(rv == false) {
-              return false;
-            }
+      if(!LoadChunk(node)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool WorldManager::LoadWall(const pugi::xml_node& node) {
+  CHECK(_map_type != MAP_NONE);
+  CHECK(std::string(node.name()) == "wall");
+
+  if(_map_type == MAP_ARBITRARY) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    pugi::xml_attribute size = node.attribute("size");
+    if(!x || !y || !size) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+      return false;
+    } else {
+      bool rv = CreateWall(x.as_float(), y.as_float(), size.as_float());
+      if(rv == false) {
+        return false;
+      }
+    }
+  } else if(_map_type == MAP_GRID) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    if(!x || !y) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+      return false;
+    } else {
+      bool rv = CreateAlignedWall(x.as_int(), y.as_int());
+      if(rv == false) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+bool WorldManager::LoadChunk(const pugi::xml_node& node) {
+  CHECK(_map_type != MAP_NONE);
+  CHECK(std::string(node.name()) == "chunk");
+
+  if(_map_type == MAP_ARBITRARY) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    pugi::xml_attribute width = node.attribute("width");
+    pugi::xml_attribute height = node.attribute("height");
+    pugi::xml_attribute size = node.attribute("size");
+    if(!x || !y || !width || !height || !size) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
+      return false;
+    } else {
+      float xv = x.as_float();
+      float yv = y.as_float();
+      int wv = width.as_int();
+      int hv = height.as_int();
+      float sv = size.as_float();
+      for(int i = 0; i < wv; i++) {
+        for(int j = 0; j < hv; j++) {
+          bool rv = CreateWall(xv + i * sv, yv + j * sv, sv);
+          if(rv == false) {
+            return false;
+          }
+        }
+      }
+    }
+  } else if(_map_type == MAP_GRID) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    pugi::xml_attribute width = node.attribute("width");
+    pugi::xml_attribute height = node.attribute("height");
+    if(!x || !y || !width || !height) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
+      return false;
+    } else {
+      int xv = x.as_int();
+      int yv = y.as_int();
+      int wv = width.as_int();
+      int hv = height.as_int();
+      for(int i = 0; i < wv; i++) {
+        for(int j = 0; j < hv; j++) {
+          bool rv = CreateAlignedWall(xv + i, yv + j);
+          if(rv == false) {
+            return false;
           }
         }
       }

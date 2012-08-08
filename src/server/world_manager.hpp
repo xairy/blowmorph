@@ -4,6 +4,8 @@
 #include <map>
 #include <vector>
 
+#include <pugixml.hpp>
+
 #include <base/pstdint.hpp>
 
 #include "entity.hpp"
@@ -18,6 +20,8 @@ public:
   WorldManager();
   ~WorldManager();
 
+  bool LoadMap(const std::string& file);
+
   void AddEntity(uint32_t id, Entity* entity);
   void DeleteEntity(uint32_t id, bool deallocate);
   void DeleteEntities(const std::vector<uint32_t>& input, bool deallocate);
@@ -30,8 +34,6 @@ public:
   void UpdateEntities(uint32_t time);
   void CollideEntities();
   void DestroyOutlyingEntities(float max_coordinate);
-
-  bool LoadMap(const std::string& file);
 
   bool CreateBullet(
     uint32_t owner_id,
@@ -50,9 +52,27 @@ public:
   );
   bool CreateWall(float x, float y, float size);
 
+  // Works only with grid map.
+  bool CreateAlignedWall(int x, int y);
+
+  // XXX: is it a good idea?
+  bool CreateAlignedWall(float x, float y);
+
+  bool LoadWall(const pugi::xml_node& node);
+  bool LoadChunk(const pugi::xml_node& node);
+
 private:
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
+
+  enum {
+    MAP_NONE,
+    MAP_ARBITRARY,
+    MAP_GRID
+  } _map_type;
+
+  // In case of grid map.
+  float _block_size;
 };
 
 } // namespace bm
