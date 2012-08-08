@@ -307,7 +307,7 @@ private:
     // XXX[24.7.2012 alex]: awful lot of copypasta
     
     //_player_texture = _manager->Load("data/ufo.png", (8 << 16) + (54 << 8) + 129);
-    _player_texture = _manager->Load("data/player2.png", 0);
+    _player_texture = _manager->Load("data/player.png", 0);
     if(_player_texture == NULL) {
       // TODO: set error.
       return false;
