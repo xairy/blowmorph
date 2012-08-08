@@ -21,6 +21,8 @@ template<class T> T GetValue(const RecordMap& ini, const std::string& key, T def
 template<> BM_BASE_DECL std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue);
 template<> BM_BASE_DECL int GetValue(const RecordMap& ini, const std::string& key, int defValue);
 template<> BM_BASE_DECL bool GetValue(const RecordMap& ini, const std::string& key, bool defValue);
+template<> BM_BASE_DECL float GetValue(const RecordMap& ini, const std::string& key, float defValue);
+template<> BM_BASE_DECL double GetValue(const RecordMap& ini, const std::string& key, double defValue);
 
 }}; // namespace bm::ini
 

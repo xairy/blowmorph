@@ -240,6 +240,13 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
       }
     }
   }
+  if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
+    event.button_type == MouseEvent::BUTTON_RIGHT) {
+    // Temporary.    
+    bool rv = _world_manager->CreateWall(static_cast<float>(event.x),
+      static_cast<float>(event.y), 16.0f);
+    CHECK(rv);
+  }
   return true;
 }
 

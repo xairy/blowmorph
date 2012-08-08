@@ -1,9 +1,10 @@
 function copy(src, dst, always)
-  local action = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
+  local action = "python"
+  local script = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
-  postbuildcommands { action .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
+  postbuildcommands { action .. " " .. script .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
 end
 
 function resource(src, dst, always)
@@ -27,8 +28,6 @@ function windows_libdir(basePath)
       end
     end
   end
-  
-  configuration "*"
 end
 
 function windows_binary(basePath, dllName)
@@ -41,8 +40,6 @@ function windows_binary(basePath, dllName)
       end
     end
   end
-  
-  configuration "*"
 end
 
 newaction {

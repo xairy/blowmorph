@@ -319,7 +319,7 @@ private:
       return false;
     }
 
-    _wall_texture = _manager->Load("data/middle_wall.png", 0);
+    _wall_texture = _manager->Load("data/wall_green.png", 0);
     if(_wall_texture == NULL) {
       // TODO: set error.
       return false;
@@ -467,11 +467,14 @@ private:
         break;
       }
 
-      // TODO: handling right (and middle?) mouse buttons.
       case SDL_MOUSEBUTTONDOWN: {
         MouseEvent mouse_event;
         mouse_event.time = _GetTime();
-        mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+        if(event->button.button == SDL_BUTTON_LEFT) {
+          mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+        } else {
+          mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
+        }
         mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
         mouse_event.x = (event->button.x - _resolution_x / 2) + _player->GetPosition().x;
         mouse_event.y = (event->button.y - _resolution_y / 2) + _player->GetPosition().y;
@@ -482,7 +485,11 @@ private:
       case SDL_MOUSEBUTTONUP: {
         MouseEvent mouse_event;
         mouse_event.time = _GetTime();
-        mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+        if(event->button.button == SDL_BUTTON_LEFT) {
+          mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+        } else {
+          mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
+        }
         mouse_event.event_type = MouseEvent::EVENT_KEYUP;
         mouse_event.x = (event->button.x - _resolution_x / 2) + _player->GetPosition().x;
         mouse_event.y = (event->button.y - _resolution_y / 2) + _player->GetPosition().y;
