@@ -50,7 +50,7 @@ public:
     float speed,
     uint32_t time
   );
-  bool CreateWall(float x, float y, float size);
+  bool CreateWall(const Vector2& position, float size);
 
   // Works only with grid map.
   bool CreateAlignedWall(int x, int y);
