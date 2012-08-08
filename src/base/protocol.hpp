@@ -45,8 +45,8 @@ enum EntityType {
 
 struct ClientOptions {
   uint32_t id;
-  float speed;
-  float x, y;
+  float32_t speed;
+  float32_t x, y;
 };
 
 struct TimeSyncData {
@@ -58,8 +58,9 @@ struct EntitySnapshot {
   uint32_t time;
   uint32_t id;
   EntityType type;
-  float x;
-  float y;
+  float32_t x;
+  float32_t y;
+  int32_t data[4];
 };
 
 struct KeyboardEvent {
@@ -92,7 +93,7 @@ struct MouseEvent {
   uint32_t time;
   ButtonType button_type;
   EventType event_type;
-  float x, y;
+  float32_t x, y;
 };
 
 } // namespace protocol
