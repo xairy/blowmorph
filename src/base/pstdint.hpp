@@ -25,10 +25,10 @@ SCHECK(sizeof(int16_t) == 2);
 SCHECK(sizeof(int32_t) == 4);
 SCHECK(sizeof(int64_t) == 8);
 
-typedef float float32;
-typedef double float64;
-SCHECK(sizeof(float32) == 4);
-SCHECK(sizeof(float64) == 8);
+typedef float float32_t;
+typedef double float64_t;
+SCHECK(sizeof(float32_t) == 4);
+SCHECK(sizeof(float64_t) == 8);
 
 // unicode character
 typedef uint32_t uchar;
