@@ -173,5 +173,23 @@ template<> BM_BASE_DECL bool GetValue(const RecordMap& ini, const std::string& k
   }
   return defValue;
 }
+template<> BM_BASE_DECL float GetValue(const RecordMap& ini, const std::string& key, float defValue) {
+  RecordMap::const_iterator it = ini.find(key);
+  if (it != ini.end()) {
+    // XXX[7.09.2012 xairy]: malformed float?
+    return static_cast<float>(atof(it->second.c_str()));
+  }
+  
+  return defValue;
+}
+template<> BM_BASE_DECL double GetValue(const RecordMap& ini, const std::string& key, double defValue) {
+  RecordMap::const_iterator it = ini.find(key);
+  if (it != ini.end()) {
+    // XXX[7.09.2012 xairy]: malformed double?
+    return atof(it->second.c_str());
+  }
+  
+  return defValue;
+}
 
 }}; // namespace bm::ini

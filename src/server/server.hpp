@@ -43,10 +43,6 @@ public:
 
     _is_running = true;
 
-    if(!_world_manager.LoadMap(_map_file)) {
-      return false;
-    }
-
     while(_is_running) {
       if(!_Tick()) {
         return false;
@@ -65,36 +61,38 @@ private:
     }
 
     _is_running = false;
-    _server_port = bm::ini::GetValue(_settings, "server.host", 4242);
+    _server_port = ini::GetValue(_settings, "server.port", 4242);
 
-    _tickrate = bm::ini::GetValue(_settings, "server.tickrate", 20);
+    _tickrate = ini::GetValue(_settings, "server.tick_rate", 20);
     _ticktime = 1000 / _tickrate;
     _last_broadcast = 0;
 
-    _update_rate = bm::ini::GetValue(_settings, "server.updaterate", 100);
+    _update_rate = ini::GetValue(_settings, "server.update_rate", 100);
     _update_time = 1000 / _update_rate;
     _last_update = 0;
 
-    _latency_limit = 500;
+    _latency_limit = ini::GetValue(_settings, "server.latency_limit", 100);
 
     _host = NULL;
     _event = NULL;
 
     _spawn_position = Vector2(0.0f, 0.0f);
 
-    _player_speed = 0.1f;
-    _player_size = 30.0f;
+    _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
+    _player_size = ini::GetValue(_settings, "player.size", 30.0f);
+    _fire_delay = ini::GetValue(_settings, "player.attack_delay", 100);
 
-    _bullet_speed = 0.3f;
-    _bullet_radius = 5.0f;
-    _bullet_explosion_radius = 30.0f;
-    _fire_delay = 100;
-
-    _wall_size = 16.0f;
-
+    _bullet_speed = ini::GetValue(_settings, "bullet.speed", 0.3f);
+    _bullet_radius = ini::GetValue(_settings, "bullet.radius", 5.0f);
+    _bullet_explosion_radius = ini::GetValue(_settings, "bullet.explosion_radius", 30.0f);
+    
     _max_coordinate = 600.0f;
 
-    _map_file = "data/map.xml";
+    _map_file = ini::GetValue(_settings, "server.map", std::string("data/map.xml"));
+
+    if(!_world_manager.LoadMap(_map_file)) {
+      return false;
+    }
 
     std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
@@ -509,6 +507,8 @@ private:
 
   uint32_t _latency_limit;
 
+  std::string _map_file;
+
   Enet _enet;
   ServerHost* _host;
   Event* _event;
@@ -527,13 +527,9 @@ private:
   float _bullet_explosion_radius;
   uint32_t _fire_delay;
 
-  float _wall_size;
-
   // Entities with x or y coordinate more than '_max_coordinate'
   // will be destroyed.
   float _max_coordinate;
-
-  std::string _map_file;
 
   bm::ini::RecordMap _settings;
 };
