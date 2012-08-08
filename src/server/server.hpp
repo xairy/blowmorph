@@ -76,7 +76,7 @@ private:
     _host = NULL;
     _event = NULL;
 
-    _spawn_position = Vector2(0.0f, 0.0f);
+    _spawn_position = Vector2(-50.0f, -50.0f);
 
     _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
     _player_size = ini::GetValue(_settings, "player.size", 30.0f);
@@ -269,6 +269,7 @@ private:
       Error::Set(Error::TYPE_MEMORY);
       return false;
     }
+    player->SetSpawnPosition(_spawn_position);
     Client* client = new Client(peer.release(), player);
     if(client == NULL) {
       Error::Set(Error::TYPE_MEMORY);
