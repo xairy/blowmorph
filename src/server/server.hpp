@@ -22,6 +22,11 @@
 #include "shape.hpp"
 #include "world_manager.hpp"
 
+#include "bullet.hpp"
+#include "dummy.hpp"
+#include "player.hpp"
+#include "wall.hpp"
+
 namespace bm {
 
 using namespace protocol;

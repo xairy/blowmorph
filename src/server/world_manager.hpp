@@ -11,6 +11,11 @@
 #include "entity.hpp"
 #include "vector.hpp"
 
+#include "bullet.hpp"
+#include "dummy.hpp"
+#include "player.hpp"
+#include "wall.hpp"
+
 namespace bm {
 
 class Entity;

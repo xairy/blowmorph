@@ -14,6 +14,11 @@
 #include "id_manager.hpp"
 #include "vector.hpp"
 
+#include "bullet.hpp"
+#include "dummy.hpp"
+#include "player.hpp"
+#include "wall.hpp"
+
 namespace bm {
 
 WorldManager::WorldManager() : _map_type(MAP_NONE) { }
