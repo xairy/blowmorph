@@ -153,6 +153,8 @@ EntitySnapshot Player::GetSnapshot(uint32_t time) {
   result.id = _id;
   result.x = _prev_position.x;
   result.y = _prev_position.y;
+  result.data[0] = _blow_charge;
+  result.data[1] = _morph_charge;
   return result;
 }
 
@@ -275,6 +277,19 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
 
 float Player::GetSpeed() const {
   return _speed;
+}
+
+int Player::GetBlowCharge() const {
+  return _blow_charge;
+}
+int Player::GetBlowCapacity() const {
+  return _blow_capacity;
+}
+int Player::GetMorphCharge() const {
+  return _morph_charge;
+}
+int Player::GetMorphCapacity() const {
+  return _morph_capacity;
 }
 
 void Player::SetSpawnPosition(const Vector2& position) {

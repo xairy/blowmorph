@@ -132,6 +132,11 @@ public:
 
   float GetSpeed() const;
 
+  int GetBlowCharge() const;
+  int GetBlowCapacity() const;
+  int GetMorphCharge() const;
+  int GetMorphCapacity() const;
+
   void SetSpawnPosition(const Vector2& position);
   void Respawn();
 
