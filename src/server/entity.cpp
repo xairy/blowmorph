@@ -63,7 +63,12 @@ Player* Player::Create(
   const Vector2& position,
   float speed,
   float size,
-  uint32_t fire_delay,
+  int blow_capacity,
+  int blow_consumption,
+  int blow_regeneration,
+  int morph_capacity,
+  int morph_consumption,
+  int morph_regeneration,
   float bullet_radius,
   float bullet_speed,
   float bullet_explosion_radius
@@ -85,10 +90,15 @@ Player* Player::Create(
   player->_spawn_position = Vector2(0.0f, 0.0f);
 
   player->_last_update_time = 0;
-  player->_last_event_time = 0;
 
-  player->_last_fire_time = 0;
-  player->_fire_delay = fire_delay;
+  player->_blow_charge = blow_capacity;
+  player->_blow_capacity = blow_capacity;
+  player->_blow_consumption = blow_consumption;
+  player->_blow_regeneration = blow_regeneration;
+  player->_morph_charge = morph_capacity;
+  player->_morph_capacity = morph_capacity;
+  player->_morph_consumption = morph_consumption;
+  player->_morph_regeneration = morph_regeneration;
 
   player->_bullet_radius = bullet_radius;
   player->_bullet_speed = bullet_speed;
@@ -115,15 +125,25 @@ bool Player::IsStatic() {
 }
 
 void Player::Update(uint32_t time) {
+  float delta_time = time - _last_update_time;
+  _last_update_time = time;
+
   _prev_position = _shape->GetPosition();
   Vector2 velocity;
   velocity.x = _keyboard_state.left * (-_speed)
     + _keyboard_state.right * (_speed);
   velocity.y = _keyboard_state.up * (-_speed)
     + _keyboard_state.down * (_speed);
-  float delta_time = static_cast<float>(time - _last_update_time);
-  _shape->Move(velocity * delta_time);
-  _last_update_time = time;
+  _shape->Move(velocity * static_cast<float>(delta_time));
+
+  _blow_charge += delta_time * _blow_regeneration;
+  if(_blow_charge > _blow_capacity) {
+    _blow_charge = _blow_capacity;
+  }
+  _morph_charge += delta_time * _morph_regeneration;
+  if(_morph_charge > _morph_capacity) {
+    _morph_charge = _morph_capacity;
+  }
 }
 
 EntitySnapshot Player::GetSnapshot(uint32_t time) {
@@ -144,7 +164,6 @@ void Player::OnEntityDisappearance(Entity* entity) {
 }
 
 void Player::SetPosition(const Vector2& position) {
-  //_prev_position = _shape->GetPosition();
   _prev_position = position;
   _shape->SetPosition(position);
 }
@@ -229,8 +248,8 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
 bool Player::OnMouseEvent(const MouseEvent& event) {
   if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
-    if(event.time >= _last_fire_time + _fire_delay) {
-      _last_fire_time = event.time;
+    if(_blow_charge >= _blow_consumption) {
+      _blow_charge -= _blow_consumption;
       Vector2 start = GetPosition();
       Vector2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       if(_world_manager->CreateBullet(_id, start, end, _bullet_speed,
@@ -242,10 +261,14 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
   }
   if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_RIGHT) {
-    // Temporary.    
-    bool rv = _world_manager->CreateAlignedWall(static_cast<float>(event.x),
-      static_cast<float>(event.y));
-    CHECK(rv);
+    if(_morph_charge >= _morph_consumption) {
+      _morph_charge -= _morph_consumption;
+      if(_world_manager->CreateAlignedWall(static_cast<float>(event.x),
+        static_cast<float>(event.y)) == false)
+      {
+        return false;
+      }
+    }
   }
   return true;
 }
