@@ -47,6 +47,8 @@ struct ClientOptions {
   uint32_t id;
   float32_t speed;
   float32_t x, y;
+  int32_t blow_capacity;
+  int32_t morph_capacity;
 };
 
 struct TimeSyncData {
@@ -54,13 +56,16 @@ struct TimeSyncData {
   uint32_t server_time;
 };
 
+// type == BM_ENTITY_PLAYER:
+//   data[0] - blow charge
+//   data[1] - morph charge
 struct EntitySnapshot {
   uint32_t time;
   uint32_t id;
   EntityType type;
   float32_t x;
   float32_t y;
-  int32_t data[4];
+  int32_t data[2];
 };
 
 struct KeyboardEvent {
