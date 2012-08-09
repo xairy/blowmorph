@@ -1,5 +1,5 @@
-﻿#ifndef BLOWMORPH_TEXTURE_HPP_
-#define BLOWMORPH_TEXTURE_HPP_
+﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_HPP_
+#define BLOWMORPH_CLIENT_TEXTURE_HPP_
 
 #include <cstring>
 #include <string>
@@ -23,8 +23,6 @@ SCHECK(sizeof(rgba) == 4);
 template<class T>
 class texture {
 public:
-  typedef T ElementType;
-
   texture() {
     _data = NULL;
     _width = 0;
@@ -53,7 +51,7 @@ public:
     }
     
     _free();
-    _data = (T*) ::malloc(sizeof(T) * w * h);
+    _data = new T[w * h];
     _width = w;
     _height = h;
   }
@@ -78,7 +76,7 @@ private:
   
   void _free() {
     if (_data != NULL) {
-      ::free(_data);
+      delete[] _data;
       _data = NULL;
       _width = 0;
       _height = 0;
@@ -88,7 +86,7 @@ private:
 
 template<class T>
 void copy(texture<T>& dst, const texture<T>& src) {
-  // if it's the same texture, do nothing
+  // If it's the same texture, do nothing.
   if (dst.ptr() == src.ptr()) {
     return;
   }
@@ -97,6 +95,8 @@ void copy(texture<T>& dst, const texture<T>& src) {
   ::memcpy(dst.ptr(), src.ptr(), src.size());
 }
 
+// XXX[90.08.2012 xairy]: Is this code really needed?
+/*
 template<class U, class F>
 void apply(texture<U>& tex, F f) {
   size_t width = tex.width();
@@ -123,10 +123,11 @@ void unaryOp(texture<U>& dst, const texture<V>& src, F f) {
     }
   }
 }
+*/
 
 bool LoadRGBA(texture<rgba>& dst, const std::string& path);
 bool SaveRGBA(const std::string& path, const texture<rgba>& src);
 
 }; // namespace bm
 
-#endif//BLOWMORPH_TEXTURE_HPP_
+#endif // BLOWMORPH_CLIENT_TEXTURE_HPP_
