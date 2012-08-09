@@ -86,7 +86,7 @@ private:
 
 template<class T>
 void copy(texture<T>& dst, const texture<T>& src) {
-  // If it's the same texture, do nothing.
+  // if it's the same texture, do nothing
   if (dst.ptr() == src.ptr()) {
     return;
   }
