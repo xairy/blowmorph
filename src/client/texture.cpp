@@ -5,11 +5,13 @@ namespace {
 
 // Loads an image using FreeImage API. Selects image format based
 // on file extension or image file signature.
+// Returns 'NULL' on error.
 FIBITMAP* LoadImage(const char* fileName) {
+  CHECK(fileName != NULL);
+
   FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
   
-  // first try to guess file format from
-  // its signature
+  // first try to guess file format from its signature
   fif = FreeImage_GetFileType(fileName, 0);
   if (fif == FIF_UNKNOWN) {
     // otherwise from file name
@@ -26,19 +28,24 @@ FIBITMAP* LoadImage(const char* fileName) {
 
 // Saves an image using FreeImage API. Selects image format based
 // on file extension.
+// Return 'true' on success, return 'false' on failure.
 bool SaveImage(const char* fileName, FIBITMAP* src) {
+  CHECK(fileName != NULL);
+  CHECK(src != NULL);
+
   FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
   fif = FreeImage_GetFIFFromFilename(fileName);
   
   if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
-    FreeImage_Save(fif, src, fileName, 0);
-    return true;
+    bool rv = FreeImage_Save(fif, src, fileName, 0);
+    return rv;
   }
   return false;
 }
 
 // Converts a bitmap to a 32-bit RGBA format.
 void ConvertBitmapTo32Bits(FIBITMAP** dib) {
+  CHECK(dib != NULL);
   CHECK(*dib != NULL);
   
   // if bitmap is already converted, do nothing
