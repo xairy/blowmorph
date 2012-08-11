@@ -57,12 +57,13 @@ public:
   );
   bool CreateWall(const Vector2& position, float size);
 
-  // Works only with grid map.
-  bool CreateAlignedWall(float x, float y);
-
   bool LoadWall(const pugi::xml_node& node);
   bool LoadChunk(const pugi::xml_node& node);
 
+  // Works only with grid map.
+  bool CreateAlignedWall(float x, float y);
+
+  // Works only with grid map.
   bool Blow(const Vector2& location, float radius);
   bool Morph(const Vector2& location, int radius);
 
@@ -79,7 +80,7 @@ private:
     MAP_GRID
   } _map_type;
 
-  // In case of grid map.
+  // Works only with grid map.
   float _block_size;
 };
 
