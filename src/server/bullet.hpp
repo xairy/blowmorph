@@ -67,12 +67,6 @@ protected:
   float _speed;
 
   float _explosion_radius;
-
-  /*enum {
-    STATE_FIRED,
-    STATE_WILL_EXPLODE,
-    STATE_EXPLODED
-  } _state;*/
 };
 
 } // namespace bm

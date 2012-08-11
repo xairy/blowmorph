@@ -211,21 +211,20 @@ bool WorldManager::CreateWall(const Vector2& position, float size) {
   return true;
 }
 
-bool WorldManager::CreateAlignedWall(int x, int y) {
-  CHECK(_map_type == MAP_GRID);
-
-  return CreateWall(Vector2(x * _block_size, y * _block_size), _block_size);
-}
-
 bool WorldManager::CreateAlignedWall(float x, float y) {
   CHECK(_map_type == MAP_GRID);
 
   int xa = static_cast<int>(round(x / _block_size));
   int ya = static_cast<int>(round(y / _block_size));
 
-  return CreateAlignedWall(xa, ya);
+  return _CreateAlignedWall(xa, ya);
 }
 
+bool WorldManager::_CreateAlignedWall(int x, int y) {
+  CHECK(_map_type == MAP_GRID);
+
+  return CreateWall(Vector2(x * _block_size, y * _block_size), _block_size);
+}
 
 bool WorldManager::LoadMap(const std::string& file) {
   pugi::xml_document document;
@@ -297,7 +296,7 @@ bool WorldManager::LoadWall(const pugi::xml_node& node) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
       return false;
     } else {
-      bool rv = CreateAlignedWall(x.as_int(), y.as_int());
+      bool rv = _CreateAlignedWall(x.as_int(), y.as_int());
       if(rv == false) {
         return false;
       }
@@ -349,7 +348,7 @@ bool WorldManager::LoadChunk(const pugi::xml_node& node) {
       int hv = height.as_int();
       for(int i = 0; i < wv; i++) {
         for(int j = 0; j < hv; j++) {
-          bool rv = CreateAlignedWall(xv + i, yv + j);
+          bool rv = _CreateAlignedWall(xv + i, yv + j);
           if(rv == false) {
             return false;
           }
@@ -380,5 +379,20 @@ void WorldManager::Blow(const Vector2& location, float radius) {
     }
   }
 }
+
+void WorldManager::Morph(const Vector2& location, int radius) {
+  int lx = round(static_cast<float>(location.x) / _block_size);
+  int ly = round(static_cast<float>(location.y) / _block_size);
+  for(int x = -radius; x <= radius; x++) {
+    for(int y = -radius; y <= radius; y++) {
+      if(x * x + y * y <= radius * radius) {
+        bool rv = _CreateAlignedWall(lx + x, ly + y);
+        // XXX[11.08.2012 xairy]: handle error.
+        CHECK(rv == true);
+      }
+    }
+  }
+}
+
 
 } // namespace bm
