@@ -1,5 +1,6 @@
-﻿#include <FreeImage.h>
-#include "texture.hpp"
+﻿#include "texture.hpp"
+
+#include <FreeImage.h>
 
 namespace {
 
@@ -58,7 +59,7 @@ void ConvertBitmapTo32Bits(FIBITMAP** dib) {
   *dib = temp;
 }
 
-void BitmapToTex(bm::texture<bm::rgba>& dst, FIBITMAP* src) {
+void BitmapToTex(bm::texture& dst, FIBITMAP* src) {
   CHECK(src != NULL);
   
   // must be a 32-bit bitmap
@@ -69,7 +70,7 @@ void BitmapToTex(bm::texture<bm::rgba>& dst, FIBITMAP* src) {
   size_t height = FreeImage_GetHeight(src);
   size_t pitch = FreeImage_GetPitch(src);
   
-  dst.setSize(width, height);
+  dst.SetSize(width, height);
   
   unsigned char* data = reinterpret_cast<unsigned char*>(FreeImage_GetBits(src));
   CHECK(data != NULL);
@@ -87,7 +88,7 @@ void BitmapToTex(bm::texture<bm::rgba>& dst, FIBITMAP* src) {
   }
 }
 
-void TexToBitmap(FIBITMAP* dst, const bm::texture<bm::rgba>& src) {
+void TexToBitmap(FIBITMAP* dst, const bm::texture& src) {
   CHECK(dst != NULL);
   
   // must be a 32-bit bitmap
@@ -95,8 +96,8 @@ void TexToBitmap(FIBITMAP* dst, const bm::texture<bm::rgba>& src) {
   CHECK(FreeImage_GetBPP(dst) == 32);
   
   // sizes must be equal
-  CHECK(FreeImage_GetWidth(dst) == src.width());
-  CHECK(FreeImage_GetHeight(dst) == src.height());
+  CHECK(FreeImage_GetWidth(dst) == src.Width());
+  CHECK(FreeImage_GetHeight(dst) == src.Height());
 
   size_t width = FreeImage_GetWidth(dst);
   size_t height = FreeImage_GetHeight(dst);
@@ -118,11 +119,11 @@ void TexToBitmap(FIBITMAP* dst, const bm::texture<bm::rgba>& src) {
   }
 }
 
-}; // anonymous namespace
+} // anonymous namespace
 
 namespace bm {
 
-bool LoadRGBA(texture<rgba>& tex, const std::string& path) {
+bool LoadRGBA(texture& tex, const std::string& path) {
   FIBITMAP* dib = LoadImage(path.c_str());
   if (dib == NULL) {
     return false;
@@ -145,9 +146,9 @@ bool LoadRGBA(texture<rgba>& tex, const std::string& path) {
   return true;
 }
 
-bool SaveRGBA(const std::string& path, const texture<rgba>& src) {
+bool SaveRGBA(const std::string& path, const texture& src) {
   // XXX[29.7.2012 alex]: casts size_t to int
-  FIBITMAP* dib = FreeImage_Allocate(static_cast<int>(src.width()), static_cast<int>(src.height()), 32);
+  FIBITMAP* dib = FreeImage_Allocate(static_cast<int>(src.Width()), static_cast<int>(src.Height()), 32);
   if (dib == NULL) {
     return false;
   }
@@ -164,4 +165,30 @@ bool SaveRGBA(const std::string& path, const texture<rgba>& src) {
   return true;
 }
 
-}; // namespace bm
+void LoadGLTexture(GLuint id, const bm::texture& tex) {
+  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, id);
+  
+  // set bilinear filtering
+  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  
+  // load texture data
+  // XXX[29.7.2012 alex]: casts size_t to GLsizei
+  glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, 
+    static_cast<GLsizei>(tex.Width()), static_cast<GLsizei>(tex.Height()), 
+    0, GL_RGBA, GL_UNSIGNED_BYTE, tex.Data());
+}
+
+// Makes an OpenGL texture.
+GLuint MakeGLTexture(const bm::texture& tex) {
+  GLuint textureID;
+
+  glGenTextures(1, &textureID);
+  CHECK(textureID != 0);
+  
+  LoadGLTexture(textureID, tex);
+  
+  return textureID;
+}
+
+} // namespace bm

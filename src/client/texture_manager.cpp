@@ -1,21 +1,20 @@
 ﻿#include "texture_manager.hpp"
 #include "texture.hpp"
-#include "gltex.hpp"
 
 // TODO[24.7.2012 alex]: the whole TextureManager is not really needed
 // TODO[24.7.2012 alex]: better think of something like "ResourceManager"
 
 namespace {
 
-void MakeColorTransparent(bm::texture<bm::rgba>& tex, ::uint32_t transparentColor) {
+void MakeColorTransparent(bm::texture& tex, ::uint32_t transparentColor) {
   CHECK((transparentColor & 0xFF000000) == 0);
   
   bm::rgb clr = bm::rgb((transparentColor >> 16) & 0xFF,
                         (transparentColor >>  8) & 0xFF,
                         (transparentColor >>  0) & 0xFF);
                         
-  for (size_t y = 0; y < tex.height(); y++) {
-    for (size_t x = 0; x < tex.width(); x++) {
+  for (size_t y = 0; y < tex.Height(); y++) {
+    for (size_t x = 0; x < tex.Width(); x++) {
       if (tex(x, y).r == clr.r && tex(x, y).g == clr.g && tex(x, y).b == clr.b) {
         tex(x, y).a = 0;
       }
@@ -23,9 +22,9 @@ void MakeColorTransparent(bm::texture<bm::rgba>& tex, ::uint32_t transparentColo
   }
 }
 
-//void PopulateTileSetInfo(const bm::texture<bm::rgba>& tex, bm::TileSetInfo& info) {
-//  size_t width = tex.width();
-//  size_t height = tex.height();
+//void PopulateTileSetInfo(const bm::texture& tex, bm::TileSetInfo& info) {
+//  size_t width = tex.Width();
+//  size_t height = tex.Height();
 //  
 //  if (info.tileWidth == 0) {
 //    info.tileWidth = width;
@@ -110,7 +109,7 @@ Texture* TextureManager::Load(const std::string& path,
     return textures[path];
   }
   
-  bm::texture<bm::rgba> tex;
+  bm::texture tex;
   bm::LoadRGBA(tex, path);
   
   if (transparentColor != 0xFFFFFFFF) {
@@ -120,7 +119,7 @@ Texture* TextureManager::Load(const std::string& path,
   
   Texture* result = new Texture();
   result->textureID = bm::MakeGLTexture(tex);
-  result->size = glm::uvec2(tex.width(), tex.height());
+  result->size = glm::uvec2(tex.Width(), tex.Height());
   /*result->tileSetInfo = TileSetInfo(startX, startY, 
                                     horizontalStep, verticalStep, 
                                     tileWidth, tileHeight);
