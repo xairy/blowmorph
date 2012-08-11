@@ -90,6 +90,10 @@ void Dummy::OnEntityDisappearance(Entity* entity) {
   }
 }
 
+void Dummy::Damage() {
+  Destroy();
+}
+
 void Dummy::SetPosition(const Vector2& position) {
   _prev_position = position;
   _shape->SetPosition(position);

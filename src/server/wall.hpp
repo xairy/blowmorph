@@ -33,6 +33,8 @@ public:
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
+  virtual void Damage();
+
   // Double dispatch. Collision detection.
 
   virtual bool Collide(Entity* entity);

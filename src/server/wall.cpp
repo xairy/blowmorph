@@ -64,6 +64,10 @@ void Wall::OnEntityDisappearance(Entity* entity) {
 
 }
 
+void Wall::Damage() {
+  Destroy();
+}
+
 // Double dispatch. Collision detection.
 
 bool Wall::Collide(Entity* entity) {

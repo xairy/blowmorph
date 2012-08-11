@@ -35,6 +35,8 @@ public:
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
+  virtual void Damage();
+
   virtual void SetPosition(const Vector2& position);
 
   // Double dispatch. Collision detection.

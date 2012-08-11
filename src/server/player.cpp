@@ -122,6 +122,10 @@ void Player::OnEntityDisappearance(Entity* entity) {
 
 }
 
+void Player::Damage() {
+  Respawn();
+}
+
 void Player::SetPosition(const Vector2& position) {
   _prev_position = position;
   _shape->SetPosition(position);

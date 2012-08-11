@@ -66,6 +66,9 @@ public:
   bool LoadWall(const pugi::xml_node& node);
   bool LoadChunk(const pugi::xml_node& node);
 
+  void Blow(const Vector2& location, float radius);
+  //void Morph(const Vector2& location, float radius);
+
 private:
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
