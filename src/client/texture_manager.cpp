@@ -1,4 +1,11 @@
 ﻿#include "texture_manager.hpp"
+
+#include <map>
+#include <string>
+
+#include <base/error.hpp>
+#include <base/pstdint.hpp>
+
 #include "texture.hpp"
 
 // TODO[24.7.2012 alex]: the whole TextureManager is not really needed
@@ -118,6 +125,10 @@ Texture* TextureManager::Load(const std::string& path,
   }
   
   Texture* result = new Texture();
+  if(result == NULL) {
+    Error::Set(Error::TYPE_MEMORY);
+    return false;
+  }
   result->textureID = bm::MakeGLTexture(tex);
   result->size = glm::uvec2(tex.Width(), tex.Height());
   /*result->tileSetInfo = TileSetInfo(startX, startY, 

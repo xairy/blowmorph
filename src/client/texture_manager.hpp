@@ -1,8 +1,8 @@
-﻿#ifndef BLOWMORPH_TEXTUREMANAGER_HPP_
-#define BLOWMORPH_TEXTUREMANAGER_HPP_
+﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
+#define BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
 
-#include <string>
 #include <map>
+#include <string>
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
@@ -11,9 +11,6 @@
 #include <base/pstdint.hpp>
 
 namespace bm {
-
-class Texture;
-class TextureManager;
 
 //struct TileSetInfo {
 //  size_t startX;
@@ -60,7 +57,7 @@ public:
   ~TextureManager();
   
   // Loads an image or a tileset from a given path.
-  // FIXME: returns NULL on failure?
+  // Returns NULL on failure.
   Texture* Load(const std::string& path,
                 //size_t startX = 0, size_t startY = 0, 
                 //size_t horizontalStep = 0, size_t verticalStep = 0,
@@ -70,8 +67,6 @@ public:
   // Unloads the given texture.
   void Unload(Texture* texture);
 
-  // FIXME: можно ли Load'ом загрузить одну и ту же текстуру дважды? Тогда как
-  // поведёт себя Unload по пути? Вам правда нужно обе версии метода?
   //void Unload(const std::string& path);
   
   // Unloads all previously loaded textures. 
@@ -84,4 +79,4 @@ private:
 
 }; // namespace bm
 
-#endif /*BLOWMORPH_TEXTUREMANAGER_HPP_*/
+#endif // BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
