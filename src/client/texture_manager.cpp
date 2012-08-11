@@ -29,27 +29,27 @@ void MakeColorTransparent(bm::texture& tex, ::uint32_t transparentColor) {
   }
 }
 
-//void PopulateTileSetInfo(const bm::texture& tex, bm::TileSetInfo& info) {
-//  size_t width = tex.Width();
-//  size_t height = tex.Height();
-//  
-//  if (info.tileWidth == 0) {
-//    info.tileWidth = width;
-//  }
-//  if (info.tileHeight == 0) {
-//    info.tileHeight = height;
-//  }
-//  if (info.horizontalStep == 0) {
-//    info.horizontalStep = info.tileWidth;
-//  }
-//  if (info.verticalStep == 0) {
-//    info.verticalStep = info.tileHeight;
-//  }
-//  
-//  info.tileSetWidth = (width - info.startX) / info.horizontalStep;
-//  info.tileSetHeight = (height - info.startY) / info.verticalStep;
-//  info.tileCount = info.tileSetWidth * info.tileSetHeight;
-//}
+void PopulateTileSetInfo(const bm::texture& tex, bm::TileSetInfo& info) {
+  size_t width = tex.Width();
+  size_t height = tex.Height();
+  
+  if (info.tileWidth == 0) {
+    info.tileWidth = width;
+  }
+  if (info.tileHeight == 0) {
+    info.tileHeight = height;
+  }
+  if (info.horizontalStep == 0) {
+    info.horizontalStep = info.tileWidth;
+  }
+  if (info.verticalStep == 0) {
+    info.verticalStep = info.tileHeight;
+  }
+  
+  info.tileSetWidth = (width - info.startX) / info.horizontalStep;
+  info.tileSetHeight = (height - info.startY) / info.verticalStep;
+  info.tileCount = info.tileSetWidth * info.tileSetHeight;
+}
 
 template<class U, class V>
 typename std::map<U, V>::iterator FindInMap(std::map<U, V>& m, V& value) {
@@ -61,7 +61,7 @@ typename std::map<U, V>::iterator FindInMap(std::map<U, V>& m, V& value) {
   return m.end();
 }
 
-}; // anonymous namespace
+} // anonymous namespace
 
 namespace bm {
 
@@ -70,27 +70,27 @@ GLuint Texture::GetID() const {
   return textureID;
 }
 
-//size_t Texture::GetTileCount() const {
-//  assert(textureID != 0);
-//  return tileSetInfo.tileCount;
-//}
-//
-//glm::uvec2 Texture::GetTilePosition(size_t i) const {
-//  assert(textureID != 0);
-//  assert(i < GetTileCount());
-//  
-//  size_t tileY = i / tileSetInfo.tileSetWidth;
-//  size_t tileX = i % tileSetInfo.tileSetWidth;
-//  
-//  return glm::uvec2(tileSetInfo.startX + tileSetInfo.horizontalStep * tileX, 
-//                    tileSetInfo.startY + tileSetInfo.verticalStep * tileY);
-//}
-//glm::uvec2 Texture::GetTileSize(size_t i) const {
-//  assert(textureID != 0);
-//  assert(i < GetTileCount());
-//  
-//  return glm::uvec2(tileSetInfo.tileWidth, tileSetInfo.tileHeight);
-//}
+size_t Texture::GetTileCount() const {
+  assert(textureID != 0);
+  return tileSetInfo.tileCount;
+}
+
+glm::uvec2 Texture::GetTilePosition(size_t i) const {
+  assert(textureID != 0);
+  assert(i < GetTileCount());
+  
+  size_t tileY = i / tileSetInfo.tileSetWidth;
+  size_t tileX = i % tileSetInfo.tileSetWidth;
+  
+  return glm::uvec2(tileSetInfo.startX + tileSetInfo.horizontalStep * tileX, 
+                    tileSetInfo.startY + tileSetInfo.verticalStep * tileY);
+}
+glm::uvec2 Texture::GetTileSize(size_t i) const {
+  assert(textureID != 0);
+  assert(i < GetTileCount());
+  
+  return glm::uvec2(tileSetInfo.tileWidth, tileSetInfo.tileHeight);
+}
 
 glm::uvec2 Texture::GetSize() const {
   CHECK(textureID != 0);
@@ -108,10 +108,10 @@ TextureManager::~TextureManager() {
 }
 
 Texture* TextureManager::Load(const std::string& path,
-                              /*size_t startX, size_t startY, 
+                              bm::uint32_t transparentColor,
+                              size_t startX, size_t startY, 
                               size_t horizontalStep, size_t verticalStep,
-                              size_t tileWidth, size_t tileHeight,*/
-                              bm::uint32_t transparentColor) {
+                              size_t tileWidth, size_t tileHeight) {
   if (textures.find(path) != textures.end()) {
     return textures[path];
   }
@@ -134,10 +134,10 @@ Texture* TextureManager::Load(const std::string& path,
   }
   result->textureID = bm::MakeGLTexture(tex);
   result->size = glm::uvec2(tex.Width(), tex.Height());
-  /*result->tileSetInfo = TileSetInfo(startX, startY, 
+  result->tileSetInfo = TileSetInfo(startX, startY, 
                                     horizontalStep, verticalStep, 
                                     tileWidth, tileHeight);
-  PopulateTileSetInfo(tex, result->tileSetInfo);*/
+  PopulateTileSetInfo(tex, result->tileSetInfo);
   textures[path] = result;
   return result;
 }
@@ -171,4 +171,4 @@ void TextureManager::UnloadAll() {
   textures.clear();
 }
 
-}; // namespace bm
+} // namespace bm

@@ -12,7 +12,7 @@ public:
   Sprite();
   ~Sprite();
  
-  bool Init(bm::Texture* texture);
+  bool Init(bm::Texture* texture, size_t tile = 0);
   
   // Renders sprite using OpenGL API.
   void Render();
@@ -55,6 +55,7 @@ private:
   glm::float_t angle;
   
   bm::Texture* texture;
+  size_t tile;
 };
 
 } // namespace bm
