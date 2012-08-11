@@ -1,10 +1,13 @@
-﻿#define _USE_MATH_DEFINES
+﻿#include "sprite.hpp"
+
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "sprite.hpp"
+#include <base/macros.hpp>
+
 #include "texture_manager.hpp"
 
 namespace bm {
@@ -13,6 +16,7 @@ Sprite::Sprite() { }
 Sprite::~Sprite() { }
 
 bool Sprite::Init(bm::Texture* texture) {
+  CHECK(texture != NULL);
   this->texture = texture;
   
   zIndex = 0;
@@ -32,7 +36,7 @@ void Sprite::Render() {
   //glLoadIdentity();
   glTranslatef(position.x, position.y, 0);
   glScalef(scale.x, scale.y, 1.0);
-  glRotatef((GLfloat) (angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
+  glRotatef(static_cast<GLfloat>(angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
   
   glm::uvec2 size = texture->GetSize();
   // XXX
@@ -104,4 +108,4 @@ void Sprite::Move(const glm::vec2& value) {
   position += value;
 }
 
-}; // namespace bm
+} // namespace bm
