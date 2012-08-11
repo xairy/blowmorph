@@ -43,7 +43,6 @@ Bullet* Bullet::Create(
   bullet->_speed = speed;
   bullet->_start_time = time;
   bullet->_explosion_radius = explosion_radius;
-  bullet->_state = STATE_FIRED;
 
   return bullet.release();
 }
@@ -64,15 +63,6 @@ void Bullet::Update(uint32_t time) {
     float dt = static_cast<float>(time - _start_time);
     _shape->SetPosition(_start + direction / magnitude * dt * _speed);
   }
-  if(_state == STATE_WILL_EXPLODE) {
-    // TODO: think about a better way to do it.
-    Vector2 position = _shape->GetPosition();
-    delete _shape;
-    _shape = new Circle(position, _explosion_radius);
-    // TODO: replace CHECK with error notification.
-    CHECK(_shape != NULL);
-    _state = STATE_EXPLODED;
-  }
 }
 
 EntitySnapshot Bullet::GetSnapshot(uint32_t time) {
@@ -92,13 +82,13 @@ void Bullet::OnEntityDisappearance(Entity* entity) {
 
 }
 
-bool Bullet::IsExploded() const {
-  return _state == STATE_EXPLODED;
+void Bullet::Damage() {
+  Destroy();
 }
 
-// The bullet will be exploded after the next 'Update()' call.
 void Bullet::Explode() {
-  _state = STATE_WILL_EXPLODE;
+  _world_manager->Blow(_shape->GetPosition(), _explosion_radius);
+  Destroy();
 }
 
 // Double dispatch. Collision detection.

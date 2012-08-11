@@ -38,9 +38,9 @@ public:
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  // The bullet will be exploded after the next 'Update()' call.
-  virtual void Explode();
-  virtual bool IsExploded() const;
+  virtual void Damage();
+
+  void Explode();
 
   // Double dispatch. Collision detection.
 
@@ -68,11 +68,11 @@ protected:
 
   float _explosion_radius;
 
-  enum {
+  /*enum {
     STATE_FIRED,
     STATE_WILL_EXPLODE,
     STATE_EXPLODED
-  } _state;
+  } _state;*/
 };
 
 } // namespace bm

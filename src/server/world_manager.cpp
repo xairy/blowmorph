@@ -13,6 +13,7 @@
 #include "entity.hpp"
 #include "id_manager.hpp"
 #include "vector.hpp"
+#include "shape.hpp"
 
 #include "bullet.hpp"
 #include "dummy.hpp"
@@ -358,6 +359,26 @@ bool WorldManager::LoadChunk(const pugi::xml_node& node) {
   }
 
   return true;
+}
+
+void WorldManager::Blow(const Vector2& location, float radius) {
+  Shape* explosion = new Circle(location, radius);
+  // XXX[11.08.2012 xairy]: handle error.
+  CHECK(explosion != NULL);
+
+  std::map<uint32_t, Entity*>::iterator i;
+  for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
+    Entity* entity = i->second;
+    if(explosion->Collide(entity->GetShape())) {
+      entity->Damage();
+    }
+  }
+  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
+    Entity* entity = i->second;
+    if(explosion->Collide(entity->GetShape())) {
+      entity->Damage();
+    }
+  }
 }
 
 } // namespace bm
