@@ -117,7 +117,10 @@ Texture* TextureManager::Load(const std::string& path,
   }
   
   bm::texture tex;
-  bm::LoadRGBA(tex, path);
+  if (!bm::LoadRGBA(tex, path)) {
+    BM_ERROR("Unable to load texture.");
+    return NULL;
+  }
   
   if (transparentColor != 0xFFFFFFFF) {
     transparentColor &= 0x00FFFFFF;
