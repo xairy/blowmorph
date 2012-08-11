@@ -98,7 +98,7 @@ public:
   // TODO: think about CHECK's and stuff.
   bool EnableCaption() {
     CHECK(_caption_enabled == false);
-    bool rv = _text_writer.InitFont("data/tahoma.ttf", 10);
+    bool rv = _text_writer.InitFont("data/fonts/tahoma.ttf", 10);
     if(rv == false) {
       return false;
     }
@@ -306,32 +306,32 @@ private:
     
     // XXX[24.7.2012 alex]: awful lot of copypasta
     
-    //_player_texture = _manager->Load("data/ufo.png", (8 << 16) + (54 << 8) + 129);
-    _player_texture = _manager->Load("data/player.png", 0);
+    //_player_texture = _manager->Load("data/images/ufo.png", (8 << 16) + (54 << 8) + 129);
+    _player_texture = _manager->Load("data/images/player.png", 0);
     if(_player_texture == NULL) {
       // TODO: set error.
       return false;
     }
 
-    _bullet_texture = _manager->Load("data/bullet.png", (8 << 16) + (54 << 8) + 129);
+    _bullet_texture = _manager->Load("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
     if(_bullet_texture == NULL) {
       // TODO: set error.
       return false;
     }
 
-    _wall_texture = _manager->Load("data/wall_green.png", 0);
+    _wall_texture = _manager->Load("data/images/wall_green.png", 0);
     if(_wall_texture == NULL) {
       // TODO: set error.
       return false;
     }
 
-    _dummy_texture = _manager->Load("data/guy.png", 0);
+    _dummy_texture = _manager->Load("data/images/guy.png", 0);
     if(_dummy_texture == NULL) {
       // TODO: set error.
       return false;
     }
 
-    /*_wallpaper_texture = _manager->Load("data/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
+    /*_wallpaper_texture = _manager->Load("data/images/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
     if(_wallpaper_texture == NULL) {
       // TODO: set error.
       return false;
