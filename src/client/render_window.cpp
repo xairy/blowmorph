@@ -1,7 +1,7 @@
 #include "render_window.hpp"
 
-#include <base/macros.hpp>
 #include <base/error.hpp>
+#include <base/macros.hpp>
 
 namespace bm {
 
@@ -43,40 +43,52 @@ void RenderWindow::SwapBuffers() {
 }
 
 bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool fullscreen) {
-  if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     BM_ERROR("Unable to initialize SDL!");
     return false;
   }
 
-  const SDL_VideoInfo *videoInfo = SDL_GetVideoInfo();
+  const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
   if (!videoInfo) {
     BM_ERROR("Unable to get video info.");
     return false;
   }
 
   int videoFlags;
-  /* the flags to pass to SDL_SetVideoMode */
-  videoFlags  = SDL_OPENGL;          /* Enable OpenGL in SDL */
-  videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
-  videoFlags |= SDL_HWPALETTE;       /* Store the palette in hardware */
+  // The flags to pass to 'SDL_SetVideoMode'.
+  videoFlags  = SDL_OPENGL;          // Enable OpenGL in SDL.
+  videoFlags |= SDL_GL_DOUBLEBUFFER; // Enable double buffering.
+  videoFlags |= SDL_HWPALETTE;       // Store the palette in hardware.
 
-  /* This checks to see if surfaces can be stored in memory */
+  // This checks to see if surfaces can be stored in memory.
   if ( videoInfo->hw_available )
     videoFlags |= SDL_HWSURFACE;
   else
     videoFlags |= SDL_SWSURFACE;
 
-  /* This checks if hardware blits can be done */
+  // This checks if hardware blits can be done.
   if ( videoInfo->blit_hw )
     videoFlags |= SDL_HWACCEL;
 
-  /* Sets up OpenGL double buffering */
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1 );
+  // Sets up OpenGL double buffering.
+  if (SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1 ) != 0) {
+    BM_ERROR("Unable to set SDL OpenGl attribute");
+    return false;
+  }
   #ifdef _WIN32
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2) != 0) {
+      BM_ERROR("Unable to set SDL OpenGl attribute");
+      return false;
+    }
+    if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0) != 0) {
+      BM_ERROR("Unable to set SDL OpenGl attribute");
+      return false;
+    }
   #endif
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  if (SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24) != 0) {
+    BM_ERROR("Unable to set SDL OpenGl attribute");
+    return false;
+  }
 
   // XXX[29.7.2012 alex]: casts size_t to int
   _sdl_surface = SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 24, videoFlags);
@@ -88,7 +100,10 @@ bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool 
   SDL_WM_SetCaption(title, NULL);
 
   if (fullscreen) {
-    SDL_WM_ToggleFullScreen(_sdl_surface);
+    if(SDL_WM_ToggleFullScreen(_sdl_surface) != 1) {
+      BM_ERROR("Unable to toggle fullscreen.");
+      return false;
+    }
   }
 
   return true;
@@ -97,8 +112,8 @@ bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool 
 bool RenderWindow::initGLEW() {
   glewExperimental = GL_TRUE;
   GLenum error = glewInit();
-  if(error != GLEW_OK) {
-    BM_ERROR("Could not initalize GLEW.");
+  if (error != GLEW_OK) {
+    BM_ERROR("Unable to initalize GLEW.");
     return false;
   }
   return true;
@@ -109,21 +124,25 @@ void RenderWindow::resizeViewport(size_t w, size_t h) {
 }
 
 void RenderWindow::enable2D() {
+  // Get viewport size.
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
 
+  // Set orthogonal projection matrix.
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(viewport[0], viewport[0] + viewport[2],
-    viewport[1] + viewport[3], viewport[1],
-    -1, 1);
+    viewport[1] + viewport[3], viewport[1], -1, 1);
 
+  // Set model-view matrix to the identity.
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  // Enable alpha blending.
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  // Enable 2d texturing.
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_TEXTURE_RECTANGLE_ARB);
 }
@@ -132,9 +151,12 @@ bool RenderWindow::initOpenGL(size_t width, size_t height) {
   resizeViewport(width, height);
   enable2D();
 
-  // TODO: check for OpenGL errors.
+  if (glGetError() != GL_NO_ERROR) {
+    BM_ERROR("Unable to initalize OpenGL.");
+    return false;
+  }
 
   return true;
 }
 
-}; // namespace bm
+} // namespace bm
