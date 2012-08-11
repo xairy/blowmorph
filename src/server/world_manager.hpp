@@ -58,18 +58,18 @@ public:
   bool CreateWall(const Vector2& position, float size);
 
   // Works only with grid map.
-  bool CreateAlignedWall(int x, int y);
-
-  // XXX: is it a good idea?
   bool CreateAlignedWall(float x, float y);
 
   bool LoadWall(const pugi::xml_node& node);
   bool LoadChunk(const pugi::xml_node& node);
 
   void Blow(const Vector2& location, float radius);
-  //void Morph(const Vector2& location, float radius);
+  void Morph(const Vector2& location, int radius);
 
 private:
+  // Works only with grid map.
+  bool _CreateAlignedWall(int x, int y);
+
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 

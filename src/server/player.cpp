@@ -226,11 +226,9 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
     event.button_type == MouseEvent::BUTTON_RIGHT) {
     if(_morph_charge >= _morph_consumption) {
       _morph_charge -= _morph_consumption;
-      if(_world_manager->CreateAlignedWall(static_cast<float>(event.x),
-        static_cast<float>(event.y)) == false)
-      {
-        return false;
-      }
+      float x = static_cast<float>(event.x);
+      float y = static_cast<float>(event.y);
+      _world_manager->Morph(Vector2(x, y), 4);
     }
   }
   return true;
