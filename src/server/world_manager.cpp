@@ -360,10 +360,12 @@ bool WorldManager::LoadChunk(const pugi::xml_node& node) {
   return true;
 }
 
-void WorldManager::Blow(const Vector2& location, float radius) {
+bool WorldManager::Blow(const Vector2& location, float radius) {
   Shape* explosion = new Circle(location, radius);
-  // XXX[11.08.2012 xairy]: handle error.
-  CHECK(explosion != NULL);
+  if(explosion == NULL) {
+    Error::Set(Error::TYPE_MEMORY);
+    return false;
+  }
 
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
@@ -378,20 +380,24 @@ void WorldManager::Blow(const Vector2& location, float radius) {
       entity->Damage();
     }
   }
+
+  return true;
 }
 
-void WorldManager::Morph(const Vector2& location, int radius) {
+bool WorldManager::Morph(const Vector2& location, int radius) {
   int lx = round(static_cast<float>(location.x) / _block_size);
   int ly = round(static_cast<float>(location.y) / _block_size);
   for(int x = -radius; x <= radius; x++) {
     for(int y = -radius; y <= radius; y++) {
       if(x * x + y * y <= radius * radius) {
         bool rv = _CreateAlignedWall(lx + x, ly + y);
-        // XXX[11.08.2012 xairy]: handle error.
-        CHECK(rv == true);
+        if(rv == false) {
+          return false;
+        }
       }
     }
   }
+  return true;
 }
 
 
