@@ -26,7 +26,6 @@
 #include "texture_manager.hpp"
 #include "text_writer.hpp"
 #include "sprite.hpp"
-#include "glmext.hpp"
 #include "render_window.hpp"
 
 using namespace bm;
