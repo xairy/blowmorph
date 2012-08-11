@@ -1,5 +1,5 @@
-﻿#ifndef BLOWMORPH_SPRITE_HPP_
-#define BLOWMORPH_SPRITE_HPP_
+﻿#ifndef BLOWMORPH_CLIENT_SPRITE_HPP_
+#define BLOWMORPH_CLIENT_SPRITE_HPP_
 
 #include <glm/glm.hpp>
 
@@ -57,6 +57,6 @@ private:
   bm::Texture* texture;
 };
 
-}; // namespace bm
+} // namespace bm
 
-#endif /*BLOWMORPH_SPRITE_HPP_*/
+#endif // BLOWMORPH_CLIENT_SPRITE_HPP_
