@@ -228,7 +228,9 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
       _morph_charge -= _morph_consumption;
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
-      _world_manager->Morph(Vector2(x, y), 4);
+      if(_world_manager->Morph(Vector2(x, y), 4) == false) {
+        return false;
+      }
     }
   }
   return true;

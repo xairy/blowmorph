@@ -63,8 +63,8 @@ public:
   bool LoadWall(const pugi::xml_node& node);
   bool LoadChunk(const pugi::xml_node& node);
 
-  void Blow(const Vector2& location, float radius);
-  void Morph(const Vector2& location, int radius);
+  bool Blow(const Vector2& location, float radius);
+  bool Morph(const Vector2& location, int radius);
 
 private:
   // Works only with grid map.

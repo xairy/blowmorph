@@ -87,7 +87,9 @@ void Bullet::Damage() {
 }
 
 void Bullet::Explode() {
-  _world_manager->Blow(_shape->GetPosition(), _explosion_radius);
+  bool rv = _world_manager->Blow(_shape->GetPosition(), _explosion_radius);
+  // TODO[11.08.2012 xairy]: handle error.
+  CHECK(rv == true);
   Destroy();
 }
 
