@@ -72,8 +72,8 @@ public:
     return _id;
   }
 
-  bool SetSprite(Texture* texture) {
-    bool rv = _sprite.Init(texture);
+  bool SetSprite(Texture* texture, size_t tile = 0) {
+    bool rv = _sprite.Init(texture, tile);
     if(rv == false) {
       return false;
     }
@@ -306,33 +306,28 @@ private:
     // XXX[24.7.2012 alex]: awful lot of copypasta
     
     //_player_texture = _manager->Load("data/images/ufo.png", (8 << 16) + (54 << 8) + 129);
-    _player_texture = _manager->Load("data/images/player.png", 0);
+    _player_texture = _manager->Load("data/images/blocks1.png", 0, 2, 2, 34, 34, 32, 32);
     if(_player_texture == NULL) {
-      // TODO: set error.
       return false;
     }
 
     _bullet_texture = _manager->Load("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
     if(_bullet_texture == NULL) {
-      // TODO: set error.
       return false;
     }
 
     _wall_texture = _manager->Load("data/images/wall_green.png", 0);
     if(_wall_texture == NULL) {
-      // TODO: set error.
       return false;
     }
 
     _dummy_texture = _manager->Load("data/images/guy.png", 0);
     if(_dummy_texture == NULL) {
-      // TODO: set error.
       return false;
     }
 
     /*_wallpaper_texture = _manager->Load("data/images/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
     if(_wallpaper_texture == NULL) {
-      // TODO: set error.
       return false;
     }*/
 
@@ -618,7 +613,7 @@ private:
           }
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
-          _player->SetSprite(_player_texture);
+          _player->SetSprite(_player_texture, 2);
           _player->SetPosition(glm::vec2(_client_options->x, _client_options->y));
           _player->SetPivot(glm::vec2(0.5f, 0.5f));
           _player->EnableCaption();
@@ -680,7 +675,7 @@ private:
 
                 case BM_ENTITY_PLAYER: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
-                  _objects[snapshot->id]->SetSprite(_player_texture);
+                  _objects[snapshot->id]->SetSprite(_player_texture, 2);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _objects[snapshot->id]->EnableCaption();

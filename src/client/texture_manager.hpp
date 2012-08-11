@@ -12,33 +12,33 @@
 
 namespace bm {
 
-//struct TileSetInfo {
-//  size_t startX;
-//  size_t startY; 
-//  size_t horizontalStep;
-//  size_t verticalStep;
-//  size_t tileWidth;
-//  size_t tileHeight;
-//  
-//  size_t tileCount;
-//  size_t tileSetWidth;
-//  size_t tileSetHeight;
-//  
-//  TileSetInfo(size_t startX = 0, size_t startY = 0, 
-//              size_t horizontalStep = 0, size_t verticalStep = 0,
-//              size_t tileWidth = 0, size_t tileHeight = 0) :
-//            startX(startX), startY(startY),
-//            horizontalStep(horizontalStep), verticalStep(verticalStep),
-//            tileWidth(tileWidth), tileHeight(tileHeight) { }
-//};
+struct TileSetInfo {
+  size_t startX;
+  size_t startY; 
+  size_t horizontalStep;
+  size_t verticalStep;
+  size_t tileWidth;
+  size_t tileHeight;
+  
+  size_t tileCount;
+  size_t tileSetWidth;
+  size_t tileSetHeight;
+  
+  TileSetInfo(size_t startX = 0, size_t startY = 0, 
+              size_t horizontalStep = 0, size_t verticalStep = 0,
+              size_t tileWidth = 0, size_t tileHeight = 0) :
+            startX(startX), startY(startY),
+            horizontalStep(horizontalStep), verticalStep(verticalStep),
+            tileWidth(tileWidth), tileHeight(tileHeight) { }
+};
 
 class Texture {
 public:
   GLuint GetID() const;
   glm::uvec2 GetSize() const;
-  //size_t GetTileCount() const;
-  //glm::uvec2 GetTilePosition(size_t i) const;
-  //glm::uvec2 GetTileSize(size_t i) const;
+  size_t GetTileCount() const;
+  glm::uvec2 GetTilePosition(size_t i) const;
+  glm::uvec2 GetTileSize(size_t i) const;
 
 private:
   Texture();
@@ -46,7 +46,7 @@ private:
 
   GLuint textureID;
   glm::uvec2 size;
-  //TileSetInfo tileSetInfo;
+  TileSetInfo tileSetInfo;
   
   friend class TextureManager;
 };
@@ -59,10 +59,10 @@ public:
   // Loads an image or a tileset from a given path.
   // Returns NULL on failure.
   Texture* Load(const std::string& path,
-                //size_t startX = 0, size_t startY = 0, 
-                //size_t horizontalStep = 0, size_t verticalStep = 0,
-                //size_t tileWidth = 0, size_t tileHeight = 0,
-                bm::uint32_t transparentColor = 0xFFFFFFFF);
+                bm::uint32_t transparentColor = 0xFFFFFFFF,
+                size_t startX = 0, size_t startY = 0, 
+                size_t horizontalStep = 0, size_t verticalStep = 0,
+                size_t tileWidth = 0, size_t tileHeight = 0);
 
   // Unloads the given texture.
   void Unload(Texture* texture);
@@ -77,6 +77,6 @@ private:
   std::map<std::string, Texture*> textures;
 };
 
-}; // namespace bm
+} // namespace bm
 
 #endif // BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_

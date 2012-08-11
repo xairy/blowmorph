@@ -15,9 +15,12 @@ namespace bm {
 Sprite::Sprite() { }
 Sprite::~Sprite() { }
 
-bool Sprite::Init(bm::Texture* texture) {
+bool Sprite::Init(bm::Texture* texture, size_t tile) {
   CHECK(texture != NULL);
   this->texture = texture;
+  this->tile = tile;
+
+  CHECK(tile < texture->GetTileCount());
   
   zIndex = 0;
   position = glm::vec2(0, 0);
@@ -38,9 +41,8 @@ void Sprite::Render() {
   glScalef(scale.x, scale.y, 1.0);
   glRotatef(static_cast<GLfloat>(angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
   
-  glm::uvec2 size = texture->GetSize();
-  // XXX
-  glm::uvec2 tilePos = glm::uvec2(0, 0);
+  glm::uvec2 size = texture->GetTileSize(tile);
+  glm::uvec2 tilePos = texture->GetTilePosition(tile);
   
   glBegin(GL_QUADS);
     glTexCoord2i(tilePos.x, tilePos.y);
