@@ -76,7 +76,8 @@ glm::vec2 Sprite::GetPosition() const {
 }
 
 void Sprite::SetPivot(const glm::vec2& value) {
-  glm::uvec2 size = texture->GetSize();
+  // XXX[12.08.2012 xairy]: GetSize -> GetTileSize ?
+  glm::uvec2 size = texture->GetTileSize(tile);
   glm::vec2 pivotChange = value - pivot;
   pivot = value;
   position += glm::vec2(pivotChange.x * size.x, pivotChange.y * size.y);
