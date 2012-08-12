@@ -149,14 +149,14 @@ void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
-    if(position.x > max_coordinate || position.y > max_coordinate) {
+    if(abs(position.x) > max_coordinate || abs(position.y) > max_coordinate) {
       entity->Destroy();
     }
   }
   for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
-    if(position.x > max_coordinate || position.y > max_coordinate) {
+    if(abs(position.x) > max_coordinate || abs(position.y) > max_coordinate) {
       // Temporary solution?
       if(entity->GetType() != "Player") {
         entity->Destroy();
