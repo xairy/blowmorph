@@ -1,6 +1,7 @@
-﻿#include "sprite.hpp"
-
+﻿// XXX[12.8.2012 alex]: better include order?
 #define _USE_MATH_DEFINES
+#include "sprite.hpp"
+
 #include <cmath>
 
 #include <GL/glew.h>

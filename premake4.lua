@@ -1,10 +1,17 @@
 function copy(src, dst, always)
-  local action = "python"
+  local action
+  
+  if os.is("windows") then
+    action = ""
+  else
+    action = "python "
+  end
+  
   local script = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
-  postbuildcommands { action .. " " .. script .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
+  postbuildcommands { action .. script .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
 end
 
 function resource(src, dst, always)
@@ -18,7 +25,18 @@ function resource(src, dst, always)
   copy(src, path.join("bin", dst), always)
 end
 
-function windows_libdir(basePath)
+saved_config = {}
+function save_config()
+  saved_config = configuration().terms
+end
+function restore_config()
+  configuration(saved_config)
+end
+
+function windows_libdir(basePath) 
+  save_config()
+
+  --XXX: merge configurations?
   for _,arch in pairs({"x32", "x64"}) do
     for _,conf in pairs({"debug", "release"}) do
       for _, plat in pairs({"vs2008"}) do
@@ -28,9 +46,13 @@ function windows_libdir(basePath)
       end
     end
   end
+  
+  restore_config()
 end
 
 function windows_binary(basePath, dllName)
+  save_config()
+
   for _,arch in pairs({"x32", "x64"}) do
     for _,conf in pairs({"debug", "release"}) do
       for _, plat in pairs({"vs2008"}) do
@@ -40,6 +62,8 @@ function windows_binary(basePath, dllName)
       end
     end
   end
+  
+  restore_config()
 end
 
 newaction {
@@ -211,6 +235,7 @@ solution "blowmorph"
     configuration "windows"
       includedirs { "ext-libs/enet/include" }      
       windows_libdir("ext-libs/enet/bin")
+      windows_binary("ext-libs/enet/bin", "enet.dll")
       links { "enet" }
       links { "ws2_32", "winmm" }
     configuration "linux"

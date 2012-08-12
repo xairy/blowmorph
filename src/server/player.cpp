@@ -82,7 +82,7 @@ bool Player::IsStatic() {
 }
 
 void Player::Update(uint32_t time) {
-  float delta_time = time - _last_update_time;
+  uint32_t delta_time = time - _last_update_time;
   _last_update_time = time;
 
   _prev_position = _shape->GetPosition();
