@@ -315,6 +315,7 @@ private:
     //}
 
     return true;
+
   }
 
   bool _SendClientOptions(Client* client) {

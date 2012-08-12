@@ -16,14 +16,15 @@ Animation::~Animation() {
   Finalize();
 }
 
-bool Animation::Initialize(Texture* texture, uint32_t timeout) {
+bool Animation::Initialize(Texture* texture, uint32_t timeout, bool cyclic) {
   CHECK(_state == STATE_FINALIZED);
   CHECK(texture != NULL);
   CHECK(texture->GetTileCount() > 0);
   
   _texture = texture;
-  _current_frame = 0;
   _timeout = timeout;
+  _current_frame = 0;
+  _cyclic = cyclic;
   _state = STATE_STOPPED;
 
   _frame_count = _texture->GetTileCount();
@@ -78,6 +79,13 @@ size_t Animation::GetCurrentFrame() const {
   return _current_frame;
 }
 
+bool Animation::IsPlaying() const {
+  return _state == STATE_PLAYING;
+}
+bool Animation::IsStopped() const {
+  return _state == STATE_STOPPED;
+}
+
 void Animation::SetPosition(const glm::vec2& value) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for(size_t frame = 0; frame < _frame_count; frame++) {
@@ -91,13 +99,34 @@ glm::vec2 Animation::GetPosition() const {
   return _frames[_current_frame]->GetPosition();
 }
 
+void Animation::SetPivot(const glm::vec2& value) {
+  CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
+  for(size_t frame = 0; frame < _frame_count; frame++) {
+    DCHECK(_frames[frame] != NULL);
+    _frames[frame]->SetPivot(value);
+  }
+}
+glm::vec2 Animation::GetPivot() const {
+  CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
+  DCHECK(_frames[_current_frame] != NULL);
+  return _frames[_current_frame]->GetPivot();
+}
+
 void Animation::updateCurrentFrame() {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   uint32_t current_time = _timer.GetTime();
   if(current_time >= _last_frame_change + _timeout) {
     _last_frame_change = current_time;
     DCHECK(_frame_count > 0);
-    _current_frame = (_current_frame == _frame_count - 1) ? 0 : _current_frame + 1;
+    if(_current_frame == _frame_count -1) {
+      if(!_cyclic) {
+        Stop();
+      } else {
+        _current_frame = 0;
+      }
+    } else {
+      _current_frame = _current_frame + 1;
+    }
   }
 }
 
