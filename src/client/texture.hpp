@@ -20,16 +20,16 @@ typedef glm::detail::tvec4<bm::uint8_t> rgba;
 typedef glm::vec3 rgbf;
 typedef glm::vec4 rgbaf;
 
-typedef Array2<rgba> texture;
+typedef Array2<rgba> Image;
 
 SCHECK(sizeof(rgb) == 3);
 SCHECK(sizeof(rgba) == 4);
 
-bool LoadRGBA(texture& dst, const std::string& path);
-bool SaveRGBA(const std::string& path, const texture& src);
+bool LoadRGBA(Image& dst, const std::string& path);
+bool SaveRGBA(const std::string& path, const Image& src);
 
-void LoadGLTexture(GLuint id, const bm::texture& tex);
-GLuint MakeGLTexture(const bm::texture& tex);
+void LoadGLTexture(GLuint id, const bm::Image& tex);
+GLuint MakeGLTexture(const bm::Image& tex);
 
 } // namespace bm
 

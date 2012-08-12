@@ -13,7 +13,7 @@
 
 namespace {
 
-void MakeColorTransparent(bm::texture& tex, ::uint32_t transparentColor) {
+void MakeColorTransparent(bm::Image& tex, ::uint32_t transparentColor) {
   CHECK((transparentColor & 0xFF000000) == 0);
   
   bm::rgb clr = bm::rgb((transparentColor >> 16) & 0xFF,
@@ -29,7 +29,7 @@ void MakeColorTransparent(bm::texture& tex, ::uint32_t transparentColor) {
   }
 }
 
-void PopulateTileSetInfo(const bm::texture& tex, bm::TileSetInfo& info) {
+void PopulateTileSetInfo(const bm::Image& tex, bm::TileSetInfo& info) {
   size_t width = tex.Width();
   size_t height = tex.Height();
   
@@ -116,7 +116,7 @@ Texture* TextureManager::Load(const std::string& path,
     return textures[path];
   }
   
-  bm::texture tex;
+  bm::Image tex;
   if (!bm::LoadRGBA(tex, path)) {
     BM_ERROR("Unable to load texture.");
     return NULL;

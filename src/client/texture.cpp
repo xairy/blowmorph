@@ -59,7 +59,7 @@ void ConvertBitmapTo32Bits(FIBITMAP** dib) {
   *dib = temp;
 }
 
-void BitmapToTex(bm::texture& dst, FIBITMAP* src) {
+void BitmapToTex(bm::Image& dst, FIBITMAP* src) {
   CHECK(src != NULL);
   
   // must be a 32-bit bitmap
@@ -88,7 +88,7 @@ void BitmapToTex(bm::texture& dst, FIBITMAP* src) {
   }
 }
 
-void TexToBitmap(FIBITMAP* dst, const bm::texture& src) {
+void TexToBitmap(FIBITMAP* dst, const bm::Image& src) {
   CHECK(dst != NULL);
   
   // must be a 32-bit bitmap
@@ -123,7 +123,7 @@ void TexToBitmap(FIBITMAP* dst, const bm::texture& src) {
 
 namespace bm {
 
-bool LoadRGBA(texture& tex, const std::string& path) {
+bool LoadRGBA(Image& tex, const std::string& path) {
   FIBITMAP* dib = LoadImage(path.c_str());
   if (dib == NULL) {
     return false;
@@ -146,7 +146,7 @@ bool LoadRGBA(texture& tex, const std::string& path) {
   return true;
 }
 
-bool SaveRGBA(const std::string& path, const texture& src) {
+bool SaveRGBA(const std::string& path, const Image& src) {
   // XXX[29.7.2012 alex]: casts size_t to int
   FIBITMAP* dib = FreeImage_Allocate(static_cast<int>(src.Width()), static_cast<int>(src.Height()), 32);
   if (dib == NULL) {
@@ -165,7 +165,7 @@ bool SaveRGBA(const std::string& path, const texture& src) {
   return true;
 }
 
-void LoadGLTexture(GLuint id, const bm::texture& tex) {
+void LoadGLTexture(GLuint id, const bm::Image& tex) {
   glBindTexture(GL_TEXTURE_RECTANGLE_ARB, id);
   
   // important for tiling
@@ -180,7 +180,7 @@ void LoadGLTexture(GLuint id, const bm::texture& tex) {
 }
 
 // Makes an OpenGL texture.
-GLuint MakeGLTexture(const bm::texture& tex) {
+GLuint MakeGLTexture(const bm::Image& tex) {
   GLuint textureID;
 
   glGenTextures(1, &textureID);
