@@ -23,10 +23,11 @@
 
 #include <interpolator/interpolator.hpp>
 
+#include "animation.hpp"
+#include "render_window.hpp"
+#include "sprite.hpp"
 #include "texture_manager.hpp"
 #include "text_writer.hpp"
-#include "sprite.hpp"
-#include "render_window.hpp"
 
 using namespace bm;
 using namespace protocol;
@@ -325,6 +326,13 @@ private:
     if(_dummy_texture == NULL) {
       return false;
     }
+
+    // Temporary.
+    animation = new Animation();
+    CHECK(animation != NULL);
+    bool rv = animation->Initialize(_wall_texture, 500);
+    CHECK(rv == true);
+    animation->Play();
 
     /*_wallpaper_texture = _manager->Load("data/images/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
     if(_wallpaper_texture == NULL) {
@@ -814,6 +822,10 @@ private:
 
       _player->Render(_GetTime());
 
+      // Temporary.
+      CHECK(animation != NULL);
+      animation->Render();
+
       _render_window.SwapBuffers();
     }
   }
@@ -904,6 +916,9 @@ private:
   NetworkState _network_state;
   
   bm::ini::RecordMap settings;
+
+  // Temporary.
+  Animation* animation;
 };
 
 int main(int argc, char** argv) { 
