@@ -328,9 +328,11 @@ private:
     }
 
     // Temporary.
+    Texture* explosion_texture = _manager->Load("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
+    CHECK(explosion_texture != NULL);
     animation = new Animation();
     CHECK(animation != NULL);
-    bool rv = animation->Initialize(_wall_texture, 500);
+    bool rv = animation->Initialize(explosion_texture, 50);
     CHECK(rv == true);
     animation->Play();
 
