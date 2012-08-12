@@ -225,9 +225,14 @@ public:
     if(_peer != NULL) delete _peer;
     if(_event != NULL) delete _event;
 
-    std::map<int,Object*>::iterator it;
-    for(it = _objects.begin(); it != _objects.end(); it++) {
+    std::map<int, Object*>::iterator it;
+    for(it = _objects.begin(); it != _objects.end(); ++it) {
       delete it->second;
+    }
+
+    std::list<Animation*>::iterator it2;
+    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
+      delete *it2;
     }
 
     _render_window.Finalize();
@@ -327,14 +332,10 @@ private:
       return false;
     }
 
-    // Temporary.
-    Texture* explosion_texture = _manager->Load("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
-    CHECK(explosion_texture != NULL);
-    animation = new Animation();
-    CHECK(animation != NULL);
-    bool rv = animation->Initialize(explosion_texture, 50);
-    CHECK(rv == true);
-    animation->Play();
+    _explosion_texture = _manager->Load("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
+    if(_explosion_texture == NULL) {
+      return false;
+    }
 
     /*_wallpaper_texture = _manager->Load("data/images/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
     if(_wallpaper_texture == NULL) {
@@ -645,6 +646,24 @@ private:
           if (type == BM_PACKET_ENTITY_DISAPPEARED) {
             _objects.erase(snapshot->id);
             _walls.erase(snapshot->id);
+
+            if(snapshot->type == BM_ENTITY_BULLET) {
+              // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
+              // TODO[12.08.2012 xairy]: remove magic numbers;
+              Animation* animation = new Animation();
+              if(animation == NULL) {
+                Error::Set(Error::TYPE_MEMORY);
+                return false;
+              }
+              bool rv = animation->Initialize(_explosion_texture, 30);
+              if(rv == false) {
+                return false;
+              }
+              animation->SetPivot(glm::vec2(0.5f, 0.5f));
+              animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
+              animation->Play();
+              _animations.push_back(animation);
+            }
           } else {
             glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
             bm::uint32_t time = snapshot->time;
@@ -815,18 +834,28 @@ private:
       //_background->Render(_GetTime());
 
       std::map<int,Object*>::iterator it;
-      for(it = _walls.begin() ; it != _walls.end(); it++) {
+      for(it = _walls.begin() ; it != _walls.end(); ++it) {
         it->second->Render(_GetTime());
       }
-      for(it = _objects.begin() ; it != _objects.end(); it++) {
+      for(it = _objects.begin() ; it != _objects.end(); ++it) {
         it->second->Render(_GetTime());
+      }
+
+      std::list<Animation*>::iterator it2;
+      for(it2 = _animations.begin(); it2 != _animations.end();) {
+        (*it2)->Render();
+        if((*it2)->IsStopped()) {
+          std::list<Animation*>::iterator it1 = it2;
+          ++it1;
+          delete *it2;
+          _animations.erase(it2);
+          it2 = it1;
+        } else {
+          ++it2;
+        }
       }
 
       _player->Render(_GetTime());
-
-      // Temporary.
-      CHECK(animation != NULL);
-      animation->Render();
 
       _render_window.SwapBuffers();
     }
@@ -865,6 +894,7 @@ private:
   Texture* _bullet_texture;
   Texture* _wall_texture;
   Texture* _dummy_texture;
+  Texture* _explosion_texture;
   //Texture* _wallpaper_texture;
   Object* _player;
   //Object* _background;
@@ -889,6 +919,8 @@ private:
 
   std::map<int, Object*> _objects;
   std::map<int, Object*> _walls;
+
+  std::list<Animation*> _animations;
 
   // Input events since the last tick.
   std::vector<KeyboardEvent> _keyboard_events;
@@ -918,9 +950,6 @@ private:
   NetworkState _network_state;
   
   bm::ini::RecordMap settings;
-
-  // Temporary.
-  Animation* animation;
 };
 
 int main(int argc, char** argv) { 
