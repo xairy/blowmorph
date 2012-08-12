@@ -6,7 +6,7 @@
 #include <base/error.hpp>
 #include <base/pstdint.hpp>
 
-#include "texture.hpp"
+#include "image.hpp"
 
 // TODO[24.7.2012 alex]: the whole TextureManager is not really needed
 // TODO[24.7.2012 alex]: better think of something like "ResourceManager"
