@@ -168,9 +168,9 @@ bool SaveRGBA(const std::string& path, const texture& src) {
 void LoadGLTexture(GLuint id, const bm::texture& tex) {
   glBindTexture(GL_TEXTURE_RECTANGLE_ARB, id);
   
-  // set bilinear filtering
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // important for tiling
+  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
   // load texture data
   // XXX[29.7.2012 alex]: casts size_t to GLsizei
