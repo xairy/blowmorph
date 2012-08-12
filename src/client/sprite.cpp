@@ -17,10 +17,10 @@ Sprite::~Sprite() { }
 
 bool Sprite::Init(bm::Texture* texture, size_t tile) {
   CHECK(texture != NULL);
-  this->texture = texture;
-  this->tile = tile;
-
   CHECK(tile < texture->GetTileCount());
+
+  this->texture = texture;
+  this->tile = tile;  
   
   zIndex = 0;
   position = glm::vec2(0, 0);
@@ -108,6 +108,14 @@ void Sprite::Rotate(glm::float_t value) {
 }
 void Sprite::Move(const glm::vec2& value) {
   position += value;
+}
+
+void Sprite::SetTile(size_t tile) {
+  CHECK(tile < texture->GetTileCount());
+  this->tile = tile;
+}
+size_t Sprite::GetTile() const {
+  return tile;
 }
 
 } // namespace bm
