@@ -38,7 +38,7 @@ bool SaveImage(const char* fileName, FIBITMAP* src) {
   fif = FreeImage_GetFIFFromFilename(fileName);
   
   if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
-    bool rv = FreeImage_Save(fif, src, fileName, 0);
+    bool rv = FreeImage_Save(fif, src, fileName, 0) == TRUE;
     return rv;
   }
   return false;

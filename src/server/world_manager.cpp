@@ -20,6 +20,15 @@
 #include "player.hpp"
 #include "wall.hpp"
 
+namespace {
+  double round(double value) {
+    return ::floor(value + 0.5);
+  }
+  float round(float value) {
+    return ::floorf(value + 0.5f);
+  }
+}
+
 namespace bm {
 
 WorldManager::WorldManager() : _map_type(MAP_NONE) { }
@@ -385,8 +394,8 @@ bool WorldManager::Blow(const Vector2& location, float radius) {
 }
 
 bool WorldManager::Morph(const Vector2& location, int radius) {
-  int lx = round(static_cast<float>(location.x) / _block_size);
-  int ly = round(static_cast<float>(location.y) / _block_size);
+  int lx = static_cast<int>(round(static_cast<float>(location.x) / _block_size));
+  int ly = static_cast<int>(round(static_cast<float>(location.y) / _block_size));
   for(int x = -radius; x <= radius; x++) {
     for(int y = -radius; y <= radius; y++) {
       if(x * x + y * y <= radius * radius) {
