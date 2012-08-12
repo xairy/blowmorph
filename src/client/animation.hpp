@@ -28,7 +28,7 @@ public:
   // Cleans up. Automatically called in '~Animation()'.
   void Finalize();
 
-  // Renders current frame using OpenGL API.
+  // Renders current frame.
   void Render();
 
   // Starts changing frames over time.
