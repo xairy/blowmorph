@@ -46,6 +46,10 @@ public:
   
   // Moves sprite.
   void Move(const glm::vec2& value);
+
+  // Setter and getter for tile index.
+  void SetTile(size_t tile);
+  size_t GetTile() const;
   
 private:
   glm::float_t zIndex;
