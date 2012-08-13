@@ -8,12 +8,12 @@ When using 'grid' map all coordinates will be multiplied by 'block_size'.
   <spawn x="0" y="0"></spawn>
   <spawn x="-7" y="-7"></spawn>
 
-  <wall x="6" y="6"></wall>
-  <wall x="7" y="6"></wall>
-  <wall x="8" y="6"></wall>
-  <wall x="9" y="6"></wall>
+  <wall x="6" y="6" type="unbreakable"></wall>
+  <wall x="7" y="6" type="unbreakable"></wall>
+  <wall x="8" y="6" type="morphed"></wall>
+  <wall x="9" y="6" type="ordinary"></wall>
 
-  <chunk x="11" y="0" width="10" height="10"></chunk>
+  <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
 </map>
 
 <!--
@@ -21,11 +21,11 @@ When using 'grid' map all coordinates will be multiplied by 'block_size'.
   <spawn x="0.0" y="0.0"></spawn>
   <spawn x="-100.0" y="-100.0"></spawn>
 
-  <wall x="100.0" y="200.0" size="16.0"></wall>
-  <wall x="116.0" y="200.0" size="16.0"></wall>
-  <wall x="132.0" y="200.0" size="16.0"></wall>
-  <wall x="148.0" y="200.0" size="16.0"></wall>
+  <wall x="100.0" y="200.0" size="16.0" type="ordinary"></wall>
+  <wall x="116.0" y="200.0" size="16.0" type="ordinary"></wall>
+  <wall x="132.0" y="200.0" size="16.0" type="ordinary"></wall>
+  <wall x="148.0" y="200.0" size="16.0" type="ordinary"></wall>
 
-  <chunk x="100.0" y="0.0" width="10" height="10" size="16.0"></chunk>
+  <chunk x="100.0" y="0.0" width="10" height="10" size="16.0" type="ordinary"></chunk>
 </map>
 -->

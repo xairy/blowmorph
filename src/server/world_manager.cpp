@@ -286,6 +286,7 @@ bool WorldManager::LoadMap(const std::string& file) {
   return true;
 }
 
+// TODO: refactor.
 bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   CHECK(_map_type != MAP_NONE);
   CHECK(std::string(node.name()) == "wall");
@@ -294,11 +295,17 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
     pugi::xml_attribute x = node.attribute("x");
     pugi::xml_attribute y = node.attribute("y");
     pugi::xml_attribute size = node.attribute("size");
-    if(!x || !y || !size) {
+    pugi::xml_attribute type = node.attribute("type");
+    if(!x || !y || !size || !type) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
       return false;
     } else {
-      bool rv = CreateWall(Vector2(x.as_float(), y.as_float()), size.as_float(), Wall::TYPE_ORDINARY);
+      Wall::Type type_value;
+      bool rv = _LoadWallType(type, &type_value);
+      if(rv == false) {
+        return false;
+      }
+      rv = CreateWall(Vector2(x.as_float(), y.as_float()), size.as_float(), type_value);
       if(rv == false) {
         return false;
       }
@@ -306,11 +313,17 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   } else if(_map_type == MAP_GRID) {
     pugi::xml_attribute x = node.attribute("x");
     pugi::xml_attribute y = node.attribute("y");
-    if(!x || !y) {
+    pugi::xml_attribute type = node.attribute("type");
+    if(!x || !y || !type) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
       return false;
     } else {
-      bool rv = _CreateAlignedWall(x.as_int(), y.as_int(), Wall::TYPE_ORDINARY);
+      Wall::Type type_value;
+      bool rv = _LoadWallType(type, &type_value);
+      if(rv == false) {
+        return false;
+      }
+      rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
       if(rv == false) {
         return false;
       }
@@ -319,6 +332,8 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
 
   return true;
 }
+
+// TODO: refactor.
 bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   CHECK(_map_type != MAP_NONE);
   CHECK(std::string(node.name()) == "chunk");
@@ -329,7 +344,8 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
     pugi::xml_attribute width = node.attribute("width");
     pugi::xml_attribute height = node.attribute("height");
     pugi::xml_attribute size = node.attribute("size");
-    if(!x || !y || !width || !height || !size) {
+    pugi::xml_attribute type = node.attribute("type");
+    if(!x || !y || !width || !height || !size || !type) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
       return false;
     } else {
@@ -338,9 +354,14 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
       int wv = width.as_int();
       int hv = height.as_int();
       float sv = size.as_float();
+      Wall::Type type_value;
+      bool rv = _LoadWallType(type, &type_value);
+      if(rv == false) {
+        return false;
+      }
       for(int i = 0; i < wv; i++) {
         for(int j = 0; j < hv; j++) {
-          bool rv = CreateWall(Vector2(xv + i * sv, yv + j * sv), sv, Wall::TYPE_ORDINARY);
+          bool rv = CreateWall(Vector2(xv + i * sv, yv + j * sv), sv, type_value);
           if(rv == false) {
             return false;
           }
@@ -352,7 +373,8 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
     pugi::xml_attribute y = node.attribute("y");
     pugi::xml_attribute width = node.attribute("width");
     pugi::xml_attribute height = node.attribute("height");
-    if(!x || !y || !width || !height) {
+    pugi::xml_attribute type = node.attribute("type");
+    if(!x || !y || !width || !height || !type) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
       return false;
     } else {
@@ -360,9 +382,14 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
       int yv = y.as_int();
       int wv = width.as_int();
       int hv = height.as_int();
+      Wall::Type type_value;
+      bool rv = _LoadWallType(type, &type_value);
+      if(rv == false) {
+        return false;
+      }
       for(int i = 0; i < wv; i++) {
         for(int j = 0; j < hv; j++) {
-          bool rv = _CreateAlignedWall(xv + i, yv + j, Wall::TYPE_ORDINARY);
+          bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
           if(rv == false) {
             return false;
           }
@@ -398,6 +425,21 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
       float yv = y.as_float() * _block_size;
       _spawn_positions.push_back(Vector2(xv, yv));
     }
+  }
+  return true;
+}
+
+bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output) {
+  CHECK(std::string(attribute.name()) == "type");
+  if(std::string(attribute.value()) == "ordinary") {
+    *output = Wall::TYPE_ORDINARY;
+  } else if(std::string(attribute.value()) == "unbreakable") {
+    *output = Wall::TYPE_UNBREAKABLE;
+  } else if(std::string(attribute.value()) == "morphed") {
+    *output = Wall::TYPE_MORPHED;
+  } else {
+    Error::Throw(__FILE__, __LINE__, "Incorrect wall type in map file!\n");
+    return false;
   }
   return true;
 }
