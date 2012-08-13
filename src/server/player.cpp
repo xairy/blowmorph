@@ -120,7 +120,7 @@ EntitySnapshot Player::GetSnapshot(uint32_t time) {
   result.id = _id;
   result.x = _prev_position.x;
   result.y = _prev_position.y;
-  result.data[0] = _max_health;
+  result.data[0] = _health;
   result.data[1] = _blow_charge;
   result.data[2] = _morph_charge;
   return result;
@@ -247,12 +247,38 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
   return true;
 }
 
+void Player::SetSpawnPosition(const Vector2& position) {
+  _spawn_position = position;
+}
+void Player::Respawn() {
+  SetPosition(_spawn_position);
+}
+
 float Player::GetSpeed() const {
   return _speed;
 }
+void Player::SetSpeed(float speed) {
+  _speed = speed;
+}
 
+int Player::GetHealth() const {
+  return _health;
+}
 int Player::GetMaxHealth() const {
   return _max_health;
+}
+int Player::GetHealthRegeneration() const {
+  return _health_regeneration;
+}
+
+void Player::SetHealth(int health) {
+  _health = health;
+}
+void Player::SetMaxHealth(int max_health) {
+  _max_health = max_health;
+}
+void Player::SetHealthRegeneration(int health_regeneration) {
+  _health_regeneration = health_regeneration;
 }
 
 int Player::GetBlowCharge() const {
@@ -261,6 +287,19 @@ int Player::GetBlowCharge() const {
 int Player::GetBlowCapacity() const {
   return _blow_capacity;
 }
+int Player::GetBlowRegeneration() const {
+  return _blow_regeneration;
+}
+
+int Player::SetBlowCharge(int charge) {
+  _blow_charge = charge;
+}
+int Player::SetBlowCapacity(int capacity) {
+  _blow_capacity = capacity;
+}
+int Player::SetBlowRegeneration(int regeneration) {
+  _blow_regeneration = regeneration;
+}
 
 int Player::GetMorphCharge() const {
   return _morph_charge;
@@ -268,13 +307,18 @@ int Player::GetMorphCharge() const {
 int Player::GetMorphCapacity() const {
   return _morph_capacity;
 }
-
-void Player::SetSpawnPosition(const Vector2& position) {
-  _spawn_position = position;
+int Player::GetMorphRegeneration() const {
+  return _morph_regeneration;
 }
 
-void Player::Respawn() {
-  SetPosition(_spawn_position);
+int Player::SetMorphCharge(int charge) {
+  _morph_charge = charge;
+}
+int Player::SetMorphCapacity(int capacity) {
+  _morph_capacity = capacity;
+}
+int Player::SetMorphRegeneration(int regeneration) {
+  _morph_regeneration = regeneration;
 }
 
 bool Player::Collide(Entity* entity) {
