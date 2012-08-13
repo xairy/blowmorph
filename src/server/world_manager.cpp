@@ -375,13 +375,29 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
 }
 
 bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
-  pugi::xml_attribute x = node.attribute("x");
-  pugi::xml_attribute y = node.attribute("y");
-  if(!x || !y) {
-    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
-    return false;
-  } else {
-    _spawn_positions.push_back(Vector2(x.as_float(), y.as_float()));
+  CHECK(_map_type != MAP_NONE);
+  CHECK(std::string(node.name()) == "spawn");
+
+  if(_map_type == MAP_ARBITRARY) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    if(!x || !y) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
+      return false;
+    } else {
+      _spawn_positions.push_back(Vector2(x.as_float(), y.as_float()));
+    }
+  } else if(_map_type == MAP_GRID) {
+    pugi::xml_attribute x = node.attribute("x");
+    pugi::xml_attribute y = node.attribute("y");
+    if(!x || !y) {
+      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
+      return false;
+    } else {
+      float xv = x.as_float() * _block_size;
+      float yv = y.as_float() * _block_size;
+      _spawn_positions.push_back(Vector2(xv, yv));
+    }
   }
   return true;
 }

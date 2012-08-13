@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-<spawn>'s position in both map types is represented by floating point numbers.
-
+When using 'grid' map all coordinates will be multiplied by 'block_size'.
 -->
 
 <map type="grid" block_size="16.0">
-  <spawn x="0.0" y="0.0"></spawn>
-  <spawn x="-100.0" y="-100.0"></spawn>
+  <spawn x="0" y="0"></spawn>
+  <spawn x="-7" y="-7"></spawn>
 
   <wall x="6" y="6"></wall>
   <wall x="7" y="6"></wall>
@@ -19,6 +18,9 @@
 
 <!--
 <map type="arbitrary">
+  <spawn x="0.0" y="0.0"></spawn>
+  <spawn x="-100.0" y="-100.0"></spawn>
+
   <wall x="100.0" y="200.0" size="16.0"></wall>
   <wall x="116.0" y="200.0" size="16.0"></wall>
   <wall x="132.0" y="200.0" size="16.0"></wall>
