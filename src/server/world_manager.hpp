@@ -55,10 +55,10 @@ public:
     float speed,
     uint32_t time
   );
-  bool CreateWall(const Vector2& position, float size);
+  bool CreateWall(const Vector2& position, float size, Wall::Type type);
 
   // Works only with grid map.
-  bool CreateAlignedWall(float x, float y);
+  bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
   bool Blow(const Vector2& location, float radius);
@@ -73,7 +73,7 @@ private:
   bool _LoadSpawn(const pugi::xml_node& node);
 
   // Works only with grid map.
-  bool _CreateAlignedWall(int x, int y);
+  bool _CreateAlignedWall(int x, int y, Wall::Type type);
 
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;

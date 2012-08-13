@@ -211,9 +211,9 @@ bool WorldManager::CreateDummy(
   return true;
 }
 
-bool WorldManager::CreateWall(const Vector2& position, float size) {
+bool WorldManager::CreateWall(const Vector2& position, float size, Wall::Type type) {
   uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
-  Wall* wall = Wall::Create(this, id, position, size);
+  Wall* wall = Wall::Create(this, id, position, size, type);
   if(wall == NULL) {
     return false;
   }
@@ -221,19 +221,19 @@ bool WorldManager::CreateWall(const Vector2& position, float size) {
   return true;
 }
 
-bool WorldManager::CreateAlignedWall(float x, float y) {
+bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
 
   int xa = static_cast<int>(round(x / _block_size));
   int ya = static_cast<int>(round(y / _block_size));
 
-  return _CreateAlignedWall(xa, ya);
+  return _CreateAlignedWall(xa, ya, type);
 }
 
-bool WorldManager::_CreateAlignedWall(int x, int y) {
+bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
 
-  return CreateWall(Vector2(x * _block_size, y * _block_size), _block_size);
+  return CreateWall(Vector2(x * _block_size, y * _block_size), _block_size, type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {
@@ -298,7 +298,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
       return false;
     } else {
-      bool rv = CreateWall(Vector2(x.as_float(), y.as_float()), size.as_float());
+      bool rv = CreateWall(Vector2(x.as_float(), y.as_float()), size.as_float(), Wall::TYPE_ORDINARY);
       if(rv == false) {
         return false;
       }
@@ -310,7 +310,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
       Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
       return false;
     } else {
-      bool rv = _CreateAlignedWall(x.as_int(), y.as_int());
+      bool rv = _CreateAlignedWall(x.as_int(), y.as_int(), Wall::TYPE_ORDINARY);
       if(rv == false) {
         return false;
       }
@@ -340,7 +340,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
       float sv = size.as_float();
       for(int i = 0; i < wv; i++) {
         for(int j = 0; j < hv; j++) {
-          bool rv = CreateWall(Vector2(xv + i * sv, yv + j * sv), sv);
+          bool rv = CreateWall(Vector2(xv + i * sv, yv + j * sv), sv, Wall::TYPE_ORDINARY);
           if(rv == false) {
             return false;
           }
@@ -362,7 +362,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
       int hv = height.as_int();
       for(int i = 0; i < wv; i++) {
         for(int j = 0; j < hv; j++) {
-          bool rv = _CreateAlignedWall(xv + i, yv + j);
+          bool rv = _CreateAlignedWall(xv + i, yv + j, Wall::TYPE_ORDINARY);
           if(rv == false) {
             return false;
           }
@@ -432,7 +432,7 @@ bool WorldManager::Morph(const Vector2& location, int radius) {
   for(int x = -radius; x <= radius; x++) {
     for(int y = -radius; y <= radius; y++) {
       if(x * x + y * y <= radius * radius) {
-        bool rv = _CreateAlignedWall(lx + x, ly + y);
+        bool rv = _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
         if(rv == false) {
           return false;
         }

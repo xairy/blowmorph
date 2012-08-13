@@ -721,7 +721,13 @@ private:
               switch(snapshot->type) {
                 case BM_ENTITY_WALL: {
                   _walls[snapshot->id] = new Object(position, time, snapshot->id);
-                  _walls[snapshot->id]->SetSprite(_wall_texture, 1);
+                  size_t tile;
+                  if(snapshot->data[0] == BM_WALL_ORDINARY) {
+                    tile = 0;
+                  } else {
+                    tile = 1;
+                  }
+                  _walls[snapshot->id]->SetSprite(_wall_texture, tile);
                   _walls[snapshot->id]->EnableInterpolation();
                   _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                 } break;

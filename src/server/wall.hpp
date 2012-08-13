@@ -16,11 +16,18 @@ class Wall : public Entity {
   friend class Entity;
 
 public:
+  enum Type {
+    TYPE_ORDINARY,
+    TYPE_UNBREAKABLE,
+    TYPE_MORPHED
+  };
+
   static Wall* Create(
     WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
-    float size
+    float size,
+    Type type
   );
   virtual ~Wall();
 
@@ -47,6 +54,8 @@ public:
 protected:
   DISALLOW_COPY_AND_ASSIGN(Wall);
   Wall(WorldManager* world_manager, uint32_t id);
+
+  Type _type;
 };
 
 } // namespace bm
