@@ -31,7 +31,7 @@ class Player : public Entity {
   };
 
 public:
-  // TODO: add Player::Data structure and pass it to the constructor.
+  // XXX: add Player::Data structure and pass it to the constructor?
   // XXX: create Shape in WorldManager? What to do with bullet creation?
   static Player* Create(
     WorldManager* world_manager,
@@ -73,14 +73,31 @@ public:
   void Respawn();
 
   float GetSpeed() const;
+  void SetSpeed(float speed);
 
+  int GetHealth() const;
   int GetMaxHealth() const;
+  int GetHealthRegeneration() const;
+
+  void SetHealth(int health);
+  void SetMaxHealth(int max_health);
+  void SetHealthRegeneration(int health_regeneration);
 
   int GetBlowCharge() const;
   int GetBlowCapacity() const;
+  int GetBlowRegeneration() const;
+
+  int SetBlowCharge(int charge);
+  int SetBlowCapacity(int capacity);
+  int SetBlowRegeneration(int regeneration);
 
   int GetMorphCharge() const;
   int GetMorphCapacity() const;
+  int GetMorphRegeneration() const;
+
+  int SetMorphCharge(int charge);
+  int SetMorphCapacity(int capacity);
+  int SetMorphRegeneration(int regeneration);
 
   // Double dispatch. Collision detection.
 
