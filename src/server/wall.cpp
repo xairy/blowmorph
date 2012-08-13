@@ -76,7 +76,9 @@ void Wall::OnEntityDisappearance(Entity* entity) {
 }
 
 void Wall::Damage() {
-  Destroy();
+  if(_type != TYPE_UNBREAKABLE) {
+    Destroy();
+  }
 }
 
 // Double dispatch. Collision detection.
