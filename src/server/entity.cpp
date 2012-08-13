@@ -114,7 +114,7 @@ bool Entity::Collide(Wall* wall, Dummy* dummy) {
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
   if(wall->_shape->Collide(bullet->_shape)) {
     bullet->Explode();
-    wall->Destroy();
+    wall->Damage();
     return true;
   }
   return false;
@@ -125,7 +125,7 @@ bool Entity::Collide(Player* player1, Player* player2) {
 bool Entity::Collide(Player* player, Dummy* dummy) {
   if(player->_shape->Collide(dummy->_shape)) {
     player->Respawn();
-    dummy->Destroy();
+    dummy->Damage();
     return true;
   }
   return false;
@@ -136,7 +136,7 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
   }
   if(player->_shape->Collide(bullet->_shape)) {
     player->Respawn();
-    bullet->Destroy();
+    bullet->Damage();
     return true;
   }
   return false;
@@ -147,15 +147,15 @@ bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
 bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   if(dummy->_shape->Collide(bullet->_shape)) {
     bullet->Explode();
-    dummy->Destroy();
+    dummy->Damage();
     return true;  
   }
   return false;
 }
 bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
   if(bullet1->_shape->Collide(bullet2->_shape)) {
-    bullet1->Destroy();
-    bullet2->Destroy();
+    bullet1->Damage();
+    bullet2->Damage();
     return true;
   }
   return false;
