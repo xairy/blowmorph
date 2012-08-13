@@ -132,25 +132,30 @@ private:
 
   bool _Tick() {
     if(_timer.GetTime() - _last_broadcast >= _ticktime) {
+      _last_broadcast = _timer.GetTime();
       if(!_BroadcastWorldSnapshot()) {
         return false;
       }
-      _last_broadcast = _timer.GetTime();
+      
     }
 
     if(_timer.GetTime() - _last_update >= _update_time) {
+      _last_update = _timer.GetTime();
       if(!_PumpEvents()) {
         return false;
       }
       if(!_UpdateWorld()) {
         return false;
       }
-      _last_update = _timer.GetTime();
     }
 
-    bool rv = _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
-    if(rv == false) {
-      return false;
+    if(_update_time >= _timer.GetTime() - _last_update) {
+      bool rv = _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
+      if(rv == false) {
+        return false;
+      }
+    } else {
+      printf("Can't keep up!\n");
     }
 
     return true;
