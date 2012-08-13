@@ -86,9 +86,13 @@ private:
     _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
     _player_size = ini::GetValue(_settings, "player.size", 30.0f);
 
+    _player_max_health = ini::GetValue(_settings, "player.max_health", 1);
+    _player_health_regeneration = ini::GetValue(_settings, "player.health_regeneration", 0);
+
     _blow_capacity = ini::GetValue(_settings, "blow.capacity", 0);
     _blow_consumption = ini::GetValue(_settings, "blow.consumption", 1);
     _blow_regeneration = ini::GetValue(_settings, "blow.regeneration", 0);
+
     _morph_capacity = ini::GetValue(_settings, "morph.capacity", 0);
     _morph_consumption = ini::GetValue(_settings, "morph.consumption", 1);
     _morph_regeneration = ini::GetValue(_settings, "morph.regeneration", 0);
@@ -279,6 +283,8 @@ private:
       _spawn_position,
       _player_speed,
       _player_size,
+      _player_max_health,
+      _player_health_regeneration,
       _blow_capacity,
       _blow_consumption,
       _blow_regeneration,
@@ -549,9 +555,13 @@ private:
   float _player_speed;
   float _player_size;
 
+  int _player_max_health;
+  int _player_health_regeneration;
+
   int _blow_capacity;
   int _blow_consumption;
   int _blow_regeneration;
+
   int _morph_capacity;
   int _morph_consumption;
   int _morph_regeneration;

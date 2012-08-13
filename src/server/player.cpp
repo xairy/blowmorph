@@ -20,6 +20,8 @@ Player* Player::Create(
   const Vector2& position,
   float speed,
   float size,
+  int max_health,
+  int health_regeneration,
   int blow_capacity,
   int blow_consumption,
   int blow_regeneration,
@@ -45,13 +47,17 @@ Player* Player::Create(
   player->_prev_position = position;
   player->_speed = speed;
   player->_spawn_position = Vector2(0.0f, 0.0f);
-
   player->_last_update_time = 0;
+
+  player->_health = max_health;
+  player->_max_health = max_health;
+  player->_health_regeneration = health_regeneration;
 
   player->_blow_charge = blow_capacity;
   player->_blow_capacity = blow_capacity;
   player->_blow_consumption = blow_consumption;
   player->_blow_regeneration = blow_regeneration;
+
   player->_morph_charge = morph_capacity;
   player->_morph_capacity = morph_capacity;
   player->_morph_consumption = morph_consumption;
