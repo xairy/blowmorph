@@ -33,7 +33,6 @@ class Player : public Entity {
 public:
   // TODO: add Player::Data structure and pass it to the constructor.
   // XXX: create Shape in WorldManager? What to do with bullet creation?
-  // TODO: BlowTool, MorphTool.
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
@@ -70,6 +69,9 @@ public:
   void OnKeyboardEvent(const KeyboardEvent& event);
   bool OnMouseEvent(const MouseEvent& event);
 
+  void SetSpawnPosition(const Vector2& position);
+  void Respawn();
+
   float GetSpeed() const;
 
   int GetMaxHealth() const;
@@ -79,9 +81,6 @@ public:
 
   int GetMorphCharge() const;
   int GetMorphCapacity() const;
-
-  void SetSpawnPosition(const Vector2& position);
-  void Respawn();
 
   // Double dispatch. Collision detection.
 
@@ -96,15 +95,10 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(Player);
   Player(WorldManager* world_manager, uint32_t id);
 
-  // Player's position before the last 'Update'.
-  Vector2 _prev_position;
-
-  // Speed in vertical and horizontal directions.
-  float _speed;
-
+  Vector2 _prev_position; // Before the last 'Update'.
   Vector2 _spawn_position;
 
-  uint32_t _last_update_time;
+  float _speed; // In vertical and horizontal directions.
 
   int _health;
   int _max_health;
@@ -120,11 +114,11 @@ protected:
   int _morph_consumption;
   int _morph_regeneration; // Points per ms.
 
-  // Bullet information.
   float _bullet_radius;
   float _bullet_speed;
   float _bullet_explosion_radius;
 
+  uint32_t _last_update_time;
   KeyboardState _keyboard_state;
   KeyboardUpdateTime _keyboard_update_time;
 };
