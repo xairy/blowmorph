@@ -268,20 +268,22 @@ bool WorldManager::LoadMap(const std::string& file) {
 
   for(pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
     if(std::string(node.name()) == "wall") {
-      if(!LoadWall(node)) {
+      if(!_LoadWall(node)) {
         return false;
       }
     } else if(std::string(node.name()) == "chunk") {
-      if(!LoadChunk(node)) {
+      if(!_LoadChunk(node)) {
         return false;
       }
-    }
+    } /*else if(std::string(node.name()) == "spawn") {
+      LoadSpawn(node);
+    }*/
   }
 
   return true;
 }
 
-bool WorldManager::LoadWall(const pugi::xml_node& node) {
+bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   CHECK(_map_type != MAP_NONE);
   CHECK(std::string(node.name()) == "wall");
 
@@ -314,7 +316,7 @@ bool WorldManager::LoadWall(const pugi::xml_node& node) {
 
   return true;
 }
-bool WorldManager::LoadChunk(const pugi::xml_node& node) {
+bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   CHECK(_map_type != MAP_NONE);
   CHECK(std::string(node.name()) == "chunk");
 
@@ -368,6 +370,10 @@ bool WorldManager::LoadChunk(const pugi::xml_node& node) {
 
   return true;
 }
+
+/*void WorldManager::_LoadSpawn(const pugi::xml_node& node) {
+
+}*/
 
 bool WorldManager::Blow(const Vector2& location, float radius) {
   Shape* explosion = new Circle(location, radius);

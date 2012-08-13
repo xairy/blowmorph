@@ -87,17 +87,17 @@ public:
   int GetBlowCapacity() const;
   int GetBlowRegeneration() const;
 
-  int SetBlowCharge(int charge);
-  int SetBlowCapacity(int capacity);
-  int SetBlowRegeneration(int regeneration);
+  void SetBlowCharge(int charge);
+  void SetBlowCapacity(int capacity);
+  void SetBlowRegeneration(int regeneration);
 
   int GetMorphCharge() const;
   int GetMorphCapacity() const;
   int GetMorphRegeneration() const;
 
-  int SetMorphCharge(int charge);
-  int SetMorphCapacity(int capacity);
-  int SetMorphRegeneration(int regeneration);
+  void SetMorphCharge(int charge);
+  void SetMorphCapacity(int capacity);
+  void SetMorphRegeneration(int regeneration);
 
   // Double dispatch. Collision detection.
 

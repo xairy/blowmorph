@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+<spawn>'s position in both map types is represented by floating point numbers.
+-->
+
 <map type="grid" block_size="16.0">
+  <spawn x="0.0" y="0.0"></spawn>
+
   <wall x="6" y="6"></wall>
   <wall x="7" y="6"></wall>
   <wall x="8" y="6"></wall>
