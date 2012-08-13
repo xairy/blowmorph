@@ -35,6 +35,9 @@ using namespace protocol;
 
 struct ObjectState {
   glm::vec2 position;
+  float blowCharge;
+  float morphCharge;
+  float health;
 };
 
 namespace interpolator {
@@ -47,6 +50,9 @@ namespace interpolator {
   template<> ObjectState lerp(const ObjectState& a, const ObjectState& b, double bRatio) {
     ObjectState result;
     result.position = lerp(a.position, b.position, bRatio);
+    result.blowCharge = lerp(a.blowCharge, b.blowCharge, bRatio);
+    result.morphCharge = lerp(a.morphCharge, b.morphCharge, bRatio);
+    result.health = lerp(a.health, b.health, bRatio);
     return result;
   }
 };
@@ -120,6 +126,12 @@ public:
     }
     _current_state = state;
   }
+  
+  void EnforceState(const ObjectState& state, bm::uint32_t time) {
+    _interpolator.Clear();
+    _interpolator.Push(state, time);
+    _current_state = state;
+  }
 
   void Render(bm::uint32_t time) {
     if(_interpolation_enabled) {
@@ -180,7 +192,7 @@ public:
     _resolution_y = 600;
 
     // TODO: think about more accurate name.
-    _max_error = 0.1f;
+    _max_error = 25.f;
 
     _manager = NULL;
     _player_texture = NULL;
@@ -676,9 +688,19 @@ private:
             if(snapshot->id == _player->GetId()) {
               // TODO: fix it after changing protocol.
               glm::vec2 distance = _player->GetPosition() - position;
+              
+              ObjectState state;
+              state.position = position;
+              _player_health = static_cast<float>(snapshot->data[0]);
+              _player_blow_charge = static_cast<float>(snapshot->data[1]);
+              _player_morph_charge = static_cast<float>(snapshot->data[2]);
+              
               if(glm::length(distance) > _max_error) {
-                _player->SetPosition(position);
+                _player->EnforceState(state, snapshot->time);
+              } else {
+                //_player->UpdateCurrentState(state, snapshot->time);
               }
+              
               break;
             }
 
@@ -686,6 +708,10 @@ private:
               // TODO: state constructor.
               ObjectState state;
               state.position = position;
+              state.health = static_cast<float>(snapshot->data[0]);
+              state.blowCharge = static_cast<float>(snapshot->data[1]);
+              state.morphCharge = static_cast<float>(snapshot->data[2]);
+              
               if(snapshot->type == BM_ENTITY_WALL) {
                 _walls[snapshot->id]->UpdateCurrentState(state, time);
               } else {
@@ -829,9 +855,9 @@ private:
   
   void _RenderHUD() {
     _canvas.SetCoordinateType(Canvas::PixelsFlipped);
-    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100, 10));
-    _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100, 10));
-    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100, 10));
+    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_health / _client_options->max_health, 10));
+    _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
+    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
   }
 
   // Draws all the objects.
@@ -897,6 +923,10 @@ private:
 
   RenderWindow _render_window;
   Canvas _canvas;
+
+  float _player_health;
+  float _player_blow_charge;
+  float _player_morph_charge;
 
   bool _is_running;
 
