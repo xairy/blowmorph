@@ -329,6 +329,7 @@ private:
     options.speed = client->entity->GetSpeed();
     options.x = client->entity->GetPosition().x;
     options.y = client->entity->GetPosition().y;
+    options.max_health = client->entity->GetMaxHealth();
     options.blow_capacity = client->entity->GetBlowCapacity();
     options.morph_capacity = client->entity->GetMorphCapacity();
 

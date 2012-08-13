@@ -72,8 +72,11 @@ public:
 
   float GetSpeed() const;
 
+  int GetMaxHealth() const;
+
   int GetBlowCharge() const;
   int GetBlowCapacity() const;
+
   int GetMorphCharge() const;
   int GetMorphCapacity() const;
 

@@ -116,8 +116,9 @@ EntitySnapshot Player::GetSnapshot(uint32_t time) {
   result.id = _id;
   result.x = _prev_position.x;
   result.y = _prev_position.y;
-  result.data[0] = _blow_charge;
-  result.data[1] = _morph_charge;
+  result.data[0] = _max_health;
+  result.data[1] = _blow_charge;
+  result.data[2] = _morph_charge;
   return result;
 }
 
@@ -246,12 +247,17 @@ float Player::GetSpeed() const {
   return _speed;
 }
 
+int Player::GetMaxHealth() const {
+  return _max_health;
+}
+
 int Player::GetBlowCharge() const {
   return _blow_charge;
 }
 int Player::GetBlowCapacity() const {
   return _blow_capacity;
 }
+
 int Player::GetMorphCharge() const {
   return _morph_charge;
 }
