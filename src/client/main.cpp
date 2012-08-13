@@ -829,17 +829,16 @@ private:
   
   void _RenderHUD() {
     _canvas.SetCoordinateType(Canvas::PixelsFlipped);
-    _canvas.FillRect(glm::vec4(1, 0, 0, 0.5), glm::vec2(50, 50), glm::vec2(10, 10));
-    _canvas.FillRect(glm::vec4(0, 1, 0, 0.5), glm::vec2(0, 0), glm::vec2(10, 10));
-    _canvas.FillRect(glm::vec4(0, 0, 1, 0.5), glm::vec2(50, -50), glm::vec2(10, 10));
+    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100, 10));
+    _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100, 10));
+    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100, 10));
   }
 
   // Draws all the objects.
   void _Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     
-    if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      _RenderHUD();    
+    if (_network_state == NETWORK_STATE_LOGGED_IN) {  
       _canvas.SetCoordinateType(Canvas::Pixels);
       
       glMatrixMode(GL_MODELVIEW);
@@ -871,6 +870,8 @@ private:
       }
 
       _player->Render(_GetTime());
+      
+      _RenderHUD();
 
       _render_window.SwapBuffers();
     }
