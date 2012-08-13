@@ -5,9 +5,10 @@
 
 namespace bm {
 
-// TODO: think about this namespace.
+// TODO[13.08.2012 xairy]: remove this namespace after doing todo's below.
 namespace protocol {
 
+// TODO[13.08.2012 xairy]: move it to struct Packet.
 enum PacketType {
   BM_PACKET_UNKNOWN = 0,
 
@@ -32,6 +33,7 @@ enum PacketType {
   BM_PACKET_MAX_VALUE
 };
 
+// TODO[13.08.2012 xairy]: move it to struct EntitySnapshot.
 enum EntityType {
   BM_ENTITY_UNKNOWN = 0,
 
@@ -43,6 +45,7 @@ enum EntityType {
   BM_ENTITY_MAX_VALUE
 };
 
+// TODO[13.08.2012 xairy]: move it to struct EntitySnapshot.
 enum WallType {
   BM_WALL_ORDINARY,
   BM_WALL_UNBREAKABLE,

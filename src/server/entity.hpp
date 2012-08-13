@@ -26,6 +26,7 @@ public:
   Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
+  // XXX[13.08.2012 xairy]: rename it to GetEntityType?
   virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0; 
 
