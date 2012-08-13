@@ -99,6 +99,10 @@ void Player::Update(uint32_t time) {
     + _keyboard_state.down * (_speed);
   _shape->Move(velocity * static_cast<float>(delta_time));
 
+  _health += delta_time * _health_regeneration;
+  if(_health > _max_health) {
+    _health = _max_health;
+  }
   _blow_charge += delta_time * _blow_regeneration;
   if(_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
