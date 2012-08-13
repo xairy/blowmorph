@@ -723,8 +723,10 @@ private:
                   _walls[snapshot->id] = new Object(position, time, snapshot->id);
                   size_t tile;
                   if(snapshot->data[0] == BM_WALL_ORDINARY) {
-                    tile = 0;
-                  } else {
+                    tile = 3;
+                  } else if(snapshot->data[0] == BM_WALL_UNBREAKABLE) {
+                    tile = 2;
+                  } else if(snapshot->data[0] == BM_WALL_MORPHED) {
                     tile = 1;
                   }
                   _walls[snapshot->id]->SetSprite(_wall_texture, tile);
