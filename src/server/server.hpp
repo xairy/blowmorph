@@ -81,8 +81,6 @@ private:
     _host = NULL;
     _event = NULL;
 
-    _spawn_position = Vector2(0.0f, 0.0f);
-
     _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
     _player_size = ini::GetValue(_settings, "player.size", 30.0f);
 
@@ -100,8 +98,6 @@ private:
     _bullet_speed = ini::GetValue(_settings, "bullet.speed", 0.3f);
     _bullet_radius = ini::GetValue(_settings, "bullet.radius", 5.0f);
     _bullet_explosion_radius = ini::GetValue(_settings, "bullet.explosion_radius", 30.0f);
-    
-    _max_coordinate = 600.0f;
 
     _map_file = ini::GetValue(_settings, "server.map", std::string("data/map.xml"));
 
@@ -176,7 +172,7 @@ private:
 
     _world_manager.CollideEntities();
 
-    _world_manager.DestroyOutlyingEntities(_max_coordinate);
+    _world_manager.DestroyOutlyingEntities();
 
     if(!_DeleteDestroyedEntities()) {
       return false;
@@ -280,7 +276,7 @@ private:
     Player* player = Player::Create(
       &_world_manager,
       client_id,
-      _spawn_position,
+      Vector2(0.0f, 0.0f),
       _player_speed,
       _player_size,
       _player_max_health,
@@ -299,6 +295,7 @@ private:
       Error::Set(Error::TYPE_MEMORY);
       return false;
     }
+    player->Respawn();
     Client* client = new Client(peer.release(), player);
     if(client == NULL) {
       Error::Set(Error::TYPE_MEMORY);
@@ -550,8 +547,6 @@ private:
   ClientManager _client_manager;
   Timer _timer;
 
-  Vector2 _spawn_position;
-
   float _player_speed;
   float _player_size;
 
@@ -569,10 +564,6 @@ private:
   float _bullet_speed;
   float _bullet_radius;
   float _bullet_explosion_radius;
-
-  // Entities with x or y coordinate more than '_max_coordinate'
-  // will be destroyed.
-  float _max_coordinate;
 
   bm::ini::RecordMap _settings;
 };
