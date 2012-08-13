@@ -38,7 +38,7 @@ public:
   
   void UpdateEntities(uint32_t time);
   void CollideEntities();
-  void DestroyOutlyingEntities(float max_coordinate);
+  void DestroyOutlyingEntities();
 
   bool CreateBullet(
     uint32_t owner_id,
@@ -88,8 +88,8 @@ private:
     MAP_GRID
   } _map_type;
 
-  // Works only with grid map.
-  float _block_size;
+  float _block_size; // Works only with grid map.
+  float _bound; // Entities with greater coordinates are destroyed.
 };
 
 } // namespace bm

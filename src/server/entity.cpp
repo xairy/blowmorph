@@ -148,7 +148,7 @@ bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   if(dummy->_shape->Collide(bullet->_shape)) {
     bullet->Explode();
     dummy->Damage();
-    return true;  
+    return true;
   }
   return false;
 }

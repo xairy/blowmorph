@@ -154,20 +154,19 @@ void WorldManager::CollideEntities() {
   }
 }
 
-void WorldManager::DestroyOutlyingEntities(float max_coordinate) {
+void WorldManager::DestroyOutlyingEntities() {
   std::map<uint32_t, Entity*>::iterator i;
   for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
-    if(abs(position.x) > max_coordinate || abs(position.y) > max_coordinate) {
+    if(abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
   }
   for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
-    if(abs(position.x) > max_coordinate || abs(position.y) > max_coordinate) {
-      // Temporary solution?
+    if(abs(position.x) > _bound || abs(position.y) > _bound) {
       if(entity->GetType() != "Player") {
         entity->Destroy();
       }
@@ -266,6 +265,13 @@ bool WorldManager::LoadMap(const std::string& file) {
   } else {
     _map_type = MAP_ARBITRARY;
   }
+
+  pugi::xml_attribute bound = map_node.attribute("bound");
+  if(!bound) {
+    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'bound' in %s!\n", file.c_str());
+    return false;
+  }
+  _bound = bound.as_float();
 
   for(pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
     if(std::string(node.name()) == "wall") {

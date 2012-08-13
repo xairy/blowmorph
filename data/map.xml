@@ -4,7 +4,7 @@
 When using 'grid' map all coordinates will be multiplied by 'block_size'.
 -->
 
-<map type="grid" block_size="16.0">
+<map type="grid" block_size="16.0" bound="600.0">
   <spawn x="0" y="0"></spawn>
   <spawn x="-7" y="-7"></spawn>
 
@@ -17,7 +17,7 @@ When using 'grid' map all coordinates will be multiplied by 'block_size'.
 </map>
 
 <!--
-<map type="arbitrary">
+<map type="arbitrary" bound="600.0">
   <spawn x="0.0" y="0.0"></spawn>
   <spawn x="-100.0" y="-100.0"></spawn>
 
