@@ -881,14 +881,6 @@ private:
       
       //_background->Render(_GetTime());
 
-      std::map<int,Object*>::iterator it;
-      for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        it->second->Render(_GetTime());
-      }
-      for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        it->second->Render(_GetTime());
-      }
-
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
         (*it2)->Render();
@@ -901,6 +893,14 @@ private:
         } else {
           ++it2;
         }
+      }
+
+      std::map<int,Object*>::iterator it;
+      for(it = _walls.begin() ; it != _walls.end(); ++it) {
+        it->second->Render(_GetTime());
+      }
+      for(it = _objects.begin() ; it != _objects.end(); ++it) {
+        it->second->Render(_GetTime());
       }
 
       _player->Render(_GetTime());
