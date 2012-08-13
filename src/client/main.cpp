@@ -145,7 +145,8 @@ public:
 
     if(_caption_enabled) {
       glm::vec2 caption_position = _current_state.position + _caption_pivot;
-      _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y, "%u\n(%f,%f)", _id,_current_state.position.x, _current_state.position.y);
+      _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
+        "%u (%.2f,%.2f)", _id, _current_state.position.x, _current_state.position.y);
     }
   }
 
