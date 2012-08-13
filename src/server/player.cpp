@@ -291,13 +291,13 @@ int Player::GetBlowRegeneration() const {
   return _blow_regeneration;
 }
 
-int Player::SetBlowCharge(int charge) {
+void Player::SetBlowCharge(int charge) {
   _blow_charge = charge;
 }
-int Player::SetBlowCapacity(int capacity) {
+void Player::SetBlowCapacity(int capacity) {
   _blow_capacity = capacity;
 }
-int Player::SetBlowRegeneration(int regeneration) {
+void Player::SetBlowRegeneration(int regeneration) {
   _blow_regeneration = regeneration;
 }
 
@@ -311,13 +311,13 @@ int Player::GetMorphRegeneration() const {
   return _morph_regeneration;
 }
 
-int Player::SetMorphCharge(int charge) {
+void Player::SetMorphCharge(int charge) {
   _morph_charge = charge;
 }
-int Player::SetMorphCapacity(int capacity) {
+void Player::SetMorphCapacity(int capacity) {
   _morph_capacity = capacity;
 }
-int Player::SetMorphRegeneration(int regeneration) {
+void Player::SetMorphRegeneration(int regeneration) {
   _morph_regeneration = regeneration;
 }
 
