@@ -46,7 +46,6 @@ Player* Player::Create(
   player->_shape = shape.release();
   player->_prev_position = position;
   player->_speed = speed;
-  player->_spawn_position = Vector2(0.0f, 0.0f);
   player->_last_update_time = 0;
 
   player->_health = max_health;
@@ -247,11 +246,9 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
   return true;
 }
 
-void Player::SetSpawnPosition(const Vector2& position) {
-  _spawn_position = position;
-}
 void Player::Respawn() {
-  SetPosition(_spawn_position);
+  Vector2 spawn_position = _world_manager->GetRandomSpawn();
+  SetPosition(spawn_position);
 }
 
 float Player::GetSpeed() const {

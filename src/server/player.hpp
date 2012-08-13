@@ -69,7 +69,6 @@ public:
   void OnKeyboardEvent(const KeyboardEvent& event);
   bool OnMouseEvent(const MouseEvent& event);
 
-  void SetSpawnPosition(const Vector2& position);
   void Respawn();
 
   float GetSpeed() const;
@@ -113,7 +112,6 @@ protected:
   Player(WorldManager* world_manager, uint32_t id);
 
   Vector2 _prev_position; // Before the last 'Update'.
-  Vector2 _spawn_position;
 
   float _speed; // In vertical and horizontal directions.
 
