@@ -28,6 +28,7 @@
 #include "sprite.hpp"
 #include "texture_manager.hpp"
 #include "text_writer.hpp"
+#include "canvas.hpp"
 
 using namespace bm;
 using namespace protocol;
@@ -125,14 +126,14 @@ public:
       _current_state = _interpolator.Interpolate(time);
     }
 
-    if(_caption_enabled) {
-      glm::vec2 caption_position = _current_state.position + _caption_pivot;
-      _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y, "%u", _id);
-    }
-
     if(_sprite_set) {
       _sprite.SetPosition(_current_state.position);
       _sprite.Render();
+    }
+
+    if(_caption_enabled) {
+      glm::vec2 caption_position = _current_state.position + _caption_pivot;
+      _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y, "%u\n(%f,%f)", _id,_current_state.position.x, _current_state.position.y);
     }
   }
 
@@ -172,7 +173,7 @@ private:
 class Application {
 public:
   // XXX[24.7.2012 alex]: shouldn't we initialize object in the Init method?
-  Application() {
+  Application() {  
     _is_running = false;
 
     _resolution_x = 600;
@@ -281,6 +282,10 @@ public:
 private:
   bool _Initialize() {
     if (!_render_window.Init("Blowmorph", 600, 600, false)) {
+      return false;
+    }
+    
+    if (!_canvas.Init()) {
       return false;
     }
 
@@ -821,12 +826,22 @@ private:
   bm::uint32_t _GetTime() {
     return SDL_GetTicks() + _time_correction;
   }
+  
+  void _RenderHUD() {
+    _canvas.SetCoordinateType(Canvas::PixelsFlipped);
+    _canvas.FillRect(glm::vec4(1, 0, 0, 0.5), glm::vec2(50, 50), glm::vec2(10, 10));
+    _canvas.FillRect(glm::vec4(0, 1, 0, 0.5), glm::vec2(0, 0), glm::vec2(10, 10));
+    _canvas.FillRect(glm::vec4(0, 0, 1, 0.5), glm::vec2(50, -50), glm::vec2(10, 10));
+  }
 
   // Draws all the objects.
   void _Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
+      _RenderHUD();    
+      _canvas.SetCoordinateType(Canvas::Pixels);
+      
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       glTranslatef(_resolution_x / 2 - _player->GetPosition().x, _resolution_y / 2 - _player->GetPosition().y, 0);
@@ -880,6 +895,7 @@ private:
   }
 
   RenderWindow _render_window;
+  Canvas _canvas;
 
   bool _is_running;
 
