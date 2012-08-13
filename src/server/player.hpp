@@ -40,6 +40,8 @@ public:
     const Vector2& position,
     float speed,
     float size,
+    int max_health,
+    int health_regeneration,
     int blow_capacity,
     int blow_consumption,
     int blow_regeneration,
@@ -101,15 +103,19 @@ protected:
 
   uint32_t _last_update_time;
 
-  // Regeneration - points per ms.
+  int _health;
+  int _max_health;
+  int _health_regeneration;
+
   int _blow_charge;
   int _blow_capacity;
   int _blow_consumption;
-  int _blow_regeneration;
+  int _blow_regeneration; // Points per ms.
+
   int _morph_charge;
   int _morph_capacity;
   int _morph_consumption;
-  int _morph_regeneration;
+  int _morph_regeneration; // Points per ms.
 
   // Bullet information.
   float _bullet_radius;
