@@ -299,7 +299,6 @@ private:
       Error::Set(Error::TYPE_MEMORY);
       return false;
     }
-    player->SetSpawnPosition(_spawn_position);
     Client* client = new Client(peer.release(), player);
     if(client == NULL) {
       Error::Set(Error::TYPE_MEMORY);

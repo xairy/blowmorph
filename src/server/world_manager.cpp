@@ -1,6 +1,7 @@
 #include "world_manager.hpp"
 
 #include <cmath>
+#include <cstdlib>
 
 #include <map>
 
@@ -275,9 +276,11 @@ bool WorldManager::LoadMap(const std::string& file) {
       if(!_LoadChunk(node)) {
         return false;
       }
-    } /*else if(std::string(node.name()) == "spawn") {
-      LoadSpawn(node);
-    }*/
+    } else if(std::string(node.name()) == "spawn") {
+      if(!_LoadSpawn(node)) {
+        return false;
+      }
+    }
   }
 
   return true;
@@ -371,9 +374,17 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   return true;
 }
 
-/*void WorldManager::_LoadSpawn(const pugi::xml_node& node) {
-
-}*/
+bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
+  pugi::xml_attribute x = node.attribute("x");
+  pugi::xml_attribute y = node.attribute("y");
+  if(!x || !y) {
+    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
+    return false;
+  } else {
+    _spawn_positions.push_back(Vector2(x.as_float(), y.as_float()));
+  }
+  return true;
+}
 
 bool WorldManager::Blow(const Vector2& location, float radius) {
   Shape* explosion = new Circle(location, radius);
@@ -415,5 +426,23 @@ bool WorldManager::Morph(const Vector2& location, int radius) {
   return true;
 }
 
+namespace {
+
+// Returns random number in the range [0, max).
+size_t Random(size_t max) {
+  CHECK(max > 0);
+  double zero_to_one = static_cast<double>(rand()) / (static_cast<double>(RAND_MAX) + 1.0f);
+  return static_cast<size_t>(zero_to_one * max);
+}
+
+} // anonymous namespace
+
+Vector2 WorldManager::GetRandomSpawn() const {
+  CHECK(_spawn_positions.size() > 0);
+
+  size_t spawn_count = _spawn_positions.size();
+  size_t spawn = Random(spawn_count);
+  return _spawn_positions[spawn];
+}
 
 } // namespace bm

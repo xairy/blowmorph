@@ -57,9 +57,6 @@ public:
   );
   bool CreateWall(const Vector2& position, float size);
 
-  // Returns one of the spawn positions stored in '_spawn_positions'.
-  Vector2 GetRandomSpawn();
-
   // Works only with grid map.
   bool CreateAlignedWall(float x, float y);
 
@@ -67,10 +64,13 @@ public:
   bool Blow(const Vector2& location, float radius);
   bool Morph(const Vector2& location, int radius);
 
+  // Returns one of the spawn positions stored in '_spawn_positions'.
+  Vector2 GetRandomSpawn() const;
+
 private:
   bool _LoadWall(const pugi::xml_node& node);
   bool _LoadChunk(const pugi::xml_node& node);
-  //void _LoadSpawn(const pugi::xml_node& node);
+  bool _LoadSpawn(const pugi::xml_node& node);
 
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y);
