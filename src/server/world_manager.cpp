@@ -142,11 +142,13 @@ void WorldManager::UpdateEntities(uint32_t time) {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
   for(i = _static_entities.begin(); i != end; ++i) {
-    i->second->Update(time);
+    Entity* entity = i->second;
+    entity->Update(time);
   }
   end = _dynamic_entities.end();
   for(i = _dynamic_entities.begin(); i != end; ++i) {
-    i->second->Update(time);
+    Entity* entity = i->second;
+    entity->Update(time);
   }
 }
 
@@ -166,7 +168,6 @@ void WorldManager::CollideEntities() {
   }
 }
 
-// XXX
 void WorldManager::DestroyOutlyingEntities() {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
