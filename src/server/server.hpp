@@ -212,7 +212,8 @@ private:
 
     _entities = _world_manager.GetStaticEntities();
     for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
-      EntitySnapshot snapshot = itr->second->GetSnapshot(_timer.GetTime());
+      EntitySnapshot snapshot;
+      itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
@@ -221,7 +222,8 @@ private:
 
     _entities = _world_manager.GetDynamicEntities();
     for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
-      EntitySnapshot snapshot = itr->second->GetSnapshot(_timer.GetTime());
+      EntitySnapshot snapshot;
+      itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
@@ -351,7 +353,8 @@ private:
       packet_type == BM_PACKET_ENTITY_DISAPPEARED ||
       packet_type == BM_PACKET_ENTITY_UPDATED);
 
-    EntitySnapshot snapshot = entity->GetSnapshot(_timer.GetTime());
+    EntitySnapshot snapshot;
+    entity->GetSnapshot(_timer.GetTime(), &snapshot);
 
     bool rv = _BroadcastPacket(packet_type, snapshot, true);
     if(rv == false) {
