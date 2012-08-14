@@ -85,6 +85,9 @@ std::string Player::GetType() {
 bool Player::IsStatic() {
   return false;
 }
+bool Player::IsUpdated() {
+  return true;
+}
 
 void Player::Update(uint32_t time) {
   uint32_t delta_time = time - _last_update_time;

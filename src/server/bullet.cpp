@@ -55,6 +55,9 @@ std::string Bullet::GetType() {
 bool Bullet::IsStatic() {
   return false;
 }
+bool Bullet::IsUpdated() {
+  return true;
+}
 
 void Bullet::Update(uint32_t time) {
   Vector2 direction = _end - _start;
