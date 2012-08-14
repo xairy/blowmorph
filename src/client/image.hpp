@@ -1,5 +1,5 @@
-﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_HPP_
-#define BLOWMORPH_CLIENT_TEXTURE_HPP_
+﻿#ifndef BLOWMORPH_CLIENT_IMAGE_HPP_
+#define BLOWMORPH_CLIENT_IMAGE_HPP_
 
 #include <cstring>
 
@@ -33,4 +33,4 @@ GLuint MakeGLTexture(const bm::Image& tex);
 
 } // namespace bm
 
-#endif // BLOWMORPH_CLIENT_TEXTURE_HPP_
+#endif // BLOWMORPH_CLIENT_IMAGE_HPP_
