@@ -133,10 +133,12 @@ private:
   bool _Tick() {
     if(_timer.GetTime() - _last_broadcast >= _ticktime) {
       _last_broadcast = _timer.GetTime();
-      if(!_BroadcastDynamicEntites()) {
+      if(!_BroadcastDynamicEntities()) {
         return false;
       }
-      
+      if(!_BroadcastStaticEntities()) {
+        return false;
+      }
     }
 
     if(_timer.GetTime() - _last_update >= _update_time) {
@@ -155,7 +157,7 @@ private:
         return false;
       }
     } else {
-      printf("Can't keep up!\n");
+      printf("Can't keep up, %u ms behind!\n", _timer.GetTime() - _last_update - _update_time);
     }
 
     return true;
@@ -177,8 +179,10 @@ private:
 
     _world_manager.CollideEntities();
 
-    //_world_manager.DestroyOutlyingEntities();
+    // XXX
+    _world_manager.DestroyOutlyingEntities();
 
+    // XXX
     if(!_DeleteDestroyedEntities()) {
       return false;
     }
@@ -223,6 +227,7 @@ private:
   }
 */
 
+  // XXX
   bool _DeleteDestroyedEntities() {
     std::vector<uint32_t> destroyed_entities;
     _world_manager.GetDestroyedEntities(&destroyed_entities);
@@ -242,12 +247,13 @@ private:
     return true;
   }
 
-  bool _BroadcastStaticEntites() {
+  bool _BroadcastStaticEntities() {
     // TODO: send updated static entites info.
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetStaticEntities();
-    std::map<uint32_t, Entity*>::iterator itr;
-    for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
+    std::map<uint32_t, Entity*>::iterator itr, end;
+    end = _entities->end();
+    for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
@@ -259,11 +265,12 @@ private:
     return true;
   }
 
-  bool _BroadcastDynamicEntites() {
+  bool _BroadcastDynamicEntities() {
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetDynamicEntities();
-    std::map<uint32_t, Entity*>::iterator itr;
-    for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
+    std::map<uint32_t, Entity*>::iterator itr, end;
+    end = _entities->end();
+    for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
@@ -517,9 +524,9 @@ private:
         client->entity->GetId(), sync_data.client_time, sync_data.server_time);
 
       // XXX[14.08.2012 xairy]: broadcast static entities only when new player is connected?
-      if(!_BroadcastStaticEntites()) {
-        return false;
-      }
+      //if(!_BroadcastStaticEntites()) {
+      //  return false;
+      //}
     } else {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);
