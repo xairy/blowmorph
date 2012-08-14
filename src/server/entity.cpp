@@ -88,8 +88,6 @@ bool Entity::Collide(Wall* wall, Player* player) {
   return result;
 }
 bool Entity::Collide(Wall* wall, Dummy* dummy) {
-  return false;
-/*
   bool result = false;
 
   Vector2 px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
@@ -112,7 +110,6 @@ bool Entity::Collide(Wall* wall, Dummy* dummy) {
   dummy->_shape->SetPosition(position);
 
   return result;
-*/
 }
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
   if(wall->_shape->Collide(bullet->_shape)) {
