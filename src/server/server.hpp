@@ -133,7 +133,7 @@ private:
   bool _Tick() {
     if(_timer.GetTime() - _last_broadcast >= _ticktime) {
       _last_broadcast = _timer.GetTime();
-      if(!_BroadcastWorldSnapshot()) {
+      if(!_BroadcastDynamicEntites()) {
         return false;
       }
       
@@ -177,7 +177,7 @@ private:
 
     _world_manager.CollideEntities();
 
-    _world_manager.DestroyOutlyingEntities();
+    //_world_manager.DestroyOutlyingEntities();
 
     if(!_DeleteDestroyedEntities()) {
       return false;
@@ -185,6 +185,43 @@ private:
 
     return true;
   }
+
+/*
+  bool _DeleteDestroyedEntities() {
+    std::map<uint32_t, Entity*>* static_entities = _world_manager.GetStaticEntities();
+    std::map<uint32_t, Entity*>* dynamic_entities = _world_manager.GetStaticEntities();
+
+    std::vector<uint32_t> destroyed_entities;
+
+    std::map<uint32_t, Entity*>::iterator itr;
+    for(itr = static_entities->begin(); itr != static_entities->end(); ++itr) {
+      uint32_t id = itr->first;
+      Entity* entity = itr->second;
+      if(entity->IsDestroyed()) {
+        bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED, entity);
+        if(rv == false) {
+          return false;
+        }
+        destroyed_entities.push_back(id);
+      }
+    }
+    for(itr = dynamic_entities->begin(); itr != dynamic_entities->end(); ++itr) {
+      uint32_t id = itr->first;
+      Entity* entity = itr->second;
+      if(entity->IsDestroyed()) {
+        bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED, entity);
+        if(rv == false) {
+          return false;
+        }
+        destroyed_entities.push_back(id);
+      }
+    }
+
+    _world_manager.DeleteEntities(destroyed_entities, true);
+
+    return true;
+  }
+*/
 
   bool _DeleteDestroyedEntities() {
     std::vector<uint32_t> destroyed_entities;
@@ -205,12 +242,11 @@ private:
     return true;
   }
 
-  bool _BroadcastWorldSnapshot() {
-    // TODO: send only updated static entites info.
+  bool _BroadcastStaticEntites() {
+    // TODO: send updated static entites info.
+    std::map<uint32_t, Entity*>* _entities =
+      _entities = _world_manager.GetStaticEntities();
     std::map<uint32_t, Entity*>::iterator itr;
-    std::map<uint32_t, Entity*>* _entities = NULL;
-
-    _entities = _world_manager.GetStaticEntities();
     for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
@@ -220,7 +256,13 @@ private:
       }
     }
 
-    _entities = _world_manager.GetDynamicEntities();
+    return true;
+  }
+
+  bool _BroadcastDynamicEntites() {
+    std::map<uint32_t, Entity*>* _entities =
+      _entities = _world_manager.GetDynamicEntities();
+    std::map<uint32_t, Entity*>::iterator itr;
     for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
@@ -229,7 +271,6 @@ private:
         return false;
       }
     }
-
     return true;
   }
 
@@ -318,10 +359,10 @@ private:
       return false;
     }
 
-    //if(!_BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_APPEARED,
-    //    client->entity)) {
-    //  return false;
-    //}
+    if(!_BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_APPEARED,
+        client->entity)) {
+      return false;
+    }
 
     return true;
   }
@@ -474,6 +515,11 @@ private:
 
       printf("#%u: Time syncronized: client: %u, server: %u.\n",
         client->entity->GetId(), sync_data.client_time, sync_data.server_time);
+
+      // XXX[14.08.2012 xairy]: broadcast static entities only when new player is connected?
+      if(!_BroadcastStaticEntites()) {
+        return false;
+      }
     } else {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);

@@ -114,6 +114,8 @@ std::map<uint32_t, Entity*>* WorldManager::GetDynamicEntities() {
 
 void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   output->clear();
+  //XXX[14.08.2012 xairy]: hack.
+  output->reserve(2000);
 
   std::map<uint32_t, Entity*>::iterator itr;
   for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
