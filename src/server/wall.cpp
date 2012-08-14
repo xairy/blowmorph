@@ -34,7 +34,7 @@ Wall* Wall::Create(
   
   wall->_shape = shape.release();
   wall->_type = type;
-  wall->_is_updated = false;
+  wall->_is_updated = true;
 
   return wall.release();
 }
@@ -68,7 +68,6 @@ void Wall::GetSnapshot(uint32_t time, EntitySnapshot* output) {
   } else {
     CHECK(false);
   }
-
   //XXX[14.08.2012 xairy]: hack.
   _is_updated = false;
 }

@@ -151,6 +151,7 @@ private:
       }
     }
 
+    // TODO[14.08.2012]: fix.
     uint32_t since_last_update = _timer.GetTime() - _last_update;
     if(_update_time >= since_last_update) {
       bool rv = _host->Service(NULL, _update_time - since_last_update);
@@ -209,7 +210,7 @@ private:
   }
 
   bool _BroadcastStaticEntities(bool force = false) {
-    // TODO: send updated static entites info.
+    // TODO: send updated static entities info.
     uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetStaticEntities();
