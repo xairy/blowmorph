@@ -13,12 +13,7 @@ When using 'grid' map all coordinates will be multiplied by 'block_size'.
   <wall x="8" y="6" type="morphed"></wall>
   <wall x="9" y="6" type="ordinary"></wall>
 
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
-  <chunk x="11" y="0" width="20" height="20" type="ordinary"></chunk>
+  <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
 </map>
 
 <!--
