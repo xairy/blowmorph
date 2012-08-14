@@ -151,13 +151,14 @@ private:
       }
     }
 
-    if(_update_time >= _timer.GetTime() - _last_update) {
-      bool rv = _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
+    uint32_t since_last_update = _timer.GetTime() - _last_update;
+    if(_update_time >= since_last_update) {
+      bool rv = _host->Service(NULL, _update_time - since_last_update);
       if(rv == false) {
         return false;
       }
     } else {
-      printf("Can't keep up, %u ms behind!\n", _timer.GetTime() - _last_update - _update_time);
+      printf("Can't keep up, %u ms behind!\n", since_last_update - _update_time);
     }
 
     return true;
@@ -179,10 +180,8 @@ private:
 
     _world_manager.CollideEntities();
 
-    // XXX
-    _world_manager.DestroyOutlyingEntities();
+     _world_manager.DestroyOutlyingEntities();
 
-    // XXX
     if(!_DeleteDestroyedEntities()) {
       return false;
     }
@@ -190,44 +189,6 @@ private:
     return true;
   }
 
-/*
-  bool _DeleteDestroyedEntities() {
-    std::map<uint32_t, Entity*>* static_entities = _world_manager.GetStaticEntities();
-    std::map<uint32_t, Entity*>* dynamic_entities = _world_manager.GetStaticEntities();
-
-    std::vector<uint32_t> destroyed_entities;
-
-    std::map<uint32_t, Entity*>::iterator itr;
-    for(itr = static_entities->begin(); itr != static_entities->end(); ++itr) {
-      uint32_t id = itr->first;
-      Entity* entity = itr->second;
-      if(entity->IsDestroyed()) {
-        bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED, entity);
-        if(rv == false) {
-          return false;
-        }
-        destroyed_entities.push_back(id);
-      }
-    }
-    for(itr = dynamic_entities->begin(); itr != dynamic_entities->end(); ++itr) {
-      uint32_t id = itr->first;
-      Entity* entity = itr->second;
-      if(entity->IsDestroyed()) {
-        bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED, entity);
-        if(rv == false) {
-          return false;
-        }
-        destroyed_entities.push_back(id);
-      }
-    }
-
-    _world_manager.DeleteEntities(destroyed_entities, true);
-
-    return true;
-  }
-*/
-
-  // XXX
   bool _DeleteDestroyedEntities() {
     std::vector<uint32_t> destroyed_entities;
     _world_manager.GetDestroyedEntities(&destroyed_entities);
@@ -249,13 +210,14 @@ private:
 
   bool _BroadcastStaticEntities() {
     // TODO: send updated static entites info.
+    uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetStaticEntities();
     std::map<uint32_t, Entity*>::iterator itr, end;
     end = _entities->end();
     for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
-      itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
+      itr->second->GetSnapshot(time, &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
@@ -266,13 +228,14 @@ private:
   }
 
   bool _BroadcastDynamicEntities() {
+    uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetDynamicEntities();
     std::map<uint32_t, Entity*>::iterator itr, end;
     end = _entities->end();
     for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
-      itr->second->GetSnapshot(_timer.GetTime(), &snapshot);
+      itr->second->GetSnapshot(time, &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
@@ -522,11 +485,6 @@ private:
 
       printf("#%u: Time syncronized: client: %u, server: %u.\n",
         client->entity->GetId(), sync_data.client_time, sync_data.server_time);
-
-      // XXX[14.08.2012 xairy]: broadcast static entities only when new player is connected?
-      //if(!_BroadcastStaticEntites()) {
-      //  return false;
-      //}
     } else {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);
