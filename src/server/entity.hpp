@@ -70,8 +70,6 @@ public:
   static bool Collide(Dummy* dummy, Bullet* bullet);
   static bool Collide(Bullet* bullet1, Bullet* bullet2);
 
-  static bool Collide(Entity* first, Entity* second);
-
 protected:
   WorldManager* _world_manager;
 

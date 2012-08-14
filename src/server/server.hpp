@@ -181,7 +181,7 @@ private:
 
     _world_manager.CollideEntities();
 
-     _world_manager.DestroyOutlyingEntities();
+    _world_manager.DestroyOutlyingEntities();
 
     if(!_DeleteDestroyedEntities()) {
       return false;
