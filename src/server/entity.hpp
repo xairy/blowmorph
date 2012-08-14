@@ -28,7 +28,8 @@ public:
 
   // XXX[13.08.2012 xairy]: rename it to GetEntityType?
   virtual std::string GetType() = 0;
-  virtual bool IsStatic() = 0; 
+  virtual bool IsStatic() = 0;
+  virtual bool IsUpdated() = 0;
 
   virtual void Update(uint32_t time) = 0;
   virtual void GetSnapshot(uint32_t time, EntitySnapshot* output) = 0;

@@ -34,6 +34,7 @@ Wall* Wall::Create(
   
   wall->_shape = shape.release();
   wall->_type = type;
+  wall->_is_updated = false;
 
   return wall.release();
 }
@@ -45,6 +46,9 @@ std::string Wall::GetType() {
 }
 bool Wall::IsStatic() {
   return true;
+}
+bool Wall::IsUpdated() {
+  return _is_updated;
 }
 
 void Wall::Update(uint32_t time) { }
@@ -64,6 +68,9 @@ void Wall::GetSnapshot(uint32_t time, EntitySnapshot* output) {
   } else {
     CHECK(false);
   }
+
+  //XXX[14.08.2012 xairy]: hack.
+  _is_updated = false;
 }
 
 void Wall::OnEntityAppearance(Entity* entity) {

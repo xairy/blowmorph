@@ -208,7 +208,7 @@ private:
     return true;
   }
 
-  bool _BroadcastStaticEntities() {
+  bool _BroadcastStaticEntities(bool force = false) {
     // TODO: send updated static entites info.
     uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
@@ -216,11 +216,14 @@ private:
     std::map<uint32_t, Entity*>::iterator itr, end;
     end = _entities->end();
     for(itr = _entities->begin(); itr != end; ++itr) {
-      EntitySnapshot snapshot;
-      itr->second->GetSnapshot(time, &snapshot);
-      bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
-      if(rv == false) {
-        return false;
+      Entity* entity = itr->second;
+      if(force || entity->IsUpdated()) {
+        EntitySnapshot snapshot;
+        entity->GetSnapshot(time, &snapshot);
+        bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
+        if(rv == false) {
+          return false;
+        }
       }
     }
 
@@ -485,6 +488,11 @@ private:
 
       printf("#%u: Time syncronized: client: %u, server: %u.\n",
         client->entity->GetId(), sync_data.client_time, sync_data.server_time);
+
+      //XXX[14.08.2012 xairy]: hack?
+      if(!_BroadcastStaticEntities(true)) {
+        return false;
+      }
     } else {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);

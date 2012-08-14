@@ -33,6 +33,7 @@ public:
 
   virtual std::string GetType();
   virtual bool IsStatic();
+  virtual bool IsUpdated();
 
   virtual void Update(uint32_t time);
   virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);
@@ -56,6 +57,7 @@ protected:
   Wall(WorldManager* world_manager, uint32_t id);
 
   Type _type;
+  bool _is_updated;
 };
 
 } // namespace bm
