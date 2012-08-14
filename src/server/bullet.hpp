@@ -33,7 +33,7 @@ public:
   virtual bool IsStatic();
 
   virtual void Update(uint32_t time);
-  virtual EntitySnapshot GetSnapshot(uint32_t time);
+  virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);

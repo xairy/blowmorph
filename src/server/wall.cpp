@@ -49,23 +49,21 @@ bool Wall::IsStatic() {
 
 void Wall::Update(uint32_t time) { }
 
-EntitySnapshot Wall::GetSnapshot(uint32_t time) {
-  EntitySnapshot result;
-  result.type = BM_ENTITY_WALL;
-  result.time = time;
-  result.id = _id;
-  result.x = _shape->GetPosition().x;
-  result.y = _shape->GetPosition().y;
+void Wall::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+  output->type = BM_ENTITY_WALL;
+  output->time = time;
+  output->id = _id;
+  output->x = _shape->GetPosition().x;
+  output->y = _shape->GetPosition().y;
   if(_type == TYPE_ORDINARY) {
-    result.data[0] = BM_WALL_ORDINARY;
+    output->data[0] = BM_WALL_ORDINARY;
   } else if(_type == TYPE_UNBREAKABLE) {
-    result.data[0] = BM_WALL_UNBREAKABLE;
+    output->data[0] = BM_WALL_UNBREAKABLE;
   } else if(_type == TYPE_MORPHED) {
-    result.data[0] = BM_WALL_MORPHED;
+    output->data[0] = BM_WALL_MORPHED;
   } else {
     CHECK(false);
   }
-  return result;
 }
 
 void Wall::OnEntityAppearance(Entity* entity) {
