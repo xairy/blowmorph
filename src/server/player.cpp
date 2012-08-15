@@ -85,6 +85,9 @@ std::string Player::GetType() {
 bool Player::IsStatic() {
   return false;
 }
+bool Player::IsUpdated() {
+  return true;
+}
 
 void Player::Update(uint32_t time) {
   uint32_t delta_time = time - _last_update_time;
@@ -112,17 +115,15 @@ void Player::Update(uint32_t time) {
   }
 }
 
-EntitySnapshot Player::GetSnapshot(uint32_t time) {
-  EntitySnapshot result;
-  result.type = BM_ENTITY_PLAYER;
-  result.time = time;
-  result.id = _id;
-  result.x = _prev_position.x;
-  result.y = _prev_position.y;
-  result.data[0] = _health;
-  result.data[1] = _blow_charge;
-  result.data[2] = _morph_charge;
-  return result;
+void Player::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+  output->type = BM_ENTITY_PLAYER;
+  output->time = time;
+  output->id = _id;
+  output->x = _prev_position.x;
+  output->y = _prev_position.y;
+  output->data[0] = _health;
+  output->data[1] = _blow_charge;
+  output->data[2] = _morph_charge;
 }
 
 void Player::OnEntityAppearance(Entity* entity) {

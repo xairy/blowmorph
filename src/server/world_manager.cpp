@@ -34,11 +34,13 @@ namespace bm {
 
 WorldManager::WorldManager() : _map_type(MAP_NONE) { }
 WorldManager::~WorldManager() {
-  std::map<uint32_t, Entity*>::iterator i;
-  for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _static_entities.end();
+  for(i = _static_entities.begin(); i != end; ++i) {
     delete i->second;
   }
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
+  end = _dynamic_entities.end();
+  for(i = _dynamic_entities.begin(); i != end; ++i) {
     delete i->second;
   }
 }
@@ -51,12 +53,14 @@ void WorldManager::AddEntity(uint32_t id, Entity* entity) {
     _dynamic_entities[id] = entity;
   }
   
-  std::map<uint32_t, Entity*>::iterator itr;
-  for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _static_entities.end();
+  for(itr = _static_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityAppearance(entity);
     entity->OnEntityAppearance(itr->second);
   }
-  for(itr = _dynamic_entities.begin(); itr != _dynamic_entities.end(); ++itr) {
+  end = _dynamic_entities.end();
+  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityAppearance(entity);
     entity->OnEntityAppearance(itr->second);
   }
@@ -74,11 +78,13 @@ void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
   }
   CHECK(entity != NULL);
 
-  std::map<uint32_t, Entity*>::iterator itr;
-  for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _static_entities.end();
+  for(itr = _static_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityDisappearance(entity);
   }
-  for(itr = _dynamic_entities.begin(); itr != _dynamic_entities.end(); ++itr) {
+  end = _dynamic_entities.end();
+  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityDisappearance(entity);
   }
 
@@ -114,14 +120,18 @@ std::map<uint32_t, Entity*>* WorldManager::GetDynamicEntities() {
 
 void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   output->clear();
+  //XXX[14.08.2012 xairy]: hack.
+  output->reserve(2000);
 
-  std::map<uint32_t, Entity*>::iterator itr;
-  for(itr = _static_entities.begin(); itr != _static_entities.end(); ++itr) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _static_entities.end();
+  for(itr = _static_entities.begin(); itr != end; ++itr) {
     if(itr->second->IsDestroyed()) {
       output->push_back(itr->first);
     }
   }
-  for(itr = _dynamic_entities.begin(); itr != _dynamic_entities.end(); ++itr) {
+  end = _dynamic_entities.end();
+  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
     if(itr->second->IsDestroyed()) {
       output->push_back(itr->first);
     }
@@ -129,41 +139,47 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
 }
 
 void WorldManager::UpdateEntities(uint32_t time) {
-  std::map<uint32_t, Entity*>::iterator i;
-  for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
-    i->second->Update(time);
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _static_entities.end();
+  for(i = _static_entities.begin(); i != end; ++i) {
+    Entity* entity = i->second;
+    entity->Update(time);
   }
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
-    i->second->Update(time);
+  end = _dynamic_entities.end();
+  for(i = _dynamic_entities.begin(); i != end; ++i) {
+    Entity* entity = i->second;
+    entity->Update(time);
   }
 }
 
 void WorldManager::CollideEntities() {
-  std::map<uint32_t, Entity*>::iterator i, k;
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
-    k = i;
-    ++k;
-    for(; k != _dynamic_entities.end(); ++k) {
-      i->second->Collide(k->second);
+  std::map<uint32_t, Entity*>::iterator s, d, s_end, d_end;
+  d_end = _dynamic_entities.end();
+  s_end = _static_entities.end();
+  for(d = _dynamic_entities.begin(); d != d_end; ++d) {
+    s = d;
+    ++s;
+    for(; s != d_end; ++s) {
+      d->second->Collide(s->second);
     }
-  }
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
-    for(k = _static_entities.begin(); k != _static_entities.end(); ++k) {
-      i->second->Collide(k->second);
+    for(s = _static_entities.begin(); s != s_end; ++s) {
+      d->second->Collide(s->second);
     }
   }
 }
 
 void WorldManager::DestroyOutlyingEntities() {
-  std::map<uint32_t, Entity*>::iterator i;
-  for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _static_entities.end();
+  for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
     if(abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
   }
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
+  end = _dynamic_entities.end();
+  for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     Vector2 position = entity->GetPosition();
     if(abs(position.x) > _bound || abs(position.y) > _bound) {
@@ -457,14 +473,16 @@ bool WorldManager::Blow(const Vector2& location, float radius) {
     return false;
   }
 
-  std::map<uint32_t, Entity*>::iterator i;
-  for(i = _static_entities.begin(); i != _static_entities.end(); ++i) {
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _static_entities.end();
+  for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
       entity->Damage();
     }
   }
-  for(i = _dynamic_entities.begin(); i != _dynamic_entities.end(); ++i) {
+  end = _dynamic_entities.end();
+  for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
       entity->Damage();
