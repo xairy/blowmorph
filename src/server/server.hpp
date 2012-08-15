@@ -133,10 +133,12 @@ private:
   bool _Tick() {
     if(_timer.GetTime() - _last_broadcast >= _ticktime) {
       _last_broadcast = _timer.GetTime();
-      if(!_BroadcastWorldSnapshot()) {
+      if(!_BroadcastDynamicEntities()) {
         return false;
       }
-      
+      if(!_BroadcastStaticEntities()) {
+        return false;
+      }
     }
 
     if(_timer.GetTime() - _last_update >= _update_time) {
@@ -149,13 +151,15 @@ private:
       }
     }
 
-    if(_update_time >= _timer.GetTime() - _last_update) {
-      bool rv = _host->Service(NULL, _update_time - (_timer.GetTime() - _last_update));
+    // TODO[14.08.2012]: fix.
+    uint32_t since_last_update = _timer.GetTime() - _last_update;
+    if(_update_time >= since_last_update) {
+      bool rv = _host->Service(NULL, _update_time - since_last_update);
       if(rv == false) {
         return false;
       }
     } else {
-      printf("Can't keep up!\n");
+      printf("Can't keep up, %u ms behind!\n", since_last_update - _update_time);
     }
 
     return true;
@@ -205,29 +209,42 @@ private:
     return true;
   }
 
-  bool _BroadcastWorldSnapshot() {
-    // TODO: send only updated static entites info.
-    std::map<uint32_t, Entity*>::iterator itr;
-    std::map<uint32_t, Entity*>* _entities = NULL;
+  bool _BroadcastStaticEntities(bool force = false) {
+    // TODO: send updated static entities info.
+    uint32_t time = _timer.GetTime();
+    std::map<uint32_t, Entity*>* _entities =
+      _entities = _world_manager.GetStaticEntities();
+    std::map<uint32_t, Entity*>::iterator itr, end;
+    end = _entities->end();
+    for(itr = _entities->begin(); itr != end; ++itr) {
+      Entity* entity = itr->second;
+      if(force || entity->IsUpdated()) {
+        EntitySnapshot snapshot;
+        entity->GetSnapshot(time, &snapshot);
+        bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
+        if(rv == false) {
+          return false;
+        }
+      }
+    }
 
-    _entities = _world_manager.GetStaticEntities();
-    for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
-      EntitySnapshot snapshot = itr->second->GetSnapshot(_timer.GetTime());
+    return true;
+  }
+
+  bool _BroadcastDynamicEntities() {
+    uint32_t time = _timer.GetTime();
+    std::map<uint32_t, Entity*>* _entities =
+      _entities = _world_manager.GetDynamicEntities();
+    std::map<uint32_t, Entity*>::iterator itr, end;
+    end = _entities->end();
+    for(itr = _entities->begin(); itr != end; ++itr) {
+      EntitySnapshot snapshot;
+      itr->second->GetSnapshot(time, &snapshot);
       bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
       }
     }
-
-    _entities = _world_manager.GetDynamicEntities();
-    for(itr = _entities->begin(); itr != _entities->end(); ++itr) {
-      EntitySnapshot snapshot = itr->second->GetSnapshot(_timer.GetTime());
-      bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
-      if(rv == false) {
-        return false;
-      }
-    }
-
     return true;
   }
 
@@ -316,10 +333,10 @@ private:
       return false;
     }
 
-    //if(!_BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_APPEARED,
-    //    client->entity)) {
-    //  return false;
-    //}
+    if(!_BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_APPEARED,
+        client->entity)) {
+      return false;
+    }
 
     return true;
   }
@@ -351,7 +368,8 @@ private:
       packet_type == BM_PACKET_ENTITY_DISAPPEARED ||
       packet_type == BM_PACKET_ENTITY_UPDATED);
 
-    EntitySnapshot snapshot = entity->GetSnapshot(_timer.GetTime());
+    EntitySnapshot snapshot;
+    entity->GetSnapshot(_timer.GetTime(), &snapshot);
 
     bool rv = _BroadcastPacket(packet_type, snapshot, true);
     if(rv == false) {
@@ -471,6 +489,11 @@ private:
 
       printf("#%u: Time syncronized: client: %u, server: %u.\n",
         client->entity->GetId(), sync_data.client_time, sync_data.server_time);
+
+      //XXX[14.08.2012 xairy]: hack?
+      if(!_BroadcastStaticEntities(true)) {
+        return false;
+      }
     } else {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);

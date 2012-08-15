@@ -55,6 +55,9 @@ std::string Bullet::GetType() {
 bool Bullet::IsStatic() {
   return false;
 }
+bool Bullet::IsUpdated() {
+  return true;
+}
 
 void Bullet::Update(uint32_t time) {
   Vector2 direction = _end - _start;
@@ -65,14 +68,12 @@ void Bullet::Update(uint32_t time) {
   }
 }
 
-EntitySnapshot Bullet::GetSnapshot(uint32_t time) {
-  EntitySnapshot result;
-  result.type = BM_ENTITY_BULLET;
-  result.time = time;
-  result.id = _id;
-  result.x = _shape->GetPosition().x;
-  result.y = _shape->GetPosition().y;
-  return result;
+void Bullet::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+  output->type = BM_ENTITY_BULLET;
+  output->time = time;
+  output->id = _id;
+  output->x = _shape->GetPosition().x;
+  output->y = _shape->GetPosition().y;
 }
 
 void Bullet::OnEntityAppearance(Entity* entity) {
