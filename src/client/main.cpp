@@ -80,7 +80,7 @@ public:
     return _id;
   }
 
-  bool SetSprite(Texture* texture, size_t tile = 0) {
+  bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
     bool rv = _sprite.Init(texture, tile);
     if(rv == false) {
       return false;
@@ -939,12 +939,12 @@ private:
   glm::float_t _max_error;
   
   // XXX[24.7.2012 alex]: copypasta
-  Texture* _player_texture;
-  Texture* _bullet_texture;
-  Texture* _wall_texture;
-  Texture* _dummy_texture;
-  Texture* _explosion_texture;
-  //Texture* _wallpaper_texture;
+  TextureAtlas* _player_texture;
+  TextureAtlas* _bullet_texture;
+  TextureAtlas* _wall_texture;
+  TextureAtlas* _dummy_texture;
+  TextureAtlas* _explosion_texture;
+  //TextureAtlas* _wallpaper_texture;
   Object* _player;
   //Object* _background;
 
