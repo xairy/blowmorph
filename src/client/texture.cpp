@@ -53,6 +53,10 @@ namespace bm {
 
 Texture::Texture() : _texture_id(0), _width(0), _height(0), _actual_width(0), _actual_height(0) { }
 Texture::~Texture() {
+  Dispose();
+}
+
+void Texture::Dispose() {
   if (_texture_id != 0) {
     glDeleteTextures(1, &_texture_id);
     _texture_id = 0;
@@ -87,6 +91,19 @@ bool Texture::Create(size_t width, size_t height) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _flags.smooth ? GL_LINEAR : GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _flags.smooth ? GL_LINEAR : GL_NEAREST);
   
+  return true;
+}
+
+bool Texture::Update(const void* rgbaData) {
+  CHECK(_texture_id != 0);
+
+  glBindTexture(GL_TEXTURE_2D, _texture_id);
+
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 
+    static_cast<GLsizei>(this->_width),
+    static_cast<GLsizei>(this->_height),
+    GL_RGBA, GL_UNSIGNED_BYTE, rgbaData);
+
   return true;
 }
 

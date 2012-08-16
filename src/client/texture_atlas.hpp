@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-#include <SDL/SDL.h>
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 #include <base/pstdint.hpp>
 
 namespace bm {
+
+class Texture;
 
 // TODO[16.8.2012 alex]: replace it with a generic Rect/rect.
 struct TileRect {
@@ -27,8 +27,9 @@ typedef std::vector<TileRect> Tileset;
 class TextureAtlas {
 public:
   ~TextureAtlas();
-
-  GLuint GetID() const;
+  
+  Texture* GetTexture() const;
+  
   glm::vec2 GetSize() const;
   size_t GetTileCount() const;
   glm::vec2 GetTilePosition(size_t i) const;
@@ -36,9 +37,8 @@ public:
 
 private:
   TextureAtlas();
-
-  GLuint textureID;
-  glm::uvec2 size;
+  
+  Texture* texture;
   Tileset tileset;
   
   friend TextureAtlas* LoadOldTexture(const std::string& path,

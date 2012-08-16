@@ -1,4 +1,6 @@
-﻿// FreeType Headers
+﻿#include "text_writer.hpp"
+
+// FreeType Headers
 #include <ft2build.h>
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
@@ -7,9 +9,10 @@
 
 #include <map>
 
+#include <base/macros.hpp>
 #include <base/pstdint.hpp>
 
-#include "text_writer.hpp"
+#include "texture.hpp"
 
 namespace {
   struct GlyphInfo {
@@ -22,7 +25,7 @@ namespace {
     size_t size_x;
     size_t size_y;
     
-    GLuint texture_id;
+    bm::Texture* texture;
   };
 
   typedef std::map<bm::uchar, GlyphInfo> GlyphMap;
@@ -41,7 +44,7 @@ namespace {
     void clean();
   };
 
-  // XXX[24.7.2012 alex]: should we use bm::texture?
+  // XXX[24.7.2012 alex]: should we use bm::Image?
   GLubyte* GetFTBitmapData(FT_Bitmap& bitmap) {
     // We are including an alpha channel so that the black parts of the bitmap 
     // will be transparent, and so that the edges of the text will be 
@@ -78,23 +81,22 @@ namespace {
   }
   
   void LoadGlyphTexture(FT_GlyphSlot glyph, GlyphInfo& info) {
-    // generate a texture
-    glGenTextures(1, &info.texture_id);
-    CHECK(info.texture_id != 0);
+    // if there is nothing do display, don't load the texture
+    if (info.size_x == 0 || info.size_y == 0) {
+      info.texture = NULL;
+      return;
+    }
     
-    // get texture data
+    // Get texture data.
     GLubyte* data = GetFTBitmapData(glyph->bitmap);
     
-    // XXX[24.7.2012 alex]: should I use GL_TEXTURE_2D instead?
-    // Now we just setup some texture parameters.
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, info.texture_id); 
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-
-    // Here We Actually Create The Texture Itself, Notice That We Are Using 
-    // GL_LUMINANCE_ALPHA To Indicate That We Are Using 2 Channel Data.
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, info.size_x, info.size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); 
-
+    // Generate a texture.
+    // XXX[16.8.2012 alex]: error handling.
+    info.texture = new bm::Texture();
+    info.texture->Create(info.size_x, info.size_y);
+    info.texture->SetFlags(true, false, false);
+    info.texture->Update(data);
+    
     delete [] data; 
   }
   
@@ -114,13 +116,22 @@ namespace {
   
   void UnloadGlyphs(GlyphMap& glyphs) {
     for (GlyphMap::iterator it = glyphs.begin(); it != glyphs.end(); ++it) {
-      glDeleteTextures(1, &it->second.texture_id);
+      if (it->second.texture != NULL) {
+        it->second.texture->Dispose();
+        delete it->second.texture;
+        it->second.texture = NULL;
+      }
     }
     glyphs.clear();
   }
   
-  void RenderGlyph(const GlyphInfo& info) {
-    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, info.texture_id); 
+  void RenderGlyph(GlyphInfo& info) {
+    // if there is nothing do display simply return
+    if (info.texture == NULL) {
+      return;
+    }
+  
+    info.texture->Bind(bm::Texture::Pixels);
     glPushMatrix(); 
 
     // First we need to move over a little so that the character has the right
@@ -242,7 +253,7 @@ namespace {
     return lines;
   }
   
-  void RenderText(const FontDataPrivate &font, float x, float y, const glm::vec4& color, const char* text)  {
+  void RenderText(FontDataPrivate &font, float x, float y, const glm::vec4& color, const char* text)  {
       CHECK(text != NULL);
       
       // We want a coordinate system where distance is measured in window pixels.
@@ -280,7 +291,7 @@ namespace {
         
         for (size_t k = 0; k < lines[i].size(); k++) {
           bm::uchar ch = lines[i][k];
-          GlyphMap::const_iterator it = font.glyphs.find(ch);
+          GlyphMap::iterator it = font.glyphs.find(ch);
           if (it != font.glyphs.end()) {
             RenderGlyph(it->second);
           }
