@@ -334,7 +334,7 @@ private:
       return false;
     }
     
-    _wall_texture = bm::LoadOldTexture("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
+    _wall_texture = bm::LoadTileset("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
     if(_wall_texture == NULL) {
       return false;
     }
@@ -344,7 +344,7 @@ private:
       return false;
     }
 
-    _explosion_texture = bm::LoadOldTexture("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
+    _explosion_texture = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
     if(_explosion_texture == NULL) {
       return false;
     }
