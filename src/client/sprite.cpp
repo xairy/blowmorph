@@ -16,7 +16,7 @@ namespace bm {
 Sprite::Sprite() { }
 Sprite::~Sprite() { }
 
-bool Sprite::Init(bm::Texture* texture, size_t tile) {
+bool Sprite::Init(bm::TextureAtlas* texture, size_t tile) {
   CHECK(texture != NULL);
   CHECK(tile < texture->GetTileCount());
 

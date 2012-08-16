@@ -5,14 +5,14 @@
 
 namespace bm {
 
-class Texture;
+class TextureAtlas;
 
 class Sprite {
 public:
   Sprite();
   ~Sprite();
  
-  bool Init(bm::Texture* texture, size_t tile = 0);
+  bool Init(bm::TextureAtlas* texture, size_t tile = 0);
   
   // Renders sprite using OpenGL API.
   void Render();
@@ -58,7 +58,7 @@ private:
   glm::vec2 scale;
   glm::float_t angle;
   
-  bm::Texture* texture;
+  bm::TextureAtlas* texture;
   size_t tile;
 };
 

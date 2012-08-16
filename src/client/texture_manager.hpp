@@ -24,9 +24,9 @@ struct TileRect {
 };
 typedef std::vector<TileRect> Tileset;
 
-class Texture {
+class TextureAtlas {
 public:
-  ~Texture();
+  ~TextureAtlas();
 
   GLuint GetID() const;
   glm::uvec2 GetSize() const;
@@ -35,15 +35,15 @@ public:
   glm::uvec2 GetTileSize(size_t i) const;
 
 private:
-  Texture();
+  TextureAtlas();
 
   GLuint textureID;
   glm::uvec2 size;
   Tileset tileSetInfo;
   
-  friend Texture* LoadOldTexture(const std::string& path,
+  friend TextureAtlas* LoadOldTexture(const std::string& path,
                                  bm::uint32_t transparentColor);
-  friend Texture* LoadTileset(const std::string& path,
+  friend TextureAtlas* LoadTileset(const std::string& path,
                                  bm::uint32_t transparentColor,
                                  size_t startX, size_t startY, 
                                  size_t horizontalStep, size_t verticalStep,
@@ -52,12 +52,12 @@ private:
 
 // Loads an image or a tileset from a given path.
 // Returns NULL on failure.
-Texture* LoadOldTexture(const std::string& path,
+TextureAtlas* LoadOldTexture(const std::string& path,
                         bm::uint32_t transparentColor = 0xFFFFFFFF);
 
 // Loads a tileset from a given path.
 // Returns NULL on failure.
-Texture* LoadTileset(const std::string& path,
+TextureAtlas* LoadTileset(const std::string& path,
                      bm::uint32_t transparentColor = 0xFFFFFFFF,
                      size_t startX = 0, size_t startY = 0, 
                      size_t horizontalStep = 0, size_t verticalStep = 0,

@@ -32,36 +32,36 @@ void MakeColorTransparent(bm::Image& tex, ::uint32_t transparentColor) {
 
 namespace bm {
 
-GLuint Texture::GetID() const {
+GLuint TextureAtlas::GetID() const {
   assert(textureID != 0);
   return textureID;
 }
 
-size_t Texture::GetTileCount() const {
+size_t TextureAtlas::GetTileCount() const {
   assert(textureID != 0);
   return tileSetInfo.size();
 }
 
-glm::uvec2 Texture::GetTilePosition(size_t i) const {
+glm::uvec2 TextureAtlas::GetTilePosition(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
   return glm::uvec2(tileSetInfo[i].x, tileSetInfo[i].y);
 }
-glm::uvec2 Texture::GetTileSize(size_t i) const {
+glm::uvec2 TextureAtlas::GetTileSize(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
   return glm::uvec2(tileSetInfo[i].width, tileSetInfo[i].height);
 }
 
-glm::uvec2 Texture::GetSize() const {
+glm::uvec2 TextureAtlas::GetSize() const {
   CHECK(textureID != 0);
   return size;
 }
 
-Texture::Texture() { }
-Texture::~Texture() {
+TextureAtlas::TextureAtlas() { }
+TextureAtlas::~TextureAtlas() {
   if (textureID != 0) {
     glDeleteTextures(1, &textureID);
   }
@@ -69,7 +69,7 @@ Texture::~Texture() {
   textureID = 0;
 }
 
-Texture* LoadOldTexture(const std::string& path,
+TextureAtlas* LoadOldTexture(const std::string& path,
                         bm::uint32_t transparentColor) {
   bm::Image tex;
   if (!bm::LoadRGBA(tex, path)) {
@@ -82,7 +82,7 @@ Texture* LoadOldTexture(const std::string& path,
     MakeColorTransparent(tex, transparentColor);
   }
   
-  Texture* result = new Texture();
+  TextureAtlas* result = new TextureAtlas();
   if(result == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return false;
@@ -93,12 +93,12 @@ Texture* LoadOldTexture(const std::string& path,
   return result;
 }
 
-Texture* LoadTileset(const std::string& path,
+TextureAtlas* LoadTileset(const std::string& path,
                      bm::uint32_t transparentColor,
                      size_t startX, size_t startY, 
                      size_t horizontalStep, size_t verticalStep,
                      size_t tileWidth, size_t tileHeight) {
-  Texture* result = LoadOldTexture(path, transparentColor);
+  TextureAtlas* result = LoadOldTexture(path, transparentColor);
   if(result == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return false;

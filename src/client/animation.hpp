@@ -10,7 +10,7 @@
 
 namespace bm {
 
-class Texture;
+class TextureAtlas;
 class Sprite;
 
 class Animation {
@@ -23,7 +23,7 @@ public:
   // set to render initially. If 'cyclic' is set to 'true' animation will
   // be playing cyclically.
   // Returns 'true' on success, returns 'false' on error.
-  bool Initialize(Texture* texture, uint32_t timeout, bool cyclic = false);
+  bool Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic = false);
 
   // Cleans up. Automatically called in '~Animation()'.
   void Finalize();
@@ -63,7 +63,7 @@ private:
     STATE_PLAYING
   } _state;
 
-  Texture* _texture;
+  TextureAtlas* _texture;
   uint32_t _timeout;
   bool _cyclic;
 

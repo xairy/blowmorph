@@ -16,7 +16,7 @@ Animation::~Animation() {
   Finalize();
 }
 
-bool Animation::Initialize(Texture* texture, uint32_t timeout, bool cyclic) {
+bool Animation::Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic) {
   CHECK(_state == STATE_FINALIZED);
   CHECK(texture != NULL);
   CHECK(texture->GetTileCount() > 0);
