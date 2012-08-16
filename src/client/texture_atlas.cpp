@@ -39,20 +39,20 @@ GLuint TextureAtlas::GetID() const {
 
 size_t TextureAtlas::GetTileCount() const {
   assert(textureID != 0);
-  return tileSetInfo.size();
+  return tileset.size();
 }
 
 glm::uvec2 TextureAtlas::GetTilePosition(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
-  return glm::uvec2(tileSetInfo[i].x, tileSetInfo[i].y);
+  return glm::uvec2(tileset[i].x, tileset[i].y);
 }
 glm::uvec2 TextureAtlas::GetTileSize(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
-  return glm::uvec2(tileSetInfo[i].width, tileSetInfo[i].height);
+  return glm::uvec2(tileset[i].width, tileset[i].height);
 }
 
 glm::uvec2 TextureAtlas::GetSize() const {
@@ -89,7 +89,7 @@ TextureAtlas* LoadOldTexture(const std::string& path,
   }
   result->textureID = bm::MakeGLTexture(tex);
   result->size = glm::uvec2(tex.Width(), tex.Height());
-  result->tileSetInfo.push_back(TileRect(0, 0, tex.Width(), tex.Height()));
+  result->tileset.push_back(TileRect(0, 0, tex.Width(), tex.Height()));
   return result;
 }
 
@@ -103,8 +103,8 @@ TextureAtlas* LoadTileset(const std::string& path,
     Error::Set(Error::TYPE_MEMORY);
     return false;
   }
-  result->tileSetInfo.clear();
-  result->tileSetInfo = MakeSimpleTileset(startX, startY, 
+  result->tileset.clear();
+  result->tileset = MakeSimpleTileset(startX, startY, 
     horizontalStep, verticalStep, 
     tileWidth, tileHeight,
     result->size.x,
