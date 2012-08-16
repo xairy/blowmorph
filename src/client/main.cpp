@@ -26,7 +26,7 @@
 #include "animation.hpp"
 #include "render_window.hpp"
 #include "sprite.hpp"
-#include "texture_manager.hpp"
+#include "texture_atlas.hpp"
 #include "text_writer.hpp"
 #include "canvas.hpp"
 

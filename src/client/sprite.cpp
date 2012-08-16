@@ -9,7 +9,7 @@
 
 #include <base/macros.hpp>
 
-#include "texture_manager.hpp"
+#include "texture_atlas.hpp"
 
 namespace bm {
 

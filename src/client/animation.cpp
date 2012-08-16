@@ -7,7 +7,7 @@
 #include <base/timer.hpp>
 
 #include "sprite.hpp"
-#include "texture_manager.hpp"
+#include "texture_atlas.hpp"
 
 namespace bm {
 
