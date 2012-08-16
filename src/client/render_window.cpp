@@ -144,7 +144,6 @@ void RenderWindow::enable2D() {
 
   // Enable 2d texturing.
   glEnable(GL_TEXTURE_2D);
-  glEnable(GL_TEXTURE_RECTANGLE_ARB);
 }
 
 bool RenderWindow::initOpenGL(size_t width, size_t height) {

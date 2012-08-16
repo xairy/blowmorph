@@ -7,12 +7,13 @@
 #include <base/pstdint.hpp>
 
 #include "image.hpp"
+#include "texture.hpp"
 
 // TODO[24.7.2012 alex]: better think of something like "ResourceManager"
 
 namespace {
 
-void MakeColorTransparent(bm::Image& tex, ::uint32_t transparentColor) {
+void MakeColorTransparent(bm::Image& tex, bm::uint32_t transparentColor) {
   CHECK((transparentColor & 0xFF000000) == 0);
   
   bm::rgb clr = bm::rgb((transparentColor >> 16) & 0xFF,
@@ -32,64 +33,79 @@ void MakeColorTransparent(bm::Image& tex, ::uint32_t transparentColor) {
 
 namespace bm {
 
-GLuint TextureAtlas::GetID() const {
-  assert(textureID != 0);
-  return textureID;
+Texture* TextureAtlas::GetTexture() const {
+  return texture;
 }
 
 size_t TextureAtlas::GetTileCount() const {
-  assert(textureID != 0);
+  CHECK(texture != 0);
   return tileset.size();
 }
 
 glm::vec2 TextureAtlas::GetTilePosition(size_t i) const {
-  assert(textureID != 0);
-  assert(i < GetTileCount());
+  CHECK(texture != 0);
+  CHECK(i < GetTileCount());
   
   return glm::vec2(tileset[i].x, tileset[i].y);
 }
 glm::vec2 TextureAtlas::GetTileSize(size_t i) const {
-  assert(textureID != 0);
-  assert(i < GetTileCount());
+  CHECK(texture != NULL);
+  CHECK(i < GetTileCount());
   
   return glm::vec2(tileset[i].width, tileset[i].height);
 }
 
 glm::vec2 TextureAtlas::GetSize() const {
-  CHECK(textureID != 0);
-  return glm::vec2(size.x, size.y);
+  CHECK(texture != NULL);
+  return glm::vec2(texture->Width(), texture->Height());
 }
 
 TextureAtlas::TextureAtlas() { }
 TextureAtlas::~TextureAtlas() {
-  if (textureID != 0) {
-    glDeleteTextures(1, &textureID);
+  if (texture != NULL) {
+    delete texture;
+    texture = NULL;
   }
-
-  textureID = 0;
 }
 
 TextureAtlas* LoadOldTexture(const std::string& path,
                         bm::uint32_t transparentColor) {
-  bm::Image tex;
-  if (!bm::LoadRGBA(tex, path)) {
+  bm::Image image;
+  if (!bm::LoadRGBA(image, path)) {
     BM_ERROR("Unable to load texture.");
     return NULL;
   }
   
   if (transparentColor != 0xFFFFFFFF) {
     transparentColor &= 0x00FFFFFF;
-    MakeColorTransparent(tex, transparentColor);
+    MakeColorTransparent(image, transparentColor);
   }
   
   TextureAtlas* result = new TextureAtlas();
-  if(result == NULL) {
+  if (result == NULL) {
     Error::Set(Error::TYPE_MEMORY);
-    return false;
+    return NULL;
   }
-  result->textureID = bm::MakeGLTexture(tex);
-  result->size = glm::uvec2(tex.Width(), tex.Height());
-  result->tileset.push_back(TileRect(0, 0, tex.Width(), tex.Height()));
+  
+  result->texture = new Texture();
+  if (result->texture == NULL) {
+    delete result;
+    Error::Set(Error::TYPE_MEMORY);
+    return NULL;
+  }
+  if (!result->texture->Create(image.Width(), image.Height())) {
+    delete result->texture;
+    delete result;
+    return NULL;
+  }
+  if (!result->texture->Update(&image)) {
+    delete result->texture;
+    delete result;
+    return NULL;
+  }
+  
+  result->tileset.push_back(TileRect(0, 0, image.Width(), image.Height()));
+  
   return result;
 }
 
@@ -100,15 +116,15 @@ TextureAtlas* LoadTileset(const std::string& path,
                      size_t tileWidth, size_t tileHeight) {
   TextureAtlas* result = LoadOldTexture(path, transparentColor);
   if(result == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
-    return false;
+    return NULL;
   }
+  
   result->tileset.clear();
   result->tileset = MakeSimpleTileset(startX, startY, 
     horizontalStep, verticalStep, 
     tileWidth, tileHeight,
-    result->size.x,
-    result->size.y);
+    result->texture->Width(),
+    result->texture->Height());
   return result;
 }
 

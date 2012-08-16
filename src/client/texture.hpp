@@ -20,6 +20,10 @@ public:
   // Width and height must be positive.
   bool Create(size_t width, size_t height);
   
+  void Dispose();
+  
+  bool Update(const void* rgbaData);
+  
   // Updates the texture from an image.
   bool Update(const bm::Image* image);
   

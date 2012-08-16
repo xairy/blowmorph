@@ -10,6 +10,7 @@
 #include <base/macros.hpp>
 
 #include "texture_atlas.hpp"
+#include "texture.hpp"
 
 namespace bm {
 
@@ -34,7 +35,8 @@ bool Sprite::Init(bm::TextureAtlas* texture, size_t tile) {
 
 void Sprite::Render() {  
   glColor3f(1.0f, 1.0f, 1.0f);
-  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, texture->GetID());
+
+  texture->GetTexture()->Bind(Texture::Pixels);
   
   glPushMatrix();
   //glLoadIdentity();
