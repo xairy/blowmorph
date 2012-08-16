@@ -98,24 +98,19 @@ glm::uvec2 Texture::GetSize() const {
 }
 
 Texture::Texture() { }
-Texture::~Texture() { 
+Texture::~Texture() {
+  if (textureID != 0) {
+    glDeleteTextures(1, &textureID);
+  }
+
   textureID = 0;
 }
 
-TextureManager::TextureManager() { }
-TextureManager::~TextureManager() {
-  UnloadAll();
-}
-
-Texture* TextureManager::Load(const std::string& path,
-                              bm::uint32_t transparentColor,
-                              size_t startX, size_t startY, 
-                              size_t horizontalStep, size_t verticalStep,
-                              size_t tileWidth, size_t tileHeight) {
-  if (textures.find(path) != textures.end()) {
-    return textures[path];
-  }
-  
+Texture* LoadOldTexture(const std::string& path,
+                        bm::uint32_t transparentColor,
+                        size_t startX, size_t startY, 
+                        size_t horizontalStep, size_t verticalStep,
+                        size_t tileWidth, size_t tileHeight) {
   bm::Image tex;
   if (!bm::LoadRGBA(tex, path)) {
     BM_ERROR("Unable to load texture.");
@@ -138,37 +133,7 @@ Texture* TextureManager::Load(const std::string& path,
                                     horizontalStep, verticalStep, 
                                     tileWidth, tileHeight);
   PopulateTileSetInfo(tex, result->tileSetInfo);
-  textures[path] = result;
   return result;
-}
-
-void TextureManager::Unload(Texture* texture) {
-  typedef std::map<std::string, Texture*> TexMap;
-  TexMap::iterator it = FindInMap(textures, texture);
-  if (it != textures.end()) {
-    Texture* texture = it->second;
-    delete texture;
-    
-    textures.erase(it);
-  }
-}
-//void TextureManager::Unload(const std::string& path) {
-//  typedef std::map<std::string, Texture*> TexMap;
-//  TexMap::iterator it = textures.find(path);
-//  if (it != textures.end()) {
-//    Texture* texture = it->second;
-//    delete texture;
-//    
-//    textures.erase(it);
-//  }
-//}
-void TextureManager::UnloadAll() {
-  typedef std::map<std::string, Texture*> TexMap;
-  for (TexMap::iterator it = textures.begin(); it != textures.end(); it++) {
-    Texture* texture = it->second;
-    delete texture;
-  }
-  textures.clear();
 }
 
 } // namespace bm
