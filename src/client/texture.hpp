@@ -6,15 +6,15 @@
 
 namespace bm {
 
-class NewTexture {
+class Texture {
 public:
   enum CoordinateType {
     Normalized,
     Pixels
   };
 
-  NewTexture();
-  ~NewTexture();
+  Texture();
+  ~Texture();
 
   // Creates an empty texture with given width and height.
   // Width and height must be positive.
@@ -36,7 +36,7 @@ public:
   size_t Height() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(NewTexture);
+  DISALLOW_COPY_AND_ASSIGN(Texture);
 
   unsigned int _texture_id;
   size_t _width;
