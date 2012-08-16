@@ -13,25 +13,16 @@
 
 namespace bm {
 
-struct TileSetInfo {
-  size_t startX;
-  size_t startY; 
-  size_t horizontalStep;
-  size_t verticalStep;
-  size_t tileWidth;
-  size_t tileHeight;
-  
-  size_t tileCount;
-  size_t tileSetWidth;
-  size_t tileSetHeight;
-  
-  TileSetInfo(size_t startX = 0, size_t startY = 0, 
-              size_t horizontalStep = 0, size_t verticalStep = 0,
-              size_t tileWidth = 0, size_t tileHeight = 0) :
-            startX(startX), startY(startY),
-            horizontalStep(horizontalStep), verticalStep(verticalStep),
-            tileWidth(tileWidth), tileHeight(tileHeight) { }
+// TODO[16.8.2012 alex]: replace it with a generic Rect/rect.
+struct TileRect {
+  size_t x;
+  size_t y;
+  size_t width;
+  size_t height;
+
+  TileRect(size_t x, size_t y, size_t width, size_t height) : x(x), y(y), width(width), height(height) { }
 };
+typedef std::vector<TileRect> Tileset;
 
 class Texture {
 public:
@@ -48,9 +39,11 @@ private:
 
   GLuint textureID;
   glm::uvec2 size;
-  TileSetInfo tileSetInfo;
+  Tileset tileSetInfo;
   
   friend Texture* LoadOldTexture(const std::string& path,
+                                 bm::uint32_t transparentColor);
+  friend Texture* LoadTileset(const std::string& path,
                                  bm::uint32_t transparentColor,
                                  size_t startX, size_t startY, 
                                  size_t horizontalStep, size_t verticalStep,
@@ -60,21 +53,15 @@ private:
 // Loads an image or a tileset from a given path.
 // Returns NULL on failure.
 Texture* LoadOldTexture(const std::string& path,
-                        bm::uint32_t transparentColor = 0xFFFFFFFF,
-                        size_t startX = 0, size_t startY = 0, 
-                        size_t horizontalStep = 0, size_t verticalStep = 0,
-                        size_t tileWidth = 0, size_t tileHeight = 0);
+                        bm::uint32_t transparentColor = 0xFFFFFFFF);
 
-// TODO[16.8.2012 alex]: replace it with a generic Rect/rect.
-struct TileRect {
-  size_t x;
-  size_t y;
-  size_t width;
-  size_t height;
-  
-  TileRect(size_t x, size_t y, size_t width, size_t height) : x(x), y(y), width(width), height(height) { }
-};
-typedef std::vector<TileRect> Tileset;
+// Loads a tileset from a given path.
+// Returns NULL on failure.
+Texture* LoadTileset(const std::string& path,
+                     bm::uint32_t transparentColor = 0xFFFFFFFF,
+                     size_t startX = 0, size_t startY = 0, 
+                     size_t horizontalStep = 0, size_t verticalStep = 0,
+                     size_t tileWidth = 0, size_t tileHeight = 0);
 
 Tileset MakeSimpleTileset(size_t startX = 0, size_t startY = 0, 
                           size_t horizontalStep = 0, size_t verticalStep = 0,
