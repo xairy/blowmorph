@@ -195,7 +195,6 @@ public:
     // TODO: think about more accurate name.
     _max_error = 25.f;
 
-    _manager = NULL;
     _player_texture = NULL;
     _player = NULL;
     //_background = NULL;
@@ -225,14 +224,15 @@ public:
     _state = STATE_INITIALIZED;
   }
   
-  void Finalize() {
-    if(_manager != NULL) {
-      _manager->UnloadAll();
-      delete _manager;
-    }
+  void Finalize() {    
+    // Delete all loaded textures.
+    if (_player_texture != NULL) delete _player_texture;
+    if (_bullet_texture != NULL) delete _bullet_texture;
+    if (_wall_texture != NULL) delete _wall_texture;
+    if (_dummy_texture != NULL) delete _dummy_texture;
+    if (_explosion_texture != NULL) delete _explosion_texture;
 
     if(_player != NULL) delete _player;
-    //if(_background != NULL) delete _background;
     if(_client_options != NULL) delete _client_options;
 
     if(_client != NULL) delete _client;
@@ -321,36 +321,30 @@ private:
   }
 
   bool _InitializeTextures() {
-    //FreeImage_Initialise();
-    _manager = new TextureManager();
-    if(_manager == NULL) {
-      return false;
-    }
-    
     // XXX[24.7.2012 alex]: awful lot of copypasta
     
     //_player_texture = _manager->Load("data/images/ufo.png", (8 << 16) + (54 << 8) + 129);
-    _player_texture = _manager->Load("data/images/player.png", 0);
+    _player_texture = bm::LoadOldTexture("data/images/player.png", 0);
     if(_player_texture == NULL) {
       return false;
     }
 
-    _bullet_texture = _manager->Load("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
+    _bullet_texture = bm::LoadOldTexture("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
     if(_bullet_texture == NULL) {
       return false;
     }
-
-    _wall_texture = _manager->Load("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
+    
+    _wall_texture = bm::LoadOldTexture("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
     if(_wall_texture == NULL) {
       return false;
     }
 
-    _dummy_texture = _manager->Load("data/images/guy.png", 0);
+    _dummy_texture = bm::LoadOldTexture("data/images/guy.png", 0);
     if(_dummy_texture == NULL) {
       return false;
     }
 
-    _explosion_texture = _manager->Load("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
+    _explosion_texture = bm::LoadOldTexture("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
     if(_explosion_texture == NULL) {
       return false;
     }
@@ -943,8 +937,7 @@ private:
   int _resolution_y;
 
   glm::float_t _max_error;
-
-  TextureManager* _manager;
+  
   // XXX[24.7.2012 alex]: copypasta
   Texture* _player_texture;
   Texture* _bullet_texture;

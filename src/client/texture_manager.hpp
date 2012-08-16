@@ -34,6 +34,8 @@ struct TileSetInfo {
 
 class Texture {
 public:
+  ~Texture();
+
   GLuint GetID() const;
   glm::uvec2 GetSize() const;
   size_t GetTileCount() const;
@@ -42,40 +44,25 @@ public:
 
 private:
   Texture();
-  ~Texture();
 
   GLuint textureID;
   glm::uvec2 size;
   TileSetInfo tileSetInfo;
   
-  friend class TextureManager;
+  friend Texture* LoadOldTexture(const std::string& path,
+                                 bm::uint32_t transparentColor,
+                                 size_t startX, size_t startY, 
+                                 size_t horizontalStep, size_t verticalStep,
+                                 size_t tileWidth, size_t tileHeight);
 };
 
-class TextureManager {
-public:
-  TextureManager();
-  ~TextureManager();
-  
-  // Loads an image or a tileset from a given path.
-  // Returns NULL on failure.
-  Texture* Load(const std::string& path,
-                bm::uint32_t transparentColor = 0xFFFFFFFF,
-                size_t startX = 0, size_t startY = 0, 
-                size_t horizontalStep = 0, size_t verticalStep = 0,
-                size_t tileWidth = 0, size_t tileHeight = 0);
-
-  // Unloads the given texture.
-  void Unload(Texture* texture);
-
-  //void Unload(const std::string& path);
-  
-  // Unloads all previously loaded textures. 
-  // Note that all Texture* pointers become invalidated after unloading.
-  void UnloadAll();
-
-private:
-  std::map<std::string, Texture*> textures;
-};
+// Loads an image or a tileset from a given path.
+// Returns NULL on failure.
+Texture* LoadOldTexture(const std::string& path,
+                        bm::uint32_t transparentColor = 0xFFFFFFFF,
+                        size_t startX = 0, size_t startY = 0, 
+                        size_t horizontalStep = 0, size_t verticalStep = 0,
+                        size_t tileWidth = 0, size_t tileHeight = 0);
 
 } // namespace bm
 
