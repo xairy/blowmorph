@@ -48,16 +48,16 @@ void Sprite::Render() {
   glm::vec2 tilePos = texture->GetTilePosition(tile);
   
   glBegin(GL_QUADS);
-    glTexCoord2f(tilePos.x, tilePos.y);
+    glTexCoord2f(tilePos.x + 0.5f, tilePos.y + 0.5f);
     glVertex3f(-pivot.x * size.x, -pivot.y * size.y, zIndex);
     
-    glTexCoord2f(tilePos.x, tilePos.y + size.y);
+    glTexCoord2f(tilePos.x + 0.5f, tilePos.y + size.y - 0.5f);
     glVertex3f(-pivot.x * size.x, (1 - pivot.y) * size.y, zIndex);
     
-    glTexCoord2f(tilePos.x + size.x, tilePos.y + size.y);
+    glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + size.y - 0.5f);
     glVertex3f((1 - pivot.x) * size.x, (1 - pivot.y) * size.y, zIndex);
     
-    glTexCoord2f(tilePos.x + size.x, tilePos.y);
+    glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + 0.5f);
     glVertex3f((1 - pivot.x) * size.x, -pivot.y * size.y, zIndex);
   glEnd();
   
