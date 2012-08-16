@@ -39,7 +39,7 @@ public:
   glm::float_t GetAngle() const;
   
   // Getter for sprite size
-  glm::uvec2 GetSize() const;
+  glm::vec2 GetSize() const;
   
   // Rotates sprite by a given number of radians. 
   void Rotate(glm::float_t value);

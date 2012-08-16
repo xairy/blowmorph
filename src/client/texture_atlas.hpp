@@ -29,10 +29,10 @@ public:
   ~TextureAtlas();
 
   GLuint GetID() const;
-  glm::uvec2 GetSize() const;
+  glm::vec2 GetSize() const;
   size_t GetTileCount() const;
-  glm::uvec2 GetTilePosition(size_t i) const;
-  glm::uvec2 GetTileSize(size_t i) const;
+  glm::vec2 GetTilePosition(size_t i) const;
+  glm::vec2 GetTileSize(size_t i) const;
 
 private:
   TextureAtlas();

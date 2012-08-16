@@ -42,22 +42,22 @@ size_t TextureAtlas::GetTileCount() const {
   return tileset.size();
 }
 
-glm::uvec2 TextureAtlas::GetTilePosition(size_t i) const {
+glm::vec2 TextureAtlas::GetTilePosition(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
-  return glm::uvec2(tileset[i].x, tileset[i].y);
+  return glm::vec2(tileset[i].x, tileset[i].y);
 }
-glm::uvec2 TextureAtlas::GetTileSize(size_t i) const {
+glm::vec2 TextureAtlas::GetTileSize(size_t i) const {
   assert(textureID != 0);
   assert(i < GetTileCount());
   
-  return glm::uvec2(tileset[i].width, tileset[i].height);
+  return glm::vec2(tileset[i].width, tileset[i].height);
 }
 
-glm::uvec2 TextureAtlas::GetSize() const {
+glm::vec2 TextureAtlas::GetSize() const {
   CHECK(textureID != 0);
-  return size;
+  return glm::vec2(size.x, size.y);
 }
 
 TextureAtlas::TextureAtlas() { }
