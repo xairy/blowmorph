@@ -1,4 +1,4 @@
-﻿#include "texture_manager.hpp"
+﻿#include "texture_atlas.hpp"
 
 #include <map>
 #include <string>
