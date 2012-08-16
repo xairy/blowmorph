@@ -51,15 +51,15 @@ void SetTextureMatrix(const glm::mat4x4& matrix) {
 
 namespace bm {
 
-NewTexture::NewTexture() : _texture_id(0), _width(0), _height(0), _actual_width(0), _actual_height(0) { }
-NewTexture::~NewTexture() {
+Texture::Texture() : _texture_id(0), _width(0), _height(0), _actual_width(0), _actual_height(0) { }
+Texture::~Texture() {
   if (_texture_id != 0) {
     glDeleteTextures(1, &_texture_id);
     _texture_id = 0;
   }
 }
 
-bool NewTexture::Create(size_t width, size_t height) {
+bool Texture::Create(size_t width, size_t height) {
   CHECK(width > 0 && height > 0);
   
   _width = width;
@@ -68,7 +68,7 @@ bool NewTexture::Create(size_t width, size_t height) {
   _actual_height = MinValidSize(height);
   
   if (_actual_width > GetMaximumSize() || _actual_height > GetMaximumSize()) {
-    BM_ERROR("NewTexture size is too big.");
+    BM_ERROR("Texture size is too big.");
     return false;
   }
   
@@ -90,7 +90,7 @@ bool NewTexture::Create(size_t width, size_t height) {
   return true;
 }
 
-bool NewTexture::Update(const bm::Image* image) {
+bool Texture::Update(const bm::Image* image) {
   CHECK(_texture_id != 0);
   CHECK(_width == image->Width() && _height == image->Height());
   
@@ -105,15 +105,15 @@ bool NewTexture::Update(const bm::Image* image) {
   return true;
 }
 
-bool NewTexture::Bind(CoordinateType ct) {
+bool Texture::Bind(CoordinateType ct) {
   CHECK(_texture_id != 0);
-  CHECK(ct == NewTexture::Normalized || ct == NewTexture::Pixels);
+  CHECK(ct == Texture::Normalized || ct == Texture::Pixels);
   
   glBindTexture(GL_TEXTURE_2D, _texture_id);
   
   glm::mat4x4 matrix(1);  
   
-  if (ct == NewTexture::Pixels) {
+  if (ct == Texture::Pixels) {
     matrix[0][0] /= _width;
     matrix[1][1] /= _height;
   }
@@ -128,29 +128,29 @@ bool NewTexture::Bind(CoordinateType ct) {
   return true;
 }
 
-void NewTexture::SetFlags(bool smooth, bool repeated, bool flipped) {
+void Texture::SetFlags(bool smooth, bool repeated, bool flipped) {
   _flags.smooth = smooth ? 1 : 0;
   _flags.repeated = repeated ? 1 : 0;
   _flags.flipped = flipped ? 1 : 0;
 }
 
-bool NewTexture::IsValid() const {
+bool Texture::IsValid() const {
   return _texture_id != 0;
 }
-bool NewTexture::IsSmooth() const {
+bool Texture::IsSmooth() const {
   return _flags.smooth != 0;
 }
-bool NewTexture::IsRepeated() const {
+bool Texture::IsRepeated() const {
   return _flags.repeated != 0;
 }
-bool NewTexture::IsFlipped() const {
+bool Texture::IsFlipped() const {
   return _flags.flipped != 0;
 }
 
-size_t NewTexture::Width() const {
+size_t Texture::Width() const {
   return IsValid() ? _width : 0;
 }
-size_t NewTexture::Height() const {
+size_t Texture::Height() const {
   return IsValid() ? _height : 0;
 }
 
