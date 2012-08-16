@@ -39,7 +39,7 @@ private:
 
   GLuint textureID;
   glm::uvec2 size;
-  Tileset tileSetInfo;
+  Tileset tileset;
   
   friend TextureAtlas* LoadOldTexture(const std::string& path,
                                  bm::uint32_t transparentColor);
