@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
@@ -63,6 +64,22 @@ Texture* LoadOldTexture(const std::string& path,
                         size_t startX = 0, size_t startY = 0, 
                         size_t horizontalStep = 0, size_t verticalStep = 0,
                         size_t tileWidth = 0, size_t tileHeight = 0);
+
+// TODO[16.8.2012 alex]: replace it with a generic Rect/rect.
+struct TileRect {
+  size_t x;
+  size_t y;
+  size_t width;
+  size_t height;
+  
+  TileRect(size_t x, size_t y, size_t width, size_t height) : x(x), y(y), width(width), height(height) { }
+};
+typedef std::vector<TileRect> Tileset;
+
+Tileset MakeSimpleTileset(size_t startX = 0, size_t startY = 0, 
+                          size_t horizontalStep = 0, size_t verticalStep = 0,
+                          size_t tileWidth = 0, size_t tileHeight = 0,
+                          size_t imageWidth = 0, size_t imageHeight = 0);
 
 } // namespace bm
 

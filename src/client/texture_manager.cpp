@@ -51,16 +51,6 @@ void PopulateTileSetInfo(const bm::Image& tex, bm::TileSetInfo& info) {
   info.tileCount = info.tileSetWidth * info.tileSetHeight;
 }
 
-template<class U, class V>
-typename std::map<U, V>::iterator FindInMap(std::map<U, V>& m, V& value) {
-  for (typename std::map<U, V>::iterator it = m.begin(); it != m.end(); it++) {
-    if (it->second == value) {
-      return it;
-    }
-  }
-  return m.end();
-}
-
 } // anonymous namespace
 
 namespace bm {
@@ -133,6 +123,21 @@ Texture* LoadOldTexture(const std::string& path,
                                     horizontalStep, verticalStep, 
                                     tileWidth, tileHeight);
   PopulateTileSetInfo(tex, result->tileSetInfo);
+  return result;
+}
+
+Tileset MakeSimpleTileset(size_t startX, size_t startY, 
+                          size_t horizontalStep, size_t verticalStep,
+                          size_t tileWidth, size_t tileHeight,
+                          size_t imageWidth, size_t imageHeight) {
+  Tileset result;
+  
+  for (size_t y = startY; (y + tileHeight) <= imageHeight; y += verticalStep) {
+    for (size_t x = startX; (x + tileWidth) <= imageWidth; x += horizontalStep) {
+      result.push_back(TileRect(x, y, tileWidth, tileHeight));
+    }
+  }
+  
   return result;
 }
 
