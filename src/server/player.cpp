@@ -219,7 +219,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
   }
 }
 
-bool Player::OnMouseEvent(const MouseEvent& event) {
+bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
   if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
     if(_blow_charge >= _blow_consumption) {
@@ -227,7 +227,7 @@ bool Player::OnMouseEvent(const MouseEvent& event) {
       Vector2 start = GetPosition();
       Vector2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       if(_world_manager->CreateBullet(_id, start, end, _bullet_speed,
-        _bullet_radius, _bullet_explosion_radius, event.time) == false)
+        _bullet_radius, _bullet_explosion_radius, time) == false)
       {
         return false;
       }

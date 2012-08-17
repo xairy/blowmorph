@@ -459,7 +459,7 @@ private:
         return true;
       }
 
-      if(!client->entity->OnMouseEvent(mouse_event)) {
+      if(!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
         return false;
       }
     } else if(packet_type == BM_PACKET_SYNC_TIME_REQUEST) {
