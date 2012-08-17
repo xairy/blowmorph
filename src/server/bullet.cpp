@@ -60,6 +60,7 @@ bool Bullet::IsUpdated() {
 }
 
 void Bullet::Update(uint32_t time) {
+  CHECK(time >= _start_time);
   Vector2 direction = _end - _start;
   float magnitude = direction.Magnitude();
   if(magnitude != 0.0f) {

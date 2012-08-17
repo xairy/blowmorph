@@ -68,7 +68,7 @@ public:
   virtual void SetPosition(const Vector2& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
-  bool OnMouseEvent(const MouseEvent& event);
+  bool OnMouseEvent(const MouseEvent& event, uint32_t time);
 
   void Respawn();
 
