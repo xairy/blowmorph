@@ -210,7 +210,6 @@ private:
   }
 
   bool _BroadcastStaticEntities(bool force = false) {
-    // TODO: send updated static entities info.
     uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetStaticEntities();
@@ -224,6 +223,10 @@ private:
         bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
         if(rv == false) {
           return false;
+        }
+        // XXX[18.08.2012 xairy]: hack.
+        if(entity->GetType() == "Wall") {
+          entity->SetUpdatedFlag(false);
         }
       }
     }

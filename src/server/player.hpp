@@ -55,7 +55,6 @@ public:
 
   virtual std::string GetType();
   virtual bool IsStatic();
-  virtual bool IsUpdated();
 
   virtual void Update(uint32_t time);
   virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);

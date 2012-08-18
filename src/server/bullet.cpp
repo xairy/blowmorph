@@ -55,9 +55,6 @@ std::string Bullet::GetType() {
 bool Bullet::IsStatic() {
   return false;
 }
-bool Bullet::IsUpdated() {
-  return true;
-}
 
 void Bullet::Update(uint32_t time) {
   CHECK(time >= _start_time);
