@@ -50,9 +50,6 @@ std::string Dummy::GetType() {
 bool Dummy::IsStatic() {
   return false;
 }
-bool Dummy::IsUpdated() {
-  return true;
-}
 
 void Dummy::Update(uint32_t time) {
   _prev_position = _shape->GetPosition();

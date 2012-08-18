@@ -29,7 +29,6 @@ public:
   // XXX[13.08.2012 xairy]: rename it to GetEntityType?
   virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0;
-  virtual bool IsUpdated() = 0;
 
   virtual void Update(uint32_t time) = 0;
   virtual void GetSnapshot(uint32_t time, EntitySnapshot* output) = 0;
@@ -49,6 +48,9 @@ public:
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;
+
+  virtual void SetUpdatedFlag(bool value);
+  virtual bool IsUpdated() const;
 
   // Double dispatch. Collision detection.
 
@@ -75,7 +77,9 @@ protected:
 
   uint32_t _id;
   Shape* _shape;
+
   bool _is_destroyed;
+  bool _is_updated;
 };
 
 } // namespace bm

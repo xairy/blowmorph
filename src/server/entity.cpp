@@ -25,7 +25,12 @@ namespace bm {
 using namespace protocol;
 
 Entity::Entity(WorldManager* world_manager, uint32_t id)
-  : _world_manager(world_manager), _id(id), _shape(NULL), _is_destroyed(false) { }
+  : _world_manager(world_manager),
+    _id(id),
+    _shape(NULL),
+    _is_destroyed(false),
+    _is_updated(true)
+{ }
 Entity::~Entity() {
   if(_shape != NULL) {
     delete _shape;
@@ -56,6 +61,13 @@ void Entity::Destroy() {
 }
 bool Entity::IsDestroyed() const {
   return _is_destroyed;
+}
+
+void Entity::SetUpdatedFlag(bool value) {
+  _is_updated = value;
+}
+bool Entity::IsUpdated() const {
+  return _is_updated;
 }
 
 // Double dispatch.
