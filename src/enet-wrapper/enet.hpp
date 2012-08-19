@@ -22,11 +22,9 @@ public:
   // TODO: write comments.
   BM_ENET_DECL ~Enet();
 
-  // Call this to ensure that ENet has been successfully initialized.
-  // XXX[2.8.2012 alex]: fixme written in cp1251
-  // FIXME: непонятно, при какой ситуации может вернуться false.
-  // FIXME: почему бы не сделать этот класс синглтоном?
-  BM_ENET_DECL bool IsInitialized() const;
+  // Initializes ENet.
+  // Returns 'true' on success, returns 'false' on error.
+  BM_ENET_DECL bool Initialize();
 
   // Creates 'ServerHost' bound to 'port'.
   // You may specify 'channel_count' - number of channels to be used.

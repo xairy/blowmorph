@@ -357,6 +357,10 @@ private:
   }
 
   bool _InitializeNetwork() {
+    if(!_enet.Initialize()) {
+      return false;
+    }
+
     std::auto_ptr<ClientHost> client(_enet.CreateClientHost());
     if(client.get() == NULL) {
       return false;

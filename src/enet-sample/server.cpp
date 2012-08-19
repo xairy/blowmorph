@@ -6,6 +6,8 @@ using namespace bm;
 
 int main() {
   Enet enet;
+  bool rv = enet.Initialize();
+  CHECK(rv == true);
 
   ServerHost* server = enet.CreateServerHost(4242);
   CHECK(server != NULL);

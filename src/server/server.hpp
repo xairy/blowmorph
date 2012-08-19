@@ -111,6 +111,10 @@ private:
       return false;
     }
 
+    if(!_enet.Initialize()) {
+      return false;
+    }
+
     std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
       return false;

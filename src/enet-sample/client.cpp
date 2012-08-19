@@ -6,6 +6,8 @@ using namespace bm;
 
 int main() {
   Enet enet;
+  bool rv = enet.Initialize();
+  CHECK(rv == true);
 
   ClientHost* client = enet.CreateClientHost();
   CHECK(client != NULL);
@@ -17,7 +19,7 @@ int main() {
 
   bm::uint32_t timeout = 5000;
 
-  bool rv = client->Service(event, timeout);
+  rv = client->Service(event, timeout);
   CHECK(rv);
   CHECK(event->GetType() == Event::EVENT_CONNECT);
 

@@ -13,13 +13,7 @@
 
 namespace bm {
 
-Enet::Enet() : _state(STATE_CREATED) {
-  if(enet_initialize() != 0) {
-    bm::Error::Set(bm::Error::TYPE_ENET_INITIALIZE);
-  } else {
-    _state = STATE_INITIALIZED;
-  }
-}
+Enet::Enet() : _state(STATE_CREATED) { }
 
 Enet::~Enet() {
   if(_state == STATE_INITIALIZED) {
@@ -27,8 +21,13 @@ Enet::~Enet() {
   }
 }
 
-bool Enet::IsInitialized() const {
-  return _state == STATE_INITIALIZED;
+bool Enet::Initialize() {
+  if(enet_initialize() != 0) {
+    bm::Error::Set(bm::Error::TYPE_ENET_INITIALIZE);
+    return false;
+  }
+  _state = STATE_INITIALIZED;
+  return true;
 }
 
 ServerHost* Enet::CreateServerHost(
