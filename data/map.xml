@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-When using 'grid' map all coordinates will be multiplied by 'block_size'.
+All coordinates will be multiplied by 'block_size'.
 -->
 
-<map type="grid" block_size="16.0" bound="600.0">
+<map block_size="16.0" bound="600.0">
   <spawn x="0" y="0"></spawn>
   <spawn x="-7" y="-7"></spawn>
 
@@ -15,17 +15,3 @@ When using 'grid' map all coordinates will be multiplied by 'block_size'.
 
   <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
 </map>
-
-<!--
-<map type="arbitrary" bound="600.0">
-  <spawn x="0.0" y="0.0"></spawn>
-  <spawn x="-100.0" y="-100.0"></spawn>
-
-  <wall x="100.0" y="200.0" size="16.0" type="ordinary"></wall>
-  <wall x="116.0" y="200.0" size="16.0" type="ordinary"></wall>
-  <wall x="132.0" y="200.0" size="16.0" type="ordinary"></wall>
-  <wall x="148.0" y="200.0" size="16.0" type="ordinary"></wall>
-
-  <chunk x="100.0" y="0.0" width="10" height="10" size="16.0" type="ordinary"></chunk>
-</map>
--->

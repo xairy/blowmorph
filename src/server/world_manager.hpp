@@ -84,7 +84,6 @@ private:
 
   enum {
     MAP_NONE,
-    MAP_ARBITRARY,
     MAP_GRID
   } _map_type;
 
