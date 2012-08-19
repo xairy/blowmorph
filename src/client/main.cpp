@@ -581,7 +581,7 @@ private:
         return true;
       } break;
       case NETWORK_STATE_CONNECTED: {
-        if (type != Packet::BM_PACKET_CLIENT_OPTIONS) {
+        if (type != Packet::TYPE_CLIENT_OPTIONS) {
           Warning("Received packet with a type %d while waiting for client options.", type);
         } else if (len != sizeof(ClientOptions)) {
           Warning("Received packet has incorrect length.");
@@ -596,7 +596,7 @@ private:
           TimeSyncData request_data;
           // XXX[24.7.2012 alex]: _GetTime()?
           request_data.client_time = SDL_GetTicks();
-          Packet::Type request_type = Packet::BM_PACKET_SYNC_TIME_REQUEST;
+          Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;
 
           std::vector<char> message;
           message.insert(message.end(), reinterpret_cast<char*>(&request_type),
@@ -612,7 +612,7 @@ private:
         return true;
       } break;
       case NETWORK_STATE_SYNCHRONIZATION: {
-        if (type != Packet::BM_PACKET_SYNC_TIME_RESPONSE) {
+        if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
           Warning("Received packet with a type %d while waiting for time sync response.", type);
         } else if (len != sizeof(TimeSyncData)) {
           Warning("Received packet has incorrect length.");
@@ -649,13 +649,13 @@ private:
       } break;
       case NETWORK_STATE_LOGGED_IN: {
         bool isSnapshot = len == sizeof(EntitySnapshot) &&
-                          (type == Packet::BM_PACKET_ENTITY_APPEARED ||
-                           type == Packet::BM_PACKET_ENTITY_DISAPPEARED ||
-                           type == Packet::BM_PACKET_ENTITY_UPDATED);
+                          (type == Packet::TYPE_ENTITY_APPEARED ||
+                           type == Packet::TYPE_ENTITY_DISAPPEARED ||
+                           type == Packet::TYPE_ENTITY_UPDATED);
                            
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
-          if (type == Packet::BM_PACKET_ENTITY_DISAPPEARED) {
+          if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
             _objects.erase(snapshot->id);
             _walls.erase(snapshot->id);
 
@@ -820,7 +820,7 @@ private:
 
     for(size_t i = 0; i < _keyboard_events.size(); i++) {
       message.clear();
-      Packet::Type message_type = Packet::BM_PACKET_KEYBOARD_EVENT;
+      Packet::Type message_type = Packet::TYPE_KEYBOARD_EVENT;
       KeyboardEvent* event = &_keyboard_events[i];
       message.insert(message.end(), reinterpret_cast<char*>(&message_type),
         reinterpret_cast<char*>(&message_type) + sizeof(message_type));
@@ -835,7 +835,7 @@ private:
     
     for(size_t i = 0; i < _mouse_events.size(); i++) {
       message.clear();
-      Packet::Type message_type = Packet::BM_PACKET_MOUSE_EVENT;
+      Packet::Type message_type = Packet::TYPE_MOUSE_EVENT;
       MouseEvent* event = &_mouse_events[i];
       message.insert(message.end(), reinterpret_cast<char*>(&message_type),
         reinterpret_cast<char*>(&message_type) + sizeof(message_type));
