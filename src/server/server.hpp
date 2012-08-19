@@ -27,6 +27,14 @@
 #include "player.hpp"
 #include "wall.hpp"
 
+namespace {
+
+bm::uint32_t min(bm::uint32_t a, bm::uint32_t b) {
+  return a < b ? a : b;
+}
+
+} // anonymous namespace
+
 namespace bm {
 
 class Server {
@@ -66,8 +74,8 @@ private:
     _is_running = false;
     _server_port = ini::GetValue(_settings, "server.port", 4242);
 
-    _tickrate = ini::GetValue(_settings, "server.tick_rate", 20);
-    _ticktime = 1000 / _tickrate;
+    _broadcast_rate = ini::GetValue(_settings, "server.broadcast_rate", 20);
+    _broadcast_time = 1000 / _broadcast_rate;
     _last_broadcast = 0;
 
     _update_rate = ini::GetValue(_settings, "server.update_rate", 100);
@@ -129,7 +137,7 @@ private:
   }
 
   bool _Tick() {
-    if(_timer.GetTime() - _last_broadcast >= _ticktime) {
+    if(_timer.GetTime() - _last_broadcast >= _broadcast_time) {
       _last_broadcast = _timer.GetTime();
       if(!_BroadcastDynamicEntities()) {
         return false;
@@ -141,23 +149,27 @@ private:
 
     if(_timer.GetTime() - _last_update >= _update_time) {
       _last_update = _timer.GetTime();
-      if(!_PumpEvents()) {
-        return false;
-      }
       if(!_UpdateWorld()) {
         return false;
       }
     }
 
-    // TODO[14.08.2012]: fix.
-    uint32_t since_last_update = _timer.GetTime() - _last_update;
-    if(_update_time >= since_last_update) {
-      bool rv = _host->Service(NULL, _update_time - since_last_update);
+    if(!_PumpEvents()) {
+      return false;
+    }
+
+    uint32_t next_broadcast = _last_broadcast + _broadcast_time;
+    uint32_t next_update = _last_update + _update_time;
+    uint32_t sleep_until = min(next_broadcast, next_update);
+    uint32_t current_time = _timer.GetTime();
+
+    if(current_time <= sleep_until) {
+      bool rv = _host->Service(NULL, sleep_until - current_time);
       if(rv == false) {
         return false;
       }
     } else {
-      printf("Can't keep up, %u ms behind!\n", since_last_update - _update_time);
+      printf("Can't keep up, %u ms behind!\n", current_time - sleep_until);
     }
 
     return true;
@@ -556,8 +568,8 @@ private:
   bool _is_running;
   uint16_t _server_port;
 
-  uint32_t _tickrate;
-  uint32_t _ticktime;
+  uint32_t _broadcast_rate;
+  uint32_t _broadcast_time;
   uint32_t _last_broadcast;
 
   uint32_t _update_rate;
