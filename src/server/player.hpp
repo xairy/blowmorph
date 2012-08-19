@@ -62,7 +62,7 @@ public:
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage();
+  virtual void Damage(int damage);
 
   virtual void SetPosition(const Vector2& position);
 

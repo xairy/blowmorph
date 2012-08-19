@@ -130,8 +130,12 @@ void Player::OnEntityDisappearance(Entity* entity) {
 
 }
 
-void Player::Damage() {
-  Respawn();
+void Player::Damage(int damage) {
+  _health -= damage;
+  if(_health <= 0) {
+    _health = _max_health;
+    Respawn();
+  }
 }
 
 void Player::SetPosition(const Vector2& position) {

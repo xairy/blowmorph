@@ -405,14 +405,14 @@ bool WorldManager::Blow(const Vector2& location, float radius) {
   for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      entity->Damage();
+      entity->Damage(50);
     }
   }
   end = _dynamic_entities.end();
   for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      entity->Damage();
+      entity->Damage(50);
     }
   }
 
