@@ -659,7 +659,7 @@ private:
             _objects.erase(snapshot->id);
             _walls.erase(snapshot->id);
 
-            if(snapshot->type == BM_ENTITY_BULLET) {
+            if(snapshot->type == EntitySnapshot::BM_ENTITY_BULLET) {
               // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
               // TODO[12.08.2012 xairy]: remove magic numbers;
               Animation* animation = new Animation();
@@ -707,21 +707,21 @@ private:
               state.blowCharge = static_cast<float>(snapshot->data[1]);
               state.morphCharge = static_cast<float>(snapshot->data[2]);
               
-              if(snapshot->type == BM_ENTITY_WALL) {
+              if(snapshot->type == EntitySnapshot::BM_ENTITY_WALL) {
                 _walls[snapshot->id]->UpdateCurrentState(state, time);
               } else {
                 _objects[snapshot->id]->UpdateCurrentState(state, time);
               }
             } else {
               switch(snapshot->type) {
-                case BM_ENTITY_WALL: {
+                case EntitySnapshot::BM_ENTITY_WALL: {
                   _walls[snapshot->id] = new Object(position, time, snapshot->id);
                   size_t tile;
-                  if(snapshot->data[0] == BM_WALL_ORDINARY) {
+                  if(snapshot->data[0] == EntitySnapshot::BM_WALL_ORDINARY) {
                     tile = 3;
-                  } else if(snapshot->data[0] == BM_WALL_UNBREAKABLE) {
+                  } else if(snapshot->data[0] == EntitySnapshot::BM_WALL_UNBREAKABLE) {
                     tile = 2;
-                  } else if(snapshot->data[0] == BM_WALL_MORPHED) {
+                  } else if(snapshot->data[0] == EntitySnapshot::BM_WALL_MORPHED) {
                     tile = 1;
                   }
                   _walls[snapshot->id]->SetSprite(_wall_texture, tile);
@@ -729,14 +729,14 @@ private:
                   _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                 } break;
 
-                case BM_ENTITY_BULLET: {
+                case EntitySnapshot::BM_ENTITY_BULLET: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
                   _objects[snapshot->id]->SetSprite(_bullet_texture);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                 } break;
 
-                case BM_ENTITY_PLAYER: {
+                case EntitySnapshot::BM_ENTITY_PLAYER: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
                   _objects[snapshot->id]->SetSprite(_player_texture);
                   _objects[snapshot->id]->EnableInterpolation();
@@ -744,7 +744,7 @@ private:
                   _objects[snapshot->id]->EnableCaption();
                 } break;
 
-                case BM_ENTITY_DUMMY: {
+                case EntitySnapshot::BM_ENTITY_DUMMY: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
                   _objects[snapshot->id]->SetSprite(_dummy_texture);
                   _objects[snapshot->id]->EnableInterpolation();
