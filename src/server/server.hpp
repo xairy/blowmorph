@@ -197,7 +197,7 @@ private:
     size_t size = destroyed_entities.size();
     for(size_t i = 0; i < size; i++) {
       uint32_t id = destroyed_entities[i];
-      bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED,
+      bool rv = _BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_DISAPPEARED,
         _world_manager.GetEntity(id));
       if(rv == false) {
         return false;
@@ -220,7 +220,7 @@ private:
       if(force || entity->IsUpdated()) {
         EntitySnapshot snapshot;
         entity->GetSnapshot(time, &snapshot);
-        bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
+        bool rv = _BroadcastPacket(Packet::BM_PACKET_ENTITY_UPDATED, snapshot, false);
         if(rv == false) {
           return false;
         }
@@ -243,7 +243,7 @@ private:
     for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(time, &snapshot);
-      bool rv = _BroadcastPacket(BM_PACKET_ENTITY_UPDATED, snapshot, false);
+      bool rv = _BroadcastPacket(Packet::BM_PACKET_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
       }
@@ -336,7 +336,7 @@ private:
       return false;
     }
 
-    if(!_BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_APPEARED,
+    if(!_BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_APPEARED,
         client->entity)) {
       return false;
     }
@@ -354,7 +354,7 @@ private:
     options.blow_capacity = client->entity->GetBlowCapacity();
     options.morph_capacity = client->entity->GetMorphCapacity();
 
-    PacketType packet_type = BM_PACKET_CLIENT_OPTIONS;
+    Packet::Type packet_type = Packet::BM_PACKET_CLIENT_OPTIONS;
 
     bool rv = _SendPacket(client->peer, packet_type, options, true);
     if(rv == false) {
@@ -366,10 +366,10 @@ private:
     return true;
   }
 
-  bool _BroadcastEntityRelatedMessage(PacketType packet_type, Entity* entity) {
-    CHECK(packet_type == BM_PACKET_ENTITY_APPEARED ||
-      packet_type == BM_PACKET_ENTITY_DISAPPEARED ||
-      packet_type == BM_PACKET_ENTITY_UPDATED);
+  bool _BroadcastEntityRelatedMessage(Packet::Type packet_type, Entity* entity) {
+    CHECK(packet_type == Packet::BM_PACKET_ENTITY_APPEARED ||
+      packet_type == Packet::BM_PACKET_ENTITY_DISAPPEARED ||
+      packet_type == Packet::BM_PACKET_ENTITY_UPDATED);
 
     EntitySnapshot snapshot;
     entity->GetSnapshot(_timer.GetTime(), &snapshot);
@@ -397,7 +397,7 @@ private:
     uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
     Client* client = _client_manager.GetClient(id);
 
-    bool rv = _BroadcastEntityRelatedMessage(BM_PACKET_ENTITY_DISAPPEARED,
+    bool rv = _BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_DISAPPEARED,
       client->entity);
     if(rv == false) {
       return false;
@@ -423,7 +423,7 @@ private:
     std::vector<char> message;
     _event->GetData(&message);
 
-    PacketType packet_type;
+    Packet::Type packet_type;
     bool rv = _ExtractPacketType(message, &packet_type);
     if(rv == false) {
       printf("#%u: Client dropped due to incorrect message format.0\n", id);
@@ -431,8 +431,8 @@ private:
       return true;
     }
 
-    if(packet_type == BM_PACKET_KEYBOARD_EVENT) {
-      if(message.size() != sizeof(PacketType) + sizeof(KeyboardEvent)) {
+    if(packet_type == Packet::BM_PACKET_KEYBOARD_EVENT) {
+      if(message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
         printf("#%u: Client dropped due to incorrect message format.1\n", id);
         _client_manager.DisconnectClient(id);
         return true;
@@ -447,8 +447,8 @@ private:
       }
 
       client->entity->OnKeyboardEvent(keyboard_event);
-    } else if(packet_type == BM_PACKET_MOUSE_EVENT) {
-      if(message.size() != sizeof(PacketType) + sizeof(MouseEvent)) {
+    } else if(packet_type == Packet::BM_PACKET_MOUSE_EVENT) {
+      if(message.size() != sizeof(Packet::Type) + sizeof(MouseEvent)) {
         printf("#%u: Client dropped due to incorrect message format.3\n", id);
         _client_manager.DisconnectClient(id);
         return true;
@@ -465,8 +465,8 @@ private:
       if(!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
         return false;
       }
-    } else if(packet_type == BM_PACKET_SYNC_TIME_REQUEST) {
-      if(message.size() != sizeof(PacketType) + sizeof(TimeSyncData)) {
+    } else if(packet_type == Packet::BM_PACKET_SYNC_TIME_REQUEST) {
+      if(message.size() != sizeof(Packet::Type) + sizeof(TimeSyncData)) {
         printf("#%u: Client dropped due to incorrect message format.5\n", id);
         _client_manager.DisconnectClient(id);
         return true;
@@ -481,7 +481,7 @@ private:
       }
 
       sync_data.server_time = _timer.GetTime();
-      packet_type = BM_PACKET_SYNC_TIME_RESPONSE;
+      packet_type = Packet::BM_PACKET_SYNC_TIME_RESPONSE;
 
       rv = _SendPacket(client->peer, packet_type, sync_data, true);
       if(rv == false) {
@@ -507,7 +507,7 @@ private:
   }
 
   template<class T>
-  bool _BroadcastPacket(PacketType packet_type, const T& data, bool reliable) {
+  bool _BroadcastPacket(Packet::Type packet_type, const T& data, bool reliable) {
     std::vector<char> message;
     message.insert(message.end(), reinterpret_cast<const char*>(&packet_type),
       reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
@@ -522,7 +522,7 @@ private:
   }
 
   template<class T>
-  bool _SendPacket(Peer* peer, PacketType type, const T& data, bool reliable) {
+  bool _SendPacket(Peer* peer, Packet::Type type, const T& data, bool reliable) {
     std::vector<char> message;
     message.insert(message.end(), reinterpret_cast<const char*>(&type),
       reinterpret_cast<const char*>(&type) + sizeof(type));
@@ -537,21 +537,21 @@ private:
   }
 
   // Returns 'false' when message format is incorrect.
-  bool _ExtractPacketType(const std::vector<char>& message, PacketType* type) {
-    if(message.size() < sizeof(PacketType)) {
+  bool _ExtractPacketType(const std::vector<char>& message, Packet::Type* type) {
+    if(message.size() < sizeof(Packet::Type)) {
       return false;
     }
-    memcpy(type, &message[0], sizeof(PacketType));
+    memcpy(type, &message[0], sizeof(Packet::Type));
     return true;
   }
 
   // Returns 'false' when message format is incorrect.
   template<class T>
   bool _ExtractData(const std::vector<char>& message, T* data) {
-    if(message.size() != sizeof(PacketType) + sizeof(T)) {
+    if(message.size() != sizeof(Packet::Type) + sizeof(T)) {
       return false;
     }
-    memcpy(data, &message[0] + sizeof(PacketType), sizeof(T));
+    memcpy(data, &message[0] + sizeof(Packet::Type), sizeof(T));
     return true;
   }
 

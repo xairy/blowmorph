@@ -8,29 +8,33 @@ namespace bm {
 // TODO[13.08.2012 xairy]: remove this namespace after doing todo's below.
 namespace protocol {
 
-// TODO[13.08.2012 xairy]: move it to struct Packet.
-enum PacketType {
-  BM_PACKET_UNKNOWN = 0,
+class Packet {
+public:
+  enum Type {
+    BM_PACKET_UNKNOWN = 0,
 
-  // S -> C. Followed by 'ClientOptions'.
-  BM_PACKET_CLIENT_OPTIONS,
+    // S -> C. Followed by 'ClientOptions'.
+    BM_PACKET_CLIENT_OPTIONS,
 
-  // S -> C. Followed by 'EntitySnapshot' with the entity description.
-  BM_PACKET_ENTITY_APPEARED,
-  BM_PACKET_ENTITY_UPDATED,
-  BM_PACKET_ENTITY_DISAPPEARED,
+    // S -> C. Followed by 'EntitySnapshot' with the entity description.
+    BM_PACKET_ENTITY_APPEARED,
+    BM_PACKET_ENTITY_UPDATED,
+    BM_PACKET_ENTITY_DISAPPEARED,
 
-  // C -> S. Followed by 'KeyboardEvent'.
-  BM_PACKET_KEYBOARD_EVENT,
-  // C -> S. Followed by 'MouseEvent'.
-  BM_PACKET_MOUSE_EVENT,
+    // C -> S. Followed by 'KeyboardEvent'.
+    BM_PACKET_KEYBOARD_EVENT,
+    // C -> S. Followed by 'MouseEvent'.
+    BM_PACKET_MOUSE_EVENT,
 
-  // C -> S. Followed by 'TimeSyncData' filled with client time.
-  BM_PACKET_SYNC_TIME_REQUEST,
-  // S -> C. Followed by 'TimeSyncData' filled with client and server time.
-  BM_PACKET_SYNC_TIME_RESPONSE,
+    // C -> S. Followed by 'TimeSyncData' filled with client time.
+    BM_PACKET_SYNC_TIME_REQUEST,
+    // S -> C. Followed by 'TimeSyncData' filled with client and server time.
+    BM_PACKET_SYNC_TIME_RESPONSE,
 
-  BM_PACKET_MAX_VALUE
+    BM_PACKET_MAX_VALUE
+  };
+private:
+  DISALLOW_IMPLICIT_CONSTRUCTORS(Packet);
 };
 
 // TODO[13.08.2012 xairy]: move it to struct EntitySnapshot.
