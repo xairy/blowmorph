@@ -5,9 +5,6 @@
 
 namespace bm {
 
-// TODO[13.08.2012 xairy]: remove this namespace after doing todo's below.
-namespace protocol {
-
 class Packet {
 public:
   enum Type {
@@ -115,8 +112,6 @@ struct MouseEvent {
   EventType event_type;
   float32_t x, y;
 };
-
-} // namespace protocol
 
 } //namespace bm
 

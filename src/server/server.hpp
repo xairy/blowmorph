@@ -29,8 +29,6 @@
 
 namespace bm {
 
-using namespace protocol;
-
 class Server {
 public:
   Server() { }

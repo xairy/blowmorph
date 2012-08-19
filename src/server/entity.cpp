@@ -22,8 +22,6 @@
 
 namespace bm {
 
-using namespace protocol;
-
 Entity::Entity(WorldManager* world_manager, uint32_t id)
   : _world_manager(world_manager),
     _id(id),
