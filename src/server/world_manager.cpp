@@ -264,23 +264,13 @@ bool WorldManager::LoadMap(const std::string& file) {
     return false;
   }
 
-  pugi::xml_attribute map_type = map_node.attribute("type");
-  if(!map_type) {
-    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'type' in %s!\n", file.c_str());
+  pugi::xml_attribute block_size = map_node.attribute("block_size");
+  if(!block_size) {
+    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
     return false;
   }
-
-  if(std::string(map_type.value()) == "grid") {
-    pugi::xml_attribute block_size = map_node.attribute("block_size");
-    if(!block_size) {
-      Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
-      return false;
-    }
-    _block_size = block_size.as_float();
-    _map_type = MAP_GRID;
-  } else {
-    _map_type = MAP_ARBITRARY;
-  }
+  _block_size = block_size.as_float();
+  _map_type = MAP_GRID;
 
   pugi::xml_attribute bound = map_node.attribute("bound");
   if(!bound) {
@@ -310,45 +300,24 @@ bool WorldManager::LoadMap(const std::string& file) {
 
 // TODO: refactor.
 bool WorldManager::_LoadWall(const pugi::xml_node& node) {
-  CHECK(_map_type != MAP_NONE);
+  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "wall");
 
-  if(_map_type == MAP_ARBITRARY) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    pugi::xml_attribute size = node.attribute("size");
-    pugi::xml_attribute type = node.attribute("type");
-    if(!x || !y || !size || !type) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+  pugi::xml_attribute x = node.attribute("x");
+  pugi::xml_attribute y = node.attribute("y");
+  pugi::xml_attribute type = node.attribute("type");
+  if(!x || !y || !type) {
+    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+    return false;
+  } else {
+    Wall::Type type_value;
+    bool rv = _LoadWallType(type, &type_value);
+    if(rv == false) {
       return false;
-    } else {
-      Wall::Type type_value;
-      bool rv = _LoadWallType(type, &type_value);
-      if(rv == false) {
-        return false;
-      }
-      rv = CreateWall(Vector2(x.as_float(), y.as_float()), size.as_float(), type_value);
-      if(rv == false) {
-        return false;
-      }
     }
-  } else if(_map_type == MAP_GRID) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    pugi::xml_attribute type = node.attribute("type");
-    if(!x || !y || !type) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+    rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
+    if(rv == false) {
       return false;
-    } else {
-      Wall::Type type_value;
-      bool rv = _LoadWallType(type, &type_value);
-      if(rv == false) {
-        return false;
-      }
-      rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
-      if(rv == false) {
-        return false;
-      }
     }
   }
 
@@ -357,64 +326,32 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
 
 // TODO: refactor.
 bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
-  CHECK(_map_type != MAP_NONE);
+  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "chunk");
 
-  if(_map_type == MAP_ARBITRARY) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    pugi::xml_attribute width = node.attribute("width");
-    pugi::xml_attribute height = node.attribute("height");
-    pugi::xml_attribute size = node.attribute("size");
-    pugi::xml_attribute type = node.attribute("type");
-    if(!x || !y || !width || !height || !size || !type) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
+  pugi::xml_attribute x = node.attribute("x");
+  pugi::xml_attribute y = node.attribute("y");
+  pugi::xml_attribute width = node.attribute("width");
+  pugi::xml_attribute height = node.attribute("height");
+  pugi::xml_attribute type = node.attribute("type");
+  if(!x || !y || !width || !height || !type) {
+    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
+    return false;
+  } else {
+    int xv = x.as_int();
+    int yv = y.as_int();
+    int wv = width.as_int();
+    int hv = height.as_int();
+    Wall::Type type_value;
+    bool rv = _LoadWallType(type, &type_value);
+    if(rv == false) {
       return false;
-    } else {
-      float xv = x.as_float();
-      float yv = y.as_float();
-      int wv = width.as_int();
-      int hv = height.as_int();
-      float sv = size.as_float();
-      Wall::Type type_value;
-      bool rv = _LoadWallType(type, &type_value);
-      if(rv == false) {
-        return false;
-      }
-      for(int i = 0; i < wv; i++) {
-        for(int j = 0; j < hv; j++) {
-          bool rv = CreateWall(Vector2(xv + i * sv, yv + j * sv), sv, type_value);
-          if(rv == false) {
-            return false;
-          }
-        }
-      }
     }
-  } else if(_map_type == MAP_GRID) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    pugi::xml_attribute width = node.attribute("width");
-    pugi::xml_attribute height = node.attribute("height");
-    pugi::xml_attribute type = node.attribute("type");
-    if(!x || !y || !width || !height || !type) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
-      return false;
-    } else {
-      int xv = x.as_int();
-      int yv = y.as_int();
-      int wv = width.as_int();
-      int hv = height.as_int();
-      Wall::Type type_value;
-      bool rv = _LoadWallType(type, &type_value);
-      if(rv == false) {
-        return false;
-      }
-      for(int i = 0; i < wv; i++) {
-        for(int j = 0; j < hv; j++) {
-          bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
-          if(rv == false) {
-            return false;
-          }
+    for(int i = 0; i < wv; i++) {
+      for(int j = 0; j < hv; j++) {
+        bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
+        if(rv == false) {
+          return false;
         }
       }
     }
@@ -424,30 +361,20 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
 }
 
 bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
-  CHECK(_map_type != MAP_NONE);
+  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "spawn");
 
-  if(_map_type == MAP_ARBITRARY) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    if(!x || !y) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
-      return false;
-    } else {
-      _spawn_positions.push_back(Vector2(x.as_float(), y.as_float()));
-    }
-  } else if(_map_type == MAP_GRID) {
-    pugi::xml_attribute x = node.attribute("x");
-    pugi::xml_attribute y = node.attribute("y");
-    if(!x || !y) {
-      Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
-      return false;
-    } else {
-      float xv = x.as_float() * _block_size;
-      float yv = y.as_float() * _block_size;
-      _spawn_positions.push_back(Vector2(xv, yv));
-    }
+  pugi::xml_attribute x = node.attribute("x");
+  pugi::xml_attribute y = node.attribute("y");
+  if(!x || !y) {
+    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
+    return false;
+  } else {
+    float xv = x.as_float() * _block_size;
+    float yv = y.as_float() * _block_size;
+    _spawn_positions.push_back(Vector2(xv, yv));
   }
+
   return true;
 }
 
