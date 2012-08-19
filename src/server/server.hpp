@@ -197,7 +197,7 @@ private:
     size_t size = destroyed_entities.size();
     for(size_t i = 0; i < size; i++) {
       uint32_t id = destroyed_entities[i];
-      bool rv = _BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_DISAPPEARED,
+      bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
         _world_manager.GetEntity(id));
       if(rv == false) {
         return false;
@@ -220,7 +220,7 @@ private:
       if(force || entity->IsUpdated()) {
         EntitySnapshot snapshot;
         entity->GetSnapshot(time, &snapshot);
-        bool rv = _BroadcastPacket(Packet::BM_PACKET_ENTITY_UPDATED, snapshot, false);
+        bool rv = _BroadcastPacket(Packet::TYPE_ENTITY_UPDATED, snapshot, false);
         if(rv == false) {
           return false;
         }
@@ -243,7 +243,7 @@ private:
     for(itr = _entities->begin(); itr != end; ++itr) {
       EntitySnapshot snapshot;
       itr->second->GetSnapshot(time, &snapshot);
-      bool rv = _BroadcastPacket(Packet::BM_PACKET_ENTITY_UPDATED, snapshot, false);
+      bool rv = _BroadcastPacket(Packet::TYPE_ENTITY_UPDATED, snapshot, false);
       if(rv == false) {
         return false;
       }
@@ -336,7 +336,7 @@ private:
       return false;
     }
 
-    if(!_BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_APPEARED,
+    if(!_BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
         client->entity)) {
       return false;
     }
@@ -354,7 +354,7 @@ private:
     options.blow_capacity = client->entity->GetBlowCapacity();
     options.morph_capacity = client->entity->GetMorphCapacity();
 
-    Packet::Type packet_type = Packet::BM_PACKET_CLIENT_OPTIONS;
+    Packet::Type packet_type = Packet::TYPE_CLIENT_OPTIONS;
 
     bool rv = _SendPacket(client->peer, packet_type, options, true);
     if(rv == false) {
@@ -367,9 +367,9 @@ private:
   }
 
   bool _BroadcastEntityRelatedMessage(Packet::Type packet_type, Entity* entity) {
-    CHECK(packet_type == Packet::BM_PACKET_ENTITY_APPEARED ||
-      packet_type == Packet::BM_PACKET_ENTITY_DISAPPEARED ||
-      packet_type == Packet::BM_PACKET_ENTITY_UPDATED);
+    CHECK(packet_type == Packet::TYPE_ENTITY_APPEARED ||
+      packet_type == Packet::TYPE_ENTITY_DISAPPEARED ||
+      packet_type == Packet::TYPE_ENTITY_UPDATED);
 
     EntitySnapshot snapshot;
     entity->GetSnapshot(_timer.GetTime(), &snapshot);
@@ -379,10 +379,10 @@ private:
       return false;
     }
 
-    //if(packet_type == BM_PACKET_ENTITY_APPEARED) {
+    //if(packet_type == TYPE_ENTITY_APPEARED) {
     //  printf("Entity %u appeared.\n", entity->GetId());
     //}
-    //if(packet_type == BM_PACKET_ENTITY_DISAPPEARED) {
+    //if(packet_type == TYPE_ENTITY_DISAPPEARED) {
     //  printf("Entity %u disappeared.\n", entity->GetId());
     //}
 
@@ -397,7 +397,7 @@ private:
     uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
     Client* client = _client_manager.GetClient(id);
 
-    bool rv = _BroadcastEntityRelatedMessage(Packet::BM_PACKET_ENTITY_DISAPPEARED,
+    bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
       client->entity);
     if(rv == false) {
       return false;
@@ -431,7 +431,7 @@ private:
       return true;
     }
 
-    if(packet_type == Packet::BM_PACKET_KEYBOARD_EVENT) {
+    if(packet_type == Packet::TYPE_KEYBOARD_EVENT) {
       if(message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
         printf("#%u: Client dropped due to incorrect message format.1\n", id);
         _client_manager.DisconnectClient(id);
@@ -447,7 +447,7 @@ private:
       }
 
       client->entity->OnKeyboardEvent(keyboard_event);
-    } else if(packet_type == Packet::BM_PACKET_MOUSE_EVENT) {
+    } else if(packet_type == Packet::TYPE_MOUSE_EVENT) {
       if(message.size() != sizeof(Packet::Type) + sizeof(MouseEvent)) {
         printf("#%u: Client dropped due to incorrect message format.3\n", id);
         _client_manager.DisconnectClient(id);
@@ -465,7 +465,7 @@ private:
       if(!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
         return false;
       }
-    } else if(packet_type == Packet::BM_PACKET_SYNC_TIME_REQUEST) {
+    } else if(packet_type == Packet::TYPE_SYNC_TIME_REQUEST) {
       if(message.size() != sizeof(Packet::Type) + sizeof(TimeSyncData)) {
         printf("#%u: Client dropped due to incorrect message format.5\n", id);
         _client_manager.DisconnectClient(id);
@@ -481,7 +481,7 @@ private:
       }
 
       sync_data.server_time = _timer.GetTime();
-      packet_type = Packet::BM_PACKET_SYNC_TIME_RESPONSE;
+      packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
 
       rv = _SendPacket(client->peer, packet_type, sync_data, true);
       if(rv == false) {

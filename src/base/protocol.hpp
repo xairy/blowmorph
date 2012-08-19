@@ -11,27 +11,27 @@ namespace protocol {
 class Packet {
 public:
   enum Type {
-    BM_PACKET_UNKNOWN = 0,
+    TYPE_UNKNOWN = 0,
 
     // S -> C. Followed by 'ClientOptions'.
-    BM_PACKET_CLIENT_OPTIONS,
+    TYPE_CLIENT_OPTIONS,
 
     // S -> C. Followed by 'EntitySnapshot' with the entity description.
-    BM_PACKET_ENTITY_APPEARED,
-    BM_PACKET_ENTITY_UPDATED,
-    BM_PACKET_ENTITY_DISAPPEARED,
+    TYPE_ENTITY_APPEARED,
+    TYPE_ENTITY_UPDATED,
+    TYPE_ENTITY_DISAPPEARED,
 
     // C -> S. Followed by 'KeyboardEvent'.
-    BM_PACKET_KEYBOARD_EVENT,
+    TYPE_KEYBOARD_EVENT,
     // C -> S. Followed by 'MouseEvent'.
-    BM_PACKET_MOUSE_EVENT,
+    TYPE_MOUSE_EVENT,
 
     // C -> S. Followed by 'TimeSyncData' filled with client time.
-    BM_PACKET_SYNC_TIME_REQUEST,
+    TYPE_SYNC_TIME_REQUEST,
     // S -> C. Followed by 'TimeSyncData' filled with client and server time.
-    BM_PACKET_SYNC_TIME_RESPONSE,
+    TYPE_SYNC_TIME_RESPONSE,
 
-    BM_PACKET_MAX_VALUE
+    TYPE_MAX_VALUE
   };
 private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Packet);
