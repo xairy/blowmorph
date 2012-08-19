@@ -31,7 +31,6 @@
 #include "canvas.hpp"
 
 using namespace bm;
-using namespace protocol;
 
 struct ObjectState {
   glm::vec2 position;

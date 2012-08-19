@@ -12,8 +12,6 @@
 
 namespace bm {
 
-using namespace protocol;
-
 class WorldManager;
 
 class Player;
