@@ -67,7 +67,7 @@ void Bullet::Update(uint32_t time) {
 }
 
 void Bullet::GetSnapshot(uint32_t time, EntitySnapshot* output) {
-  output->type = EntitySnapshot::BM_ENTITY_BULLET;
+  output->type = EntitySnapshot::ENTITY_TYPE_BULLET;
   output->time = time;
   output->id = _id;
   output->x = _shape->GetPosition().x;

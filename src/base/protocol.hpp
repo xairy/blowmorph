@@ -51,28 +51,28 @@ struct TimeSyncData {
   uint32_t server_time;
 };
 
-// type == EntitySnapshot::BM_ENTITY_PLAYER:
+// type == EntitySnapshot::ENTITY_TYPE_PLAYER:
 //   data[0] - health
 //   data[1] - blow charge
 //   data[2] - morph charge
-// type == EntitySnapshot::BM_ENTITY_WALL:
+// type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
 struct EntitySnapshot {
   enum EntityType {
-    BM_ENTITY_UNKNOWN = 0,
+    ENTITY_TYPE_UNKNOWN = 0,
 
-    BM_ENTITY_PLAYER,
-    BM_ENTITY_BULLET,
-    BM_ENTITY_WALL,
-    BM_ENTITY_DUMMY,
+    ENTITY_TYPE_PLAYER,
+    ENTITY_TYPE_BULLET,
+    ENTITY_TYPE_WALL,
+    ENTITY_TYPE_DUMMY,
 
-    BM_ENTITY_MAX_VALUE
+    ENTITY_TYPE_MAX_VALUE
   };
 
   enum WallType {
-    BM_WALL_ORDINARY,
-    BM_WALL_UNBREAKABLE,
-    BM_WALL_MORPHED
+    WALL_TYPE_ORDINARY,
+    WALL_TYPE_UNBREAKABLE,
+    WALL_TYPE_MORPHED
   };
 
   uint32_t time;
