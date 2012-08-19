@@ -858,9 +858,9 @@ private:
   
   void _RenderHUD() {
     _canvas.SetCoordinateType(Canvas::PixelsFlipped);
-    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_health / _client_options->max_health, 10));
+    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
     _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
-    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
+    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
   }
 
   // Draws all the objects.
