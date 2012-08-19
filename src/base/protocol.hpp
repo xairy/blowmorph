@@ -1,6 +1,7 @@
 #ifndef BLOWMORPH_BASE_PROTOCOL_HPP_
 #define BLOWMORPH_BASE_PROTOCOL_HPP_
 
+#include "base/macros.hpp"
 #include "base/pstdint.hpp"
 
 namespace bm {
