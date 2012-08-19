@@ -34,7 +34,7 @@ public:
   virtual void OnEntityAppearance(Entity* entity) = 0;
   virtual void OnEntityDisappearance(Entity* entity) = 0;
 
-  virtual void Damage() = 0;
+  virtual void Damage(int damage) = 0;
   
   virtual uint32_t GetId() const;
 

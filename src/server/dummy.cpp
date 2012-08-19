@@ -88,7 +88,7 @@ void Dummy::OnEntityDisappearance(Entity* entity) {
   }
 }
 
-void Dummy::Damage() {
+void Dummy::Damage(int damage) {
   Destroy();
 }
 

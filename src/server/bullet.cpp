@@ -81,7 +81,7 @@ void Bullet::OnEntityDisappearance(Entity* entity) {
 
 }
 
-void Bullet::Damage() {
+void Bullet::Damage(int damage) {
   Destroy();
 }
 

@@ -73,7 +73,7 @@ void Wall::OnEntityDisappearance(Entity* entity) {
 
 }
 
-void Wall::Damage() {
+void Wall::Damage(int damage) {
   if(_type != TYPE_UNBREAKABLE) {
     Destroy();
   }
