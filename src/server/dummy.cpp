@@ -62,7 +62,7 @@ void Dummy::Update(uint32_t time) {
   _last_update = time;
 }
 void Dummy::GetSnapshot(uint32_t time, EntitySnapshot* output) {
-  output->type = BM_ENTITY_DUMMY;
+  output->type = EntitySnapshot::BM_ENTITY_DUMMY;
   output->time = time;
   output->id = _id;
   output->x = _shape->GetPosition().x;

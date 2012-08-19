@@ -37,25 +37,6 @@ private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Packet);
 };
 
-// TODO[13.08.2012 xairy]: move it to struct EntitySnapshot.
-enum EntityType {
-  BM_ENTITY_UNKNOWN = 0,
-
-  BM_ENTITY_PLAYER,
-  BM_ENTITY_BULLET,
-  BM_ENTITY_WALL,
-  BM_ENTITY_DUMMY,
-
-  BM_ENTITY_MAX_VALUE
-};
-
-// TODO[13.08.2012 xairy]: move it to struct EntitySnapshot.
-enum WallType {
-  BM_WALL_ORDINARY,
-  BM_WALL_UNBREAKABLE,
-  BM_WALL_MORPHED
-};
-
 struct ClientOptions {
   uint32_t id;
   float32_t speed;
@@ -70,13 +51,30 @@ struct TimeSyncData {
   uint32_t server_time;
 };
 
-// type == BM_ENTITY_PLAYER:
+// type == EntitySnapshot::BM_ENTITY_PLAYER:
 //   data[0] - health
 //   data[1] - blow charge
 //   data[2] - morph charge
-// type == BM_ENTITY_WALL:
+// type == EntitySnapshot::BM_ENTITY_WALL:
 //    data[0] - wall type
 struct EntitySnapshot {
+  enum EntityType {
+    BM_ENTITY_UNKNOWN = 0,
+
+    BM_ENTITY_PLAYER,
+    BM_ENTITY_BULLET,
+    BM_ENTITY_WALL,
+    BM_ENTITY_DUMMY,
+
+    BM_ENTITY_MAX_VALUE
+  };
+
+  enum WallType {
+    BM_WALL_ORDINARY,
+    BM_WALL_UNBREAKABLE,
+    BM_WALL_MORPHED
+  };
+
   uint32_t time;
   uint32_t id;
   EntityType type;

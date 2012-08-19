@@ -113,7 +113,7 @@ void Player::Update(uint32_t time) {
 }
 
 void Player::GetSnapshot(uint32_t time, EntitySnapshot* output) {
-  output->type = BM_ENTITY_PLAYER;
+  output->type = EntitySnapshot::BM_ENTITY_PLAYER;
   output->time = time;
   output->id = _id;
   output->x = _prev_position.x;
