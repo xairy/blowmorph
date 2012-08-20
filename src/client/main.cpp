@@ -241,6 +241,22 @@ private:
     _wall_size = 16;
     _player_size = 30;
 
+    _last_loop = _GetTime();
+
+    if(!_InitializeGraphics()) {
+      return false;
+    }
+
+    if(!_InitializeNetwork()) {
+      return false;
+    }
+
+    _state = STATE_INITIALIZED;
+
+    return true;
+  }
+
+  bool _InitializeGraphics() {
     if (!_render_window.Init("Blowmorph", 600, 600, false)) {
       return false;
     }
@@ -249,29 +265,7 @@ private:
       return false;
     }
 
-    if(!_InitializeTextures()) {
-      return false;
-    }
-
-    if(!_InitializeNetwork()) {
-      return false;
-    }
-
-    _keyboard_state.down = false;
-    _keyboard_state.up = false;
-    _keyboard_state.left = false;
-    _keyboard_state.right = false;
-
-    _last_loop = _GetTime();
-
-    _state = STATE_INITIALIZED;
-
-    return true;
-  }
-
-  bool _InitializeTextures() {
     // XXX[24.7.2012 alex]: awful lot of copypasta
-
     _player_texture = bm::LoadOldTexture("data/images/player.png", 0);
     if(_player_texture == NULL) {
       return false;
@@ -331,12 +325,11 @@ private:
       BM_ERROR("Could not connect to server.");
       return false;
     }
-
-    _network_state = NETWORK_STATE_CONNECTED;
-
     _client = client.release();
     _peer = peer.release();
     _event = event.release();
+
+    _network_state = NETWORK_STATE_CONNECTED;
 
     printf("Connected to %s:%u.\n", _event->GetPeerIp().c_str(), _event->GetPeerPort());
 
@@ -536,7 +529,7 @@ private:
         case Event::EVENT_DISCONNECT: {
           _network_state = NETWORK_STATE_DISCONNECTED;
           _is_running = false;
-          // TODO: set error.
+          BM_ERROR("Connection lost.");
           return false;
         } break;
       }
@@ -939,6 +932,8 @@ private:
   std::vector<MouseEvent> _mouse_events;
 
   struct KeyboardState {
+    KeyboardState() : up(false), down(false), right(false), left(false) { }
+
     bool up;
     bool down;
     bool right;
