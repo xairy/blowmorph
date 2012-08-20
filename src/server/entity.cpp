@@ -146,7 +146,7 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
   }
   if(player->_shape->Collide(bullet->_shape)) {
     player->Damage(10);
-    bullet->Damage(0);
+    bullet->Explode();
     return true;
   }
   return false;
@@ -164,8 +164,8 @@ bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
 }
 bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
   if(bullet1->_shape->Collide(bullet2->_shape)) {
-    bullet1->Damage(0);
-    bullet2->Damage(0);
+    bullet1->Explode();
+    bullet2->Explode();
     return true;
   }
   return false;
