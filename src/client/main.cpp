@@ -203,9 +203,15 @@ public:
 
     while(_is_running) {
       _PumpEvents();
-      PumpPackets(0);
+      _PumpPackets(0);
       _Loop();
       _Render();
+
+      bm::uint32_t current_time = _GetTime();
+      if(current_time - _last_tick > 1000.0 / _tick_rate) {
+        _last_tick = current_time;
+        _SendInputEvents();
+      }
     }
 
     _Finalize();
@@ -217,31 +223,37 @@ private:
   bool _Initialize() {
     _is_running = false;
 
-    _resolution_x = 600;
-    _resolution_y = 600;
-
-    // TODO: think about more accurate name.
-    _max_error = 25.f;
-
-    _player_texture = NULL;
-    _player = NULL;
-    
-    _client_options = NULL;
-    _client_speed = 0.0f;
-
     _client = NULL;
     _peer = NULL;
     _event = NULL;
-    
+
     _connect_timeout = 500;
-    _last_tick = 0;
-    _tickrate = 30;
     _time_correction = 0;
+    _last_tick = 0;
+    _tick_rate = 30;
+
+    _resolution_x = 600;
+    _resolution_y = 600;
+
+    _player_texture = NULL;
+    _bullet_texture = NULL;
+    _wall_texture = NULL;
+    _dummy_texture = NULL;
+    _explosion_texture = NULL;
+
+    _player = NULL;
+    
+    _client_options = NULL;
 
     _wall_size = 16;
     _player_size = 30;
+    
+    // TODO: think about more accurate name.
+    _max_error = 25.f;
 
-    _last_loop = _GetTime();
+    _player_health = 0;
+    _player_blow_charge = 0;
+    _player_morph_charge = 0;
 
     if(!_InitializeGraphics()) {
       return false;
@@ -250,6 +262,8 @@ private:
     if(!_InitializeNetwork()) {
       return false;
     }
+
+    _last_loop = _GetTime();
 
     _state = STATE_INITIALIZED;
 
@@ -499,7 +513,7 @@ private:
     fprintf(stderr, "WARN: %s\n", buf);
   }
 
-  bool PumpPackets(bm::uint32_t timeout) {
+  bool _PumpPackets(bm::uint32_t timeout) {
     std::vector<char> message;
     
     do {
@@ -553,12 +567,11 @@ private:
           const ClientOptions* options = reinterpret_cast<const ClientOptions*>(data); 
           _client_options = new ClientOptions(*options);
           
-          // switch to a new state
+          // Switch to a new state.
           _network_state = NETWORK_STATE_SYNCHRONIZATION;
           
-          // send a time synchronization request
+          // Send a time synchronization request.
           TimeSyncData request_data;
-          // XXX[24.7.2012 alex]: _GetTime()?
           request_data.client_time = SDL_GetTicks();
           Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;
 
@@ -583,11 +596,11 @@ private:
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          _time_correction = (SDL_GetTicks() - response_data->client_time) / 2 + response_data->server_time - SDL_GetTicks();
+          bm::uint32_t client_time = SDL_GetTicks(); 
+          bm::uint32_t latency = (client_time - response_data->client_time) / 2;
+          _time_correction = response_data->server_time + latency - client_time;
 
           printf("Time correction is %u ms.\n", _time_correction);
-
-          bm::uint32_t latency = SDL_GetTicks() - response_data->client_time;
           printf("Latency is %u.\n", latency);
 
           _network_state = NETWORK_STATE_LOGGED_IN;
@@ -595,7 +608,7 @@ private:
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), 0, _client_options->id);
           if(_player == NULL) {
-            // TODO: set error.
+            Error::Set(Error::TYPE_MEMORY);
             return false;
           }
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
@@ -604,9 +617,6 @@ private:
           _player->SetPosition(glm::vec2(_client_options->x, _client_options->y));
           _player->SetPivot(glm::vec2(0.5f, 0.5f));
           _player->EnableCaption();
-
-          // XXX[24.7.2012 alex]: why make a new variable?
-          _client_speed = _client_options->speed;
         }
         
         return true;
@@ -663,7 +673,6 @@ private:
             }
 
             if(_objects.count(snapshot->id) > 0 || _walls.count(snapshot->id) > 0) {
-              // TODO: state constructor.
               ObjectState state;
               state.position = position;
               state.health = static_cast<float>(snapshot->data[0]);
@@ -736,8 +745,8 @@ private:
       bm::uint32_t delta_time = current_time - _last_loop;
       _last_loop = current_time;
 
-      glm::float_t delta_x = (_keyboard_state.right - _keyboard_state.left) * _client_speed * delta_time;
-      glm::float_t delta_y = (_keyboard_state.down - _keyboard_state.up) * _client_speed * delta_time;
+      glm::float_t delta_x = (_keyboard_state.right - _keyboard_state.left) * _client_options->speed * delta_time;
+      glm::float_t delta_y = (_keyboard_state.down - _keyboard_state.up) * _client_options->speed * delta_time;
 
       bool intersection_x = false;
       bool intersection_y = false;
@@ -764,11 +773,6 @@ private:
       
       if(!intersection_x) _player->Move(glm::vec2(delta_x, 0.0f));
       if(!intersection_y) _player->Move(glm::vec2(0.0f, delta_y));
-
-      if(current_time - _last_tick > 1000.0 / _tickrate) {
-        _last_tick = current_time;
-        _SendInputEvents();
-      }
     }
 
     return true;
@@ -881,20 +885,26 @@ private:
     return true;
   }
 
-  RenderWindow _render_window;
-  Canvas _canvas;
-
-  float _player_health;
-  float _player_blow_charge;
-  float _player_morph_charge;
-
   bool _is_running;
+
+  Enet _enet;
+  ClientHost* _client;
+  Peer* _peer;
+  Event* _event;
+
+  // In milliseconds.
+  bm::uint32_t _connect_timeout;
+  bm::uint32_t _time_correction;
+  bm::uint32_t _last_tick;
+  bm::uint32_t _tick_rate;
+  bm::uint32_t _last_loop;
 
   int _resolution_x;
   int _resolution_y;
 
-  glm::float_t _max_error;
-  
+  RenderWindow _render_window;
+  Canvas _canvas;
+
   // XXX[24.7.2012 alex]: copypasta
   TextureAtlas* _player_texture;
   TextureAtlas* _bullet_texture;
@@ -904,28 +914,21 @@ private:
 
   Object* _player;
 
-  ClientOptions* _client_options;
-  float _client_speed;
-
-  Enet _enet;
-  ClientHost* _client;
-  Peer* _peer;
-  Event* _event;
-
-  // In milliseconds.
-  bm::uint32_t _connect_timeout;
-  bm::uint32_t _last_tick;
-  bm::uint32_t _tickrate;
-  bm::uint32_t _time_correction;
-  bm::uint32_t _last_loop;
-
-  bm::uint32_t _wall_size;
-  bm::uint32_t _player_size;
-
   std::map<int, Object*> _objects;
   std::map<int, Object*> _walls;
 
   std::list<Animation*> _animations;
+
+  ClientOptions* _client_options;
+
+  bm::uint32_t _wall_size;
+  bm::uint32_t _player_size;
+
+  glm::float_t _max_error;
+
+  float _player_health;
+  float _player_blow_charge;
+  float _player_morph_charge;
 
   // Input events since the last tick.
   std::vector<KeyboardEvent> _keyboard_events;
