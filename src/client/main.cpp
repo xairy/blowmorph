@@ -184,8 +184,38 @@ private:
 
 class Application {
 public:
-  // XXX[24.7.2012 alex]: shouldn't we initialize object in the Init method?
-  Application() {  
+  Application() : _state(STATE_FINALIZED) { }
+  ~Application() {
+    CHECK(_state == STATE_FINALIZED);
+  }
+
+  bool Execute() {
+    if (!bm::ini::LoadINI("data/client.ini", settings)) {
+      return false;
+    }
+  
+    // XXX[24.7.2012 alex]: switch to a FSM
+    if(!_Initialize()) {
+      return false;
+    }
+
+    // XXX[24.7.2012 alex]: hack
+    _network_state = NETWORK_STATE_CONNECTED;
+    _is_running = true;
+
+    while(_is_running) {
+      _PumpEvents();
+      _Loop();
+      _Render();
+    }
+
+    _Finalize();
+
+    return true;
+  }
+
+private:
+  bool _Initialize() {
     _is_running = false;
 
     _resolution_x = 600;
@@ -196,7 +226,6 @@ public:
 
     _player_texture = NULL;
     _player = NULL;
-    //_background = NULL;
     
     _client_options = NULL;
     _client_speed = 0.0f;
@@ -212,87 +241,7 @@ public:
 
     _wall_size = 16;
     _player_size = 30;
-    _state = STATE_FINALIZED;
-  }
 
-  ~Application() {
-    CHECK(_state == STATE_FINALIZED);
-  }
-  
-  void Init() {
-    _state = STATE_INITIALIZED;
-  }
-  
-  void Finalize() {    
-    // Delete all loaded textures.
-    if (_player_texture != NULL) delete _player_texture;
-    if (_bullet_texture != NULL) delete _bullet_texture;
-    if (_wall_texture != NULL) delete _wall_texture;
-    if (_dummy_texture != NULL) delete _dummy_texture;
-    if (_explosion_texture != NULL) delete _explosion_texture;
-
-    if(_player != NULL) delete _player;
-    if(_client_options != NULL) delete _client_options;
-
-    if(_client != NULL) delete _client;
-    if(_peer != NULL) delete _peer;
-    if(_event != NULL) delete _event;
-
-    std::map<int, Object*>::iterator it;
-    for(it = _objects.begin(); it != _objects.end(); ++it) {
-      delete it->second;
-    }
-
-    std::list<Animation*>::iterator it2;
-    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
-      delete *it2;
-    }
-
-    _render_window.Finalize();
-    
-    _state = STATE_FINALIZED;
-  }
-
-  bool Execute() {
-    if (!bm::ini::LoadINI("data/client.ini", settings)) {
-      return false;
-    }
-  
-    // XXX[24.7.2012 alex]: switch to a FSM
-    if(!_Initialize()) {
-      return false;
-    }
-
-    /*if(!_ReceiveOptions()) {
-      return false;
-    }
-    if(!_SynchronizeTime()) {
-      return false;
-    }*/
-
-    /*_background = new Object(glm::vec2(0, 0), 4);
-    if(_background == NULL) {
-      // TODO: set error.
-      return false;
-    }
-    _background->SetSprite(_wallpaper_texture);
-    _background->SetPosition(glm::vec2(0, 0));*/
-
-    // XXX[24.7.2012 alex]: hack
-    _network_state = NETWORK_STATE_CONNECTED;
-    _is_running = true;
-
-    while(_is_running) {
-      _PumpEvents();
-      _Loop();
-      _Render();
-    }
-
-    return true;
-  }
-
-private:
-  bool _Initialize() {
     if (!_render_window.Init("Blowmorph", 600, 600, false)) {
       return false;
     }
@@ -316,13 +265,14 @@ private:
 
     _last_loop = _GetTime();
 
+    _state = STATE_INITIALIZED;
+
     return true;
   }
 
   bool _InitializeTextures() {
     // XXX[24.7.2012 alex]: awful lot of copypasta
-    
-    //_player_texture = _manager->Load("data/images/ufo.png", (8 << 16) + (54 << 8) + 129);
+
     _player_texture = bm::LoadOldTexture("data/images/player.png", 0);
     if(_player_texture == NULL) {
       return false;
@@ -347,11 +297,6 @@ private:
     if(_explosion_texture == NULL) {
       return false;
     }
-
-    /*_wallpaper_texture = _manager->Load("data/images/wallpaper4.jpg", (8 << 16) + (54 << 8) + 129);
-    if(_wallpaper_texture == NULL) {
-      return false;
-    }*/
 
     return true;
   }
@@ -395,6 +340,36 @@ private:
     printf("Connected to %s:%u.\n", _event->GetPeerIp().c_str(), _event->GetPeerPort());
 
     return true;
+  }
+
+  void _Finalize() {    
+    // Delete all loaded textures.
+    if (_player_texture != NULL) delete _player_texture;
+    if (_bullet_texture != NULL) delete _bullet_texture;
+    if (_wall_texture != NULL) delete _wall_texture;
+    if (_dummy_texture != NULL) delete _dummy_texture;
+    if (_explosion_texture != NULL) delete _explosion_texture;
+
+    if(_player != NULL) delete _player;
+    if(_client_options != NULL) delete _client_options;
+
+    if(_client != NULL) delete _client;
+    if(_peer != NULL) delete _peer;
+    if(_event != NULL) delete _event;
+
+    std::map<int, Object*>::iterator it;
+    for(it = _objects.begin(); it != _objects.end(); ++it) {
+      delete it->second;
+    }
+
+    std::list<Animation*>::iterator it2;
+    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
+      delete *it2;
+    }
+
+    _render_window.Finalize();
+    
+    _state = STATE_FINALIZED;
   }
 
   void _PumpEvents() {
@@ -684,7 +659,6 @@ private:
             bm::uint32_t time = snapshot->time;
 
             if(snapshot->id == _player->GetId()) {
-              // TODO: fix it after changing protocol.
               glm::vec2 distance = _player->GetPosition() - position;
               
               ObjectState state;
@@ -770,9 +744,7 @@ private:
     return false;
   }
 
-  bool _Loop() {
-    // XXX[24.7.2012 alex]: method is too long
-    
+  bool _Loop() {   
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
       bm::uint32_t current_time = _GetTime();
       bm::uint32_t delta_time = current_time - _last_loop;
@@ -876,8 +848,6 @@ private:
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
       glTranslatef(_resolution_x / 2 - _player->GetPosition().x, _resolution_y / 2 - _player->GetPosition().y, 0);
-      
-      //_background->Render(_GetTime());
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
@@ -947,9 +917,8 @@ private:
   TextureAtlas* _wall_texture;
   TextureAtlas* _dummy_texture;
   TextureAtlas* _explosion_texture;
-  //TextureAtlas* _wallpaper_texture;
+
   Object* _player;
-  //Object* _background;
 
   ClientOptions* _client_options;
   float _client_speed;
@@ -1006,12 +975,9 @@ private:
 
 int main(int argc, char** argv) { 
   Application app;
-  app.Init();
   if(!app.Execute()) {
     Error::Print();
-    app.Finalize();
     return EXIT_FAILURE;
   }
-  app.Finalize();
   return EXIT_SUCCESS;
 }
