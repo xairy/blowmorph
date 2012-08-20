@@ -184,7 +184,7 @@ private:
 
 class Application {
 public:
-  Application() : _state(STATE_FINALIZED) { }
+  Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
   ~Application() {
     CHECK(_state == STATE_FINALIZED);
   }
@@ -199,12 +199,11 @@ public:
       return false;
     }
 
-    // XXX[24.7.2012 alex]: hack
-    _network_state = NETWORK_STATE_CONNECTED;
     _is_running = true;
 
     while(_is_running) {
       _PumpEvents();
+      PumpPackets(0);
       _Loop();
       _Render();
     }
@@ -332,6 +331,8 @@ private:
       BM_ERROR("Could not connect to server.");
       return false;
     }
+
+    _network_state = NETWORK_STATE_CONNECTED;
 
     _client = client.release();
     _peer = peer.release();
@@ -529,11 +530,7 @@ private:
         } break;
         
         case Event::EVENT_CONNECT: {
-          if (_network_state == NETWORK_STATE_CONNECTING) {
-            _network_state = NETWORK_STATE_CONNECTED;
-          } else {
-            Warning("Got EVENT_CONNECT while being not in STATE_CONNECTING.");
-          }
+          Warning("Got EVENT_CONNECT while being already connected.");
         } break;
 
         case Event::EVENT_DISCONNECT: {
@@ -552,10 +549,6 @@ private:
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
         Warning("Received a packet while being in disconnected state.");
-        return true;
-      } break;
-      case NETWORK_STATE_CONNECTING: {
-        Warning("Received a packet while being in connecting state.");
         return true;
       } break;
       case NETWORK_STATE_CONNECTED: {
@@ -784,9 +777,7 @@ private:
         _SendInputEvents();
       }
     }
-    
-    PumpPackets(0);
-    
+
     return true;
   }
 
@@ -963,7 +954,6 @@ private:
   
   enum NetworkState {
     NETWORK_STATE_DISCONNECTED,
-    NETWORK_STATE_CONNECTING,
     NETWORK_STATE_CONNECTED,
     NETWORK_STATE_SYNCHRONIZATION,
     NETWORK_STATE_LOGGED_IN
