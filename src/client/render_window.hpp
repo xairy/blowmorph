@@ -9,6 +9,7 @@ namespace bm {
 class RenderWindow {
 public:
   RenderWindow();
+  ~RenderWindow();
 
   bool Init(const char* title, size_t width, size_t height, bool fullscreen);
   void Finalize();
