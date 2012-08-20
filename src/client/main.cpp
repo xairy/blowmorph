@@ -186,6 +186,7 @@ class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
   ~Application() {
+    _Finalize();
     CHECK(_state == STATE_FINALIZED);
   }
 
@@ -202,9 +203,15 @@ public:
     _is_running = true;
 
     while(_is_running) {
-      _PumpEvents();
-      _PumpPackets(0);
-      _Loop();
+      if(!_PumpEvents()) {
+        return false;
+      }
+      if(!_PumpPackets(0)) {
+        return false;
+      }
+      if(!_Loop()) {
+        return false;
+      }
       _Render();
 
       bm::uint32_t current_time = _GetTime();
@@ -214,7 +221,7 @@ public:
       }
     }
 
-    _Finalize();
+    //_Finalize();
 
     return true;
   }
@@ -375,19 +382,22 @@ private:
       delete *it2;
     }
 
-    _render_window.Finalize();
+    //_render_window.Finalize();
     
     _state = STATE_FINALIZED;
   }
 
-  void _PumpEvents() {
+  bool _PumpEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      _ProcessEvent(&event);
+      if(!_ProcessEvent(&event)) {
+        return false;
+      }
     }
+    return true;
   }
 
-  void _ProcessEvent(SDL_Event* event) {
+  bool _ProcessEvent(SDL_Event* event) {
     switch(event->type) {
       case SDL_KEYDOWN: {
         KeyboardEvent keyboard_event;
@@ -420,7 +430,9 @@ private:
           }
           case SDLK_ESCAPE: {
             _is_running = false;
-            _Disconnect();
+            if(!_Disconnect()) {
+              return false;
+            }
             break;
           }
         }
@@ -454,14 +466,18 @@ private:
             break;
           case SDLK_ESCAPE:
             _is_running = false;
-            _Disconnect();
+            if(!_Disconnect()) {
+              return false;
+            }
             break;
         }
         break;
       }
 
       case SDL_QUIT: {
-        _Disconnect();
+        if(!_Disconnect()) {
+          return false;
+        }
         _is_running = false;
         break;
       }
@@ -500,6 +516,8 @@ private:
         break;
       }
     }
+
+    return true;
   }
 
   void Warning(const char* fmt, ...) {
@@ -870,19 +888,20 @@ private:
   bool _Disconnect() {
     _peer->Disconnect();
 
-    // TODO: make some attempts?
-    while(true) {
+    bm::uint32_t start = _GetTime();
+    while(_GetTime() - start <= _connect_timeout) {
       bool rv = _client->Service(_event, _connect_timeout);
       if(rv == false) {
         return false;
       }
       if(_event != NULL && _event->GetType() == Event::EVENT_DISCONNECT) {
-        break;
+        printf("Client disconnected.\n");
+        return true;
       }
     }
 
-    printf("Client disconnected.\n");
-    return true;
+    BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.\n");
+    return false;
   }
 
   bool _is_running;
@@ -965,6 +984,7 @@ int main(int argc, char** argv) {
   Application app;
   if(!app.Execute()) {
     Error::Print();
+    while(true);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

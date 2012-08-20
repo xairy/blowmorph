@@ -10,6 +10,12 @@ RenderWindow::RenderWindow() {
   _state = STATE_FINALIZED;
 }
 
+RenderWindow::~RenderWindow() {
+  if(_state == STATE_INITIALIZED) {
+    Finalize();
+  }
+}
+
 bool RenderWindow::Init(const char* title, size_t width, size_t height, bool fullscreen) {
   CHECK(_state == STATE_FINALIZED);
 
