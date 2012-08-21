@@ -314,6 +314,10 @@ bool WorldManager::LoadMap(const std::string& file) {
       if(!_LoadSpawn(node)) {
         return false;
       }
+    } else if(std::string(node.name()) == "station") {
+      if(!_LoadStation(node)) {
+        return false;
+      }
     }
   }
 
@@ -329,7 +333,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   pugi::xml_attribute y = node.attribute("y");
   pugi::xml_attribute type = node.attribute("type");
   if(!x || !y || !type) {
-    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'wall' in map file!\n");
+    BM_ERROR("Incorrect format of 'wall' in map file!\n");
     return false;
   } else {
     Wall::Type type_value;
@@ -357,7 +361,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   pugi::xml_attribute height = node.attribute("height");
   pugi::xml_attribute type = node.attribute("type");
   if(!x || !y || !width || !height || !type) {
-    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'chunk' in map file!\n");
+    BM_ERROR("Incorrect format of 'chunk' in map file!\n");
     return false;
   } else {
     int xv = x.as_int();
@@ -389,12 +393,45 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   pugi::xml_attribute x = node.attribute("x");
   pugi::xml_attribute y = node.attribute("y");
   if(!x || !y) {
-    Error::Throw(__FILE__, __LINE__, "Incorrect format of 'spawn' in map file!\n");
+    BM_ERROR("Incorrect format of 'spawn' in map file!\n");
     return false;
   } else {
     float xv = x.as_float() * _block_size;
     float yv = y.as_float() * _block_size;
     _spawn_positions.push_back(Vector2(xv, yv));
+  }
+
+  return true;
+}
+
+bool WorldManager::_LoadStation(const pugi::xml_node& node) {
+  CHECK(_map_type == MAP_GRID);
+  CHECK(std::string(node.name()) == "station");
+
+  pugi::xml_attribute x_attr = node.attribute("x");
+  pugi::xml_attribute y_attr = node.attribute("y");
+  pugi::xml_attribute hr_attr = node.attribute("health_regeneration");
+  pugi::xml_attribute br_attr = node.attribute("blow_regeneration");
+  pugi::xml_attribute mr_attr = node.attribute("morph_regeneration");
+  pugi::xml_attribute type_attr = node.attribute("type");
+  if(!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
+    BM_ERROR("Incorrect format of 'station' in map file!\n");
+    return false;
+  } else {
+    float x = x_attr.as_float();
+    float y = y_attr.as_float();
+    int hr = hr_attr.as_int();
+    int br = br_attr.as_int();
+    int mr = mr_attr.as_int();
+    Station::Type type;
+    bool rv = _LoadStationType(type_attr, &type);
+    if(rv == false) {
+      return false;
+    }
+    rv = CreateStation(Vector2(x, y), hr, br, mr, type);
+    if(rv == false) {
+      return false;
+    }
   }
 
   return true;
@@ -409,7 +446,24 @@ bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute, Wall::Typ
   } else if(std::string(attribute.value()) == "morphed") {
     *output = Wall::TYPE_MORPHED;
   } else {
-    Error::Throw(__FILE__, __LINE__, "Incorrect wall type in map file!\n");
+    BM_ERROR("Incorrect wall type in map file!\n");
+    return false;
+  }
+  return true;
+}
+
+bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute, Station::Type* output) {
+  CHECK(std::string(attribute.name()) == "type");
+  if(std::string(attribute.value()) == "health") {
+    *output = Station::TYPE_HEALTH;
+  } else if(std::string(attribute.value()) == "blow") {
+    *output = Station::TYPE_BLOW;
+  } else if(std::string(attribute.value()) == "morph") {
+    *output = Station::TYPE_MORPH;
+  } else if(std::string(attribute.value()) == "composite") {
+    *output = Station::TYPE_COMPOSITE;
+  } else {
+    BM_ERROR("Incorrect station type in map file!\n");
     return false;
   }
   return true;

@@ -14,4 +14,6 @@ All coordinates will be multiplied by 'block_size'.
   <wall x="9" y="6" type="ordinary"></wall>
 
   <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
+  
+  <station x="-200.0" y="-200.0" type="health" health_regeneration="1" blow_regeneration="0" morph_regeneration="0"></station>
 </map>
