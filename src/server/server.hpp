@@ -28,6 +28,8 @@
 #include "wall.hpp"
 #include "station.hpp"
 
+#include <base/leak_detector.hpp>
+
 namespace {
 
 bm::uint32_t min(bm::uint32_t a, bm::uint32_t b) {
