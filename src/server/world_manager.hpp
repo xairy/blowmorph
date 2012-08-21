@@ -84,8 +84,10 @@ private:
   bool _LoadWall(const pugi::xml_node& node);
   bool _LoadChunk(const pugi::xml_node& node);
   bool _LoadSpawn(const pugi::xml_node& node);
+  bool _LoadStation(const pugi::xml_node& node);
 
   bool _LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output);
+  bool _LoadStationType(const pugi::xml_attribute& attribute, Station::Type* output);
 
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
