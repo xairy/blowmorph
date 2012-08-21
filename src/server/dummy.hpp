@@ -20,8 +20,6 @@ public:
     WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
-    float radius,
-    float speed,
     uint32_t time
   );
   virtual ~Dummy();

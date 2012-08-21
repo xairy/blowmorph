@@ -23,20 +23,21 @@ Bullet* Bullet::Create(
   const Vector2& end,
   uint32_t time
 ) {
-  SettingsManager* _settings = world_manager->GetSettings();
-  float speed = _settings->GetValue("bullet.speed", 0.0f);
-  float radius = _settings->GetValue("bullet.radius", 0.0f);
+  SettingsManager* settings = world_manager->GetSettings();
+  float speed = settings->GetValue("bullet.speed", 0.0f);
+  float radius = settings->GetValue("bullet.radius", 0.0f);
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   if(bullet.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Shape> shape(new Circle(start, radius));
+
+  std::auto_ptr<Shape> shape(world_manager->LoadShape("bullet.shape"));
   if(shape.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
+  shape->SetPosition(start);
 
   bullet->_shape = shape.release();
   bullet->_owner_id = owner_id;

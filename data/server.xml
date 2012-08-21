@@ -51,6 +51,7 @@
 </wall>
 
 <dummy>
+  <speed>0.1</speed>
   <shape>
     <type>circle</type>
     <radius>5.0</radius>

@@ -52,8 +52,6 @@ public:
   );
   bool CreateDummy(
     const Vector2& position,
-    float radius,
-    float speed,
     uint32_t time
   );
   bool CreateWall(
