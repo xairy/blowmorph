@@ -26,7 +26,6 @@ Bullet* Bullet::Create(
   SettingsManager* _settings = world_manager->GetSettings();
   float speed = _settings->GetValue("bullet.speed", 0.0f);
   float radius = _settings->GetValue("bullet.radius", 0.0f);
-  float explosion_radius = _settings->GetValue("bullet.explosion_radius", 0.0f);
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   if(bullet.get() == NULL) {
@@ -45,7 +44,6 @@ Bullet* Bullet::Create(
   bullet->_end = end;
   bullet->_speed = speed;
   bullet->_start_time = time;
-  bullet->_explosion_radius = explosion_radius;
 
   return bullet.release();
 }
@@ -89,7 +87,7 @@ void Bullet::Damage(int damage) {
 }
 
 void Bullet::Explode() {
-  bool rv = _world_manager->Blow(_shape->GetPosition(), _explosion_radius);
+  bool rv = _world_manager->Blow(_shape->GetPosition());
   // TODO[11.08.2012 xairy]: handle error.
   CHECK(rv == true);
   Destroy();

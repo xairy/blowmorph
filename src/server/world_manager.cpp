@@ -396,7 +396,9 @@ bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute, Wall::Typ
   return true;
 }
 
-bool WorldManager::Blow(const Vector2& location, float radius) {
+bool WorldManager::Blow(const Vector2& location) {
+  float radius = _settings->GetValue("blow.radius", 0.0f);
+
   Shape* explosion = new Circle(location, radius);
   if(explosion == NULL) {
     Error::Set(Error::TYPE_MEMORY);
@@ -422,7 +424,8 @@ bool WorldManager::Blow(const Vector2& location, float radius) {
   return true;
 }
 
-bool WorldManager::Morph(const Vector2& location, int radius) {
+bool WorldManager::Morph(const Vector2& location) {
+  int radius = _settings->GetValue("morph.radius", 0);
   int lx = static_cast<int>(round(static_cast<float>(location.x) / _block_size));
   int ly = static_cast<int>(round(static_cast<float>(location.y) / _block_size));
   for(int x = -radius; x <= radius; x++) {

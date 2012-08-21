@@ -62,8 +62,6 @@ protected:
 
   // Actual speed in any direction.
   float _speed;
-
-  float _explosion_radius;
 };
 
 } // namespace bm
