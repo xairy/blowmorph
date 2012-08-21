@@ -26,7 +26,7 @@ public:
   static Station* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2& position,
+    const Vector2f& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,

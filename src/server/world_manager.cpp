@@ -181,7 +181,7 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _static_entities.end();
   for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2 position = entity->GetPosition();
+    Vector2f position = entity->GetPosition();
     if(abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
@@ -189,7 +189,7 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _dynamic_entities.end();
   for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2 position = entity->GetPosition();
+    Vector2f position = entity->GetPosition();
     if(abs(position.x) > _bound || abs(position.y) > _bound) {
       if(entity->GetType() != "Player") {
         entity->Destroy();
@@ -200,8 +200,8 @@ void WorldManager::DestroyOutlyingEntities() {
 
 bool WorldManager::CreateBullet(
   uint32_t owner_id,
-  const Vector2& start,
-  const Vector2& end,
+  const Vector2f& start,
+  const Vector2f& end,
   uint32_t time
 ) {
   CHECK(_static_entities.count(owner_id) +
@@ -216,7 +216,7 @@ bool WorldManager::CreateBullet(
 }
 
 bool WorldManager::CreateDummy(
-  const Vector2& position,
+  const Vector2f& position,
   uint32_t time
 ) {
   uint32_t id = _id_manager->NewId();
@@ -229,7 +229,7 @@ bool WorldManager::CreateDummy(
 }
 
 bool WorldManager::CreateWall(
-  const Vector2& position,
+  const Vector2f& position,
   Wall::Type type
 ) {
   uint32_t id = _id_manager->NewId();
@@ -242,7 +242,7 @@ bool WorldManager::CreateWall(
 }
 
 bool WorldManager::CreateStation(
-  const Vector2& position,
+  const Vector2f& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
@@ -270,7 +270,7 @@ bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
 bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
 
-  return CreateWall(Vector2(x * _block_size, y * _block_size), type);
+  return CreateWall(Vector2f(x * _block_size, y * _block_size), type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {
@@ -398,7 +398,7 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   } else {
     float xv = x.as_float() * _block_size;
     float yv = y.as_float() * _block_size;
-    _spawn_positions.push_back(Vector2(xv, yv));
+    _spawn_positions.push_back(Vector2f(xv, yv));
   }
 
   return true;
@@ -428,7 +428,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     if(rv == false) {
       return false;
     }
-    rv = CreateStation(Vector2(x, y), hr, br, mr, type);
+    rv = CreateStation(Vector2f(x, y), hr, br, mr, type);
     if(rv == false) {
       return false;
     }
@@ -469,7 +469,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute, Statio
   return true;
 }
 
-bool WorldManager::Blow(const Vector2& location) {
+bool WorldManager::Blow(const Vector2f& location) {
   float radius = _settings->GetValue("player.blow.radius", 0.0f);
 
   Shape* explosion = new Circle(location, radius);
@@ -499,7 +499,7 @@ bool WorldManager::Blow(const Vector2& location) {
   return true;
 }
 
-bool WorldManager::Morph(const Vector2& location) {
+bool WorldManager::Morph(const Vector2f& location) {
   int radius = _settings->GetValue("player.morph.radius", 0);
   int lx = static_cast<int>(round(static_cast<float>(location.x) / _block_size));
   int ly = static_cast<int>(round(static_cast<float>(location.y) / _block_size));
@@ -527,7 +527,7 @@ size_t Random(size_t max) {
 
 } // anonymous namespace
 
-Vector2 WorldManager::GetRandomSpawn() const {
+Vector2f WorldManager::GetRandomSpawn() const {
   CHECK(_spawn_positions.size() > 0);
 
   size_t spawn_count = _spawn_positions.size();
@@ -539,7 +539,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
   std::string shape_type = _settings->GetValue(prefix + ".type", std::string("none"));
   if(shape_type == "circle") {
     float radius = _settings->GetValue(prefix + ".radius", 0.0f);
-    Shape* shape = new Circle(Vector2(0.0f, 0.0f), radius);
+    Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
     if(shape == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return NULL;
@@ -548,7 +548,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
   } else if(shape_type == "rectangle") {
     float width = _settings->GetValue(prefix + ".width", 0.0f);
     float height = _settings->GetValue(prefix + ".height", 0.0f);
-    Shape* shape = new Rectangle(Vector2(0.0f, 0.0f), width, height);
+    Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
     if(shape == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return NULL;
@@ -556,7 +556,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
     return shape;
   } else if(shape_type == "square") {
     float side = _settings->GetValue(prefix + ".side", 0.0f);
-    Shape* shape = new Square(Vector2(0.0f, 0.0f), side);
+    Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     if(shape == NULL) {
       Error::Set(Error::TYPE_MEMORY);
       return NULL;

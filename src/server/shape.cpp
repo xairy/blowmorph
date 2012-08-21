@@ -7,33 +7,33 @@
 
 namespace bm {
 
-Shape::Shape(const Vector2& position) : _position(position) { }
+Shape::Shape(const Vector2f& position) : _position(position) { }
 Shape::~Shape() { }
 
-Vector2 Shape::GetPosition() const {
+Vector2f Shape::GetPosition() const {
   return _position;
 }
-void Shape::SetPosition(const Vector2& position) {
+void Shape::SetPosition(const Vector2f& position) {
   _position = position;
 }
 
-void Shape::Move(const Vector2& value) {
+void Shape::Move(const Vector2f& value) {
   _position += value;
 }
 
 
-Circle::Circle(const Vector2& center, float radius)
+Circle::Circle(const Vector2f& center, float radius)
   : Shape(center), _radius(radius) { }
 Circle::~Circle() { }
 
-Vector2 Circle::GetCenter() const {
+Vector2f Circle::GetCenter() const {
   return _position;
 }
 float Circle::GetRadius() const {
   return _radius;
 }
 
-void Circle::SetCenter(const Vector2& center) {
+void Circle::SetCenter(const Vector2f& center) {
   _position = center;
 }
 void Circle::SetRadius(float radius) {
@@ -52,11 +52,11 @@ bool Circle::Collide(Rectangle* rectangle) {
 }
 
 
-Rectangle::Rectangle(const Vector2& center, float width, float height)
+Rectangle::Rectangle(const Vector2f& center, float width, float height)
   : Shape(center), _width(width), _height(height) { }
 Rectangle::~Rectangle() { }
 
-Vector2 Rectangle::GetCenter() const {
+Vector2f Rectangle::GetCenter() const {
   return _position;
 }
 float Rectangle::GetWidth() const {
@@ -66,7 +66,7 @@ float Rectangle::GetHeight() const {
   return _height;
 }
 
-void Rectangle::SetCenter(const Vector2& center) {
+void Rectangle::SetCenter(const Vector2f& center) {
   _position = center;
 }
 void Rectangle::SetWidth(float width) {
@@ -88,7 +88,7 @@ bool Rectangle::Collide(Rectangle* rectangle) {
 }
 
 
-Square::Square(const Vector2& center, float side)
+Square::Square(const Vector2f& center, float side)
   : Rectangle(center, side, side) { }
 Square::~Square() { }
 

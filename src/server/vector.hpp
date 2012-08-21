@@ -3,30 +3,43 @@
 
 namespace bm {
 
-struct Vector2 {
-  Vector2(float x = 0.0f, float y = 0.0f);
+template<class T> struct Vector2 {
+  Vector2(T x = T(), T y = T());
   ~Vector2();
 
-  float Magnitude() const;
-  void Normalize();
+  Vector2<T>& operator *= (T scalar);
+  Vector2<T>& operator /= (T scalar);
 
-  Vector2& operator *= (float scalar);
-  Vector2& operator /= (float scalar);
-
-  Vector2& operator += (const Vector2& other);
-  Vector2& operator -= (const Vector2& other);
+  Vector2<T>& operator += (const Vector2<T>& other);
+  Vector2<T>& operator -= (const Vector2<T>& other);
 
   float x, y;
 };
 
-Vector2 operator * (const Vector2& vector, float scalar);
-Vector2 operator * (float scalar, const Vector2& vector);
+template<class T> Vector2<T> operator * (const Vector2<T>& vector, T scalar);
+template<class T> Vector2<T> operator * (T scalar, const Vector2<T>& vector);
 
-Vector2 operator / (const Vector2& vector, float scalar);
+template<class T> Vector2<T> operator / (const Vector2<T>& vector, T scalar);
 
-Vector2 operator + (const Vector2& first, const Vector2& second);
-Vector2 operator - (const Vector2& first, const Vector2& second);
+template<class T> Vector2<T> operator + (const Vector2<T>& first, const Vector2<T>& second);
+template<class T> Vector2<T> operator - (const Vector2<T>& first, const Vector2<T>& second);
+
+class Vector2f : public Vector2<float> {
+public:
+  Vector2f(float x = 0.0f, float y = 0.0f);
+  Vector2f(const Vector2<float>& vector);
+
+  float Magnitude() const;
+  void Normalize();
+
+  // XXX[21.08.2012 xairy].
+  // Vector2f a, b;
+  // float f = (a - b).Magnitude(); // Does not work.
+  // float f = Vector2f(a - b).Magnitude(); // Works.
+};
 
 } // namespace bm
+
+#include "vector.inl"
 
 #endif // BLOWMORPH_SERVER_VECTOR_HPP_

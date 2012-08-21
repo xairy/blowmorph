@@ -18,7 +18,7 @@ namespace bm {
 Wall* Wall::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2& position,
+  const Vector2f& position,
   Type type
 ) {
   std::auto_ptr<Wall> wall(new Wall(world_manager, id));

@@ -42,8 +42,8 @@ public:
   virtual Shape* GetShape();
   virtual void SetShape(Shape* shape);
 
-  virtual Vector2 GetPosition() const;
-  virtual void SetPosition(const Vector2& position);
+  virtual Vector2f GetPosition() const;
+  virtual void SetPosition(const Vector2f& position);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;

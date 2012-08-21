@@ -18,7 +18,7 @@ namespace bm {
 Player* Player::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2& position
+  const Vector2f& position
 ) {
   SettingsManager* _settings = world_manager->GetSettings();
 
@@ -92,7 +92,7 @@ void Player::Update(uint32_t time) {
   _last_update_time = time;
 
   _prev_position = _shape->GetPosition();
-  Vector2 velocity;
+  Vector2f velocity;
   velocity.x = _keyboard_state.left * (-_speed)
     + _keyboard_state.right * (_speed);
   velocity.y = _keyboard_state.up * (-_speed)
@@ -139,7 +139,7 @@ void Player::Damage(int damage) {
   }
 }
 
-void Player::SetPosition(const Vector2& position) {
+void Player::SetPosition(const Vector2f& position) {
   _prev_position = position;
   _shape->SetPosition(position);
 }
@@ -226,8 +226,8 @@ bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
     event.button_type == MouseEvent::BUTTON_LEFT) {
     if(_blow_charge >= _blow_consumption) {
       _blow_charge -= _blow_consumption;
-      Vector2 start = GetPosition();
-      Vector2 end(static_cast<float>(event.x), static_cast<float>(event.y));
+      Vector2f start = GetPosition();
+      Vector2f end(static_cast<float>(event.x), static_cast<float>(event.y));
       if(_world_manager->CreateBullet(_id, start, end, time) == false)
       {
         return false;
@@ -240,7 +240,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
       _morph_charge -= _morph_consumption;
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
-      if(_world_manager->Morph(Vector2(x, y)) == false) {
+      if(_world_manager->Morph(Vector2f(x, y)) == false) {
         return false;
       }
     }
@@ -249,7 +249,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
 }
 
 void Player::Respawn() {
-  Vector2 spawn_position = _world_manager->GetRandomSpawn();
+  Vector2f spawn_position = _world_manager->GetRandomSpawn();
   SetPosition(spawn_position);
 }
 

@@ -25,7 +25,7 @@ public:
   static Wall* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2& position,
+    const Vector2f& position,
     Type type
   );
   virtual ~Wall();

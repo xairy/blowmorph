@@ -19,7 +19,7 @@ public:
   static Dummy* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2& position,
+    const Vector2f& position,
     uint32_t time
   );
   virtual ~Dummy();
@@ -35,7 +35,7 @@ public:
 
   virtual void Damage(int damage);
 
-  virtual void SetPosition(const Vector2& position);
+  virtual void SetPosition(const Vector2f& position);
 
   // Double dispatch. Collision detection.
 
@@ -54,7 +54,7 @@ protected:
   float _speed;
   Entity* _meat;
   uint32_t _last_update;
-  Vector2 _prev_position;
+  Vector2f _prev_position;
 };
 
 } // namespace bm
