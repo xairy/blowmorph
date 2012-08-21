@@ -10,7 +10,6 @@
 
 <player>
   <speed>0.1</speed>
-  <size>30.0</size>
   <max_health>100</max_health>
   <health_regeneration>0</health_regeneration>
   
