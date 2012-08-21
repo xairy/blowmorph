@@ -30,83 +30,7 @@
 #include "text_writer.hpp"
 #include "canvas.hpp"
 
-#include <new>
-
-struct AllocInfo {
-  bool array;
-  size_t size;
-  const char* file;
-  unsigned int line;    
-  const void* ptr;
-};
-std::vector<AllocInfo> allocations;
-
-void* operator new(size_t size, const char* file, unsigned int line) {
-  void* result = ::operator new(size);
-  
-  AllocInfo info;
-  info.array = false;
-  info.size = size;
-  info.file = file;
-  info.line = line;
-  info.ptr = result;
-  allocations.push_back(info);
-  
-  return result;
-}
-void* operator new[](size_t size, const char* file, unsigned int line) {
-  void* result = ::operator new[](size);
-
-  AllocInfo info;
-  info.array = true;
-  info.size = size;
-  info.file = file;
-  info.line = line;
-  info.ptr = result;
-  allocations.push_back(info);
-
-  return result;
-}
-
-void operator delete(void* ptr, const char* file, unsigned int line) {
-  typedef std::vector<AllocInfo>::const_iterator It;
-  for (It i = allocations.begin(); i != allocations.end(); ++i) {
-    if (i->ptr == ptr) {
-      assert(i->array == false);
-      allocations.erase(i);
-      break;
-    }
-  }
-}
-void operator delete[](void* ptr, const char* file, unsigned int line) {
-  typedef std::vector<AllocInfo>::const_iterator It;
-  for (It i = allocations.begin(); i != allocations.end(); ++i) {
-    if (i->ptr == ptr) {
-      assert(i->array == true);
-      allocations.erase(i);
-      break;
-    }
-  }
-}
-void __cdecl operator delete(void* ptr) {
-  ::operator delete(ptr, NULL, 0);
-}
-void __cdecl operator delete[](void* ptr) {
-  ::operator delete[](ptr, NULL, 0);
-}
-void PrintLeaks() {
-  typedef std::vector<AllocInfo>::const_iterator It;
-  std::cout << "Leaks : " << std::endl;
-  for (It i = allocations.begin(); i != allocations.end(); ++i) {
-    std::cout << "Leak #" << i->ptr << std::endl <<
-                 "  array   : " << i->array << std::endl <<
-                 "  size    : " << i->size << std::endl <<
-                 "  file    : " << i->file << std::endl <<
-                 "  line    : " << i->line << std::endl; 
-  }
-}
-
-#define new new(__FILE__, __LINE__)
+#include <base/leak_detector.hpp>
 
 using namespace bm;
 
@@ -1084,11 +1008,11 @@ int main(int argc, char** argv) {
   if(!app.Execute()) {
     app.Finalize();
     Error::Print();
-    //while(true);
-    PrintLeaks();
+    bm::leak_detector::PrintAllLeaks();
+    while(true);
     return EXIT_FAILURE;
   }
   app.Finalize();
-  PrintLeaks();
+  bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
