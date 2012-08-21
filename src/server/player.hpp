@@ -31,22 +31,11 @@ class Player : public Entity {
   };
 
 public:
-  // XXX: add Player::Data structure and pass it to the constructor?
   // XXX: create Shape in WorldManager? What to do with bullet creation?
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2& position,
-    float speed,
-    float size,
-    int max_health,
-    int health_regeneration,
-    int blow_capacity,
-    int blow_consumption,
-    int blow_regeneration,
-    int morph_capacity,
-    int morph_consumption,
-    int morph_regeneration
+    const Vector2& position
   );
   virtual ~Player();
 

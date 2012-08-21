@@ -9,6 +9,7 @@
 #include <base/pstdint.hpp>
 
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -17,18 +18,24 @@ namespace bm {
 Player* Player::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2& position,
-  float speed,
-  float size,
-  int max_health,
-  int health_regeneration,
-  int blow_capacity,
-  int blow_consumption,
-  int blow_regeneration,
-  int morph_capacity,
-  int morph_consumption,
-  int morph_regeneration
+  const Vector2& position
 ) {
+  SettingsManager* _settings = world_manager->GetSettings();
+
+  float speed = _settings->GetValue("player.speed", 0.0f);
+  float size = _settings->GetValue("player.size", 0.0f);
+
+  int max_health = _settings->GetValue("player.max_health", 1);
+  int health_regeneration = _settings->GetValue("player.health_regeneration", 0);
+
+  int blow_capacity = _settings->GetValue("blow.capacity", 0);
+  int blow_consumption = _settings->GetValue("blow.consumption", 1);
+  int blow_regeneration = _settings->GetValue("blow.regeneration", 0);
+
+  int morph_capacity = _settings->GetValue("morph.capacity", 0);
+  int morph_consumption = _settings->GetValue("morph.consumption", 1);
+  int morph_regeneration = _settings->GetValue("morph.regeneration", 0);
+
   std::auto_ptr<Player> player(new Player(world_manager, id));
   if(player.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
