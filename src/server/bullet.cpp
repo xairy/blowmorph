@@ -19,8 +19,8 @@ Bullet* Bullet::Create(
   WorldManager* world_manager,
   uint32_t id,
   uint32_t owner_id,
-  const Vector2& start,
-  const Vector2& end,
+  const Vector2f& start,
+  const Vector2f& end,
   uint32_t time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
@@ -60,7 +60,7 @@ bool Bullet::IsStatic() {
 
 void Bullet::Update(uint32_t time) {
   CHECK(time >= _start_time);
-  Vector2 direction = _end - _start;
+  Vector2f direction = _end - _start;
   float magnitude = direction.Magnitude();
   if(magnitude != 0.0f) {
     float dt = static_cast<float>(time - _start_time);

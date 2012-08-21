@@ -18,7 +18,7 @@ namespace bm {
 Dummy* Dummy::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2& position,
+  const Vector2f& position,
   uint32_t time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
@@ -58,7 +58,7 @@ void Dummy::Update(uint32_t time) {
   _prev_position = _shape->GetPosition();
   if(_meat != NULL) {
     bm::uint32_t dt = time - _last_update;
-    Vector2 direction = _meat->GetPosition() - GetPosition();
+    Vector2f direction = _meat->GetPosition() - GetPosition();
     direction.Normalize();
     _shape->Move(direction * _speed * static_cast<float>(dt));
   }
@@ -77,8 +77,8 @@ void Dummy::OnEntityAppearance(Entity* entity) {
     if(_meat == NULL) {
       _meat = entity;
     } else {
-      float current_distance = (_meat->GetPosition() - GetPosition()).Magnitude();
-      float new_distance = (entity->GetPosition() - GetPosition()).Magnitude();
+      float current_distance = Vector2f(_meat->GetPosition() - GetPosition()).Magnitude();
+      float new_distance = Vector2f(entity->GetPosition() - GetPosition()).Magnitude();
       if(new_distance < current_distance) {
         _meat = entity;
       }
@@ -95,7 +95,7 @@ void Dummy::Damage(int damage) {
   Destroy();
 }
 
-void Dummy::SetPosition(const Vector2& position) {
+void Dummy::SetPosition(const Vector2f& position) {
   _prev_position = position;
   _shape->SetPosition(position);
 }

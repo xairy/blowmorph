@@ -20,8 +20,8 @@ public:
     WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
-    const Vector2& start,
-    const Vector2& end,
+    const Vector2f& start,
+    const Vector2f& end,
     uint32_t time
   );
   virtual ~Bullet();
@@ -56,8 +56,8 @@ protected:
   uint32_t _owner_id;
 
   // The start and the end of the bullet' trajectory.
-  Vector2 _start;
-  Vector2 _end;
+  Vector2f _start;
+  Vector2f _end;
 
   uint32_t _start_time;
 

@@ -35,7 +35,7 @@ public:
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2& position
+    const Vector2f& position
   );
   virtual ~Player();
 
@@ -50,7 +50,7 @@ public:
 
   virtual void Damage(int damage);
 
-  virtual void SetPosition(const Vector2& position);
+  virtual void SetPosition(const Vector2f& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
   bool OnMouseEvent(const MouseEvent& event, uint32_t time);
@@ -102,7 +102,7 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(Player);
   Player(WorldManager* world_manager, uint32_t id);
 
-  Vector2 _prev_position; // Before the last 'Update'.
+  Vector2f _prev_position; // Before the last 'Update'.
 
   float _speed; // In vertical and horizontal directions.
 

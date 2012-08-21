@@ -10,13 +10,13 @@ class Rectangle;
 
 class Shape {
 public:
-  Shape(const Vector2& position);
+  Shape(const Vector2f& position);
   virtual ~Shape();
 
-  virtual Vector2 GetPosition() const;
-  virtual void SetPosition(const Vector2& position);
+  virtual Vector2f GetPosition() const;
+  virtual void SetPosition(const Vector2f& position);
 
-  virtual void Move(const Vector2& value);
+  virtual void Move(const Vector2f& value);
 
   virtual bool Collide(Shape* shape) = 0;
 
@@ -28,20 +28,20 @@ public:
   static bool Collide(Rectangle* rectangle1, Rectangle* rectangle2);
 
 protected:
-  Vector2 _position;
+  Vector2f _position;
 };
 
 class Circle : public Shape {
   //friend class Shape;
 
 public:
-  Circle(const Vector2& center, float radius);
+  Circle(const Vector2f& center, float radius);
   ~Circle();
 
-  Vector2 GetCenter() const;
+  Vector2f GetCenter() const;
   float GetRadius() const;
 
-  void SetCenter(const Vector2& center);
+  void SetCenter(const Vector2f& center);
   void SetRadius(float radius);
 
   virtual bool Collide(Shape* shape);
@@ -57,14 +57,14 @@ class Rectangle : public Shape {
   //friend class Shape;
 
 public:
-  Rectangle(const Vector2& center, float width, float height);
+  Rectangle(const Vector2f& center, float width, float height);
   virtual ~Rectangle();
 
-  Vector2 GetCenter() const;
+  Vector2f GetCenter() const;
   float GetWidth() const;
   float GetHeight() const;
 
-  void SetCenter(const Vector2& center);
+  void SetCenter(const Vector2f& center);
   void SetWidth(float width);
   void SetHeight(float height);
 
@@ -80,7 +80,7 @@ protected:
 
 class Square : public Rectangle {
 public:
-  Square(const Vector2& center, float side);
+  Square(const Vector2f& center, float side);
   ~Square();
 };
 

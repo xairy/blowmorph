@@ -170,7 +170,7 @@ private:
     if(counter == 300) {
       float x = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
       float y = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
-      _world_manager.CreateDummy(Vector2(x, y), _timer.GetTime());
+      _world_manager.CreateDummy(Vector2f(x, y), _timer.GetTime());
       counter = 0;
       //printf("Dummy spawned at (%.2f, %.2f)\n", x, y);
     }
@@ -295,7 +295,7 @@ private:
     Player* player = Player::Create(
       &_world_manager,
       client_id,
-      Vector2(0.0f, 0.0f)
+      Vector2f(0.0f, 0.0f)
     );
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);

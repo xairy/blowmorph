@@ -47,20 +47,20 @@ public:
 
   bool CreateBullet(
     uint32_t owner_id,
-    const Vector2& start,
-    const Vector2& end,
+    const Vector2f& start,
+    const Vector2f& end,
     uint32_t time
   );
   bool CreateDummy(
-    const Vector2& position,
+    const Vector2f& position,
     uint32_t time
   );
   bool CreateWall(
-    const Vector2& position,
+    const Vector2f& position,
     Wall::Type type
   );
   bool CreateStation(
-    const Vector2& position,
+    const Vector2f& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
@@ -71,11 +71,11 @@ public:
   bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const Vector2& location);
-  bool Morph(const Vector2& location);
+  bool Blow(const Vector2f& location);
+  bool Morph(const Vector2f& location);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
-  Vector2 GetRandomSpawn() const;
+  Vector2f GetRandomSpawn() const;
 
   // XXX[21.08.2012 xairy]: in WorldManager?
   Shape* LoadShape(const std::string& settings_prefix) const;
@@ -95,7 +95,7 @@ private:
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 
-  std::vector<Vector2> _spawn_positions;
+  std::vector<Vector2f> _spawn_positions;
 
   enum {
     MAP_NONE,

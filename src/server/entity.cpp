@@ -49,10 +49,10 @@ void Entity::SetShape(Shape* shape) {
   _shape = shape;
 }
 
-Vector2 Entity::GetPosition() const {
+Vector2f Entity::GetPosition() const {
   return _shape->GetPosition();
 }
-void Entity::SetPosition(const Vector2& position) {
+void Entity::SetPosition(const Vector2f& position) {
   _shape->SetPosition(position);
 }
 
@@ -100,10 +100,10 @@ bool Entity::Collide(Wall* wall1, Wall* wall2) {
 bool Entity::Collide(Wall* wall, Player* player) {
   bool result = false;
 
-  Vector2 px(player->_prev_position.x, player->_shape->GetPosition().y);
-  Vector2 py(player->_shape->GetPosition().x, player->_prev_position.y);
+  Vector2f px(player->_prev_position.x, player->_shape->GetPosition().y);
+  Vector2f py(player->_shape->GetPosition().x, player->_prev_position.y);
 
-  Vector2 position = player->_shape->GetPosition();
+  Vector2f position = player->_shape->GetPosition();
 
   player->_shape->SetPosition(px);
   if(player->_shape->Collide(wall->_shape)) {
@@ -124,10 +124,10 @@ bool Entity::Collide(Wall* wall, Player* player) {
 bool Entity::Collide(Wall* wall, Dummy* dummy) {
   bool result = false;
 
-  Vector2 px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
-  Vector2 py(dummy->_shape->GetPosition().x, dummy->_prev_position.y);
+  Vector2f px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
+  Vector2f py(dummy->_shape->GetPosition().x, dummy->_prev_position.y);
 
-  Vector2 position = dummy->_shape->GetPosition();
+  Vector2f position = dummy->_shape->GetPosition();
 
   dummy->_shape->SetPosition(px);
   if(dummy->_shape->Collide(wall->_shape)) {
