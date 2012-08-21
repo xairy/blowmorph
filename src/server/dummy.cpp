@@ -9,6 +9,7 @@
 #include <base/pstdint.hpp>
 
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -18,20 +19,22 @@ Dummy* Dummy::Create(
   WorldManager* world_manager,
   uint32_t id,
   const Vector2& position,
-  float radius,
-  float speed,
   uint32_t time
 ) {
+  SettingsManager* settings = world_manager->GetSettings();
+  float speed = settings->GetValue("dummy.speed", 0.0f);
+
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   if(dummy.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Circle> shape(new Circle(position, radius));
+
+  std::auto_ptr<Shape> shape(world_manager->LoadShape("dummy.shape"));
   if(shape.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
+  shape->SetPosition(position);
 
   dummy->_shape = shape.release();
   dummy->_speed = speed;

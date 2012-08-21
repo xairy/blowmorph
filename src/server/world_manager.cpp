@@ -216,12 +216,10 @@ bool WorldManager::CreateBullet(
 
 bool WorldManager::CreateDummy(
   const Vector2& position,
-  float radius,
-  float speed,
   uint32_t time
 ) {
   uint32_t id = _id_manager->NewId();
-  Dummy* dummy = Dummy::Create(this, id, position, radius, speed, time);
+  Dummy* dummy = Dummy::Create(this, id, position, time);
   if(dummy == NULL) {
     return false;
   }
