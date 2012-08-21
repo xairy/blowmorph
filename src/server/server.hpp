@@ -39,7 +39,7 @@ namespace bm {
 
 class Server {
 public:
-  Server() { }
+  Server() : _world_manager(&_id_manager) { }
 
   ~Server() {
     _Destroy();
@@ -309,7 +309,7 @@ private:
       return false;
     }
 
-    uint32_t client_id = Singleton<IdManager>::GetInstance()->NewId();
+    uint32_t client_id = _id_manager.NewId();
     peer->SetData(reinterpret_cast<void*>(client_id));
 
     Player* player = Player::Create(
@@ -588,6 +588,7 @@ private:
   ServerHost* _host;
   Event* _event;
 
+  IdManager _id_manager;
   WorldManager _world_manager;
   ClientManager _client_manager;
   Timer _timer;
