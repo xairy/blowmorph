@@ -88,10 +88,12 @@ void Bullet::Damage(int damage) {
 }
 
 void Bullet::Explode() {
-  bool rv = _world_manager->Blow(_shape->GetPosition());
-  // TODO[11.08.2012 xairy]: handle error.
-  CHECK(rv == true);
-  Destroy();
+  if(!IsDestroyed()) {
+    bool rv = _world_manager->Blow(_shape->GetPosition());
+    // TODO[11.08.2012 xairy]: handle error.
+    CHECK(rv == true);
+    Destroy();
+  }
 }
 
 // Double dispatch. Collision detection.
