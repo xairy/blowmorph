@@ -114,6 +114,9 @@ bool Bullet::Collide(Bullet* other) {
 bool Bullet::Collide(Wall* other) {
   return Entity::Collide(other, this);
 }
+bool Bullet::Collide(Station* other) {
+  return Entity::Collide(other, this);
+}
 
 Bullet::Bullet(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
 

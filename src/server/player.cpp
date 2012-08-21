@@ -336,6 +336,9 @@ bool Player::Collide(Bullet* other) {
 bool Player::Collide(Wall* other) {
   return Entity::Collide(other, this);
 }
+bool Player::Collide(Station* other) {
+  return Entity::Collide(other, this);
+}
 
 Player::Player(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
 

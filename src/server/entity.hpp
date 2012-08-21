@@ -18,6 +18,7 @@ class Player;
 class Dummy;
 class Bullet;
 class Wall;
+class Station;
 
 class Entity {
 public:
@@ -58,16 +59,26 @@ public:
   virtual bool Collide(Dummy* other) = 0;
   virtual bool Collide(Bullet* other) = 0;
   virtual bool Collide(Wall* other) = 0;
+  virtual bool Collide(Station* other) = 0;
+
+  static bool Collide(Station* station1, Station* station2);
+  static bool Collide(Station* station, Wall* wall);
+  static bool Collide(Station* station, Player* player);
+  static bool Collide(Station* station, Dummy* dummy);
+  static bool Collide(Station* station, Bullet* bullet);
 
   static bool Collide(Wall* wall1, Wall* wall2);
-  static bool Collide(Wall* wall, Player* player2);
+  static bool Collide(Wall* wall, Player* player);
   static bool Collide(Wall* wall, Dummy* dummy);
   static bool Collide(Wall* wall, Bullet* bullet);
+
   static bool Collide(Player* player1, Player* player2);
   static bool Collide(Player* player, Dummy* dummy);
   static bool Collide(Player* player, Bullet* bullet);
+
   static bool Collide(Dummy* dummy1, Dummy* dummy2);
   static bool Collide(Dummy* dummy, Bullet* bullet);
+
   static bool Collide(Bullet* bullet1, Bullet* bullet2);
 
 protected:

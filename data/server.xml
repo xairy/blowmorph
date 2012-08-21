@@ -34,6 +34,15 @@
   </shape>
 </player>
 
+<dummy>
+  <speed>0.1</speed>
+  <damage>10</damage>
+  <shape>
+    <type>circle</type>
+    <radius>5.0</radius>
+  </shape>
+</dummy>
+
 <bullet>
   <speed>0.3</speed>
   <shape>
@@ -49,11 +58,9 @@
   </shape>
 </wall>
 
-<dummy>
-  <speed>0.1</speed>
-  <damage>10</damage>
+<station>
   <shape>
-    <type>circle</type>
-    <radius>5.0</radius>
+    <type>square</type>
+    <side>30.0</side>
   </shape>
-</dummy>
+</station>

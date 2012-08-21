@@ -49,6 +49,7 @@ public:
   virtual bool Collide(Dummy* other);
   virtual bool Collide(Bullet* other);
   virtual bool Collide(Wall* other);
+  virtual bool Collide(Station* other);
 
 protected:
   DISALLOW_COPY_AND_ASSIGN(Wall);

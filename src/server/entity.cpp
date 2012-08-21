@@ -20,6 +20,7 @@
 #include "dummy.hpp"
 #include "player.hpp"
 #include "wall.hpp"
+#include "station.hpp"
 
 namespace bm {
 
@@ -71,6 +72,21 @@ bool Entity::IsUpdated() const {
 
 // Double dispatch.
 
+bool Entity::Collide(Station* station1, Station* station2) {
+  return false;
+}
+bool Entity::Collide(Station* station, Wall* wall) {
+  return false;
+}
+bool Entity::Collide(Station* station, Player* player) {
+  return false;
+}
+bool Entity::Collide(Station* station, Dummy* dummy) {
+  return false;
+}
+bool Entity::Collide(Station* station, Bullet* bullet) {
+  return false;
+}
 bool Entity::Collide(Wall* wall1, Wall* wall2) {
   return false;
 }
