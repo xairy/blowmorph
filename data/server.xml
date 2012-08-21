@@ -27,12 +27,29 @@
     <regeneration>1</regeneration>
     <radius>4</radius>
   </morph>
+  
+  <shape>
+    <type>square</type>
+    <side>30.0</side>
+  </shape>
 </player>
 
 <bullet>
   <speed>0.3</speed>
-  <radius>5.0</radius>
+  <size>5.0</size>
+  <shape>
+    <type>circle</type>
+    <radius>5.0</radius>
+  </shape>
 </bullet>
+
+<wall>
+  <size>16.0</size>
+  <shape>
+    <type>square</type>
+    <radius>16.0</radius>
+  </shape>
+</wall>
 
 <dummy>
   <shape>

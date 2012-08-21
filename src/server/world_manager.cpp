@@ -229,9 +229,9 @@ bool WorldManager::CreateDummy(
   return true;
 }
 
-bool WorldManager::CreateWall(const Vector2& position, float size, Wall::Type type) {
+bool WorldManager::CreateWall(const Vector2& position, Wall::Type type) {
   uint32_t id = _id_manager->NewId();
-  Wall* wall = Wall::Create(this, id, position, size, type);
+  Wall* wall = Wall::Create(this, id, position, type);
   if(wall == NULL) {
     return false;
   }
@@ -251,7 +251,7 @@ bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
 bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
 
-  return CreateWall(Vector2(x * _block_size, y * _block_size), _block_size, type);
+  return CreateWall(Vector2(x * _block_size, y * _block_size), type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {

@@ -58,7 +58,6 @@ public:
   );
   bool CreateWall(
     const Vector2& position,
-    float size,
     Wall::Type type
   );
 
