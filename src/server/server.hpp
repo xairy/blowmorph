@@ -87,20 +87,6 @@ private:
     _host = NULL;
     _event = NULL;
 
-    _player_speed = _settings.GetValue("player.speed", 0.1f);
-    _player_size = _settings.GetValue("player.size", 30.0f);
-
-    _player_max_health = _settings.GetValue("player.max_health", 1);
-    _player_health_regeneration = _settings.GetValue("player.health_regeneration", 0);
-
-    _blow_capacity = _settings.GetValue("blow.capacity", 0);
-    _blow_consumption = _settings.GetValue("blow.consumption", 1);
-    _blow_regeneration = _settings.GetValue("blow.regeneration", 0);
-
-    _morph_capacity = _settings.GetValue("morph.capacity", 0);
-    _morph_consumption = _settings.GetValue("morph.consumption", 1);
-    _morph_regeneration = _settings.GetValue("morph.regeneration", 0);
-
     _map_file = _settings.GetValue("server.map", std::string("data/map.xml"));
 
     if(!_world_manager.LoadMap(_map_file)) {
@@ -311,17 +297,7 @@ private:
     Player* player = Player::Create(
       &_world_manager,
       client_id,
-      Vector2(0.0f, 0.0f),
-      _player_speed,
-      _player_size,
-      _player_max_health,
-      _player_health_regeneration,
-      _blow_capacity,
-      _blow_consumption,
-      _blow_regeneration,
-      _morph_capacity,
-      _morph_consumption,
-      _morph_regeneration
+      Vector2(0.0f, 0.0f)
     );
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);
@@ -585,20 +561,6 @@ private:
   WorldManager _world_manager;
   ClientManager _client_manager;
   Timer _timer;
-
-  float _player_speed;
-  float _player_size;
-
-  int _player_max_health;
-  int _player_health_regeneration;
-
-  int _blow_capacity;
-  int _blow_consumption;
-  int _blow_regeneration;
-
-  int _morph_capacity;
-  int _morph_consumption;
-  int _morph_regeneration;
 
   SettingsManager _settings;
 };
