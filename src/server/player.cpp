@@ -320,6 +320,27 @@ void Player::SetMorphRegeneration(int regeneration) {
   _morph_regeneration = regeneration;
 }
 
+void Player::RestoreHealth(int value) {
+  _health += value;
+  if(_health > _max_health) {
+    _health = _max_health;
+  }
+}
+
+void Player::RestoreBlow(int value) {
+  _blow_charge += value;
+  if(_blow_charge > _blow_capacity) {
+    _blow_charge = _blow_capacity;
+  }
+}
+
+void Player::RestoreMorph(int value) {
+  _morph_charge += value;
+  if(_morph_charge > _morph_capacity) {
+    _morph_charge = _morph_capacity;
+  }
+}
+
 bool Player::Collide(Entity* entity) {
   return entity->Collide(this);
 }

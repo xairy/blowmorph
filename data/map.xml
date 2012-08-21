@@ -15,5 +15,8 @@ All coordinates will be multiplied by 'block_size'.
 
   <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
   
-  <station x="-200.0" y="-200.0" type="health" health_regeneration="1" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="-200.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="-150.0" y="-150.0" type="blow" health_regeneration="0" blow_regeneration="10000" morph_regeneration="0"></station>
+  <station x="-100.0" y="-150.0" type="morph" health_regeneration="0" blow_regeneration="0" morph_regeneration="10000"></station>
+  <station x="-50.0" y="-150.0" type="composite" health_regeneration="100" blow_regeneration="10000" morph_regeneration="10000"></station>
 </map>
