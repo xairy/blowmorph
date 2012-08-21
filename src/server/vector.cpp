@@ -4,20 +4,18 @@
 
 namespace bm {
 
-Vector2f::Vector2f(float x, float y) : Vector2<float>(x, y) { }
-
-Vector2f::Vector2f(const Vector2<float>& vector) : Vector2<float>(vector.x, vector.y) { }
-
-float Vector2f::Magnitude() const {
-  return sqrt(x * x + y * y);
+float Magnitude(const Vector2f& v) {
+  return sqrt(v.x * v.x + v.y * v.y);
 }
 
-void Vector2f::Normalize() {
-  float magnitude = Magnitude();
+Vector2f Normalize(const Vector2f& vector) {
+  Vector2f result(vector);
+  float magnitude = Magnitude(result);
   if(magnitude != 0.0f) {
-    x /= magnitude;
-    y /= magnitude;
+    result.x /= magnitude;
+    result.y /= magnitude;
   }
+  return result;
 }
 
 } // namespace bm

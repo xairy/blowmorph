@@ -24,19 +24,10 @@ template<class T> Vector2<T> operator / (const Vector2<T>& vector, T scalar);
 template<class T> Vector2<T> operator + (const Vector2<T>& first, const Vector2<T>& second);
 template<class T> Vector2<T> operator - (const Vector2<T>& first, const Vector2<T>& second);
 
-class Vector2f : public Vector2<float> {
-public:
-  Vector2f(float x = 0.0f, float y = 0.0f);
-  Vector2f(const Vector2<float>& vector);
+typedef Vector2<float> Vector2f;
 
-  float Magnitude() const;
-  void Normalize();
-
-  // XXX[21.08.2012 xairy].
-  // Vector2f a, b;
-  // float f = (a - b).Magnitude(); // Does not work.
-  // float f = Vector2f(a - b).Magnitude(); // Works.
-};
+float Magnitude(const Vector2f& vector);
+Vector2f Normalize(const Vector2f& vector);
 
 } // namespace bm
 

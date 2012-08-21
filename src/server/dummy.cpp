@@ -59,7 +59,7 @@ void Dummy::Update(uint32_t time) {
   if(_meat != NULL) {
     bm::uint32_t dt = time - _last_update;
     Vector2f direction = _meat->GetPosition() - GetPosition();
-    direction.Normalize();
+    direction = Normalize(direction);
     _shape->Move(direction * _speed * static_cast<float>(dt));
   }
   _last_update = time;
@@ -77,8 +77,8 @@ void Dummy::OnEntityAppearance(Entity* entity) {
     if(_meat == NULL) {
       _meat = entity;
     } else {
-      float current_distance = Vector2f(_meat->GetPosition() - GetPosition()).Magnitude();
-      float new_distance = Vector2f(entity->GetPosition() - GetPosition()).Magnitude();
+      float current_distance = Magnitude(_meat->GetPosition() - GetPosition());
+      float new_distance = Magnitude(entity->GetPosition() - GetPosition());
       if(new_distance < current_distance) {
         _meat = entity;
       }

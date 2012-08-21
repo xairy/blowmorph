@@ -61,7 +61,7 @@ bool Bullet::IsStatic() {
 void Bullet::Update(uint32_t time) {
   CHECK(time >= _start_time);
   Vector2f direction = _end - _start;
-  float magnitude = direction.Magnitude();
+  float magnitude = Magnitude(direction);
   if(magnitude != 0.0f) {
     float dt = static_cast<float>(time - _start_time);
     _shape->SetPosition(_start + direction / magnitude * dt * _speed);
