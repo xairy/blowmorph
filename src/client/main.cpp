@@ -30,6 +30,84 @@
 #include "text_writer.hpp"
 #include "canvas.hpp"
 
+#include <new>
+
+struct AllocInfo {
+  bool array;
+  size_t size;
+  const char* file;
+  unsigned int line;    
+  const void* ptr;
+};
+std::vector<AllocInfo> allocations;
+
+void* operator new(size_t size, const char* file, unsigned int line) {
+  void* result = ::operator new(size);
+  
+  AllocInfo info;
+  info.array = false;
+  info.size = size;
+  info.file = file;
+  info.line = line;
+  info.ptr = result;
+  allocations.push_back(info);
+  
+  return result;
+}
+void* operator new[](size_t size, const char* file, unsigned int line) {
+  void* result = ::operator new[](size);
+
+  AllocInfo info;
+  info.array = true;
+  info.size = size;
+  info.file = file;
+  info.line = line;
+  info.ptr = result;
+  allocations.push_back(info);
+
+  return result;
+}
+
+void operator delete(void* ptr, const char* file, unsigned int line) {
+  typedef std::vector<AllocInfo>::const_iterator It;
+  for (It i = allocations.begin(); i != allocations.end(); ++i) {
+    if (i->ptr == ptr) {
+      assert(i->array == false);
+      allocations.erase(i);
+      break;
+    }
+  }
+}
+void operator delete[](void* ptr, const char* file, unsigned int line) {
+  typedef std::vector<AllocInfo>::const_iterator It;
+  for (It i = allocations.begin(); i != allocations.end(); ++i) {
+    if (i->ptr == ptr) {
+      assert(i->array == true);
+      allocations.erase(i);
+      break;
+    }
+  }
+}
+void __cdecl operator delete(void* ptr) {
+  ::operator delete(ptr, NULL, 0);
+}
+void __cdecl operator delete[](void* ptr) {
+  ::operator delete[](ptr, NULL, 0);
+}
+void PrintLeaks() {
+  typedef std::vector<AllocInfo>::const_iterator It;
+  std::cout << "Leaks : " << std::endl;
+  for (It i = allocations.begin(); i != allocations.end(); ++i) {
+    std::cout << "Leak #" << i->ptr << std::endl <<
+                 "  array   : " << i->array << std::endl <<
+                 "  size    : " << i->size << std::endl <<
+                 "  file    : " << i->file << std::endl <<
+                 "  line    : " << i->line << std::endl; 
+  }
+}
+
+#define new new(__FILE__, __LINE__)
+
 using namespace bm;
 
 struct ObjectState {
@@ -186,7 +264,7 @@ class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
   ~Application() {
-    _Finalize();
+    Finalize();
     CHECK(_state == STATE_FINALIZED);
   }
 
@@ -224,6 +302,43 @@ public:
     //_Finalize();
 
     return true;
+  }
+  
+  void Finalize() {    
+    // Delete all loaded textures.
+    if (_player_texture != NULL) delete _player_texture;
+    if (_bullet_texture != NULL) delete _bullet_texture;
+    if (_wall_texture != NULL) delete _wall_texture;
+    if (_dummy_texture != NULL) delete _dummy_texture;
+    if (_explosion_texture != NULL) delete _explosion_texture;
+
+    if(_player != NULL) delete _player;
+    if(_client_options != NULL) delete _client_options;
+
+    if(_client != NULL) delete _client;
+    if(_peer != NULL) delete _peer;
+    if(_event != NULL) delete _event;
+
+    std::map<int, Object*>::iterator it;
+    for(it = _walls.begin(); it != _walls.end(); ++it) {
+      delete it->second;
+    }
+
+    for(it = _objects.begin(); it != _objects.end(); ++it) {
+      delete it->second;
+    }
+
+    std::list<Animation*>::iterator it2;
+    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
+      delete *it2;
+    }
+
+    delete _client_options;
+    delete _player;
+
+    //_render_window.Finalize();
+
+    _state = STATE_FINALIZED;
   }
 
 private:
@@ -355,36 +470,6 @@ private:
     printf("Connected to %s:%u.\n", _event->GetPeerIp().c_str(), _event->GetPeerPort());
 
     return true;
-  }
-
-  void _Finalize() {    
-    // Delete all loaded textures.
-    if (_player_texture != NULL) delete _player_texture;
-    if (_bullet_texture != NULL) delete _bullet_texture;
-    if (_wall_texture != NULL) delete _wall_texture;
-    if (_dummy_texture != NULL) delete _dummy_texture;
-    if (_explosion_texture != NULL) delete _explosion_texture;
-
-    if(_player != NULL) delete _player;
-    if(_client_options != NULL) delete _client_options;
-
-    if(_client != NULL) delete _client;
-    if(_peer != NULL) delete _peer;
-    if(_event != NULL) delete _event;
-
-    std::map<int, Object*>::iterator it;
-    for(it = _objects.begin(); it != _objects.end(); ++it) {
-      delete it->second;
-    }
-
-    std::list<Animation*>::iterator it2;
-    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
-      delete *it2;
-    }
-
-    //_render_window.Finalize();
-    
-    _state = STATE_FINALIZED;
   }
 
   bool _PumpEvents() {
@@ -570,6 +655,21 @@ private:
     return true;
   }
 
+  void DeleteObject(int id) {
+    typedef std::map<int, Object*>::const_iterator It;
+    It it = _objects.find(id);
+    if (it != _objects.end()) {
+      delete it->second;
+      _objects.erase(it);
+    }
+    
+    it = _walls.find(id);
+    if (it != _walls.end()) {
+      delete it->second;
+      _walls.erase(it);
+    }
+  }
+
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
@@ -648,8 +748,7 @@ private:
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
           if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-            _objects.erase(snapshot->id);
-            _walls.erase(snapshot->id);
+            DeleteObject(snapshot->id);
 
             if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
               // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
@@ -983,9 +1082,13 @@ private:
 int main(int argc, char** argv) { 
   Application app;
   if(!app.Execute()) {
+    app.Finalize();
     Error::Print();
-    while(true);
+    //while(true);
+    PrintLeaks();
     return EXIT_FAILURE;
   }
+  app.Finalize();
+  PrintLeaks();
   return EXIT_SUCCESS;
 }
