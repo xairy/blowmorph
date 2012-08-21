@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<server>
+  <port>4242</port>
+  <broadcast_rate>20</broadcast_rate>
+  <update_rate>100</update_rate>
+  <latency_limit>500</latency_limit>
+  <map>data/map.xml</map>
+</server>
+
+<player>
+  <speed>0.1</speed>
+  <size>30.0</size>
+  <max_health>100</max_health>
+  <health_regeneration>0</health_regeneration>
+</player>
+
+<blow>
+  <capacity>1000</capacity>
+  <consumption>500</consumption>
+  <regeneration>1</regeneration>
+</blow>
+
+<morph>
+  <capacity>10000</capacity>
+  <consumption>500</consumption>
+  <regeneration>1</regeneration>
+</morph>
+
+<bullet>
+  <speed>0.3</speed>
+  <radius>5.0</radius>
+  <explosion_radius>30.0</explosion_radius>
+</bullet>

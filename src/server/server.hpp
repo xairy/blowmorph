@@ -9,7 +9,6 @@
 #include <enet-wrapper/enet.hpp>
 
 #include <base/error.hpp>
-#include <base/ini_file.hpp>
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
@@ -20,6 +19,7 @@
 #include "id_manager.hpp"
 #include "vector.hpp"
 #include "shape.hpp"
+#include "settings_manager.hpp"
 #include "world_manager.hpp"
 
 #include "bullet.hpp"
@@ -67,45 +67,45 @@ public:
 
 private:
   bool _Initialize() {
-    if (!bm::ini::LoadINI("data/server.ini", _settings)) {
+    if(!_settings.Load("data/server.xml")) {
       return false;
     }
 
     _is_running = false;
-    _server_port = ini::GetValue(_settings, "server.port", 4242);
+    _server_port = _settings.GetValue("server.port", 4242);
 
-    _broadcast_rate = ini::GetValue(_settings, "server.broadcast_rate", 20);
+    _broadcast_rate = _settings.GetValue("server.broadcast_rate", 20);
     _broadcast_time = 1000 / _broadcast_rate;
     _last_broadcast = 0;
 
-    _update_rate = ini::GetValue(_settings, "server.update_rate", 100);
+    _update_rate = _settings.GetValue("server.update_rate", 100);
     _update_time = 1000 / _update_rate;
     _last_update = 0;
 
-    _latency_limit = ini::GetValue(_settings, "server.latency_limit", 100);
+    _latency_limit = _settings.GetValue("server.latency_limit", 100);
 
     _host = NULL;
     _event = NULL;
 
-    _player_speed = ini::GetValue(_settings, "player.speed", 0.1f);
-    _player_size = ini::GetValue(_settings, "player.size", 30.0f);
+    _player_speed = _settings.GetValue("player.speed", 0.1f);
+    _player_size = _settings.GetValue("player.size", 30.0f);
 
-    _player_max_health = ini::GetValue(_settings, "player.max_health", 1);
-    _player_health_regeneration = ini::GetValue(_settings, "player.health_regeneration", 0);
+    _player_max_health = _settings.GetValue("player.max_health", 1);
+    _player_health_regeneration = _settings.GetValue("player.health_regeneration", 0);
 
-    _blow_capacity = ini::GetValue(_settings, "blow.capacity", 0);
-    _blow_consumption = ini::GetValue(_settings, "blow.consumption", 1);
-    _blow_regeneration = ini::GetValue(_settings, "blow.regeneration", 0);
+    _blow_capacity = _settings.GetValue("blow.capacity", 0);
+    _blow_consumption = _settings.GetValue("blow.consumption", 1);
+    _blow_regeneration = _settings.GetValue("blow.regeneration", 0);
 
-    _morph_capacity = ini::GetValue(_settings, "morph.capacity", 0);
-    _morph_consumption = ini::GetValue(_settings, "morph.consumption", 1);
-    _morph_regeneration = ini::GetValue(_settings, "morph.regeneration", 0);
+    _morph_capacity = _settings.GetValue("morph.capacity", 0);
+    _morph_consumption = _settings.GetValue("morph.consumption", 1);
+    _morph_regeneration = _settings.GetValue("morph.regeneration", 0);
 
-    _bullet_speed = ini::GetValue(_settings, "bullet.speed", 0.3f);
-    _bullet_radius = ini::GetValue(_settings, "bullet.radius", 5.0f);
-    _bullet_explosion_radius = ini::GetValue(_settings, "bullet.explosion_radius", 30.0f);
+    _bullet_speed = _settings.GetValue("bullet.speed", 0.3f);
+    _bullet_radius = _settings.GetValue("bullet.radius", 5.0f);
+    _bullet_explosion_radius = _settings.GetValue("bullet.explosion_radius", 30.0f);
 
-    _map_file = ini::GetValue(_settings, "server.map", std::string("data/map.xml"));
+    _map_file = _settings.GetValue("server.map", std::string("data/map.xml"));
 
     if(!_world_manager.LoadMap(_map_file)) {
       return false;
@@ -611,7 +611,7 @@ private:
   float _bullet_radius;
   float _bullet_explosion_radius;
 
-  bm::ini::RecordMap _settings;
+  SettingsManager _settings;
 };
 
 } // namespace bm
