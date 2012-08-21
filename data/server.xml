@@ -44,10 +44,9 @@
 </bullet>
 
 <wall>
-  <size>16.0</size>
   <shape>
     <type>square</type>
-    <radius>16.0</radius>
+    <side>16.0</side>
   </shape>
 </wall>
 

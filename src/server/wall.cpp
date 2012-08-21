@@ -21,19 +21,17 @@ Wall* Wall::Create(
   const Vector2& position,
   Type type
 ) {
-  SettingsManager* settings = world_manager->GetSettings();
-  float size = settings->GetValue("wall.size", 0.0f);
-
   std::auto_ptr<Wall> wall(new Wall(world_manager, id));
   if(wall.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Shape> shape(new Square(position, size));
-  if(wall.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+
+  std::auto_ptr<Shape> shape(world_manager->LoadShape("wall.shape"));
+  if(shape.get() == NULL) {
     return NULL;
   }
+  shape->SetPosition(position);
   
   wall->_shape = shape.release();
   wall->_type = type;
