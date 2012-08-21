@@ -41,11 +41,12 @@ Player* Player::Create(
     Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
-  std::auto_ptr<Shape> shape(new Square(position, size));
+
+  std::auto_ptr<Shape> shape(world_manager->LoadShape("player.shape"));
   if(shape.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
     return NULL;
   }
+  shape->SetPosition(position);
 
   player->_shape = shape.release();
   player->_prev_position = position;
