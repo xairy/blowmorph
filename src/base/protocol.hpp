@@ -73,6 +73,13 @@ struct EntitySnapshot {
     WALL_TYPE_MORPHED
   };
 
+  enum StationType {
+    STATION_TYPE_HEALTH,
+    STATION_TYPE_BLOW,
+    STATION_TYPE_MORPH,
+    STATION_TYPE_COMPOSITE
+  };
+
   uint32_t time;
   uint32_t id;
   EntityType type;

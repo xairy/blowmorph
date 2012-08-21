@@ -26,6 +26,7 @@
 #include "dummy.hpp"
 #include "player.hpp"
 #include "wall.hpp"
+#include "station.hpp"
 
 namespace {
 

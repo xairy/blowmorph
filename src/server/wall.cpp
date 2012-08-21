@@ -98,8 +98,10 @@ bool Wall::Collide(Bullet* other) {
 bool Wall::Collide(Wall* other) {
   return Entity::Collide(other, this);
 }
+bool Wall::Collide(Station* other) {
+  return Entity::Collide(other, this);
+}
 
 Wall::Wall(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
-
 
 } // namespace bm

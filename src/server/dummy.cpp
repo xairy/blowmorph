@@ -116,6 +116,10 @@ bool Dummy::Collide(Bullet* other) {
 bool Dummy::Collide(Wall* other) {
   return Entity::Collide(other, this);
 }
+bool Dummy::Collide(Station* other) {
+  return Entity::Collide(other, this);
+}
+
 
 Dummy::Dummy(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
 
