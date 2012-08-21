@@ -71,6 +71,9 @@ public:
   // Returns one of the spawn positions stored in '_spawn_positions'.
   Vector2 GetRandomSpawn() const;
 
+  // XXX[21.08.2012 xairy]: in WorldManager?
+  Shape* LoadShape(const std::string& settings_prefix) const;
+
 private:
   bool _LoadWall(const pugi::xml_node& node);
   bool _LoadChunk(const pugi::xml_node& node);

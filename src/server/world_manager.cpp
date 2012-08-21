@@ -460,4 +460,36 @@ Vector2 WorldManager::GetRandomSpawn() const {
   return _spawn_positions[spawn];
 }
 
+Shape* WorldManager::LoadShape(const std::string& prefix) const {
+  std::string shape_type = _settings->GetValue(prefix + ".type", std::string("none"));
+  if(shape_type == "circle") {
+    float radius = _settings->GetValue(prefix + ".radius", 0.0f);
+    Shape* shape = new Circle(Vector2(0.0f, 0.0f), radius);
+    if(shape == NULL) {
+      Error::Set(Error::TYPE_MEMORY);
+      return NULL;
+    }
+    return shape;
+  } else if(shape_type == "rectangle") {
+    float width = _settings->GetValue(prefix + ".width", 0.0f);
+    float height = _settings->GetValue(prefix + ".height", 0.0f);
+    Shape* shape = new Rectangle(Vector2(0.0f, 0.0f), width, height);
+    if(shape == NULL) {
+      Error::Set(Error::TYPE_MEMORY);
+      return NULL;
+    }
+    return shape;
+  } else if(shape_type == "square") {
+    float side = _settings->GetValue(prefix + ".side", 0.0f);
+    Shape* shape = new Square(Vector2(0.0f, 0.0f), side);
+    if(shape == NULL) {
+      Error::Set(Error::TYPE_MEMORY);
+      return NULL;
+    }
+    return shape;
+  }
+  BM_ERROR("Unknown shape type.");
+  return NULL;
+}
+
 } // namespace bm

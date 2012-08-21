@@ -49,6 +49,7 @@ std::string SettingsManager::GetValue(const std::string& key, std::string def_va
   if(i != _settings.end()) {
     return i->second;
   }
+  printf("Warning: returning default value.\n");
   return def_value;
 }
 int SettingsManager::GetValue(const std::string& key, int def_value) const {
@@ -57,6 +58,7 @@ int SettingsManager::GetValue(const std::string& key, int def_value) const {
     // XXX[21.08.2012 xairy]: malformed int?
     return atoi(i->second.c_str());
   }
+  printf("Warning: returning default value.\n");
   return def_value;
 }
 bool SettingsManager::GetValue(const std::string& key, bool def_value) const {
@@ -65,6 +67,7 @@ bool SettingsManager::GetValue(const std::string& key, bool def_value) const {
     std::string value = i->second;
     return (value == "1" || value == "yes" || value == "true");
   }
+  printf("Warning: returning default value.\n");
   return def_value;
 }
 float SettingsManager::GetValue(const std::string& key, float def_value) const {
@@ -73,6 +76,7 @@ float SettingsManager::GetValue(const std::string& key, float def_value) const {
     // XXX[21.08.2012 xairy]: malformed float?
     return static_cast<float>(atof(i->second.c_str()));
   }
+  printf("Warning: returning default value.\n");
   return def_value;
 }
 double SettingsManager::GetValue(const std::string& key, double def_value) const {
@@ -81,6 +85,7 @@ double SettingsManager::GetValue(const std::string& key, double def_value) const
     // XXX[21.08.2012 xairy]: malformed double?
     return atof(i->second.c_str());
   }
+  printf("Warning: returning default value.\n");
   return def_value;
 }
 
