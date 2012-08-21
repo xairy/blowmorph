@@ -247,18 +247,18 @@ public:
     for(it = _walls.begin(); it != _walls.end(); ++it) {
       delete it->second;
     }
+    _walls.clear();
 
     for(it = _objects.begin(); it != _objects.end(); ++it) {
       delete it->second;
     }
+    _objects.clear();
 
     std::list<Animation*>::iterator it2;
     for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
       delete *it2;
     }
-
-    delete _client_options;
-    delete _player;
+    _animations.clear();
 
     //_render_window.Finalize();
 
