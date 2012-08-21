@@ -39,7 +39,7 @@ namespace bm {
 
 class Server {
 public:
-  Server() : _world_manager(&_id_manager) { }
+  Server() : _world_manager(&_id_manager, &_settings) { }
 
   ~Server() {
     _Destroy();
@@ -100,10 +100,6 @@ private:
     _morph_capacity = _settings.GetValue("morph.capacity", 0);
     _morph_consumption = _settings.GetValue("morph.consumption", 1);
     _morph_regeneration = _settings.GetValue("morph.regeneration", 0);
-
-    _bullet_speed = _settings.GetValue("bullet.speed", 0.3f);
-    _bullet_radius = _settings.GetValue("bullet.radius", 5.0f);
-    _bullet_explosion_radius = _settings.GetValue("bullet.explosion_radius", 30.0f);
 
     _map_file = _settings.GetValue("server.map", std::string("data/map.xml"));
 
@@ -325,10 +321,7 @@ private:
       _blow_regeneration,
       _morph_capacity,
       _morph_consumption,
-      _morph_regeneration,
-      _bullet_radius,
-      _bullet_speed,
-      _bullet_explosion_radius
+      _morph_regeneration
     );
     if(player == NULL) {
       Error::Set(Error::TYPE_MEMORY);
@@ -606,10 +599,6 @@ private:
   int _morph_capacity;
   int _morph_consumption;
   int _morph_regeneration;
-
-  float _bullet_speed;
-  float _bullet_radius;
-  float _bullet_explosion_radius;
 
   SettingsManager _settings;
 };

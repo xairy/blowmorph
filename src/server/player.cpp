@@ -27,10 +27,7 @@ Player* Player::Create(
   int blow_regeneration,
   int morph_capacity,
   int morph_consumption,
-  int morph_regeneration,
-  float bullet_radius,
-  float bullet_speed,
-  float bullet_explosion_radius
+  int morph_regeneration
 ) {
   std::auto_ptr<Player> player(new Player(world_manager, id));
   if(player.get() == NULL) {
@@ -61,10 +58,6 @@ Player* Player::Create(
   player->_morph_capacity = morph_capacity;
   player->_morph_consumption = morph_consumption;
   player->_morph_regeneration = morph_regeneration;
-
-  player->_bullet_radius = bullet_radius;
-  player->_bullet_speed = bullet_speed;
-  player->_bullet_explosion_radius = bullet_explosion_radius;
 
   player->_keyboard_state.up = false;
   player->_keyboard_state.down = false;
@@ -227,8 +220,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
       _blow_charge -= _blow_consumption;
       Vector2 start = GetPosition();
       Vector2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      if(_world_manager->CreateBullet(_id, start, end, _bullet_speed,
-        _bullet_radius, _bullet_explosion_radius, time) == false)
+      if(_world_manager->CreateBullet(_id, start, end, time) == false)
       {
         return false;
       }

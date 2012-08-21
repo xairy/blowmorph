@@ -20,11 +20,14 @@ namespace bm {
 
 class Entity;
 class IdManager;
+class SettingsManager;
 
 class WorldManager {
 public:
-  WorldManager(IdManager* id_manager);
+  WorldManager(IdManager* id_manager, SettingsManager* settings);
   ~WorldManager();
+
+  SettingsManager* GetSettings();
 
   bool LoadMap(const std::string& file);
 
@@ -45,9 +48,6 @@ public:
     uint32_t owner_id,
     const Vector2& start,
     const Vector2& end,
-    float speed,
-    float radius,
-    float explosion_radius,
     uint32_t time
   );
   bool CreateDummy(
@@ -82,8 +82,6 @@ private:
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
 
-  IdManager* _id_manager;
-
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 
@@ -96,6 +94,9 @@ private:
 
   float _block_size; // Works only with grid map.
   float _bound; // Entities with greater coordinates are destroyed.
+
+  IdManager* _id_manager;
+  SettingsManager* _settings;
 };
 
 } // namespace bm
