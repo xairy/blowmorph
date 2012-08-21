@@ -13,21 +13,21 @@
   <size>30.0</size>
   <max_health>100</max_health>
   <health_regeneration>0</health_regeneration>
+  
+  <blow>
+    <capacity>1000</capacity>
+    <consumption>500</consumption>
+    <regeneration>1</regeneration>
+    <radius>30.0</radius>
+  </blow>
+
+  <morph>
+    <capacity>10000</capacity>
+    <consumption>500</consumption>
+    <regeneration>1</regeneration>
+    <radius>4</radius>
+  </morph>
 </player>
-
-<blow>
-  <capacity>1000</capacity>
-  <consumption>500</consumption>
-  <regeneration>1</regeneration>
-  <radius>30.0</radius>
-</blow>
-
-<morph>
-  <capacity>10000</capacity>
-  <consumption>500</consumption>
-  <regeneration>1</regeneration>
-  <radius>4</radius>
-</morph>
 
 <bullet>
   <speed>0.3</speed>

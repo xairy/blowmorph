@@ -28,13 +28,13 @@ Player* Player::Create(
   int max_health = _settings->GetValue("player.max_health", 1);
   int health_regeneration = _settings->GetValue("player.health_regeneration", 0);
 
-  int blow_capacity = _settings->GetValue("blow.capacity", 0);
-  int blow_consumption = _settings->GetValue("blow.consumption", 1);
-  int blow_regeneration = _settings->GetValue("blow.regeneration", 0);
+  int blow_capacity = _settings->GetValue("player.blow.capacity", 0);
+  int blow_consumption = _settings->GetValue("player.blow.consumption", 1);
+  int blow_regeneration = _settings->GetValue("player.blow.regeneration", 0);
 
-  int morph_capacity = _settings->GetValue("morph.capacity", 0);
-  int morph_consumption = _settings->GetValue("morph.consumption", 1);
-  int morph_regeneration = _settings->GetValue("morph.regeneration", 0);
+  int morph_capacity = _settings->GetValue("player.morph.capacity", 0);
+  int morph_consumption = _settings->GetValue("player.morph.consumption", 1);
+  int morph_regeneration = _settings->GetValue("player.morph.regeneration", 0);
 
   std::auto_ptr<Player> player(new Player(world_manager, id));
   if(player.get() == NULL) {
