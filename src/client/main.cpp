@@ -30,6 +30,8 @@
 #include "text_writer.hpp"
 #include "canvas.hpp"
 
+#include <base/leak_detector.hpp>
+
 using namespace bm;
 
 struct ObjectState {
@@ -186,7 +188,7 @@ class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
   ~Application() {
-    _Finalize();
+    Finalize();
     CHECK(_state == STATE_FINALIZED);
   }
 
@@ -224,6 +226,43 @@ public:
     //_Finalize();
 
     return true;
+  }
+  
+  void Finalize() {    
+    // Delete all loaded textures.
+    if (_player_texture != NULL) delete _player_texture;
+    if (_bullet_texture != NULL) delete _bullet_texture;
+    if (_wall_texture != NULL) delete _wall_texture;
+    if (_dummy_texture != NULL) delete _dummy_texture;
+    if (_explosion_texture != NULL) delete _explosion_texture;
+
+    if(_player != NULL) delete _player;
+    if(_client_options != NULL) delete _client_options;
+
+    if(_client != NULL) delete _client;
+    if(_peer != NULL) delete _peer;
+    if(_event != NULL) delete _event;
+
+    std::map<int, Object*>::iterator it;
+    for(it = _walls.begin(); it != _walls.end(); ++it) {
+      delete it->second;
+    }
+    _walls.clear();
+
+    for(it = _objects.begin(); it != _objects.end(); ++it) {
+      delete it->second;
+    }
+    _objects.clear();
+
+    std::list<Animation*>::iterator it2;
+    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
+      delete *it2;
+    }
+    _animations.clear();
+
+    //_render_window.Finalize();
+
+    _state = STATE_FINALIZED;
   }
 
 private:
@@ -355,36 +394,6 @@ private:
     printf("Connected to %s:%u.\n", _event->GetPeerIp().c_str(), _event->GetPeerPort());
 
     return true;
-  }
-
-  void _Finalize() {    
-    // Delete all loaded textures.
-    if (_player_texture != NULL) delete _player_texture;
-    if (_bullet_texture != NULL) delete _bullet_texture;
-    if (_wall_texture != NULL) delete _wall_texture;
-    if (_dummy_texture != NULL) delete _dummy_texture;
-    if (_explosion_texture != NULL) delete _explosion_texture;
-
-    if(_player != NULL) delete _player;
-    if(_client_options != NULL) delete _client_options;
-
-    if(_client != NULL) delete _client;
-    if(_peer != NULL) delete _peer;
-    if(_event != NULL) delete _event;
-
-    std::map<int, Object*>::iterator it;
-    for(it = _objects.begin(); it != _objects.end(); ++it) {
-      delete it->second;
-    }
-
-    std::list<Animation*>::iterator it2;
-    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
-      delete *it2;
-    }
-
-    //_render_window.Finalize();
-    
-    _state = STATE_FINALIZED;
   }
 
   bool _PumpEvents() {
@@ -570,6 +579,21 @@ private:
     return true;
   }
 
+  void DeleteObject(int id) {
+    typedef std::map<int, Object*>::const_iterator It;
+    It it = _objects.find(id);
+    if (it != _objects.end()) {
+      delete it->second;
+      _objects.erase(it);
+    }
+    
+    it = _walls.find(id);
+    if (it != _walls.end()) {
+      delete it->second;
+      _walls.erase(it);
+    }
+  }
+
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
@@ -648,8 +672,7 @@ private:
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
           if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-            _objects.erase(snapshot->id);
-            _walls.erase(snapshot->id);
+            DeleteObject(snapshot->id);
 
             if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
               // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
@@ -983,9 +1006,13 @@ private:
 int main(int argc, char** argv) { 
   Application app;
   if(!app.Execute()) {
+    app.Finalize();
     Error::Print();
+    bm::leak_detector::PrintAllLeaks();
     while(true);
     return EXIT_FAILURE;
   }
+  app.Finalize();
+  bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
