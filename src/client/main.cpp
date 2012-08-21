@@ -235,6 +235,7 @@ public:
     if (_wall_texture != NULL) delete _wall_texture;
     if (_dummy_texture != NULL) delete _dummy_texture;
     if (_explosion_texture != NULL) delete _explosion_texture;
+    if (_station_texture != NULL) delete _station_texture;
 
     if(_player != NULL) delete _player;
     if(_client_options != NULL) delete _client_options;
@@ -286,6 +287,7 @@ private:
     _wall_texture = NULL;
     _dummy_texture = NULL;
     _explosion_texture = NULL;
+    _station_texture = NULL;
 
     _player = NULL;
     
@@ -348,6 +350,11 @@ private:
 
     _explosion_texture = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
     if(_explosion_texture == NULL) {
+      return false;
+    }
+
+    _station_texture = bm::LoadTileset("data/images/kits.png", 0, 1, 1, 31, 31, 30, 30);
+    if(_station_texture == NULL) {
       return false;
     }
 
@@ -763,6 +770,23 @@ private:
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                 } break;
+
+                case EntitySnapshot::ENTITY_TYPE_STATION: {
+                  _objects[snapshot->id] = new Object(position, time, snapshot->id);
+                  size_t tile;
+                  if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
+                    tile = 0;
+                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_BLOW) {
+                    tile = 1;
+                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_MORPH) {
+                    tile = 2;
+                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
+                    tile = 3;
+                  }
+                  _objects[snapshot->id]->SetSprite(_station_texture, tile);
+                  _objects[snapshot->id]->EnableInterpolation();
+                  _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+                } break;
               }
             }
           }
@@ -953,6 +977,7 @@ private:
   TextureAtlas* _wall_texture;
   TextureAtlas* _dummy_texture;
   TextureAtlas* _explosion_texture;
+  TextureAtlas* _station_texture;
 
   Object* _player;
 
