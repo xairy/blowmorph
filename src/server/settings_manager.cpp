@@ -9,6 +9,41 @@
 #include <pugixml.hpp>
 
 #include <base/error.hpp>
+#include <base/macros.hpp>
+
+namespace {
+
+std::string BuildKey(const pugi::xml_node& node) {
+  CHECK(node.type() == pugi::node_element);
+  if(node.parent().type() == pugi::node_document) {
+    return std::string(node.name());
+  } else if(node.parent().type() == pugi::node_element) {
+    return BuildKey(node.parent()) + "." + std::string(node.name());
+  }
+  CHECK(false);
+  return "";
+}
+
+struct SettingsWalker : public pugi::xml_tree_walker {
+  typedef std::map<std::string, std::string> SettingsMap;
+
+  SettingsWalker(SettingsMap* settings)
+    : pugi::xml_tree_walker(), _settings(settings) { }
+
+  virtual bool for_each(pugi::xml_node& node) {
+    if(node.type() == pugi::node_pcdata) {
+      std::string key = BuildKey(node.parent());
+      std::string value = std::string(node.value());
+      (*_settings)[key] = value;
+      printf("'%s' '%s'\n", key.c_str(), value.c_str());
+    }
+    return true;
+  }
+
+  SettingsMap* _settings;
+};
+
+} // anonymous namespace
 
 namespace bm {
 
@@ -23,23 +58,8 @@ bool SettingsManager::Load(const std::string& path) {
     return false;
   }
 
-  for(pugi::xml_node x = document.first_child(); x; x = x.next_sibling()) {
-    for(pugi::xml_node y = x.first_child(); y; y = y.next_sibling()) {
-      for(pugi::xml_node z = y.first_child(); z; z = z.next_sibling()) {
-        if(z.type() == pugi::node_pcdata) {
-          std::string key = std::string(x.name()) + "." + std::string(y.name());
-          std::string value = std::string(z.value());
-          _settings[key] = value;
-          printf("'%s' '%s'\n", key.c_str(), value.c_str());
-        } else if(z.type() == pugi::node_element) {
-          std::string key = std::string(x.name()) + "." + std::string(y.name()) + "." + std::string(z.name());
-          std::string value = std::string(z.child_value());
-          _settings[key] = value;
-          printf("'%s' '%s'\n", key.c_str(), value.c_str());
-        }
-      }
-    }
-  }
+  SettingsWalker walker(&_settings);
+  document.traverse(walker);
 
   return true;
 }
