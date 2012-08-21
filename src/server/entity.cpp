@@ -79,6 +79,13 @@ bool Entity::Collide(Station* station, Wall* wall) {
   return false;
 }
 bool Entity::Collide(Station* station, Player* player) {
+  if(station->_shape->Collide(player->_shape)) {
+    player->RestoreHealth(station->_health_regeneration);
+    player->RestoreBlow(station->_blow_regeneration);
+    player->RestoreMorph(station->_morph_regeneration);
+    station->Destroy();
+    return true;
+  }
   return false;
 }
 bool Entity::Collide(Station* station, Dummy* dummy) {

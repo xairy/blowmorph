@@ -14,8 +14,8 @@
   <health_regeneration>0</health_regeneration>
   
   <blow>
-    <capacity>1000</capacity>
-    <consumption>500</consumption>
+    <capacity>10000</capacity>
+    <consumption>5000</consumption>
     <regeneration>1</regeneration>
     <radius>30.0</radius>
     <damage>50</damage>
@@ -23,7 +23,7 @@
 
   <morph>
     <capacity>10000</capacity>
-    <consumption>500</consumption>
+    <consumption>5000</consumption>
     <regeneration>1</regeneration>
     <radius>4</radius>
   </morph>

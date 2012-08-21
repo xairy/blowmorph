@@ -84,6 +84,10 @@ public:
   void SetMorphCapacity(int capacity);
   void SetMorphRegeneration(int regeneration);
 
+  void RestoreHealth(int value);
+  void RestoreBlow(int value);
+  void RestoreMorph(int value);
+
   // Double dispatch. Collision detection.
 
   virtual bool Collide(Entity* entity);
