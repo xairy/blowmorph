@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-int main(int argc, char** argv) {
+int run() {
   bm::Server server;
   if(!server.Execute()) {
     bm::Error::Print();
@@ -8,4 +8,10 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
+}
+
+int main(int argc, char** argv) {
+  int result = run();
+  bm::leak_detector::PrintAllLeaks();
+  return result;
 }

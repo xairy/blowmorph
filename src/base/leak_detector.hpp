@@ -11,6 +11,7 @@ BM_BASE_DECL void PrintAllLeaks();
 
 } } // namespace bm::leak_detector
 
+#ifndef LEAK_DETECTOR_PRIVATE
 inline void* operator new(size_t size, const char* file, unsigned int line) {
   return bm::leak_detector::Allocate(size, false, file, line);
 }
@@ -23,13 +24,14 @@ inline void operator delete(void* ptr, const char* file, unsigned int line) {
 inline void operator delete[](void* ptr, const char* file, unsigned int line) {
   bm::leak_detector::Free(ptr, true, file, line);
 }
-inline void __cdecl operator delete(void* ptr) {
+inline void operator delete(void* ptr) {
   bm::leak_detector::Free(ptr, false);
 }
-inline void __cdecl operator delete[](void* ptr) {
+inline void operator delete[](void* ptr) {
   bm::leak_detector::Free(ptr, true);
 }
 
 #define new new(__FILE__, __LINE__)
+#endif//LEAK_DETECTOR_PRIVATE
 
 #endif//BLOWMORPH_BASE_LEAK_DETECTOR_HPP_

@@ -1,5 +1,5 @@
+#define LEAK_DETECTOR_PRIVATE
 #include "leak_detector.hpp"
-#undef new
 
 #include <cassert>
 #include <vector>
