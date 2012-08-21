@@ -55,6 +55,8 @@ struct TimeSyncData {
 //   data[2] - morph charge
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
+// type == EntitySnapshot::ENTITY_TYPE_STATION:
+//    data[0] - station type
 struct EntitySnapshot {
   enum EntityType {
     ENTITY_TYPE_UNKNOWN = 0,
@@ -63,21 +65,30 @@ struct EntitySnapshot {
     ENTITY_TYPE_BULLET,
     ENTITY_TYPE_WALL,
     ENTITY_TYPE_DUMMY,
+    ENTITY_TYPE_STATION,
 
     ENTITY_TYPE_MAX_VALUE
   };
 
   enum WallType {
+    WALL_TYPE_UNKNOWN,
+
     WALL_TYPE_ORDINARY,
     WALL_TYPE_UNBREAKABLE,
-    WALL_TYPE_MORPHED
+    WALL_TYPE_MORPHED,
+
+    WALL_TYPE_MAX_VALUE
   };
 
   enum StationType {
+    STATION_TYPE_UNKNOWN,
+
     STATION_TYPE_HEALTH,
     STATION_TYPE_BLOW,
     STATION_TYPE_MORPH,
-    STATION_TYPE_COMPOSITE
+    STATION_TYPE_COMPOSITE,
+
+    STATION_TYPE_MAX_VALUE
   };
 
   uint32_t time;
