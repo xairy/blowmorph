@@ -21,6 +21,7 @@
 #include "dummy.hpp"
 #include "player.hpp"
 #include "wall.hpp"
+#include "station.hpp"
 
 namespace {
   double round(double value) {
@@ -227,13 +228,33 @@ bool WorldManager::CreateDummy(
   return true;
 }
 
-bool WorldManager::CreateWall(const Vector2& position, Wall::Type type) {
+bool WorldManager::CreateWall(
+  const Vector2& position,
+  Wall::Type type
+) {
   uint32_t id = _id_manager->NewId();
   Wall* wall = Wall::Create(this, id, position, type);
   if(wall == NULL) {
     return false;
   }
   AddEntity(id, wall);
+  return true;
+}
+
+bool WorldManager::CreateStation(
+  const Vector2& position,
+  int health_regeneration,
+  int blow_regeneration,
+  int morph_regeneration,
+  Station::Type type
+) {
+  uint32_t id = _id_manager->NewId();
+  Station* station = Station::Create(this, id, position, health_regeneration,
+    blow_regeneration, morph_regeneration, type);
+  if(station == NULL) {
+    return false;
+  }
+  AddEntity(id, station);
   return true;
 }
 

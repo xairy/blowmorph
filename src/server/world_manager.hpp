@@ -15,6 +15,7 @@
 #include "dummy.hpp"
 #include "player.hpp"
 #include "wall.hpp"
+#include "station.hpp"
 
 namespace bm {
 
@@ -57,6 +58,13 @@ public:
   bool CreateWall(
     const Vector2& position,
     Wall::Type type
+  );
+  bool CreateStation(
+    const Vector2& position,
+    int health_regeneration,
+    int blow_regeneration,
+    int morph_regeneration,
+    Station::Type type
   );
 
   // Works only with grid map.
