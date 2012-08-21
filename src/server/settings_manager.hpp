@@ -14,11 +14,11 @@ public:
   bool Load(const std::string& path);
   //bool Save(const std::string& path);
 
-  std::string GetValue(const std::string& key, std::string def_value);
-  int GetValue(const std::string& key, int def_value);
-  bool GetValue(const std::string& key, bool def_value);
-  float GetValue(const std::string& key, float def_value);
-  double GetValue(const std::string& key, double def_value);
+  std::string GetValue(const std::string& key, std::string def_value) const;
+  int GetValue(const std::string& key, int def_value) const;
+  bool GetValue(const std::string& key, bool def_value) const;
+  float GetValue(const std::string& key, float def_value) const;
+  double GetValue(const std::string& key, double def_value) const;
 
 private:
   typedef std::map<std::string, std::string> SettingsMap;

@@ -9,6 +9,7 @@
 #include <base/pstdint.hpp>
 
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -20,11 +21,13 @@ Bullet* Bullet::Create(
   uint32_t owner_id,
   const Vector2& start,
   const Vector2& end,
-  float speed,
-  float radius,
-  float explosion_radius,
   uint32_t time
 ) {
+  SettingsManager* _settings = world_manager->GetSettings();
+  float speed = _settings->GetValue("bullet.speed", 0.0f);
+  float radius = _settings->GetValue("bullet.radius", 0.0f);
+  float explosion_radius = _settings->GetValue("bullet.explosion_radius", 0.0f);
+
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   if(bullet.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);

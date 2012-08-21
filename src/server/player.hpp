@@ -46,10 +46,7 @@ public:
     int blow_regeneration,
     int morph_capacity,
     int morph_consumption,
-    int morph_regeneration,
-    float bullet_radius,
-    float bullet_speed,
-    float bullet_explosion_radius
+    int morph_regeneration
   );
   virtual ~Player();
 
@@ -128,10 +125,6 @@ protected:
   int _morph_capacity;
   int _morph_consumption;
   int _morph_regeneration; // Points per ms.
-
-  float _bullet_radius;
-  float _bullet_speed;
-  float _bullet_explosion_radius;
 
   uint32_t _last_update_time;
   KeyboardState _keyboard_state;

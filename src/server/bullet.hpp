@@ -22,9 +22,6 @@ public:
     uint32_t owner_id,
     const Vector2& start,
     const Vector2& end,
-    float speed,
-    float radius,
-    float explosion_radius,
     uint32_t time
   );
   virtual ~Bullet();

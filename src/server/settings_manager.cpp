@@ -28,21 +28,20 @@ bool SettingsManager::Load(const std::string& path) {
       std::string key = std::string(x.name()) + "." + std::string(y.name());
       std::string value = std::string(y.child_value());
       _settings[key] = value;
-      //printf("'%s' '%s'\n", key.c_str(), value.c_str());
     }
   }
 
   return true;
 }
 
-std::string SettingsManager::GetValue(const std::string& key, std::string def_value) {
+std::string SettingsManager::GetValue(const std::string& key, std::string def_value) const {
   SettingsMap::const_iterator i = _settings.find(key);
   if(i != _settings.end()) {
     return i->second;
   }
   return def_value;
 }
-int SettingsManager::GetValue(const std::string& key, int def_value) {
+int SettingsManager::GetValue(const std::string& key, int def_value) const {
   SettingsMap::const_iterator i = _settings.find(key);
   if(i != _settings.end()) {
     // XXX[21.08.2012 xairy]: malformed int?
@@ -50,7 +49,7 @@ int SettingsManager::GetValue(const std::string& key, int def_value) {
   }
   return def_value;
 }
-bool SettingsManager::GetValue(const std::string& key, bool def_value) {
+bool SettingsManager::GetValue(const std::string& key, bool def_value) const {
   SettingsMap::const_iterator i = _settings.find(key);
   if(i != _settings.end()) {
     std::string value = i->second;
@@ -58,7 +57,7 @@ bool SettingsManager::GetValue(const std::string& key, bool def_value) {
   }
   return def_value;
 }
-float SettingsManager::GetValue(const std::string& key, float def_value) {
+float SettingsManager::GetValue(const std::string& key, float def_value) const {
   SettingsMap::const_iterator i = _settings.find(key);
   if(i != _settings.end()) {
     // XXX[21.08.2012 xairy]: malformed float?
@@ -66,7 +65,7 @@ float SettingsManager::GetValue(const std::string& key, float def_value) {
   }
   return def_value;
 }
-double SettingsManager::GetValue(const std::string& key, double def_value) {
+double SettingsManager::GetValue(const std::string& key, double def_value) const {
   SettingsMap::const_iterator i = _settings.find(key);
   if(i != _settings.end()) {
     // XXX[21.08.2012 xairy]: malformed double?

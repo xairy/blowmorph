@@ -14,6 +14,7 @@
 #include "entity.hpp"
 #include "id_manager.hpp"
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 
 #include "bullet.hpp"
@@ -32,8 +33,8 @@ namespace {
 
 namespace bm {
 
-WorldManager::WorldManager(IdManager* id_manager)
-  : _map_type(MAP_NONE), _id_manager(id_manager) { }
+WorldManager::WorldManager(IdManager* id_manager, SettingsManager* settings)
+  : _map_type(MAP_NONE), _id_manager(id_manager), _settings(settings) { }
 
 WorldManager::~WorldManager() {
   std::map<uint32_t, Entity*>::iterator i, end;
@@ -45,6 +46,10 @@ WorldManager::~WorldManager() {
   for(i = _dynamic_entities.begin(); i != end; ++i) {
     delete i->second;
   }
+}
+
+SettingsManager* WorldManager::GetSettings() {
+  return _settings;
 }
 
 void WorldManager::AddEntity(uint32_t id, Entity* entity) {
@@ -196,16 +201,12 @@ bool WorldManager::CreateBullet(
   uint32_t owner_id,
   const Vector2& start,
   const Vector2& end,
-  float speed,
-  float radius,
-  float explosion_radius,
   uint32_t time
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
-  Bullet* bullet = Bullet::Create(this, id, owner_id, start, end,
-    speed, radius, explosion_radius, time);
+  Bullet* bullet = Bullet::Create(this, id, owner_id, start, end, time);
   if(bullet == NULL) {
     return false;
   }
