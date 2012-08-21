@@ -17,7 +17,12 @@ struct AllocInfo {
 std::vector<AllocInfo> allocations;
 
 void* Allocate(size_t size, bool array, const char* file, unsigned int line) {
-  void* result = ::operator new(size);
+  void* result;
+  if (array) {
+    result = ::operator new[](size);
+  } else {
+    result = ::operator new(size);
+  }
 
   AllocInfo info;
   info.array = array;
@@ -37,6 +42,12 @@ void Free(void* ptr, bool array, const char* file, unsigned int line) {
       allocations.erase(i);
       break;
     }
+  }
+  
+  if (array) {
+    ::operator delete[](ptr);
+  } else {
+    ::operator delete(ptr);
   }
 }
 void PrintAllLeaks() {
