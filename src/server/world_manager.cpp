@@ -32,7 +32,9 @@ namespace {
 
 namespace bm {
 
-WorldManager::WorldManager() : _map_type(MAP_NONE) { }
+WorldManager::WorldManager(IdManager* id_manager)
+  : _map_type(MAP_NONE), _id_manager(id_manager) { }
+
 WorldManager::~WorldManager() {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
@@ -201,7 +203,7 @@ bool WorldManager::CreateBullet(
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
-  uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
+  uint32_t id = _id_manager->NewId();
   Bullet* bullet = Bullet::Create(this, id, owner_id, start, end,
     speed, radius, explosion_radius, time);
   if(bullet == NULL) {
@@ -217,7 +219,7 @@ bool WorldManager::CreateDummy(
   float speed,
   uint32_t time
 ) {
-  uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
+  uint32_t id = _id_manager->NewId();
   Dummy* dummy = Dummy::Create(this, id, position, radius, speed, time);
   if(dummy == NULL) {
     return false;
@@ -227,7 +229,7 @@ bool WorldManager::CreateDummy(
 }
 
 bool WorldManager::CreateWall(const Vector2& position, float size, Wall::Type type) {
-  uint32_t id = Singleton<IdManager>::GetInstance()->NewId();
+  uint32_t id = _id_manager->NewId();
   Wall* wall = Wall::Create(this, id, position, size, type);
   if(wall == NULL) {
     return false;

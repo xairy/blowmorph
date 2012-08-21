@@ -19,10 +19,11 @@
 namespace bm {
 
 class Entity;
+class IdManager;
 
 class WorldManager {
 public:
-  WorldManager();
+  WorldManager(IdManager* id_manager);
   ~WorldManager();
 
   bool LoadMap(const std::string& file);
@@ -55,7 +56,11 @@ public:
     float speed,
     uint32_t time
   );
-  bool CreateWall(const Vector2& position, float size, Wall::Type type);
+  bool CreateWall(
+    const Vector2& position,
+    float size,
+    Wall::Type type
+  );
 
   // Works only with grid map.
   bool CreateAlignedWall(float x, float y, Wall::Type type);
@@ -76,6 +81,8 @@ private:
 
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
+
+  IdManager* _id_manager;
 
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
