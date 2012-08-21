@@ -9,6 +9,7 @@
 #include <base/pstdint.hpp>
 
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -18,9 +19,11 @@ Wall* Wall::Create(
   WorldManager* world_manager,
   uint32_t id,
   const Vector2& position,
-  float size,
   Type type
 ) {
+  SettingsManager* settings = world_manager->GetSettings();
+  float size = settings->GetValue("wall.size", 0.0f);
+
   std::auto_ptr<Wall> wall(new Wall(world_manager, id));
   if(wall.get() == NULL) {
     Error::Set(Error::TYPE_MEMORY);

@@ -26,7 +26,6 @@ public:
     WorldManager* world_manager,
     uint32_t id,
     const Vector2& position,
-    float size,
     Type type
   );
   virtual ~Wall();
