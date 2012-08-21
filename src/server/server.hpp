@@ -206,7 +206,6 @@ private:
   }
 
   bool _BroadcastStaticEntities(bool force = false) {
-    uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetStaticEntities();
     std::map<uint32_t, Entity*>::iterator itr, end;
@@ -214,9 +213,7 @@ private:
     for(itr = _entities->begin(); itr != end; ++itr) {
       Entity* entity = itr->second;
       if(force || entity->IsUpdated()) {
-        EntitySnapshot snapshot;
-        entity->GetSnapshot(time, &snapshot);
-        bool rv = _BroadcastPacket(Packet::TYPE_ENTITY_UPDATED, snapshot, false);
+        bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_UPDATED, entity);
         if(rv == false) {
           return false;
         }
@@ -231,15 +228,13 @@ private:
   }
 
   bool _BroadcastDynamicEntities() {
-    uint32_t time = _timer.GetTime();
     std::map<uint32_t, Entity*>* _entities =
       _entities = _world_manager.GetDynamicEntities();
     std::map<uint32_t, Entity*>::iterator itr, end;
     end = _entities->end();
     for(itr = _entities->begin(); itr != end; ++itr) {
-      EntitySnapshot snapshot;
-      itr->second->GetSnapshot(time, &snapshot);
-      bool rv = _BroadcastPacket(Packet::TYPE_ENTITY_UPDATED, snapshot, false);
+      Entity* entity = itr->second;
+      bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_UPDATED, entity);
       if(rv == false) {
         return false;
       }

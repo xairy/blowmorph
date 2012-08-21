@@ -66,8 +66,8 @@ public:
   bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const Vector2& location, float radius);
-  bool Morph(const Vector2& location, int radius);
+  bool Blow(const Vector2& location);
+  bool Morph(const Vector2& location);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
   Vector2 GetRandomSpawn() const;
