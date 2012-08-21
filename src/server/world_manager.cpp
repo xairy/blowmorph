@@ -408,14 +408,16 @@ bool WorldManager::Blow(const Vector2& location) {
   for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      entity->Damage(50);
+      int damage = _settings->GetValue("player.blow.damage", 0);
+      entity->Damage(damage);
     }
   }
   end = _dynamic_entities.end();
   for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      entity->Damage(50);
+      int damage = _settings->GetValue("player.blow.damage", 0);
+      entity->Damage(damage);
     }
   }
 

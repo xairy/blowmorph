@@ -12,6 +12,7 @@
 
 #include "id_manager.hpp"
 #include "vector.hpp"
+#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -134,7 +135,9 @@ bool Entity::Collide(Player* player1, Player* player2) {
 }
 bool Entity::Collide(Player* player, Dummy* dummy) {
   if(player->_shape->Collide(dummy->_shape)) {
-    player->Damage(10);
+    SettingsManager* settings = dummy->_world_manager->GetSettings();
+    int damage = settings->GetValue("dummy.damage", 0);
+    player->Damage(damage);
     dummy->Damage(0);
     return true;
   }
@@ -145,7 +148,7 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
     return false;
   }
   if(player->_shape->Collide(bullet->_shape)) {
-    player->Damage(10);
+    player->Damage(0);
     bullet->Explode();
     return true;
   }
