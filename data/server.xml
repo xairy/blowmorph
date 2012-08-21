@@ -33,3 +33,10 @@
   <speed>0.3</speed>
   <radius>5.0</radius>
 </bullet>
+
+<dummy>
+  <shape>
+    <type>circle</type>
+    <radius>5.0</radius>
+  </shape>
+</dummy>
