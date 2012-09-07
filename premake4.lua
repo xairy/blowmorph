@@ -1,12 +1,5 @@
 function copy(src, dst, always)
-  local action
-  
-  if os.is("windows") then
-    action = ""
-  else
-    action = "python "
-  end
-  
+  local action = "python "
   local script = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
