@@ -1,22 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-All coordinates will be multiplied by 'block_size'.
+X axis is pointing to the right, Y axis is pointing down.
 -->
 
 <map block_size="16.0" bound="600.0">
-  <spawn x="0" y="0"></spawn>
-  <spawn x="-7" y="-7"></spawn>
-
-  <wall x="6" y="6" type="unbreakable"></wall>
-  <wall x="7" y="6" type="unbreakable"></wall>
-  <wall x="8" y="6" type="morphed"></wall>
-  <wall x="9" y="6" type="ordinary"></wall>
-
-  <chunk x="11" y="0" width="10" height="10" type="ordinary"></chunk>
+  <spawn x="-450.0" y="-450.0"></spawn>
+  <spawn x="-450.0" y="450.0"></spawn>
+  <spawn x="450.0" y="-450.0"></spawn>
+  <spawn x="450.0" y="450.0"></spawn>
   
-  <station x="-200.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
-  <station x="-150.0" y="-150.0" type="blow" health_regeneration="0" blow_regeneration="10000" morph_regeneration="0"></station>
-  <station x="-100.0" y="-150.0" type="morph" health_regeneration="0" blow_regeneration="0" morph_regeneration="10000"></station>
-  <station x="-50.0" y="-150.0" type="composite" health_regeneration="100" blow_regeneration="10000" morph_regeneration="10000"></station>
+  <chunk x="-31" y="32" width="64" height="1" type="unbreakable"></chunk>
+  <chunk x="-31" y="-31" width="64" height="1" type="unbreakable"></chunk>
+  <chunk x="-31" y="-31" width="1" height="64" type="unbreakable"></chunk>
+  <chunk x="32" y="-31" width="1" height="64" type="unbreakable"></chunk>
+  
+  <chunk x="-7" y="-30" width="16" height="62" type="ordinary"></chunk>
+  <chunk x="-30" y="-7" width="62" height="16" type="ordinary"></chunk>
+  
+  <chunk x="-30" y="-19" width="15" height="4" type="ordinary"></chunk>
+  <chunk x="-19" y="-30" width="4" height="11" type="ordinary"></chunk>
+  
+  <chunk x="-30" y="-19" width="15" height="4" type="ordinary"></chunk>
+  <chunk x="-19" y="-30" width="4" height="11" type="ordinary"></chunk>
+  
+  <chunk x="17" y="-30" width="4" height="15" type="ordinary"></chunk>
+  <chunk x="21" y="-19" width="11" height="4" type="ordinary"></chunk>
+  
+  <chunk x="17" y="17" width="15" height="4" type="ordinary"></chunk>
+  <chunk x="17" y="21" width="4" height="11" type="ordinary"></chunk>
+  
+  <chunk x="-30" y="17" width="15" height="4" type="ordinary"></chunk>
+  <chunk x="-19" y="21" width="4" height="11" type="ordinary"></chunk>
+  
+  <chunk x="-2" y="-2" width="5" height="5" type="unbreakable"></chunk>
+  
+  <station x="166.0" y="166.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="166.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="-150.0" y="166.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="-150.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
 </map>

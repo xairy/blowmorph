@@ -5,7 +5,7 @@
   <broadcast_rate>20</broadcast_rate>
   <update_rate>100</update_rate>
   <latency_limit>500</latency_limit>
-  <map>data/map.xml</map>
+  <map>data/small_map.xml</map>
 </server>
 
 <player>
@@ -15,7 +15,7 @@
   
   <blow>
     <capacity>10000</capacity>
-    <consumption>5000</consumption>
+    <consumption>500</consumption>
     <regeneration>1</regeneration>
     <radius>30.0</radius>
     <damage>50</damage>
@@ -23,7 +23,7 @@
 
   <morph>
     <capacity>10000</capacity>
-    <consumption>5000</consumption>
+    <consumption>500</consumption>
     <regeneration>1</regeneration>
     <radius>4</radius>
   </morph>

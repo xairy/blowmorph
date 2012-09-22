@@ -25,7 +25,6 @@ Bullet* Bullet::Create(
 ) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetValue("bullet.speed", 0.0f);
-  float radius = settings->GetValue("bullet.radius", 0.0f);
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   if(bullet.get() == NULL) {
