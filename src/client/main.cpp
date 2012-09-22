@@ -777,9 +777,9 @@ private:
                   if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
                     tile = 0;
                   } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_BLOW) {
-                    tile = 1;
-                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_MORPH) {
                     tile = 2;
+                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_MORPH) {
+                    tile = 1;
                   } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
                     tile = 3;
                   }

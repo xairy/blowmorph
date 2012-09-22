@@ -168,8 +168,8 @@ private:
     // Temporary.
     static int counter = 0;
     if(counter == 300) {
-      float x = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
-      float y = -500.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 1000.0f;
+      float x = -250.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 500.0f;
+      float y = -250.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 500.0f;
       _world_manager.CreateDummy(Vector2f(x, y), _timer.GetTime());
       counter = 0;
       //printf("Dummy spawned at (%.2f, %.2f)\n", x, y);

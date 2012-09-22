@@ -390,15 +390,15 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "spawn");
 
-  pugi::xml_attribute x = node.attribute("x");
-  pugi::xml_attribute y = node.attribute("y");
-  if(!x || !y) {
+  pugi::xml_attribute x_attr = node.attribute("x");
+  pugi::xml_attribute y_attr = node.attribute("y");
+  if(!x_attr || !y_attr) {
     BM_ERROR("Incorrect format of 'spawn' in map file!\n");
     return false;
   } else {
-    float xv = x.as_float() * _block_size;
-    float yv = y.as_float() * _block_size;
-    _spawn_positions.push_back(Vector2f(xv, yv));
+    float x = x_attr.as_float();
+    float y = y_attr.as_float();
+    _spawn_positions.push_back(Vector2f(x, y));
   }
 
   return true;
@@ -478,12 +478,13 @@ bool WorldManager::Blow(const Vector2f& location) {
     return false;
   }
 
+  int damage = _settings->GetValue("player.blow.damage", 0);
+
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
   for(i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      int damage = _settings->GetValue("player.blow.damage", 0);
       entity->Damage(damage);
     }
   }
@@ -491,7 +492,6 @@ bool WorldManager::Blow(const Vector2f& location) {
   for(i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if(explosion->Collide(entity->GetShape())) {
-      int damage = _settings->GetValue("player.blow.damage", 0);
       entity->Damage(damage);
     }
   }
