@@ -23,12 +23,12 @@
 
 #include <interpolator/interpolator.hpp>
 
-#include "animation.hpp"
-#include "render_window.hpp"
-#include "sprite.hpp"
-#include "texture_atlas.hpp"
-#include "text_writer.hpp"
-#include "canvas.hpp"
+#include "engine/animation.hpp"
+#include "engine/render_window.hpp"
+#include "engine/sprite.hpp"
+#include "engine/texture_atlas.hpp"
+#include "engine/text_writer.hpp"
+#include "engine/canvas.hpp"
 
 //#include <base/leak_detector.hpp>
 
@@ -228,7 +228,7 @@ public:
   }
   
   void Finalize() {
-    CHECK(_state == STATE_INITIALIZED);
+    //CHECK(_state == STATE_INITIALIZED);
 
     // Delete all loaded textures.
     if (_player_texture != NULL) delete _player_texture;
@@ -1032,8 +1032,8 @@ private:
 int main(int argc, char** argv) { 
   Application app;
   if(!app.Execute()) {
-    app.Finalize();
     Error::Print();
+    app.Finalize();
     //bm::leak_detector::PrintAllLeaks();
     while(true);
     return EXIT_FAILURE;
