@@ -28,7 +28,7 @@
 #include "wall.hpp"
 #include "station.hpp"
 
-#include <base/leak_detector.hpp>
+//#include <base/leak_detector.hpp>
 
 namespace {
 

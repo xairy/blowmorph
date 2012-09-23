@@ -30,7 +30,7 @@
 #include "text_writer.hpp"
 #include "canvas.hpp"
 
-#include <base/leak_detector.hpp>
+//#include <base/leak_detector.hpp>
 
 using namespace bm;
 
@@ -1033,11 +1033,11 @@ int main(int argc, char** argv) {
   if(!app.Execute()) {
     app.Finalize();
     Error::Print();
-    bm::leak_detector::PrintAllLeaks();
+    //bm::leak_detector::PrintAllLeaks();
     while(true);
     return EXIT_FAILURE;
   }
   app.Finalize();
-  bm::leak_detector::PrintAllLeaks();
+  //bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }

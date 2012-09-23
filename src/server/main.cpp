@@ -12,6 +12,6 @@ int run() {
 
 int main(int argc, char** argv) {
   int result = run();
-  bm::leak_detector::PrintAllLeaks();
+  //bm::leak_detector::PrintAllLeaks();
   return result;
 }
