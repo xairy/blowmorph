@@ -11,16 +11,16 @@ public:
   RenderWindow();
   ~RenderWindow();
 
-  bool Init(const char* title, size_t width, size_t height, bool fullscreen);
+  bool Initialize(const char* title, int width, int height, bool fullscreen);
   void Finalize();
   void SwapBuffers();
 
 private:
-  bool initSDL(const char* title, size_t width, size_t height, bool fullscreen);
+  bool initSDL(const char* title, int width, int height, bool fullscreen);
   bool initGLEW();
-  void resizeViewport(size_t w, size_t h);
+  void resizeViewport(int w, int h);
   void enable2D();
-  bool initOpenGL(size_t width, size_t height);
+  bool initOpenGL(int width, int height);
 
   enum State {
     STATE_FINALIZED,
