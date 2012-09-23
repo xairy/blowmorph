@@ -188,7 +188,6 @@ class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
   ~Application() {
-    Finalize();
     CHECK(_state == STATE_FINALIZED);
   }
 
@@ -228,7 +227,9 @@ public:
     return true;
   }
   
-  void Finalize() {    
+  void Finalize() {
+    CHECK(_state == STATE_INITIALIZED);
+
     // Delete all loaded textures.
     if (_player_texture != NULL) delete _player_texture;
     if (_bullet_texture != NULL) delete _bullet_texture;
@@ -405,7 +406,7 @@ private:
 
   bool _PumpEvents() {
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
+    while(SDL_PollEvent(&event)) {
       if(!_ProcessEvent(&event)) {
         return false;
       }
