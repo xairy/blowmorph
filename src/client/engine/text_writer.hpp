@@ -9,7 +9,7 @@
 #include <string>
 #include <cstdarg>
 
-#include "base/error.hpp"
+#include <base/error.hpp>
 
 namespace bm {
 
