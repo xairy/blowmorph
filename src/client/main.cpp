@@ -320,7 +320,7 @@ private:
   }
 
   bool _InitializeGraphics() {
-    if (!_render_window.Init("Blowmorph", 600, 600, false)) {
+    if (!_render_window.Initialize("Blowmorph", 600, 600, false)) {
       return false;
     }
     

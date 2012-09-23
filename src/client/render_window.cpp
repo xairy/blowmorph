@@ -16,8 +16,10 @@ RenderWindow::~RenderWindow() {
   }
 }
 
-bool RenderWindow::Init(const char* title, size_t width, size_t height, bool fullscreen) {
+bool RenderWindow::Initialize(const char* title, int width, int height, bool fullscreen) {
   CHECK(_state == STATE_FINALIZED);
+  CHECK(title != NULL);
+  CHECK(width > 0 && height > 0);
 
   if (!initSDL(title, width, height, fullscreen)) {
     // XXX : error chain?
@@ -48,14 +50,16 @@ void RenderWindow::SwapBuffers() {
   SDL_GL_SwapBuffers();
 }
 
-bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool fullscreen) {
+bool RenderWindow::initSDL(const char* title, int width, int height, bool fullscreen) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     BM_ERROR("Unable to initialize SDL!");
     return false;
   }
 
+  SDL_WM_SetCaption(title, NULL);
+
   const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-  if (!videoInfo) {
+  if (videoInfo == NULL) {
     BM_ERROR("Unable to get video info.");
     return false;
   }
@@ -97,13 +101,11 @@ bool RenderWindow::initSDL(const char* title, size_t width, size_t height, bool 
   }
 
   // XXX[29.7.2012 alex]: casts size_t to int
-  _sdl_surface = SDL_SetVideoMode(static_cast<int>(width), static_cast<int>(height), 24, videoFlags);
+  _sdl_surface = SDL_SetVideoMode(width, height, 24, videoFlags);
   if (!_sdl_surface) {
     BM_ERROR("Unable to set video mode.");
     return false;
   }
-
-  SDL_WM_SetCaption(title, NULL);
 
   if (fullscreen) {
     if(SDL_WM_ToggleFullScreen(_sdl_surface) != 1) {
@@ -125,7 +127,7 @@ bool RenderWindow::initGLEW() {
   return true;
 }
 
-void RenderWindow::resizeViewport(size_t w, size_t h) {
+void RenderWindow::resizeViewport(int w, int h) {
   glViewport(0, 0, static_cast<GLsizei>(w), static_cast<GLsizei>(h));
 }
 
@@ -152,7 +154,7 @@ void RenderWindow::enable2D() {
   glEnable(GL_TEXTURE_2D);
 }
 
-bool RenderWindow::initOpenGL(size_t width, size_t height) {
+bool RenderWindow::initOpenGL(int width, int height) {
   resizeViewport(width, height);
   enable2D();
 
