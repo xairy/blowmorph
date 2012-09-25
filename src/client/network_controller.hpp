@@ -6,48 +6,62 @@
 #include <list>
 #include <string>
 
+#include <enet-wrapper/enet.hpp>
+
+#include <base/pstdint.hpp>
+
 namespace bm {
 
 class NetworkController {
 public:
   class Listener {
   public:
-    Listener();
-    ~Listener();
+    Listener() { };
+    ~Listener() { };
 
-    virtual bool OnConnect() = 0;
-    virtual bool OnDisconnect() = 0;
+    virtual void OnConnect() = 0;
+    virtual void OnDisconnect() = 0;
 
-    virtual bool OnMessageSent() = 0;
-    virtual bool OnMessageReceived() = 0;
+    virtual void OnMessageSent(const char* message, size_t length) = 0;
+    virtual void OnMessageReceived(const char* message, size_t length) = 0;
   };
 
 public:
   NetworkController();
   ~NetworkController();
 
-  bool Initialize(const std::string& ip, int port);
-  bool Finalize();
+  bool Initialize(const std::string& host, int port);
+  void Finalize();
 
-  bool Service(/*TODO*/);
+  bool Service(/*uint32_t timeout*/);
 
-  bool Connect();
-  bool Disconnect();
+  bool Connect(uint32_t timeout);
+  bool Disconnect(uint32_t timeout);
 
   bool SendMessage(const char* message, size_t length);
 
-  void RegisterListener(Listener* listener);
-  void UnregisterListener(Listener* listener);
+  bool RegisterListener(Listener* listener);
+  bool UnregisterListener(Listener* listener);
 
 private:
-  std::string _ip;
+  std::string _host;
   int _port;
+
+  Enet _enet;
+  ClientHost* _client;
+  Peer* _peer;
+  Event* _event;
 
   std::list<Listener*> _listeners;
 
   enum {
-    STATE_DISCONNECTED,
-    STATE_CONNECTED
+    NETWORK_STATE_DISCONNECTED,
+    NETWORK_STATE_CONNECTED
+  } _network_state;
+
+  enum {
+    STATE_FINALIZED,
+    STATE_INITIALIZED
   } _state;
 };
 
