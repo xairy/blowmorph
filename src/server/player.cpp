@@ -23,7 +23,6 @@ Player* Player::Create(
   SettingsManager* _settings = world_manager->GetSettings();
 
   float speed = _settings->GetValue("player.speed", 0.0f);
-  float size = _settings->GetValue("player.size", 0.0f);
 
   int max_health = _settings->GetValue("player.max_health", 1);
   int health_regeneration = _settings->GetValue("player.health_regeneration", 0);
