@@ -1,9 +1,10 @@
-#include <sstream>
-#include <cstdarg>
-#include "base/error.hpp"
+#include "error.hpp"
 
-bm::Error::ErrorType bm::Error::_error = Error::TYPE_NOTHING;
-std::string bm::Error::message = "";
+#include <cstdarg>
+
+#include <sstream>
+
+std::vector<std::string> bm::Error::messages = std::vector<std::string>();
 
 //void Error::Throw(const char* file, unsigned int line, const char* fmt, ...) {
 //  static char buf[1024];

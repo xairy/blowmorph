@@ -23,7 +23,7 @@ Wall* Wall::Create(
 ) {
   std::auto_ptr<Wall> wall(new Wall(world_manager, id));
   if(wall.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 

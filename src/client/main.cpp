@@ -658,7 +658,7 @@ private:
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), 0, _client_options->id);
           if(_player == NULL) {
-            Error::Set(Error::TYPE_MEMORY);
+            BM_ERROR("Unable to allocate memory!");
             return false;
           }
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
@@ -687,7 +687,7 @@ private:
               // TODO[12.08.2012 xairy]: remove magic numbers;
               Animation* animation = new Animation();
               if(animation == NULL) {
-                Error::Set(Error::TYPE_MEMORY);
+                BM_ERROR("Unable to allocate memory!");
                 return false;
               }
               bool rv = animation->Initialize(_explosion_texture, 30);
