@@ -3,9 +3,12 @@
 
 #include <cstdlib>
 
+#include "network_controller.hpp"
+
 namespace bm {
 
-class NetworkController;
+//class NetworkController;
+//class NetworkController::Listener;
 class GameController;
 
 class PacketProcesser {
@@ -16,11 +19,32 @@ public:
   bool Initialize(NetworkController* network_controller, GameController* game_controller);
   bool Finalize();
 
-  bool Decode(const char* message, size_t length);
+private:
+  bool _Decode(const char* message, size_t length);
+
+private:
+  class NetworkControllerListener : public NetworkController::Listener {
+  public:
+    NetworkControllerListener(PacketProcesser* packet_processer);
+    ~NetworkControllerListener();
+
+    virtual void OnConnect();
+    virtual void OnDisconnect();
+
+    virtual void OnMessageSent(const char* message, size_t length);
+    virtual void OnMessageReceived(const char* message, size_t length);
+
+  private:
+    PacketProcesser* _packet_processer;
+  };
+
+  friend class NetworkControllerListener;
 
 private:
   NetworkController* _network_controller;
   GameController* _game_controller;
+
+  NetworkControllerListener* _network_controller_listener;
 
   enum {
     STATE_FINALIZED,

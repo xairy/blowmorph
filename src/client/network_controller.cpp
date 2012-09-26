@@ -172,13 +172,17 @@ bool NetworkController::Disconnect(uint32_t timeout) {
   return false;
 }
 
-// XXX: OnMessageSent?
 bool NetworkController::SendMessage(const char* message, size_t length) {
   // XXX[xairy 26.09.2012]: always sending reliable messages through channel 0.
   bool rv = _peer->Send(message, length, true, 0);
   if(rv == false) {
     BM_ERROR("Could not send message to server!");
     return false;
+  }
+  std::list<Listener*>::iterator itr;
+  for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
+    // XXX[xairy 26.09.2012]: message was not sent, actually.
+    (*itr)->OnMessageSent(message, length);
   }
   return true;
 }
@@ -187,7 +191,7 @@ bool NetworkController::RegisterListener(Listener* listener) {
   std::list<Listener*>::iterator itr;
   for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
     if(*itr == listener) {
-      BM_ERROR("Cound not register nework controller listener, it has already been registered!");
+      BM_ERROR("Nework controller listener has already been registered!");
       return false;
     }
   }
@@ -203,7 +207,7 @@ bool NetworkController::UnregisterListener(Listener* listener) {
       return true;
     }
   }
-  BM_ERROR("Could not unregister network controller listener, it has not been registered!");
+  BM_ERROR("Network controller listener has not been registered!");
   return false;
 }
 
