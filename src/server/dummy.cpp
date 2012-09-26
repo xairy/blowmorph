@@ -26,7 +26,7 @@ Dummy* Dummy::Create(
 
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   if(dummy.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 

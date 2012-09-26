@@ -37,7 +37,7 @@ Player* Player::Create(
 
   std::auto_ptr<Player> player(new Player(world_manager, id));
   if(player.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 

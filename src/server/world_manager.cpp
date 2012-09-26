@@ -474,7 +474,7 @@ bool WorldManager::Blow(const Vector2f& location) {
 
   Shape* explosion = new Circle(location, radius);
   if(explosion == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return false;
   }
 
@@ -541,7 +541,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
     float radius = _settings->GetValue(prefix + ".radius", 0.0f);
     Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
     if(shape == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
+      BM_ERROR("Unable to allocate memory!");
       return NULL;
     }
     return shape;
@@ -550,7 +550,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
     float height = _settings->GetValue(prefix + ".height", 0.0f);
     Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
     if(shape == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
+      BM_ERROR("Unable to allocate memory!");
       return NULL;
     }
     return shape;
@@ -558,7 +558,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
     float side = _settings->GetValue(prefix + ".side", 0.0f);
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     if(shape == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
+      BM_ERROR("Unable to allocate memory!");
       return NULL;
     }
     return shape;

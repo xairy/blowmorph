@@ -28,7 +28,7 @@ Bullet* Bullet::Create(
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   if(bullet.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 

@@ -25,7 +25,7 @@ Station* Station::Create(
 ) {
   std::auto_ptr<Station> station(new Station(world_manager, id));
   if(station.get() == NULL) {
-    Error::Set(Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 

@@ -17,7 +17,7 @@ ServerHost* ServerHost::Create(
 ) {
   ServerHost* server = new ServerHost();
   if(server == NULL) {
-    bm::Error::Set(bm::Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 
@@ -28,7 +28,7 @@ ServerHost* ServerHost::Create(
   server->_server = enet_host_create(&address, peer_count, channel_count,
     incoming_bandwidth, outgoing_bandwidth);
   if(server->_server == NULL) {
-    bm::Error::Set(bm::Error::TYPE_ENET_HOST_CREATE);
+    BM_ERROR("Unable to create enet host!");
     server->_state = STATE_DESTROYED;
     delete server;
     return NULL;
@@ -61,7 +61,7 @@ bool ServerHost::Broadcast(
 
   ENetPacket* packet = enet_packet_create(data, length, flags);
   if(packet == NULL) {
-    bm::Error::Set(bm::Error::TYPE_ENET_PACKET_CREATE);
+    BM_ERROR("Unable to create enet packet!");
     return false;
   }
 
@@ -80,7 +80,7 @@ bool ServerHost::Service(Event* event, uint32_t timeout) {
   int rv = enet_host_service(_server, (event == NULL) ? NULL : event->_event, timeout);
 
   if(rv < 0) {
-    bm::Error::Set(bm::Error::TYPE_ENET_SERVICE);
+    BM_ERROR("Unable to service enet host!");
     return false;
   }
   if(rv > 0) {

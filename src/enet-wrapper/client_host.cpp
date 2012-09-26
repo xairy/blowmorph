@@ -18,13 +18,13 @@ ClientHost* ClientHost::Create (
 ) {
   ClientHost* client = new ClientHost();
   if(client == NULL) {
-    bm::Error::Set(bm::Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
 
   client->_client = enet_host_create(NULL, 1, channel_count, incoming_bandwidth, outgoing_bandwidth);
   if(client->_client == NULL) {
-    bm::Error::Set(bm::Error::TYPE_ENET_HOST_CREATE);
+    BM_ERROR("Unable to create enet host!");
     client->_state = STATE_DESTROYED;
     delete client;
     return NULL;
@@ -50,7 +50,7 @@ bool ClientHost::Service(Event* event, uint32_t timeout) {
   int rv = enet_host_service(_client, (event == NULL) ? NULL : event->_event, timeout);
 
   if(rv < 0) {
-    bm::Error::Set(bm::Error::TYPE_ENET_SERVICE);
+    BM_ERROR("Unable to service enet host!");
     return false;
   }
   if(rv > 0) {
@@ -69,14 +69,14 @@ Peer* ClientHost::Connect(
 
   ENetAddress address;
   if(enet_address_set_host(&address, server_ip.c_str()) != 0) {
-    bm::Error::Set(bm::Error::TYPE_ENET_SET_HOST);
+    BM_ERROR("Unable to set enet host address!");
     return NULL;
   }
   address.port = port;
 
   ENetPeer* enet_peer = enet_host_connect(_client, &address, channel_count, 0);
   if(enet_peer == NULL) {
-    bm::Error::Set(bm::Error::TYPE_ENET_CONNECT);
+    BM_ERROR("Enet host is unable to connect!");
     return NULL;
   }
 

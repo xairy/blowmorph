@@ -298,13 +298,13 @@ private:
       Vector2f(0.0f, 0.0f)
     );
     if(player == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
+      BM_ERROR("Unable to allocate memory!");
       return false;
     }
     player->Respawn();
     Client* client = new Client(peer.release(), player);
     if(client == NULL) {
-      Error::Set(Error::TYPE_MEMORY);
+      BM_ERROR("Unable to allocate memory!");
       return false;
     }
     _client_manager.AddClient(client_id, client);

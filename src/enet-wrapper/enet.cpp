@@ -23,7 +23,7 @@ Enet::~Enet() {
 
 bool Enet::Initialize() {
   if(enet_initialize() != 0) {
-    bm::Error::Set(bm::Error::TYPE_ENET_INITIALIZE);
+    BM_ERROR("Unable to initialize enet!");
     return false;
   }
   _state = STATE_INITIALIZED;
@@ -57,7 +57,7 @@ ClientHost* Enet::CreateClientHost(
 Event* Enet::CreateEvent() {
   Event* event = new Event;
   if(event == NULL) {
-    bm::Error::Set(bm::Error::TYPE_MEMORY);
+    BM_ERROR("Unable to allocate memory!");
     return NULL;
   }
   return event;
