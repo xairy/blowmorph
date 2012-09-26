@@ -1042,3 +1042,27 @@ int main(int argc, char** argv) {
   //bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
+
+/*
+#include "network_controller.hpp"
+#include "packet_processer.hpp"
+
+int main(int argc, char** argv) {
+  NetworkController nc;
+  bool rv = nc.Initialize("127.0.0.1", 4242);
+  CHECK(rv == true);
+  rv = nc.Connect(500);
+  CHECK(rv == true);
+
+  PacketProcesser pp;
+  rv = pp.Initialize(&nc, (GameController*)(1));
+  CHECK(rv == true);
+
+  while(true) {
+    rv = nc.Service();
+    CHECK(rv == true);
+  }
+
+  return EXIT_SUCCESS;
+}
+*/
