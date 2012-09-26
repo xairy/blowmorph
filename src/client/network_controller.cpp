@@ -9,6 +9,7 @@
 
 #include <enet-wrapper/enet.hpp>
 
+#include <base/error.hpp>
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
 #include <base/timer.hpp>
@@ -29,19 +30,19 @@ bool NetworkController::Initialize(const std::string& host, int port) {
   _port = port;
 
   if(!_enet.Initialize()) {
-    // TODO: Error.
+    BM_ERROR("Could not initialize ENet!");
     return false;
   }
 
   std::auto_ptr<ClientHost> client(_enet.CreateClientHost());
   if(client.get() == NULL) {
-    // TODO: Error.
+    BM_ERROR("Could not create client host!");
     return false;
   }
 
   std::auto_ptr<Event> event(_enet.CreateEvent());
   if(event.get() == NULL) {
-    // TODO: Error.
+    BM_ERROR("Could not create event!");
     return false;
   }
 
@@ -83,7 +84,7 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
   do {
     bool rv = _client->Service(_event, /*timeout*/0);
     if(rv == false) {
-      // TODO: Error.
+      BM_ERROR("Could not service client host!");
       return false;
     }
     switch(_event->GetType()) {
@@ -98,8 +99,7 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
       } break;
       
       case Event::EVENT_CONNECT: {
-        //Warning("Got EVENT_CONNECT while being already connected.");
-        // TODO: Error.
+        BM_ERROR("Got EVENT_CONNECT while being already connected.");
         return false;
       } break;
 
@@ -111,7 +111,8 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
           (*itr)->OnDisconnect();
         }
 
-        // TODO: Error?
+        // XXX[xairy, 26.09.2012]: Error, false?
+        BM_ERROR("Disconnected from server!");
         return false;
       } break;
     }
@@ -131,11 +132,11 @@ bool NetworkController::Connect(uint32_t timeout) {
 
   bool rv = _client->Service(_event, timeout);
   if(rv == false) {
-    // TODO: Error.
+    BM_ERROR("Could not service client host!");
     return false;
   }
   if(_event->GetType() != Event::EVENT_CONNECT) {
-    // TODO: Error.
+    BM_ERROR("Got something else while waiting for EVENT_CONNECT!");
     return false;
   }
 
@@ -159,7 +160,7 @@ bool NetworkController::Disconnect(uint32_t timeout) {
   while(timer.GetTime() - start <= timeout) {
     bool rv = _client->Service(_event, timeout);
     if(rv == false) {
-      // TODO: Error.
+      BM_ERROR("Could not service client host!");
       return false;
     }
     if(_event != NULL && _event->GetType() == Event::EVENT_DISCONNECT) {
@@ -167,8 +168,7 @@ bool NetworkController::Disconnect(uint32_t timeout) {
     }
   }
 
-  // TODO: Error.
-  //BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.\n");
+  BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.");
   return false;
 }
 
@@ -177,7 +177,7 @@ bool NetworkController::SendMessage(const char* message, size_t length) {
   // XXX[xairy 26.09.2012]: always sending reliable messages through channel 0.
   bool rv = _peer->Send(message, length, true, 0);
   if(rv == false) {
-    // TODO: Error.
+    BM_ERROR("Could not send message to server!");
     return false;
   }
   return true;
@@ -187,7 +187,7 @@ bool NetworkController::RegisterListener(Listener* listener) {
   std::list<Listener*>::iterator itr;
   for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
     if(*itr == listener) {
-      // TODO: Error.
+      BM_ERROR("Cound not register nework controller listener, it has already been registered!");
       return false;
     }
   }
@@ -203,7 +203,7 @@ bool NetworkController::UnregisterListener(Listener* listener) {
       return true;
     }
   }
-  // TODO: Error.
+  BM_ERROR("Could not unregister network controller listener, it has not been registered!");
   return false;
 }
 
