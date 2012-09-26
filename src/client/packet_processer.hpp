@@ -3,12 +3,12 @@
 
 #include <cstdlib>
 
+#include <base/macros.hpp>
+
 #include "network_controller.hpp"
 
 namespace bm {
 
-//class NetworkController;
-//class NetworkController::Listener;
 class GameController;
 
 class PacketProcesser {
@@ -35,12 +35,16 @@ private:
     virtual void OnMessageReceived(const char* message, size_t length);
 
   private:
+    DISALLOW_COPY_AND_ASSIGN(NetworkControllerListener);
+
     PacketProcesser* _packet_processer;
   };
 
   friend class NetworkControllerListener;
 
 private:
+  DISALLOW_COPY_AND_ASSIGN(PacketProcesser);
+
   NetworkController* _network_controller;
   GameController* _game_controller;
 

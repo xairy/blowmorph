@@ -8,6 +8,7 @@
 
 #include <enet-wrapper/enet.hpp>
 
+#include <base/macros.hpp>
 #include <base/pstdint.hpp>
 
 namespace bm {
@@ -44,6 +45,8 @@ public:
   bool UnregisterListener(Listener* listener);
 
 private:
+  DISALLOW_COPY_AND_ASSIGN(NetworkController);
+
   std::string _host;
   int _port;
 
