@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <algorithm>
 #include <list>
 #include <memory>
 #include <vector>
@@ -188,24 +189,22 @@ bool NetworkController::SendMessage(const char* message, size_t length) {
 }
 
 bool NetworkController::RegisterListener(Listener* listener) {
-  std::list<Listener*>::iterator itr;
-  for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
-    if(*itr == listener) {
-      BM_ERROR("Nework controller listener has already been registered!");
-      return false;
-    }
+  std::list<Listener*>::iterator itr =
+    std::find(_listeners.begin(), _listeners.end(), listener);
+  if(itr != _listeners.end()) {
+    BM_ERROR("Nework controller listener has already been registered!");
+    return false;
   }
   _listeners.push_back(listener);
   return true;
 }
 
 bool NetworkController::UnregisterListener(Listener* listener) {
-  std::list<Listener*>::iterator itr;
-  for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
-    if(*itr == listener) {
-      _listeners.erase(itr);
-      return true;
-    }
+  std::list<Listener*>::iterator itr =
+    std::find(_listeners.begin(), _listeners.end(), listener);
+  if(itr != _listeners.end()) {
+    _listeners.erase(itr);
+    return true;
   }
   BM_ERROR("Network controller listener has not been registered!");
   return false;
