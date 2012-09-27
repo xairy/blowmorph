@@ -94,4 +94,27 @@ void Canvas::FillRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec
   glEnd();
 }
 
+void Canvas::DrawCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps) {
+  glBegin(GL_LINE_LOOP);
+    glColor4fv(glm::value_ptr(clr));
+    for (size_t i = 0; i < steps; i++) {
+      double angle = 2 * M_PI / steps * i;
+      glVertex2d(pos.x + radius * ::cos(angle), pos.y + radius * ::sin(angle));
+    }
+  glEnd();
+}
+void Canvas::FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps) {
+  glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  
+  glBegin(GL_TRIANGLE_FAN);
+    glColor4fv(glm::value_ptr(clr));
+    glVertex2d(pos.x, pos.y);
+    for (size_t i = 0; i <= steps; i++) {
+      double angle = 2 * M_PI / steps * i;
+      glVertex2d(pos.x + radius * ::cos(angle), pos.y + radius * ::sin(angle));
+    }
+  glEnd();
+}
+
 } // namespace bm
