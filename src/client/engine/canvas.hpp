@@ -21,6 +21,8 @@ public:
   
   void DrawRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size);
   void FillRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size);
+  void DrawCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps);
+  void FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps);
 
 private:
   

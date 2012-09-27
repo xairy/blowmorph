@@ -890,6 +890,20 @@ private:
     _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
     _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
     _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
+  
+    _canvas.SetCoordinateType(Canvas::Pixels);
+    _canvas.DrawCircle(glm::vec4(1, 1, 1, 1), glm::vec2(80, 80), 60, 20);
+    
+    std::map<int, Object*>::iterator it;
+    for (it = _objects.begin(); it != _objects.end(); ++it) {
+      Object* obj = it->second;
+      
+      glm::vec2 rel = obj->GetPosition() - _player->GetPosition();
+      if (glm::length(rel) < 400) {
+        rel = rel * (60.0f / 400.0f);
+        _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+      }
+    }
   }
 
   // Draws all the objects.
