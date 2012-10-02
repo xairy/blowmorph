@@ -1,6 +1,8 @@
 #ifndef SIMPLELEAKDETECTOR_HPP_
 #define SIMPLELEAKDETECTOR_HPP_
 
+#include <stdint.h>
+
 #ifdef _WIN32
   #ifdef SIMPLELEAKDETECTOR_DLL
     #define SLD_API __declspec(dllexport)
