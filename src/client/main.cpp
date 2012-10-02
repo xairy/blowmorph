@@ -17,11 +17,12 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
-#include <base/ini_file.hpp>
 
 #include <enet-wrapper/enet.hpp>
 
 #include <interpolator/interpolator.hpp>
+
+#include <IniFile/IniFile.hpp>
 
 #include "engine/animation.hpp"
 #include "engine/render_window.hpp"
@@ -192,7 +193,7 @@ public:
   }
 
   bool Execute() {
-    if (!bm::ini::LoadINI("data/client.ini", settings)) {
+    if (!IniFile::LoadINI("data/client.ini", settings)) {
       return false;
     }
   
@@ -372,8 +373,8 @@ private:
       return false;
     }
 
-    std::string host = bm::ini::GetValue<std::string>(settings, "server.host", "127.0.0.1");
-    uint16_t port = bm::ini::GetValue(settings, "server.port", 4242);
+    std::string host = IniFile::GetValue<std::string>(settings, "server.host", "127.0.0.1");
+    uint16_t port = IniFile::GetValue(settings, "server.port", 4242);
 
     std::auto_ptr<Peer> peer(client->Connect(host, port));
     if(peer.get() == NULL) {
@@ -1040,7 +1041,7 @@ private:
   };
   NetworkState _network_state;
   
-  bm::ini::RecordMap settings;
+  IniFile::RecordMap settings;
 };
 
 int main(int argc, char** argv) { 

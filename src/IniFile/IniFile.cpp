@@ -1,4 +1,4 @@
-#include "base/ini_file.hpp"
+#include "IniFile.hpp"
 
 #include <cstdlib>
 
@@ -7,7 +7,7 @@
 
 namespace {
 
-using namespace bm::ini;
+using namespace IniFile;
 
 void WriteSection(std::ofstream& ofs, const std::string& section) {
   ofs << '[' << section << ']' << std::endl;
@@ -25,9 +25,9 @@ void WriteRecords(std::ofstream& ofs, const RecordMap& records) {
 
 }; // anonymous namespace
 
-namespace bm { namespace ini {
+namespace IniFile {
 
-BM_BASE_DECL void Flatten(const SectionMap& in, RecordMap& out) {
+void Flatten(const SectionMap& in, RecordMap& out) {
   out.clear();
 
   for (SectionMap::const_iterator i = in.begin(); i != in.end(); ++i) {
@@ -47,7 +47,7 @@ BM_BASE_DECL void Flatten(const SectionMap& in, RecordMap& out) {
   }
 }
 
-BM_BASE_DECL void UnFlatten(const RecordMap& in, SectionMap& out) {
+void UnFlatten(const RecordMap& in, SectionMap& out) {
   out.clear();
   
   for (RecordMap::const_iterator i = in.begin(); i != in.end(); ++i) {
@@ -72,7 +72,7 @@ BM_BASE_DECL void UnFlatten(const RecordMap& in, SectionMap& out) {
 }
 
 // XXX[31.7.2012 alex]: error handling
-BM_BASE_DECL bool LoadINI(const std::string& path, std::map<std::string, std::string>& ini) {
+bool LoadINI(const std::string& path, std::map<std::string, std::string>& ini) {
   std::ifstream is(path.c_str());
 	if (!is.is_open()) return false;
 
@@ -127,7 +127,7 @@ BM_BASE_DECL bool LoadINI(const std::string& path, std::map<std::string, std::st
   return true;
 }
 
-BM_BASE_DECL bool SaveINI(const std::string& path, const std::map<std::string, std::string>& ini) {
+bool SaveINI(const std::string& path, const std::map<std::string, std::string>& ini) {
   SectionMap sections;
   UnFlatten(ini, sections);
   
@@ -148,7 +148,7 @@ BM_BASE_DECL bool SaveINI(const std::string& path, const std::map<std::string, s
   return true;
 }
 
-template<> BM_BASE_DECL std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue) {
+template<> std::string GetValue(const RecordMap& ini, const std::string& key, std::string defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     return it->second;
@@ -156,7 +156,7 @@ template<> BM_BASE_DECL std::string GetValue(const RecordMap& ini, const std::st
   
   return defValue;
 }
-template<> BM_BASE_DECL int GetValue(const RecordMap& ini, const std::string& key, int defValue) {
+template<> int GetValue(const RecordMap& ini, const std::string& key, int defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     // XXX[31.7.2012 alex]: malformed int?
@@ -165,7 +165,7 @@ template<> BM_BASE_DECL int GetValue(const RecordMap& ini, const std::string& ke
   
   return defValue;
 }
-template<> BM_BASE_DECL bool GetValue(const RecordMap& ini, const std::string& key, bool defValue) {
+template<> bool GetValue(const RecordMap& ini, const std::string& key, bool defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     std::string value = it->second;
@@ -173,7 +173,7 @@ template<> BM_BASE_DECL bool GetValue(const RecordMap& ini, const std::string& k
   }
   return defValue;
 }
-template<> BM_BASE_DECL float GetValue(const RecordMap& ini, const std::string& key, float defValue) {
+template<> float GetValue(const RecordMap& ini, const std::string& key, float defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     // XXX[7.09.2012 xairy]: malformed float?
@@ -182,7 +182,7 @@ template<> BM_BASE_DECL float GetValue(const RecordMap& ini, const std::string& 
   
   return defValue;
 }
-template<> BM_BASE_DECL double GetValue(const RecordMap& ini, const std::string& key, double defValue) {
+template<> double GetValue(const RecordMap& ini, const std::string& key, double defValue) {
   RecordMap::const_iterator it = ini.find(key);
   if (it != ini.end()) {
     // XXX[7.09.2012 xairy]: malformed double?
@@ -192,4 +192,4 @@ template<> BM_BASE_DECL double GetValue(const RecordMap& ini, const std::string&
   return defValue;
 }
 
-}}; // namespace bm::ini
+}; // namespace IniFile
