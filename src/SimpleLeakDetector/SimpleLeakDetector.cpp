@@ -36,7 +36,7 @@ void* Allocate(size_t size, bool array, const char* file, unsigned int line) {
   return result;
 }
 void Free(void* ptr, bool array, const char* file, unsigned int line) {
-  typedef std::vector<AllocInfo>::const_iterator It;
+  typedef std::vector<AllocInfo>::iterator It;
   for (It i = allocations.begin(); i != allocations.end(); ++i) {
     if (i->ptr == ptr) {
       assert(i->array == array);
