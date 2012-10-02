@@ -28,7 +28,7 @@ namespace {
     bm::Texture* texture;
   };
 
-  typedef std::map<bm::uchar, GlyphInfo> GlyphMap;
+  typedef std::map<uchar_t, GlyphInfo> GlyphMap;
   
   // Holds all the information related to font.
   struct FontDataPrivate {
@@ -101,7 +101,7 @@ namespace {
   }
   
   void LoadAsciiGlyphs(FT_Face face, FontDataPrivate& font_data) {
-    for (bm::uchar ch = 1; ch <= 127; ch++) {
+    for (uchar_t ch = 1; ch <= 127; ch++) {
       // Load the glyph for our character.
       if (FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_RENDER))
         BM_ERROR("FT_Load_Glyph failed");
@@ -290,7 +290,7 @@ namespace {
         glMultMatrixf(modelview_matrix);
         
         for (size_t k = 0; k < lines[i].size(); k++) {
-          bm::uchar ch = lines[i][k];
+          uchar_t ch = lines[i][k];
           GlyphMap::iterator it = font.glyphs.find(ch);
           if (it != font.glyphs.end()) {
             RenderGlyph(it->second);

@@ -157,7 +157,7 @@ bool NetworkController::Disconnect(uint32_t timeout) {
   _peer->Disconnect();
 
   Timer timer;
-  bm::uint32_t start = timer.GetTime();
+  uint32_t start = timer.GetTime();
   while(timer.GetTime() - start <= timeout) {
     bool rv = _client->Service(_event, timeout);
     if(rv == false) {

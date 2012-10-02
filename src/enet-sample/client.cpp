@@ -17,7 +17,7 @@ int main() {
  
   Event* event = enet.CreateEvent();
 
-  bm::uint32_t timeout = 5000;
+  uint32_t timeout = 5000;
 
   rv = client->Service(event, timeout);
   CHECK(rv);

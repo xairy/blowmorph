@@ -13,7 +13,7 @@
 
 namespace {
 
-void MakeColorTransparent(bm::Image& tex, bm::uint32_t transparentColor) {
+void MakeColorTransparent(bm::Image& tex, uint32_t transparentColor) {
   CHECK((transparentColor & 0xFF000000) == 0);
   
   bm::rgb clr = bm::rgb((transparentColor >> 16) & 0xFF,
@@ -69,7 +69,7 @@ TextureAtlas::~TextureAtlas() {
 }
 
 TextureAtlas* LoadOldTexture(const std::string& path,
-                        bm::uint32_t transparentColor) {
+                        uint32_t transparentColor) {
   bm::Image image;
   if (!bm::LoadRGBA(image, path)) {
     BM_ERROR("Unable to load texture.");
@@ -110,7 +110,7 @@ TextureAtlas* LoadOldTexture(const std::string& path,
 }
 
 TextureAtlas* LoadTileset(const std::string& path,
-                     bm::uint32_t transparentColor,
+                     uint32_t transparentColor,
                      size_t startX, size_t startY, 
                      size_t horizontalStep, size_t verticalStep,
                      size_t tileWidth, size_t tileHeight) {

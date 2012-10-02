@@ -98,7 +98,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/client/**.cpp",
             "src/client/**.hpp" }
     
@@ -167,7 +167,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/server/**.cpp",
             "src/server/**.hpp" }
     
@@ -188,7 +188,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/enet-sample/server.cpp" }
     
     links { "bm-base" }
@@ -198,7 +198,7 @@ solution "blowmorph"
     kind "ConsoleApp"
     language "C++"
     
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/enet-sample/client.cpp" }
     
     links { "bm-base" }
@@ -209,7 +209,7 @@ solution "blowmorph"
     language "C++"
     
     defines { "BM_BASE_DLL" }
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/base/**.cpp",
             "src/base/**.hpp" }
 
@@ -218,7 +218,7 @@ solution "blowmorph"
     language "C++"
       
     defines { "BM_ENET_DLL" }
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     files { "src/enet-wrapper/**.cpp",
             "src/enet-wrapper/**.hpp" }
      
@@ -238,7 +238,7 @@ solution "blowmorph"
     kind "StaticLib"
     language "C++"
                   
-    includedirs { "src" }
+    includedirs { "src", "inc" }
     
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }

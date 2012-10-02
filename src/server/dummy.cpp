@@ -57,7 +57,7 @@ bool Dummy::IsStatic() {
 void Dummy::Update(uint32_t time) {
   _prev_position = _shape->GetPosition();
   if(_meat != NULL) {
-    bm::uint32_t dt = time - _last_update;
+    uint32_t dt = time - _last_update;
     Vector2f direction = _meat->GetPosition() - GetPosition();
     direction = Normalize(direction);
     _shape->Move(direction * _speed * static_cast<float>(dt));

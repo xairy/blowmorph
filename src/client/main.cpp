@@ -58,12 +58,12 @@ namespace interpolator {
   }
 };
 
-typedef interpolator::LinearInterpolator<ObjectState, bm::uint32_t> ObjectInterpolator;
+typedef interpolator::LinearInterpolator<ObjectState, uint32_t> ObjectInterpolator;
 
 // TODO[24.7.2012 alex]: fix method names
 class Object {
 public:
-  Object(const glm::vec2& position, bm::uint32_t time, int id)
+  Object(const glm::vec2& position, uint32_t time, int id)
     : _id(id), _sprite_set(false), _interpolation_enabled(false),
     _caption_enabled(false), _interpolator(ObjectInterpolator(75))
   {
@@ -121,20 +121,20 @@ public:
     _caption_enabled = false;
   }
 
-  void UpdateCurrentState(const ObjectState& state, bm::uint32_t time) {
+  void UpdateCurrentState(const ObjectState& state, uint32_t time) {
     if(_interpolation_enabled) {
       _interpolator.Push(state, time);
     }
     _current_state = state;
   }
   
-  void EnforceState(const ObjectState& state, bm::uint32_t time) {
+  void EnforceState(const ObjectState& state, uint32_t time) {
     _interpolator.Clear();
     _interpolator.Push(state, time);
     _current_state = state;
   }
 
-  void Render(bm::uint32_t time) {
+  void Render(uint32_t time) {
     if(_interpolation_enabled) {
       _current_state = _interpolator.Interpolate(time);
     }
@@ -215,7 +215,7 @@ public:
       }
       _Render();
 
-      bm::uint32_t current_time = _GetTime();
+      uint32_t current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
         _SendInputEvents();
@@ -373,7 +373,7 @@ private:
     }
 
     std::string host = bm::ini::GetValue<std::string>(settings, "server.host", "127.0.0.1");
-    bm::uint16_t port = bm::ini::GetValue(settings, "server.port", 4242);
+    uint16_t port = bm::ini::GetValue(settings, "server.port", 4242);
 
     std::auto_ptr<Peer> peer(client->Connect(host, port));
     if(peer.get() == NULL) {
@@ -548,7 +548,7 @@ private:
     fprintf(stderr, "WARN: %s\n", buf);
   }
 
-  bool _PumpPackets(bm::uint32_t timeout) {
+  bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
     
     do {
@@ -646,8 +646,8 @@ private:
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          bm::uint32_t client_time = SDL_GetTicks(); 
-          bm::uint32_t latency = (client_time - response_data->client_time) / 2;
+          uint32_t client_time = SDL_GetTicks(); 
+          uint32_t latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
           printf("Time correction is %u ms.\n", _time_correction);
@@ -701,7 +701,7 @@ private:
             }
           } else {
             glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
-            bm::uint32_t time = snapshot->time;
+            uint32_t time = snapshot->time;
 
             if(snapshot->id == _player->GetId()) {
               glm::vec2 distance = _player->GetPosition() - position;
@@ -807,8 +807,8 @@ private:
 
   bool _Loop() {   
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      bm::uint32_t current_time = _GetTime();
-      bm::uint32_t delta_time = current_time - _last_loop;
+      uint32_t current_time = _GetTime();
+      uint32_t delta_time = current_time - _last_loop;
       _last_loop = current_time;
 
       glm::float_t delta_x = (_keyboard_state.right - _keyboard_state.left) * _client_options->speed * delta_time;
@@ -881,7 +881,7 @@ private:
   }
 
   // Returns approximate server time (with the correction).
-  bm::uint32_t _GetTime() {
+  uint32_t _GetTime() {
     return SDL_GetTicks() + _time_correction;
   }
   
@@ -950,7 +950,7 @@ private:
   bool _Disconnect() {
     _peer->Disconnect();
 
-    bm::uint32_t start = _GetTime();
+    uint32_t start = _GetTime();
     while(_GetTime() - start <= _connect_timeout) {
       bool rv = _client->Service(_event, _connect_timeout);
       if(rv == false) {
@@ -974,11 +974,11 @@ private:
   Event* _event;
 
   // In milliseconds.
-  bm::uint32_t _connect_timeout;
-  bm::uint32_t _time_correction;
-  bm::uint32_t _last_tick;
-  bm::uint32_t _tick_rate;
-  bm::uint32_t _last_loop;
+  uint32_t _connect_timeout;
+  uint32_t _time_correction;
+  uint32_t _last_tick;
+  uint32_t _tick_rate;
+  uint32_t _last_loop;
 
   int _resolution_x;
   int _resolution_y;
@@ -1003,8 +1003,8 @@ private:
 
   ClientOptions* _client_options;
 
-  bm::uint32_t _wall_size;
-  bm::uint32_t _player_size;
+  uint32_t _wall_size;
+  uint32_t _player_size;
 
   glm::float_t _max_error;
 

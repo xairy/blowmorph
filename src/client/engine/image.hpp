@@ -15,8 +15,8 @@
 
 namespace bm {
 
-typedef glm::detail::tvec3<bm::uint8_t> rgb;
-typedef glm::detail::tvec4<bm::uint8_t> rgba;
+typedef glm::detail::tvec3<uint8_t> rgb;
+typedef glm::detail::tvec4<uint8_t> rgba;
 typedef glm::vec3 rgbf;
 typedef glm::vec4 rgbaf;
 
