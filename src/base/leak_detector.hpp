@@ -1,6 +1,8 @@
 #ifndef BLOWMORPH_BASE_LEAK_DETECTOR_HPP_
 #define BLOWMORPH_BASE_LEAK_DETECTOR_HPP_
 
+#include <cstdlib>
+
 #include "base.hpp"
 
 namespace bm { namespace leak_detector {

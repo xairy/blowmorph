@@ -78,12 +78,4 @@ bool PacketProcesser::_Decode(const char* message, size_t length) {
   return true;
 }
 
-NetworkController* _network_controller;
-GameController* _game_controller;
-
-enum {
-  STATE_FINALIZED,
-  STATE_INITIALIZED
-} _state;
-
 } // namespace bm

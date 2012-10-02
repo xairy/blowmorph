@@ -588,7 +588,7 @@ private:
   }
 
   void DeleteObject(int id) {
-    typedef std::map<int, Object*>::const_iterator It;
+    typedef std::map<int, Object*>::iterator It;
     It it = _objects.find(id);
     if (it != _objects.end()) {
       delete it->second;
