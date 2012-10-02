@@ -22,7 +22,7 @@
 
 #include <interpolator/interpolator.hpp>
 
-#include <IniFile/IniFile.hpp>
+#include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
 #include "engine/render_window.hpp"
