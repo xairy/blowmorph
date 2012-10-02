@@ -1,4 +1,4 @@
-#include "IniFile.hpp"
+#include "ini_file.hpp"
 
 #include <cstdlib>
 
