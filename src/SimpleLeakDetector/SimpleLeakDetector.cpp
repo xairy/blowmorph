@@ -1,11 +1,12 @@
-#define LEAK_DETECTOR_PRIVATE
-#include "leak_detector.hpp"
+#define SIMPLELEAKDETECTOR_PRIVATE
+#include "SimpleLeakDetector.hpp"
+#undef SIMPLELEAKDETECTOR_PRIVATE
 
 #include <cassert>
 #include <vector>
 #include <iostream>
 
-namespace bm { namespace leak_detector {
+namespace SimpleLeakDetector {
 
 struct AllocInfo {
   bool array;
@@ -62,4 +63,4 @@ void PrintAllLeaks() {
   }
 }
 
-} } // namespace bm::leak_detector
+} // namespace SimpleLeakDetector
