@@ -71,6 +71,22 @@ void Canvas::SetCoordinateType(CoordinateType ct) {
   SetModelviewMatrix(glm::mat4x4(1));
 }
 
+void Canvas::SetTransform(const glm::mat3x3& m) {
+  // Make a matrix corresponding to the same transform:
+  //  x' = m11 x + m12 y + m13
+  //  y' = m21 x + m22 y + m23
+  //  w' = m31 x + m32 y + m33
+  // with an additional equation for z':
+  //  z' = z
+  glm::mat4x4 mvm;
+  mvm[0] = glm::vec4(m[0][0], m[0][1], 0, m[0][2]);
+  mvm[1] = glm::vec4(m[1][0], m[1][1], 0, m[1][2]);
+  mvm[2] = glm::vec4(0,       0,       1,       0);
+  mvm[3] = glm::vec4(m[2][0], m[2][1], 0, m[2][2]);
+  
+  SetModelviewMatrix(mvm);
+}
+
 void Canvas::DrawRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size) {
   glBegin(GL_LINE_LOOP);
     glColor4fv(glm::value_ptr(clr));

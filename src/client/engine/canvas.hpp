@@ -18,6 +18,7 @@ public:
   bool Init();
 
   void SetCoordinateType(CoordinateType ct);
+  void SetTransform(const glm::mat3x3& m);
   
   void DrawRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size);
   void FillRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size);
