@@ -32,7 +32,7 @@
 
 namespace {
 
-bm::uint32_t min(bm::uint32_t a, bm::uint32_t b) {
+uint32_t min(uint32_t a, uint32_t b) {
   return a < b ? a : b;
 }
 

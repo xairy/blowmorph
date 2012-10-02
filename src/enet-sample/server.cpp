@@ -17,7 +17,7 @@ int main() {
 
   printf("Server started.\n");
 
-  bm::uint32_t timeout = 100;
+  uint32_t timeout = 100;
   std::vector<char> data;
 
   while(true) {
