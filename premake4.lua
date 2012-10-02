@@ -255,3 +255,14 @@ solution "blowmorph"
     
     files { "src/IniFile/**.cpp",
             "src/IniFile/**.hpp" }
+  
+  project "SimpleLeakDetector"
+    kind "SharedLib"
+    language "C++"
+    
+    defines "SIMPLELEAKDETECTOR_DLL"
+    
+    includedirs { "src", "inc" }
+    
+    files { "src/SimpleLeakDetector/**.cpp",
+            "src/SimpleLeakDetector/**.hpp" }
