@@ -17,6 +17,7 @@ public:
   
   bool Init();
 
+  glm::vec2 GetSize();
   void SetCoordinateType(CoordinateType ct);
   void SetTransform(const glm::mat3x3& m);
   
