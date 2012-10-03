@@ -2,6 +2,7 @@
 #define BLOWMORPH_CLIENT_GAME_CONTROLLER_HPP_
 
 #include <base/macros.hpp>
+#include <base/protocol.hpp> // XXX: do we need it here?
 
 namespace bm {
 
@@ -15,10 +16,14 @@ public:
   bool Initialize(PacketProcesser* packet_processer);
   bool Finalize();
 
+  void SetClientOptions(const ClientOptions& client_options);
+
 private:
   DISALLOW_COPY_AND_ASSIGN(GameController);
 
   PacketProcesser* _packet_processer;
+
+  ClientOptions _client_options;
 
   enum {
     STATE_GAME_STARTED,

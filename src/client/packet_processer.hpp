@@ -20,7 +20,9 @@ public:
   bool Finalize();
 
 private:
-  bool _Decode(const char* message, size_t length);
+  bool decode(const char* message, size_t length);
+
+  bool decodeClientOptions(const char* data, size_t length);
 
 private:
   class NetworkControllerListener : public NetworkController::Listener {
