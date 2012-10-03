@@ -22,7 +22,7 @@
 
 #include <interpolator/interpolator.hpp>
 
-#include <IniFile/IniFile.hpp>
+#include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
 #include "engine/render_window.hpp"
@@ -1140,20 +1140,29 @@ int main(int argc, char** argv) {
 /*
 #include "network_controller.hpp"
 #include "packet_processer.hpp"
+#include "renderer.hpp"
 
 int main(int argc, char** argv) {
-  NetworkController nc;
-  bool rv = nc.Initialize("127.0.0.1", 4242);
-  CHECK(rv == true);
-  rv = nc.Connect(500);
-  CHECK(rv == true);
+  //NetworkController nc;
+  //bool rv = nc.Initialize("127.0.0.1", 4242);
+  //CHECK(rv == true);
+  //rv = nc.Connect(500);
+  //CHECK(rv == true);
 
-  PacketProcesser pp;
-  rv = pp.Initialize(&nc, (GameController*)(1));
+  //PacketProcesser pp;
+  //rv = pp.Initialize(&nc, (GameController*)(1));
+  //CHECK(rv == true);
+
+  Renderer rr;
+  bool rv = rr.Initialize(NULL);
   CHECK(rv == true);
 
   while(true) {
-    rv = nc.Service();
+    //rv = nc.Service();
+    //CHECK(rv == true);
+    rv = rr.Render();
+    CHECK(rv == true);
+    rv = rr.PumpEvents();
     CHECK(rv == true);
   }
 

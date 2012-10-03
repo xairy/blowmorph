@@ -4,6 +4,7 @@
 
 #include <base/error.hpp>
 #include <base/macros.hpp>
+#include <base/protocol.hpp>
 
 #include "game_controller.hpp"
 #include "network_controller.hpp"
