@@ -323,7 +323,7 @@ bool TextWriter::InitFont(std::string file_name, int pixel_size) {
   _our_font = new FontData();
   
   if(!_our_font->fontData.init(file_name.c_str(), pixel_size)) {
-    fprintf(stderr, "Coudn't intialize font\n");
+    fprintf(stderr, "Coudn't initialize font\n");
     _state = STATE_ERROR;
     return false;
   }
