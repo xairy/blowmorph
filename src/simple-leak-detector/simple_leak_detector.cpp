@@ -1,5 +1,5 @@
 #define SIMPLELEAKDETECTOR_PRIVATE
-#include "SimpleLeakDetector.hpp"
+#include "simple_leak_detector.hpp"
 #undef SIMPLELEAKDETECTOR_PRIVATE
 
 #include <cassert>

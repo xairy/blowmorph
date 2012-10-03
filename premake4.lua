@@ -106,7 +106,7 @@ solution "blowmorph"
     links { "bm-enet" }
     links { "interpolator" }
     
-    links { "IniFile" }    
+    links { "ini-file" }
     
     resource("data", "data")
       
@@ -245,7 +245,7 @@ solution "blowmorph"
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }
 
-  project "IniFile"
+  project "ini-file"
     kind "SharedLib"
     language "C++"
     
@@ -253,10 +253,10 @@ solution "blowmorph"
     
     includedirs { "src", "inc" }
     
-    files { "src/IniFile/**.cpp",
-            "src/IniFile/**.hpp" }
+    files { "src/ini-file/**.cpp",
+            "src/ini-file/**.hpp" }
   
-  project "SimpleLeakDetector"
+  project "simple-leak-detector"
     kind "SharedLib"
     language "C++"
     
@@ -264,5 +264,5 @@ solution "blowmorph"
     
     includedirs { "src", "inc" }
     
-    files { "src/SimpleLeakDetector/**.cpp",
-            "src/SimpleLeakDetector/**.hpp" }
+    files { "src/simple-leak-detector/**.cpp",
+            "src/simple-leak-detector/**.hpp" }
