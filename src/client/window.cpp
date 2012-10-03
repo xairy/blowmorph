@@ -1,4 +1,4 @@
-#include "renderer.hpp"
+#include "window.hpp"
 
 #include <SDL/SDL.h>
 
@@ -15,12 +15,12 @@
 
 namespace bm {
 
-Renderer::Renderer() : _state(STATE_FINALIZED) { }
-Renderer::~Renderer() {
+Window::Window() : _state(STATE_FINALIZED) { }
+Window::~Window() {
   CHECK(_state == STATE_FINALIZED);
 }
 
-bool Renderer::Initialize(GameController* game_controller) {
+bool Window::Initialize(GameController* game_controller) {
   CHECK(_state == STATE_FINALIZED);
 
   if (!_render_window.Initialize("Blowmorph", 600, 600, false)) {
@@ -39,7 +39,7 @@ bool Renderer::Initialize(GameController* game_controller) {
   return true;
 }
 
-void Renderer::Finalize() {
+void Window::Finalize() {
   CHECK(_state == STATE_INITIALIZED);
 
   _game_controller = NULL;
@@ -48,12 +48,12 @@ void Renderer::Finalize() {
   _state = STATE_FINALIZED;
 }
 
-bool Renderer::Render() {
+bool Window::Render() {
   _render_window.SwapBuffers();
   return true;
 }
 
-bool Renderer::PumpEvents() {
+bool Window::PumpEvents() {
   SDL_Event event;
   while(SDL_PollEvent(&event)) {
     /*if(!_ProcessEvent(&event)) {
