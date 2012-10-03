@@ -44,6 +44,14 @@ bool Canvas::Init() {
   return true;
 }
 
+glm::vec2 Canvas::GetSize() {
+  glm::vec2 leftTopCorner;
+  glm::vec2 rightBottomCorner;
+  GetViewport(leftTopCorner, rightBottomCorner);
+  glm::vec2 result = rightBottomCorner - leftTopCorner;
+  return result;
+}
+
 void Canvas::SetCoordinateType(CoordinateType ct) {
   glm::vec2 leftTopCorner;
   glm::vec2 rightBottomCorner;
