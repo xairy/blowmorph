@@ -1,6 +1,7 @@
 #include "game_controller.hpp"
 
 #include <base/macros.hpp>
+#include <base/protocol.hpp>
 
 namespace bm {
 
@@ -26,6 +27,15 @@ bool GameController::Finalize() {
 
   _state = STATE_FINALIZED;
   return true;
+}
+
+void GameController::SetClientOptions(const ClientOptions& client_options) {
+  CHECK(_state == STATE_INITIALIZED);
+  CHECK(_game_state == STATE_GAME_STARTED);
+
+  _client_options = client_options;
+
+  _game_state = STATE_GAME_SYNCHRONIZATION;
 }
 
 } // namespace bm

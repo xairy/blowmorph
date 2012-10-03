@@ -64,18 +64,43 @@ void PacketProcesser::NetworkControllerListener::OnConnect() { }
 void PacketProcesser::NetworkControllerListener::OnDisconnect() { }
 void PacketProcesser::NetworkControllerListener::OnMessageSent(const char* message, size_t length) { }
 void PacketProcesser::NetworkControllerListener::OnMessageReceived(const char* message, size_t length) {
-  _packet_processer->_Decode(message, length);
+  _packet_processer->decode(message, length);
 }
 
 #include <cstdio>
 
-bool PacketProcesser::_Decode(const char* message, size_t length) {
-  // TODO.
-  fprintf(stderr, "Received %u bytes: '", length);
+bool PacketProcesser::decode(const char* message, size_t length) {
+  if(length < sizeof(Packet::Type)) {
+    BM_ERROR("Packet has wrong format, it is too small.");
+    return false;
+  }
+
+  const Packet::Type* packet_type = reinterpret_cast<const Packet::Type*>(message);
+  if(*packet_type == Packet::TYPE_CLIENT_OPTIONS) {
+    bool rv = decodeClientOptions(message + sizeof(Packet::Type), length - sizeof(Packet::Type));
+    if(rv == false) {
+      BM_ERROR("Could not decode client options packet!");
+      return false;
+    }
+    fprintf(stderr, "Received client options.\n");
+    return true;
+  }
+
+  /*fprintf(stderr, "Received %u bytes: '", length);
   for(size_t i = 0; i < length; i++) {
     fprintf(stderr, "%c", message[i]);
   }
-  fprintf(stderr, "'\n");
+  fprintf(stderr, "'\n");*/
+  return true;
+}
+
+bool PacketProcesser::decodeClientOptions(const char* data, size_t length) {
+  if(length != sizeof(ClientOptions)) {
+    BM_ERROR("Wrong client options packet size!");
+    return false;
+  }
+  ClientOptions client_options = *reinterpret_cast<const ClientOptions*>(data);
+  _game_controller->SetClientOptions(client_options);
   return true;
 }
 
