@@ -83,6 +83,7 @@ solution "blowmorph"
     flags { "NoExceptions" }
   
   configuration { "windows" }
+    includedirs { "inc/win32" }
     defines { "WIN32", "_WIN32" }
     defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE" }
     
