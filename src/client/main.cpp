@@ -1140,7 +1140,7 @@ int main(int argc, char** argv) {
 /*
 #include "network_controller.hpp"
 #include "packet_processer.hpp"
-#include "renderer.hpp"
+#include "window.hpp"
 
 int main(int argc, char** argv) {
   //NetworkController nc;
@@ -1153,16 +1153,16 @@ int main(int argc, char** argv) {
   //rv = pp.Initialize(&nc, (GameController*)(1));
   //CHECK(rv == true);
 
-  Renderer rr;
-  bool rv = rr.Initialize(NULL);
+  Window ww;
+  bool rv = ww.Initialize(NULL);
   CHECK(rv == true);
 
   while(true) {
     //rv = nc.Service();
     //CHECK(rv == true);
-    rv = rr.Render();
+    rv = ww.Render();
     CHECK(rv == true);
-    rv = rr.PumpEvents();
+    rv = ww.PumpEvents();
     CHECK(rv == true);
   }
 

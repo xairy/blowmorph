@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_CLIENT_RENDERER_HPP_
-#define BLOWMORPH_CLIENT_RENDERER_HPP_
+#ifndef BLOWMORPH_CLIENT_WINDOW_HPP_
+#define BLOWMORPH_CLIENT_WINDOW_HPP_
 
 #include <base/macros.hpp>
 
@@ -14,11 +14,10 @@ namespace bm {
 
 class GameController;
 
-// XXX[xairy, 03.10.2012]: also it handles input and other SDL events?
-class Renderer {
+class Window {
 public:
-  Renderer();
-  ~Renderer();
+  Window();
+  ~Window();
 
   bool Initialize(GameController* game_controller);
   void Finalize();
@@ -28,7 +27,7 @@ public:
   bool PumpEvents();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Renderer);
+  DISALLOW_COPY_AND_ASSIGN(Window);
 
   GameController* _game_controller;
 
@@ -43,4 +42,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_CLIENT_RENDERER_HPP_
+#endif // BLOWMORPH_CLIENT_WINDOW_HPP_
