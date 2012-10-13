@@ -1,4 +1,6 @@
-﻿How to build under Microsoft Windows, Visual Studio 2008:
+﻿A simple 2D multiplayer shooter.
+
+How to build under Microsoft Windows, Visual Studio 2008:
   1. Run "premake4.exe vs2008"
   2. Build build\blowmorph.sln.
 
