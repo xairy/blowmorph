@@ -7,27 +7,39 @@
 namespace bm {
 
 class PacketProcesser;
+class Window;
 
 class GameController {
 public:
   GameController();
   ~GameController();
 
-  bool Initialize(PacketProcesser* packet_processer);
+  bool Initialize(PacketProcesser* packet_processer, Window* window);
   bool Finalize();
 
-  void SetClientOptions(const ClientOptions& client_options);
+  bool Update();
+
+  uint32_t GetTime();
+  uint32_t GetCorrectedTime();
+
+  void ProcessClientOptions(const ClientOptions& client_options);
+  void ProcessTimeSyncData(const TimeSyncData& time_dync_data);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(GameController);
 
   PacketProcesser* _packet_processer;
+  Window* _window;
 
   ClientOptions _client_options;
+  TimeSyncData _time_sync_data;
+
+  uint32_t _time_correction;
 
   enum {
     STATE_GAME_STARTED,
-    STATE_GAME_SYNCHRONIZATION,
+    STATE_GAME_TIME_SYNC_READY,
+    STATE_GAME_TIME_SYNC_REQUEST_SENT,
     STATE_GAME_LOGGED_IN
   } _game_state;
 
