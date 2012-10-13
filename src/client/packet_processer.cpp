@@ -1,6 +1,6 @@
 #include "packet_processer.hpp"
 
-#include <cstdlib>
+#include <cstdio>
 
 #include <base/error.hpp>
 #include <base/macros.hpp>
@@ -28,10 +28,7 @@ bool PacketProcesser::Initialize(
   _game_controller = game_controller;
 
   _network_controller_listener = new NetworkControllerListener(this);
-  if(_network_controller_listener == NULL) {
-    BM_ERROR("Could not allocate memory!");
-    return false;
-  }
+  CHECK(_network_controller_listener != NULL);
 
   bool rv = _network_controller->RegisterListener(_network_controller_listener);
   if(rv == false) {
@@ -67,6 +64,24 @@ void PacketProcesser::NetworkControllerListener::OnMessageReceived(const char* m
   _packet_processer->decode(message, length);
 }
 
+bool PacketProcesser::SendTimeSyncRequest(uint32_t time) {
+  TimeSyncData request_data;
+  request_data.client_time = time;
+  Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;
+
+  std::vector<char> message;
+  message.insert(message.end(), reinterpret_cast<char*>(&request_type),
+    reinterpret_cast<char*>(&request_type) + sizeof(request_type));
+  message.insert(message.end(), reinterpret_cast<char*>(&request_data),
+    reinterpret_cast<char*>(&request_data) + sizeof(request_data));
+
+  bool rv = _network_controller->SendMessage(&message[0], message.size());
+  if(rv == false) {
+    return false;
+  }
+  return true;
+}
+
 #include <cstdio>
 
 bool PacketProcesser::decode(const char* message, size_t length) {
@@ -82,7 +97,15 @@ bool PacketProcesser::decode(const char* message, size_t length) {
       BM_ERROR("Could not decode client options packet!");
       return false;
     }
-    fprintf(stderr, "Received client options.\n");
+    printf("Received client options.\n");
+    return true;
+  } else if(*packet_type == Packet::TYPE_SYNC_TIME_RESPONSE) {
+    bool rv = decodeTimeSyncData(message + sizeof(Packet::Type), length - sizeof(Packet::Type));
+    if(rv == false) {
+      BM_ERROR("Could not decode time synchronization data packet!");
+      return false;
+    }
+    printf("Received time synchronization data.\n");
     return true;
   }
 
@@ -100,7 +123,17 @@ bool PacketProcesser::decodeClientOptions(const char* data, size_t length) {
     return false;
   }
   ClientOptions client_options = *reinterpret_cast<const ClientOptions*>(data);
-  _game_controller->SetClientOptions(client_options);
+  _game_controller->ProcessClientOptions(client_options);
+  return true;
+}
+
+bool PacketProcesser::decodeTimeSyncData(const char* data, size_t length) {
+  if(length != sizeof(TimeSyncData)) {
+    BM_ERROR("Wrong client options packet size!");
+    return false;
+  }
+  TimeSyncData time_sync_data = *reinterpret_cast<const TimeSyncData*>(data);
+  _game_controller->ProcessTimeSyncData(time_sync_data);
   return true;
 }
 

@@ -39,6 +39,7 @@ public:
   bool Connect(uint32_t timeout);
   bool Disconnect(uint32_t timeout);
 
+  // TODO[xairy]: reliable / unreliable.
   bool SendMessage(const char* message, size_t length);
 
   bool RegisterListener(Listener* listener);

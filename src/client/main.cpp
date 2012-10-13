@@ -1043,7 +1043,7 @@ private:
   
   IniFile::RecordMap settings;
 };
-/*
+
 int main(int argc, char** argv) { 
   Application app;
   if(!app.Execute()) {
@@ -1057,8 +1057,8 @@ int main(int argc, char** argv) {
   //bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
-*/
 
+/*
 #include "game_controller.hpp"
 #include "network_controller.hpp"
 #include "packet_processer.hpp"
@@ -1071,26 +1071,28 @@ int main(int argc, char** argv) {
   rv = nc.Connect(500);
   CHECK(rv == true);
 
-  GameController gc;
-
   PacketProcesser pp;
+  GameController gc;
+  Window ww;
+
   rv = pp.Initialize(&nc, &gc);
   CHECK(rv == true);
 
-  rv = gc.Initialize(&pp);
+  rv = gc.Initialize(&pp, &ww);
   CHECK(rv == true);
 
-  //Window ww;
-  //bool rv = ww.Initialize(NULL);
-  //CHECK(rv == true);
+  rv = ww.Initialize(NULL);
+  CHECK(rv == true);
 
   while(true) {
     rv = nc.Service();
     CHECK(rv == true);
-    //rv = ww.Render();
-    //CHECK(rv == true);
-    //rv = ww.PumpEvents();
-    //CHECK(rv == true);
+    rv = gc.Update();
+    CHECK(rv == true);
+    rv = ww.Render();
+    CHECK(rv == true);
+    rv = ww.PumpEvents();
+    CHECK(rv == true);
   }
 
   nc.Finalize();
@@ -1098,7 +1100,8 @@ int main(int argc, char** argv) {
   CHECK(rv == true);
   rv = gc.Finalize();
   CHECK(rv == true);
+  ww.Finalize();
 
   return EXIT_SUCCESS;
 }
-
+*/
