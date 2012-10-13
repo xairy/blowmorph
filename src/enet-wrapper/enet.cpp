@@ -56,10 +56,7 @@ ClientHost* Enet::CreateClientHost(
 
 Event* Enet::CreateEvent() {
   Event* event = new Event;
-  if(event == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(event != NULL);
   return event;
 }
 

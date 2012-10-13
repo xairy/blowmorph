@@ -36,10 +36,7 @@ Player* Player::Create(
   int morph_regeneration = _settings->GetValue("player.morph.regeneration", 0);
 
   std::auto_ptr<Player> player(new Player(world_manager, id));
-  if(player.get() == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(player.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("player.shape"));
   if(shape.get() == NULL) {

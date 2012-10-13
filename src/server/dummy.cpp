@@ -25,10 +25,7 @@ Dummy* Dummy::Create(
   float speed = settings->GetValue("dummy.speed", 0.0f);
 
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
-  if(dummy.get() == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(dummy.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("dummy.shape"));
   if(shape.get() == NULL) {

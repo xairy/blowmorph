@@ -17,10 +17,7 @@ ClientHost* ClientHost::Create (
   uint32_t outgoing_bandwidth
 ) {
   ClientHost* client = new ClientHost();
-  if(client == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(client != NULL);
 
   client->_client = enet_host_create(NULL, 1, channel_count, incoming_bandwidth, outgoing_bandwidth);
   if(client->_client == NULL) {
