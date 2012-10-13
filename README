@@ -1,13 +1,13 @@
-﻿Сборка под Microsoft Windows, Visual Studio 2008:
-  1. Запустить в консоли "premake4.exe vs2008"
-  2. Собрать build\blowmorph.sln с помощью Visual Studio 2008
+﻿How to build under Microsoft Windows, Visual Studio 2008:
+  1. Run "premake4.exe vs2008"
+  2. Build build\blowmorph.sln.
 
-Сборка под Ubuntu Linux:
-  1. Установить SDL-1.2.15
-  2. Установить glew
-  3. Установить FreeImage
-  4. Установить FreeType
-  5. Установить pugixml-1.2
+How to build under Ubuntu Linux:
+  1. Install SDL-1.2.15
+  2. Install glew
+  3. Install FreeImage
+  4. Install FreeType
+  5. Install pugixml-1.2
   6. ./premake4 gmake
   7. cd build
   8. make
@@ -20,4 +20,3 @@ How-to compile SDL2 under linux:
   ./configure
   make
   sudo make install
-
