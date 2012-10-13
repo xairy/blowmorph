@@ -22,10 +22,7 @@ Wall* Wall::Create(
   Type type
 ) {
   std::auto_ptr<Wall> wall(new Wall(world_manager, id));
-  if(wall.get() == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(wall.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("wall.shape"));
   if(shape.get() == NULL) {

@@ -24,10 +24,7 @@ Station* Station::Create(
   Type type
 ) {
   std::auto_ptr<Station> station(new Station(world_manager, id));
-  if(station.get() == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(station.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("station.shape"));
   if(shape.get() == NULL) {
