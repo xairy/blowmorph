@@ -298,15 +298,14 @@ private:
       Vector2f(0.0f, 0.0f)
     );
     if(player == NULL) {
-      BM_ERROR("Unable to allocate memory!");
+      BM_ERROR("Unable to create player!");
       return false;
     }
     player->Respawn();
+
     Client* client = new Client(peer.release(), player);
-    if(client == NULL) {
-      BM_ERROR("Unable to allocate memory!");
-      return false;
-    }
+    CHECK(client != NULL);
+
     _client_manager.AddClient(client_id, client);
     _world_manager.AddEntity(client_id, player);
 

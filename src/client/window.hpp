@@ -2,6 +2,7 @@
 #define BLOWMORPH_CLIENT_WINDOW_HPP_
 
 #include <base/macros.hpp>
+#include <base/pstdint.hpp>
 
 //#include "engine/animation.hpp"
 #include "engine/canvas.hpp"
@@ -23,7 +24,6 @@ public:
   void Finalize();
 
   bool Render();
-
   bool PumpEvents();
 
 private:

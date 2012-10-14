@@ -31,10 +31,7 @@ bool Animation::Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic)
   _frames.resize(_frame_count, NULL);
   for(size_t frame = 0; frame < _frame_count; frame++) {
     Sprite* sprite = new Sprite();
-    if(sprite == NULL) {
-      BM_ERROR("Unable to allocate memory!");
-      return false;
-    }
+    CHECK(sprite != NULL);
     _frames[frame] = sprite;
     if(!sprite->Init(texture, frame)) {
       return false;
