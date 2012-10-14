@@ -1,6 +1,7 @@
 #ifndef BM_INTERPOLATOR_HPP_
 #define BM_INTERPOLATOR_HPP_
 
+#include <cstddef>
 #include <list>
 
 namespace interpolator {
