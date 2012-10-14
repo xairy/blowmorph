@@ -1,6 +1,7 @@
 #ifndef SIMPLELEAKDETECTOR_HPP_
 #define SIMPLELEAKDETECTOR_HPP_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef _WIN32
