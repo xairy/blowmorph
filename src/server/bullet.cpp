@@ -27,10 +27,7 @@ Bullet* Bullet::Create(
   float speed = settings->GetValue("bullet.speed", 0.0f);
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
-  if(bullet.get() == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(bullet.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("bullet.shape"));
   if(shape.get() == NULL) {

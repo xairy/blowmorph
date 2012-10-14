@@ -82,17 +82,11 @@ TextureAtlas* LoadOldTexture(const std::string& path,
   }
   
   TextureAtlas* result = new TextureAtlas();
-  if (result == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(result != NULL);
   
   result->texture = new Texture();
-  if (result->texture == NULL) {
-    delete result;
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(result->texture != NULL);
+
   if (!result->texture->Create(image.Width(), image.Height())) {
     delete result->texture;
     delete result;

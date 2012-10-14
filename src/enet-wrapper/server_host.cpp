@@ -16,10 +16,7 @@ ServerHost* ServerHost::Create(
   uint32_t outgoing_bandwidth
 ) {
   ServerHost* server = new ServerHost();
-  if(server == NULL) {
-    BM_ERROR("Unable to allocate memory!");
-    return NULL;
-  }
+  CHECK(server != NULL);
 
   ENetAddress address;
   address.host = ENET_HOST_ANY;

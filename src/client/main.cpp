@@ -736,10 +736,7 @@ private:
           
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), 0, _client_options->id);
-          if(_player == NULL) {
-            BM_ERROR("Unable to allocate memory!");
-            return false;
-          }
+          CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
           _player->SetSprite(_player_texture);
@@ -765,10 +762,7 @@ private:
               // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
               // TODO[12.08.2012 xairy]: remove magic numbers;
               Animation* animation = new Animation();
-              if(animation == NULL) {
-                BM_ERROR("Unable to allocate memory!");
-                return false;
-              }
+              CHECK(animation != NULL);
               bool rv = animation->Initialize(_explosion_texture, 30);
               if(rv == false) {
                 return false;
@@ -1138,33 +1132,48 @@ int main(int argc, char** argv) {
 }
 
 /*
+#include "game_controller.hpp"
 #include "network_controller.hpp"
 #include "packet_processer.hpp"
 #include "window.hpp"
 
 int main(int argc, char** argv) {
-  //NetworkController nc;
-  //bool rv = nc.Initialize("127.0.0.1", 4242);
-  //CHECK(rv == true);
-  //rv = nc.Connect(500);
-  //CHECK(rv == true);
+  NetworkController nc;
+  bool rv = nc.Initialize("127.0.0.1", 4242);
+  CHECK(rv == true);
+  rv = nc.Connect(500);
+  CHECK(rv == true);
 
-  //PacketProcesser pp;
-  //rv = pp.Initialize(&nc, (GameController*)(1));
-  //CHECK(rv == true);
-
+  PacketProcesser pp;
+  GameController gc;
   Window ww;
-  bool rv = ww.Initialize(NULL);
+
+  rv = pp.Initialize(&nc, &gc);
+  CHECK(rv == true);
+
+  rv = gc.Initialize(&pp, &ww);
+  CHECK(rv == true);
+
+  rv = ww.Initialize(NULL);
   CHECK(rv == true);
 
   while(true) {
-    //rv = nc.Service();
-    //CHECK(rv == true);
+    rv = nc.Service();
+    CHECK(rv == true);
+    rv = gc.Update();
+    CHECK(rv == true);
     rv = ww.Render();
     CHECK(rv == true);
     rv = ww.PumpEvents();
     CHECK(rv == true);
   }
+
+  nc.Finalize();
+  rv = pp.Finalize();
+  CHECK(rv == true);
+  rv = gc.Finalize();
+  CHECK(rv == true);
+  ww.Finalize();
 
   return EXIT_SUCCESS;
 }
