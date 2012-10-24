@@ -1,6 +1,6 @@
 ﻿A simple crossplatform 2D multiplayer shooter.
 
-The demo is available at the Downloads section.
+The demo is available in the Downloads section.
 
 How to build under Microsoft Windows, Visual Studio 2008:
   1. Run "premake4.exe vs2008"
