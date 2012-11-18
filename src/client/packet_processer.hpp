@@ -5,6 +5,7 @@
 
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
+#include <base/protocol.hpp>
 
 #include "network_controller.hpp"
 
@@ -20,7 +21,7 @@ public:
   bool Initialize(NetworkController* network_controller, GameController* game_controller);
   bool Finalize();
 
-  bool SendTimeSyncRequest(uint32_t time);
+  bool SendTimeSyncRequest(TimeType time);
 
 private:
   bool decode(const char* message, size_t length);

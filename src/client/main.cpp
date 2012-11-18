@@ -64,9 +64,10 @@ typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolat
 // TODO[24.7.2012 alex]: fix method names
 class Object {
 public:
+  // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, TimeType time, int id)
     : _id(id), _sprite_set(false), _interpolation_enabled(false),
-    _caption_enabled(false), _interpolator(ObjectInterpolator(75))
+    _caption_enabled(false), _interpolator(ObjectInterpolator(TimeType(75)))
   {
     _current_state.position = position;
     _interpolator.Push(_current_state, time);
@@ -235,7 +236,7 @@ public:
       }
       _Render();
 
-      uint32_t current_time = _GetTime();
+      TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
         _SendInputEvents();
@@ -352,9 +353,9 @@ private:
     _peer = NULL;
     _event = NULL;
 
-    _connect_timeout = 500;
-    _time_correction = 0;
-    _last_tick = 0;
+    _connect_timeout = TimeType(500);
+    _time_correction = TimeType(0);
+    _last_tick = TimeType(0);
     _tick_rate = 30;
 
     _resolution_x = 600;
@@ -701,7 +702,7 @@ private:
           
           // Send a time synchronization request.
           TimeSyncData request_data;
-          request_data.client_time = SDL_GetTicks();
+          request_data.client_time = TimeType(SDL_GetTicks());
           Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;
 
           std::vector<char> message;
@@ -725,8 +726,8 @@ private:
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          uint32_t client_time = SDL_GetTicks(); 
-          uint32_t latency = (client_time - response_data->client_time) / 2;
+          TimeType client_time = TimeType(SDL_GetTicks()); 
+          TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
           printf("Time correction is %u ms.\n", _time_correction);
@@ -735,7 +736,7 @@ private:
           _network_state = NETWORK_STATE_LOGGED_IN;
           
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
-          _player = new Object(glm::vec2(_client_options->x, _client_options->y), 0, _client_options->id);
+          _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0), _client_options->id);
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -774,7 +775,7 @@ private:
             }
           } else {
             glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
-            uint32_t time = snapshot->time;
+            TimeType time = snapshot->time;
 
             if(snapshot->id == _player->GetId()) {
               glm::vec2 distance = _player->GetPosition() - position;
@@ -880,8 +881,8 @@ private:
 
   bool _Loop() {   
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      uint32_t current_time = _GetTime();
-      uint32_t delta_time = current_time - _last_loop;
+      TimeType current_time = _GetTime();
+      TimeType delta_time = current_time - _last_loop;
       _last_loop = current_time;
 
       glm::float_t delta_x = (_keyboard_state.right - _keyboard_state.left) * _client_options->speed * delta_time;
@@ -954,8 +955,8 @@ private:
   }
 
   // Returns approximate server time (with the correction).
-  uint32_t _GetTime() {
-    return SDL_GetTicks() + _time_correction;
+  TimeType _GetTime() {
+    return TimeType(SDL_GetTicks()) + _time_correction;
   }
   
   void _RenderHUD() {
@@ -1024,7 +1025,7 @@ private:
   bool _Disconnect() {
     _peer->Disconnect();
 
-    uint32_t start = _GetTime();
+    TimeType start = _GetTime();
     while(_GetTime() - start <= _connect_timeout) {
       bool rv = _client->Service(_event, _connect_timeout);
       if(rv == false) {
@@ -1048,11 +1049,11 @@ private:
   Event* _event;
 
   // In milliseconds.
-  uint32_t _connect_timeout;
-  uint32_t _time_correction;
-  uint32_t _last_tick;
-  uint32_t _tick_rate;
-  uint32_t _last_loop;
+  TimeType _connect_timeout;
+  TimeType _time_correction;
+  TimeType _last_tick;
+  int _tick_rate;
+  TimeType _last_loop;
 
   int _resolution_x;
   int _resolution_y;

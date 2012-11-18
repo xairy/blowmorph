@@ -19,7 +19,7 @@ Dummy* Dummy::Create(
   WorldManager* world_manager,
   uint32_t id,
   const Vector2f& position,
-  uint32_t time
+  TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetValue("dummy.speed", 0.0f);
@@ -51,17 +51,17 @@ bool Dummy::IsStatic() {
   return false;
 }
 
-void Dummy::Update(uint32_t time) {
+void Dummy::Update(TimeType time) {
   _prev_position = _shape->GetPosition();
   if(_meat != NULL) {
-    uint32_t dt = time - _last_update;
+    TimeType dt = time - _last_update;
     Vector2f direction = _meat->GetPosition() - GetPosition();
     direction = Normalize(direction);
     _shape->Move(direction * _speed * static_cast<float>(dt));
   }
   _last_update = time;
 }
-void Dummy::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+void Dummy::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_DUMMY;
   output->time = time;
   output->id = _id;

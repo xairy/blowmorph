@@ -29,8 +29,8 @@ public:
   virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0;
 
-  virtual void Update(uint32_t time) = 0;
-  virtual void GetSnapshot(uint32_t time, EntitySnapshot* output) = 0;
+  virtual void Update(TimeType time) = 0;
+  virtual void GetSnapshot(TimeType time, EntitySnapshot* output) = 0;
 
   virtual void OnEntityAppearance(Entity* entity) = 0;
   virtual void OnEntityDisappearance(Entity* entity) = 0;

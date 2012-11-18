@@ -19,8 +19,8 @@ public:
 
   bool Update();
 
-  uint32_t GetTime();
-  uint32_t GetCorrectedTime();
+  TimeType GetTime();
+  TimeType GetCorrectedTime();
 
   void ProcessClientOptions(const ClientOptions& client_options);
   void ProcessTimeSyncData(const TimeSyncData& time_dync_data);
@@ -34,7 +34,7 @@ private:
   ClientOptions _client_options;
   TimeSyncData _time_sync_data;
 
-  uint32_t _time_correction;
+  TimeType _time_correction;
 
   enum {
     STATE_GAME_STARTED,

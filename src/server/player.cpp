@@ -47,7 +47,7 @@ Player* Player::Create(
   player->_shape = shape.release();
   player->_prev_position = position;
   player->_speed = speed;
-  player->_last_update_time = 0;
+  player->_last_update_time = TimeType(0);
 
   player->_health = max_health;
   player->_max_health = max_health;
@@ -67,10 +67,10 @@ Player* Player::Create(
   player->_keyboard_state.down = false;
   player->_keyboard_state.left = false;
   player->_keyboard_state.right = false;
-  player->_keyboard_update_time.up = 0;
-  player->_keyboard_update_time.down = 0;
-  player->_keyboard_update_time.right = 0;
-  player->_keyboard_update_time.left = 0;
+  player->_keyboard_update_time.up = TimeType(0);
+  player->_keyboard_update_time.down = TimeType(0);
+  player->_keyboard_update_time.right = TimeType(0);
+  player->_keyboard_update_time.left = TimeType(0);
 
   return player.release();
 }
@@ -83,7 +83,7 @@ bool Player::IsStatic() {
   return false;
 }
 
-void Player::Update(uint32_t time) {
+void Player::Update(TimeType time) {
   uint32_t delta_time = time - _last_update_time;
   _last_update_time = time;
 
@@ -109,7 +109,7 @@ void Player::Update(uint32_t time) {
   }
 }
 
-void Player::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+void Player::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;
   output->time = time;
   output->id = _id;
@@ -217,7 +217,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
   }
 }
 
-bool Player::OnMouseEvent(const MouseEvent& event, uint32_t time) {
+bool Player::OnMouseEvent(const MouseEvent& event, TimeType time) {
   if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
     if(_blow_charge >= _blow_consumption) {

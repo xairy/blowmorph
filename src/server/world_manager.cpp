@@ -146,7 +146,7 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
-void WorldManager::UpdateEntities(uint32_t time) {
+void WorldManager::UpdateEntities(TimeType time) {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
   for(i = _static_entities.begin(); i != end; ++i) {
@@ -202,7 +202,7 @@ bool WorldManager::CreateBullet(
   uint32_t owner_id,
   const Vector2f& start,
   const Vector2f& end,
-  uint32_t time
+  TimeType time
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
@@ -217,7 +217,7 @@ bool WorldManager::CreateBullet(
 
 bool WorldManager::CreateDummy(
   const Vector2f& position,
-  uint32_t time
+  TimeType time
 ) {
   uint32_t id = _id_manager->NewId();
   Dummy* dummy = Dummy::Create(this, id, position, time);

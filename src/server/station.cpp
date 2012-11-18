@@ -50,9 +50,9 @@ bool Station::IsStatic() {
   return false;
 }
 
-void Station::Update(uint32_t time) { }
+void Station::Update(TimeType time) { }
 
-void Station::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+void Station::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_STATION;
   output->time = time;
   output->id = _id;

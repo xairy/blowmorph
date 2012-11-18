@@ -22,7 +22,7 @@ bool GameController::Initialize(PacketProcesser* packet_processer, Window* windo
   _packet_processer = packet_processer;
   _window = window;
   _game_state = STATE_GAME_STARTED;
-  _time_correction = 0;
+  _time_correction = TimeType(0);
 
   _state = STATE_INITIALIZED;
   return true;
@@ -52,12 +52,12 @@ bool GameController::Update() {
   return true;
 }
 
-uint32_t GameController::GetTime() {
+TimeType GameController::GetTime() {
   // TODO.
-  return 0;
+  return TimeType(0);
 }
 
-uint32_t GameController::GetCorrectedTime() {
+TimeType GameController::GetCorrectedTime() {
   return GetTime() + _time_correction;
 }
 
@@ -76,11 +76,11 @@ void GameController::ProcessTimeSyncData(const TimeSyncData& time_sync_data) {
 
   _time_sync_data = time_sync_data;
 
-  uint32_t time = GetTime();
+  TimeType time = GetTime();
 
   // XXX[xairy]: remove 'CHECK's when all time variables are 'int64_t'?
   CHECK(time >= time_sync_data.client_time);
-  uint32_t latency = time - time_sync_data.client_time;
+  TimeType latency = time - time_sync_data.client_time;
 
   CHECK(time_sync_data.server_time + latency / 2 >= time);
   _time_correction = time_sync_data.server_time + latency / 2 - time;
