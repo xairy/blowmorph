@@ -6,6 +6,8 @@
 
 namespace bm {
 
+typedef int64_t TimeType;
+
 class Packet {
 public:
   enum Type {

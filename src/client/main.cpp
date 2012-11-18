@@ -59,12 +59,12 @@ namespace interpolator {
   }
 };
 
-typedef interpolator::LinearInterpolator<ObjectState, uint32_t> ObjectInterpolator;
+typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolator;
 
 // TODO[24.7.2012 alex]: fix method names
 class Object {
 public:
-  Object(const glm::vec2& position, uint32_t time, int id)
+  Object(const glm::vec2& position, TimeType time, int id)
     : _id(id), _sprite_set(false), _interpolation_enabled(false),
     _caption_enabled(false), _interpolator(ObjectInterpolator(75))
   {
@@ -122,20 +122,20 @@ public:
     _caption_enabled = false;
   }
 
-  void UpdateCurrentState(const ObjectState& state, uint32_t time) {
+  void UpdateCurrentState(const ObjectState& state, TimeType time) {
     if(_interpolation_enabled) {
       _interpolator.Push(state, time);
     }
     _current_state = state;
   }
   
-  void EnforceState(const ObjectState& state, uint32_t time) {
+  void EnforceState(const ObjectState& state, TimeType time) {
     _interpolator.Clear();
     _interpolator.Push(state, time);
     _current_state = state;
   }
 
-  void Render(uint32_t time) {
+  void Render(TimeType time) {
     if(_interpolation_enabled) {
       _current_state = _interpolator.Interpolate(time);
     }
