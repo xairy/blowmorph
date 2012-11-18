@@ -1,4 +1,7 @@
-﻿#include <cstdio>
+﻿// XXX[xairy]: linux fix.
+#define __STDC_LIMIT_MACROS
+
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -338,6 +341,8 @@ private:
     size_t itemCount = menu.items.size();
     float firstY = itemCount * ITEM_HEIGHT / 2;
     for (size_t i = 0; i < itemCount; i++) {
+
+
       MenuItem item = menu.items[i];
       
       glm::vec2 pos = glm::vec2(-ITEM_WIDTH / 2, firstY - i * ITEM_HEIGHT);
@@ -748,8 +753,8 @@ private:
           TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
-          printf("Time correction is %u ms.\n", _time_correction);
-          printf("Latency is %u.\n", latency);
+          printf("Time correction is %lld ms.\n", _time_correction);
+          printf("Latency is %lld.\n", latency);
 
           _network_state = NETWORK_STATE_LOGGED_IN;
           
