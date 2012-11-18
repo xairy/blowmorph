@@ -84,7 +84,7 @@ bool Player::IsStatic() {
 }
 
 void Player::Update(TimeType time) {
-  uint32_t delta_time = time - _last_update_time;
+  TimeType delta_time = time - _last_update_time;
   _last_update_time = time;
 
   _prev_position = _shape->GetPosition();
@@ -95,15 +95,16 @@ void Player::Update(TimeType time) {
     + _keyboard_state.down * (_speed);
   _shape->Move(velocity * static_cast<float>(delta_time));
 
-  _health += delta_time * _health_regeneration;
+  // FIXME[18.11.2012 alex]: casts to int?
+  _health += (int) delta_time * _health_regeneration;
   if(_health > _max_health) {
     _health = _max_health;
   }
-  _blow_charge += delta_time * _blow_regeneration;
+  _blow_charge += (int) delta_time * _blow_regeneration;
   if(_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
   }
-  _morph_charge += delta_time * _morph_regeneration;
+  _morph_charge += (int) delta_time * _morph_regeneration;
   if(_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
