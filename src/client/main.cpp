@@ -465,7 +465,8 @@ private:
       return false;
     }
 
-    bool rv = client->Service(event.get(), _connect_timeout);
+    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+    bool rv = client->Service(event.get(), (uint32_t) _connect_timeout);
     if(rv == false) {
       return false;
     }
@@ -1027,7 +1028,8 @@ private:
 
     TimeType start = _GetTime();
     while(_GetTime() - start <= _connect_timeout) {
-      bool rv = _client->Service(_event, _connect_timeout);
+      CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+      bool rv = _client->Service(_event, (uint32_t) _connect_timeout);
       if(rv == false) {
         return false;
       }

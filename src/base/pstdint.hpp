@@ -3,6 +3,7 @@
 
 #include "base/macros.hpp"
 
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 
 typedef float float32_t;

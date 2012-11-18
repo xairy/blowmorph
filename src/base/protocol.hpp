@@ -6,7 +6,7 @@
 
 namespace bm {
 
-class TimeType {
+/*class TimeType {
 public:
   TimeType() { }
   explicit TimeType(int32_t value) : value(value) { }
@@ -36,7 +36,9 @@ public:
 private:
   int32_t value;
 };
-SCHECK(sizeof(TimeType) == sizeof(int32_t));
+SCHECK(sizeof(TimeType) == sizeof(int32_t));*/
+
+typedef int64_t TimeType;
 
 class Packet {
 public:
