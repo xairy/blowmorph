@@ -6,7 +6,37 @@
 
 namespace bm {
 
-typedef int64_t TimeType;
+class TimeType {
+public:
+  TimeType() { }
+  explicit TimeType(int32_t value) : value(value) { }
+  
+  TimeType operator+(const TimeType& dt) const {
+    return TimeType(value + dt.value);
+  }
+  TimeType operator-(const TimeType& dt) const {
+    return TimeType(value - dt.value);
+  }
+  
+  int operator/(const TimeType& dt) const {
+    return (int)(value / dt.value);
+  }
+  
+  TimeType operator/(int dt) const {
+    return TimeType(value / dt);
+  }
+  
+  operator int32_t() const {
+    return value;
+  }
+  
+  bool operator >=(const TimeType& t) const {
+    return value >= t.value;
+  }
+private:
+  int32_t value;
+};
+SCHECK(sizeof(TimeType) == sizeof(int32_t));
 
 class Packet {
 public:
@@ -47,8 +77,8 @@ struct ClientOptions {
 };
 
 struct TimeSyncData {
-  uint32_t client_time;
-  uint32_t server_time;
+  TimeType client_time;
+  TimeType server_time;
 };
 
 // type == EntitySnapshot::ENTITY_TYPE_PLAYER:
@@ -93,7 +123,7 @@ struct EntitySnapshot {
     STATION_TYPE_MAX_VALUE
   };
 
-  uint32_t time;
+  TimeType time;
   uint32_t id;
   EntityType type;
   float32_t x;
@@ -113,7 +143,7 @@ struct KeyboardEvent {
     EVENT_KEYUP
   };
 
-  uint32_t time;
+  TimeType time;
   KeyType key_type;
   EventType event_type;
 };
@@ -128,7 +158,7 @@ struct MouseEvent {
     EVENT_KEYUP
   };
 
-  uint32_t time;
+  TimeType time;
   ButtonType button_type;
   EventType event_type;
   float32_t x, y;

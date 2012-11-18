@@ -170,13 +170,13 @@ private:
     if(counter == 300) {
       float x = -250.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 500.0f;
       float y = -250.0f + static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 500.0f;
-      _world_manager.CreateDummy(Vector2f(x, y), _timer.GetTime());
+      _world_manager.CreateDummy(Vector2f(x, y), TimeType(_timer.GetTime()));
       counter = 0;
       //printf("Dummy spawned at (%.2f, %.2f)\n", x, y);
     }
     counter++;
 
-    _world_manager.UpdateEntities(_timer.GetTime());
+    _world_manager.UpdateEntities(TimeType(_timer.GetTime()));
 
     _world_manager.CollideEntities();
 
@@ -352,7 +352,7 @@ private:
       packet_type == Packet::TYPE_ENTITY_UPDATED);
 
     EntitySnapshot snapshot;
-    entity->GetSnapshot(_timer.GetTime(), &snapshot);
+    entity->GetSnapshot(TimeType(_timer.GetTime()), &snapshot);
 
     bool rv = _BroadcastPacket(packet_type, snapshot, true);
     if(rv == false) {
@@ -442,7 +442,7 @@ private:
         return true;
       }
 
-      if(!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
+      if(!client->entity->OnMouseEvent(mouse_event, TimeType(_timer.GetTime()))) {
         return false;
       }
     } else if(packet_type == Packet::TYPE_SYNC_TIME_REQUEST) {
@@ -460,7 +460,7 @@ private:
         return true;
       }
 
-      sync_data.server_time = _timer.GetTime();
+      sync_data.server_time = TimeType(_timer.GetTime());
       packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
 
       rv = _SendPacket(client->peer, packet_type, sync_data, true);

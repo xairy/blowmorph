@@ -21,7 +21,7 @@ Bullet* Bullet::Create(
   uint32_t owner_id,
   const Vector2f& start,
   const Vector2f& end,
-  uint32_t time
+  TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetValue("bullet.speed", 0.0f);
@@ -54,7 +54,7 @@ bool Bullet::IsStatic() {
   return false;
 }
 
-void Bullet::Update(uint32_t time) {
+void Bullet::Update(TimeType time) {
   CHECK(time >= _start_time);
   Vector2f direction = _end - _start;
   float magnitude = Magnitude(direction);
@@ -64,7 +64,7 @@ void Bullet::Update(uint32_t time) {
   }
 }
 
-void Bullet::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+void Bullet::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_BULLET;
   output->time = time;
   output->id = _id;

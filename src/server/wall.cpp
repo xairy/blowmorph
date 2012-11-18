@@ -45,9 +45,9 @@ bool Wall::IsStatic() {
   return true;
 }
 
-void Wall::Update(uint32_t time) { }
+void Wall::Update(TimeType time) { }
 
-void Wall::GetSnapshot(uint32_t time, EntitySnapshot* output) {
+void Wall::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_WALL;
   output->time = time;
   output->id = _id;

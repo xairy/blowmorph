@@ -41,7 +41,7 @@ public:
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
   
-  void UpdateEntities(uint32_t time);
+  void UpdateEntities(TimeType time);
   void CollideEntities();
   void DestroyOutlyingEntities();
 
@@ -49,11 +49,11 @@ public:
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    uint32_t time
+    TimeType time
   );
   bool CreateDummy(
     const Vector2f& position,
-    uint32_t time
+    TimeType time
   );
   bool CreateWall(
     const Vector2f& position,

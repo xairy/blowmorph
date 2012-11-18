@@ -33,8 +33,8 @@ public:
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(uint32_t time);
-  virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);
+  virtual void Update(TimeType time);
+  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);

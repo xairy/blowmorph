@@ -20,15 +20,15 @@ public:
     WorldManager* world_manager,
     uint32_t id,
     const Vector2f& position,
-    uint32_t time
+    TimeType time
   );
   virtual ~Dummy();
 
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(uint32_t time);
-  virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);
+  virtual void Update(TimeType time);
+  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
@@ -53,7 +53,7 @@ protected:
 
   float _speed;
   Entity* _meat;
-  uint32_t _last_update;
+  TimeType _last_update;
   Vector2f _prev_position;
 };
 

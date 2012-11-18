@@ -63,7 +63,7 @@ public:
     }
     
     // subtract lag time (i.e. the difference in times on server and client)
-    time -= timeOffset;
+    time = time - timeOffset;
 
     // get the last two frames
     typename std::list<TimedFrame>::reverse_iterator it = frames.rbegin();

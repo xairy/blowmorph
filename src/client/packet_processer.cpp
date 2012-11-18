@@ -64,7 +64,7 @@ void PacketProcesser::NetworkControllerListener::OnMessageReceived(const char* m
   _packet_processer->decode(message, length);
 }
 
-bool PacketProcesser::SendTimeSyncRequest(uint32_t time) {
+bool PacketProcesser::SendTimeSyncRequest(TimeType time) {
   TimeSyncData request_data;
   request_data.client_time = time;
   Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;

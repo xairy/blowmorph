@@ -22,15 +22,15 @@ public:
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    uint32_t time
+    TimeType time
   );
   virtual ~Bullet();
 
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(uint32_t time);
-  virtual void GetSnapshot(uint32_t time, EntitySnapshot* output);
+  virtual void Update(TimeType time);
+  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
@@ -59,7 +59,7 @@ protected:
   Vector2f _start;
   Vector2f _end;
 
-  uint32_t _start_time;
+  TimeType _start_time;
 
   // Actual speed in any direction.
   float _speed;
