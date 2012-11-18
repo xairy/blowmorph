@@ -1,5 +1,6 @@
 ﻿#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <algorithm>
 
@@ -32,6 +33,12 @@
 #include "engine/canvas.hpp"
 
 //#include <base/leak_detector.hpp>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+static float fround(float f) {
+  return ::floorf(f + 0.5f);
+}
 
 using namespace bm;
 
@@ -67,10 +74,14 @@ public:
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, TimeType time, int id)
     : _id(id), _sprite_set(false), _interpolation_enabled(false),
-    _caption_enabled(false), _interpolator(ObjectInterpolator(TimeType(75)))
+    _caption_enabled(false), _interpolator(ObjectInterpolator(TimeType(75), 1))
   {
-    _current_state.position = position;
-    _interpolator.Push(_current_state, time);
+    ObjectState state;
+    state.blowCharge = 0;
+    state.health = 0;
+    state.morphCharge = 0;
+    state.position = position;
+    _interpolator.Push(state, time);
   }
 
   ~Object() {
@@ -79,30 +90,17 @@ public:
     }
   };
 
-  int GetId() const {
-    return _id;
-  }
-
   bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
     bool rv = _sprite.Init(texture, tile);
     if(rv == false) {
       return false;
     }
-    _sprite.SetPosition(_current_state.position);
     _sprite_set = true;
     return true;
   }
 
   void ResetSprite() {
     _sprite_set = false;
-  }
-
-  void EnableInterpolation() {
-    _interpolation_enabled = true;
-  }
-
-  void DisableInterpolation() {
-    _interpolation_enabled = false;
   }
 
   // TODO: think about CHECK's and stuff.
@@ -122,52 +120,72 @@ public:
     _text_writer.Destroy();
     _caption_enabled = false;
   }
+  
+  void SetPivot(const glm::vec2& value) {
+    CHECK(_sprite_set == true);
+    _sprite.SetPivot(value);
+  }
+  
+  int GetId() const {
+    return _id;
+  }
 
-  void UpdateCurrentState(const ObjectState& state, TimeType time) {
-    if(_interpolation_enabled) {
-      _interpolator.Push(state, time);
-    }
-    _current_state = state;
+  void EnableInterpolation() {
+    _interpolation_enabled = true;
+    _interpolator.SetFrameCount(2);
+  }
+
+  void DisableInterpolation() {
+    _interpolation_enabled = false;
+    _interpolator.SetFrameCount(1);
   }
   
   void EnforceState(const ObjectState& state, TimeType time) {
     _interpolator.Clear();
     _interpolator.Push(state, time);
-    _current_state = state;
+  }
+  
+  void UpdateCurrentState(const ObjectState& state, TimeType time) {
+    _interpolator.Push(state, time);
   }
 
   void Render(TimeType time) {
-    if(_interpolation_enabled) {
-      _current_state = _interpolator.Interpolate(time);
-    }
+    ObjectState state = _interpolator.Interpolate(time);
 
-    if(_sprite_set) {
-      _sprite.SetPosition(_current_state.position);
+    if (_sprite_set) {
+      _sprite.SetPosition(state.position);
       _sprite.Render();
     }
 
-    if(_caption_enabled) {
-      glm::vec2 caption_position = _current_state.position + _caption_pivot;
+    if (_caption_enabled) {
+      glm::vec2 caption_position = glm::round(state.position + _caption_pivot);
       _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
-        "%u (%.2f,%.2f)", _id, _current_state.position.x, _current_state.position.y);
+        "%u (%.2f,%.2f)", _id, state.position.x, state.position.y);
     }
+  }
+  
+  
+  glm::vec2 GetPosition(TimeType time) {
+    return _interpolator.Interpolate(time).position;
+  }
+
+  glm::vec2 GetPosition() {
+    assert(!_interpolation_enabled);
+    return GetPosition(TimeType(0));
   }
 
   void SetPosition(const glm::vec2& value) {
-    _current_state.position = value;
-  }
-
-  glm::vec2 GetPosition() const {
-    return _current_state.position;
+    assert(!_interpolation_enabled);
+    ObjectState state = _interpolator.Interpolate(TimeType(0));
+    state.position = value;
+    EnforceState(state, TimeType(0));
   }
 
   void Move(const glm::vec2& value) {
-    _current_state.position += value;
-  }
-
-  void SetPivot(const glm::vec2& value) {
-    CHECK(_sprite_set == true);
-    _sprite.SetPivot(value);
+    assert(!_interpolation_enabled);
+    ObjectState state = _interpolator.Interpolate(TimeType(0));
+    state.position = state.position + value;
+    EnforceState(state, TimeType(0));
   }
 
 private:
@@ -183,7 +201,6 @@ private:
 
   bool _interpolation_enabled;
   ObjectInterpolator _interpolator;
-  ObjectState _current_state;
 };
 
 template<class T>
@@ -893,10 +910,10 @@ private:
       bool intersection_y = false;
 
       std::map<int, Object*>::iterator it;
-      glm::vec2 player_position = _player->GetPosition();
+      glm::vec2 player_position = _player->GetPosition(current_time);
 
       for(it = _walls.begin() ; it != _walls.end(); it++) {
-        glm::vec2 wall_position = it->second->GetPosition();
+        glm::vec2 wall_position = it->second->GetPosition(current_time);
         if(abs(wall_position.x - (player_position.x + delta_x)) < (_player_size + _wall_size) / 2 
           && abs(wall_position.y - (player_position.y)) < (_player_size + _wall_size) / 2) {
           intersection_x = true;
@@ -904,7 +921,7 @@ private:
         }
       }
       for(it = _walls.begin() ; it != _walls.end(); it++) {
-        glm::vec2 wall_position = it->second->GetPosition();
+        glm::vec2 wall_position = it->second->GetPosition(current_time);
         if(abs(wall_position.x - (player_position.x)) < (_player_size + _wall_size) / 2 
           && abs(wall_position.y - (player_position.y + delta_y)) < (_player_size + _wall_size) / 2) {
           intersection_y = true;
@@ -969,11 +986,13 @@ private:
     _canvas.SetCoordinateType(Canvas::Pixels);
     _canvas.DrawCircle(glm::vec4(1, 1, 1, 1), glm::vec2(80, 80), 60, 20);
     
+    TimeType render_time = _GetTime();
+    
     std::map<int, Object*>::iterator it;
     for (it = _objects.begin(); it != _objects.end(); ++it) {
       Object* obj = it->second;
       
-      glm::vec2 rel = obj->GetPosition() - _player->GetPosition();
+      glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
@@ -990,7 +1009,12 @@ private:
       
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      glTranslatef(_resolution_x / 2 - _player->GetPosition().x, _resolution_y / 2 - _player->GetPosition().y, 0);
+      
+      TimeType render_time = _GetTime();
+      glm::vec2 player_position = _player->GetPosition(render_time);
+      
+      glTranslatef(::fround(_resolution_x / 2 - player_position.x), 
+                   ::fround(_resolution_y / 2 - player_position.y), 0);
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
@@ -1008,13 +1032,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        it->second->Render(_GetTime());
+        it->second->Render(render_time);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        it->second->Render(_GetTime());
+        it->second->Render(render_time);
       }
 
-      _player->Render(_GetTime());
+      _player->Render(render_time);
       
       _RenderHUD();
       //RenderMenu(_menu);

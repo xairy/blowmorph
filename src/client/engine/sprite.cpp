@@ -12,6 +12,12 @@
 #include "texture_atlas.hpp"
 #include "texture.hpp"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+static float fround(float f) {
+  return ::floorf(f + 0.5f);
+}
+
 namespace bm {
 
 Sprite::Sprite() { }
@@ -40,7 +46,7 @@ void Sprite::Render() {
   
   glPushMatrix();
   //glLoadIdentity();
-  glTranslatef(position.x, position.y, 0);
+  glTranslatef(::fround(position.x), ::fround(position.y), 0);
   glScalef(scale.x, scale.y, 1.0);
   glRotatef(static_cast<GLfloat>(angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
   
