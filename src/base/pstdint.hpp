@@ -1,7 +1,7 @@
 #ifndef BLOWMORPH_BASE_PSTDINT_HPP_
 #define BLOWMORPH_BASE_PSTDINT_HPP_
 
-#include "base/macros.hpp"
+#include <base/macros.hpp>
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
