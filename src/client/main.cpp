@@ -75,7 +75,7 @@ typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolat
 class Object {
 public:
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, TimeType time, int id)
+  Object(const glm::vec2& position, TimeType time, uint32_t id)
     : _id(id), _sprite_set(false), _interpolation_enabled(false),
     _caption_enabled(false), _interpolator(ObjectInterpolator(TimeType(75), 1))
   {
@@ -192,8 +192,7 @@ public:
   }
 
 private:
-  // TODO: make it 'bm::uint32_t'.
-  int _id;
+  uint32_t _id;
 
   bool _sprite_set;
   Sprite _sprite;
