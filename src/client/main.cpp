@@ -224,6 +224,12 @@ template<class T> bool IsInside(const Rect<T>& rect, T x, T y) {
     (rect.bottom <= y && y <= rect.top);
 }
 
+class Game {
+public:
+  void Update();
+  void Render();
+};
+
 class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
@@ -940,18 +946,30 @@ private:
     return true;
   }
 
+  // Appends packet type and data to the end of the buffer.
+  template<class T> void writePacket(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
+    // Append packet type.
+    buf.insert(buf.end(), 
+               reinterpret_cast<char*>(&packet_type),
+               reinterpret_cast<char*>(&packet_type) + sizeof(packet_type));
+
+    // Append packet data.
+    buf.insert(buf.end(), 
+               reinterpret_cast<char*>(data),
+               reinterpret_cast<char*>(data) + sizeof(*data));
+  }
+
+  // Sends input events to the server and 
+  // clears the input event queues afterwards.
   bool _SendInputEvents() {
-    std::vector<char> message;
+    std::vector<char> buf;
 
     for(size_t i = 0; i < _keyboard_events.size(); i++) {
-      message.clear();
-      Packet::Type message_type = Packet::TYPE_KEYBOARD_EVENT;
-      KeyboardEvent* event = &_keyboard_events[i];
-      message.insert(message.end(), reinterpret_cast<char*>(&message_type),
-        reinterpret_cast<char*>(&message_type) + sizeof(message_type));
-      message.insert(message.end(), reinterpret_cast<char*>(event),
-        reinterpret_cast<char*>(event) + sizeof(*event));
-      bool rv = _peer->Send(&message[0], message.size());
+      buf.clear();
+      
+      writePacket(buf, &_keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
+      
+      bool rv = _peer->Send(&buf[0], buf.size());
       if(rv == false) {
         return false;
       }
@@ -959,14 +977,11 @@ private:
     _keyboard_events.clear();
     
     for(size_t i = 0; i < _mouse_events.size(); i++) {
-      message.clear();
-      Packet::Type message_type = Packet::TYPE_MOUSE_EVENT;
-      MouseEvent* event = &_mouse_events[i];
-      message.insert(message.end(), reinterpret_cast<char*>(&message_type),
-        reinterpret_cast<char*>(&message_type) + sizeof(message_type));
-      message.insert(message.end(), reinterpret_cast<char*>(event),
-        reinterpret_cast<char*>(event) + sizeof(*event));
-      bool rv = _peer->Send(&message[0], message.size());
+      buf.clear();
+      
+      writePacket(buf, &_mouse_events[i], Packet::TYPE_MOUSE_EVENT);
+      
+      bool rv = _peer->Send(&buf[0], buf.size());
       if(rv == false) {
         return false;
       }
@@ -1004,7 +1019,7 @@ private:
     }
   }
 
-  // Draws all the objects.
+  // Renders everything.
   void _Render() {
     glClear(GL_COLOR_BUFFER_BIT);
     
