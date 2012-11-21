@@ -116,138 +116,120 @@ namespace interpolator {
 typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolator;
 
 // TODO[24.7.2012 alex]: fix method names
-class Object {
-public:
+struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, TimeType time, uint32_t id)
-    : _id(id), _sprite_set(false), _interpolation_enabled(false),
-    _caption_enabled(false), _interpolator(ObjectInterpolator(TimeType(75), 1))
+    : id(id), visible(false), interpolation_enabled(false),
+    name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1))
   {
     ObjectState state;
     state.blowCharge = 0;
     state.health = 0;
     state.morphCharge = 0;
     state.position = position;
-    _interpolator.Push(state, time);
+    interpolator.Push(state, time);
   }
 
-  ~Object() {
-    if(_caption_enabled) {
-      _text_writer.Destroy();
-    }
-  };
-
   bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
-    bool rv = _sprite.Init(texture, tile);
+    bool rv = sprite.Init(texture, tile);
     if(rv == false) {
       return false;
     }
-    _sprite_set = true;
+    visible = true;
     return true;
   }
 
   void ResetSprite() {
-    _sprite_set = false;
+    visible = false;
   }
 
-  // TODO: think about CHECK's and stuff.
   bool EnableCaption() {
-    CHECK(_caption_enabled == false);
-    bool rv = _text_writer.InitFont("data/fonts/tahoma.ttf", 10);
-    if(rv == false) {
-      return false;
-    }
-    _caption_pivot = glm::vec2(-8.0f, -20.0f);
-    _caption_enabled = true;
+    name_render_offset = glm::vec2(-8.0f, -20.0f);
+    name_visible = true;
     return true;
   }
 
   void DisableCaption() {
-    CHECK(_caption_enabled == true);
-    _text_writer.Destroy();
-    _caption_enabled = false;
+    name_visible = false;
   }
   
   void SetPivot(const glm::vec2& value) {
-    CHECK(_sprite_set == true);
-    _sprite.SetPivot(value);
+    CHECK(visible == true);
+    sprite.SetPivot(value);
   }
   
   int GetId() const {
-    return _id;
+    return id;
   }
 
   void EnableInterpolation() {
-    _interpolation_enabled = true;
-    _interpolator.SetFrameCount(2);
+    interpolation_enabled = true;
+    interpolator.SetFrameCount(2);
   }
 
   void DisableInterpolation() {
-    _interpolation_enabled = false;
-    _interpolator.SetFrameCount(1);
+    interpolation_enabled = false;
+    interpolator.SetFrameCount(1);
   }
   
   void EnforceState(const ObjectState& state, TimeType time) {
-    _interpolator.Clear();
-    _interpolator.Push(state, time);
+    interpolator.Clear();
+    interpolator.Push(state, time);
   }
   
   void UpdateCurrentState(const ObjectState& state, TimeType time) {
-    _interpolator.Push(state, time);
-  }
-
-  void Render(TimeType time) {
-    ObjectState state = _interpolator.Interpolate(time);
-
-    if (_sprite_set) {
-      _sprite.SetPosition(state.position);
-      _sprite.Render();
-    }
-
-    if (_caption_enabled) {
-      glm::vec2 caption_position = glm::round(state.position + _caption_pivot);
-      _text_writer.PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
-        "%u (%.2f,%.2f)", _id, state.position.x, state.position.y);
-    }
-  }
-  
+    interpolator.Push(state, time);
+  }  
   
   glm::vec2 GetPosition(TimeType time) {
-    return _interpolator.Interpolate(time).position;
+    return interpolator.Interpolate(time).position;
   }
 
   glm::vec2 GetPosition() {
-    assert(!_interpolation_enabled);
+    assert(!interpolation_enabled);
     return GetPosition(TimeType(0));
   }
 
   void SetPosition(const glm::vec2& value) {
-    assert(!_interpolation_enabled);
-    ObjectState state = _interpolator.Interpolate(TimeType(0));
+    assert(!interpolation_enabled);
+    ObjectState state = interpolator.Interpolate(TimeType(0));
     state.position = value;
     EnforceState(state, TimeType(0));
   }
 
   void Move(const glm::vec2& value) {
-    assert(!_interpolation_enabled);
-    ObjectState state = _interpolator.Interpolate(TimeType(0));
+    assert(!interpolation_enabled);
+    ObjectState state = interpolator.Interpolate(TimeType(0));
     state.position = state.position + value;
     EnforceState(state, TimeType(0));
   }
 
-private:
-  uint32_t _id;
+  uint32_t id;
 
-  bool _sprite_set;
-  Sprite _sprite;
+  bool visible;
+  Sprite sprite;
   
-  bool _caption_enabled;
-  TextWriter _text_writer;
-  glm::vec2 _caption_pivot;
+  bool name_visible;
+  glm::vec2 name_render_offset;
 
-  bool _interpolation_enabled;
-  ObjectInterpolator _interpolator;
+  bool interpolation_enabled;
+  ObjectInterpolator interpolator;
 };
+
+void RenderObject(Object* object, TimeType time, TextWriter* text_writer) {
+  ObjectState state = object->interpolator.Interpolate(time);
+
+  if (object->visible) {
+    object->sprite.SetPosition(state.position);
+    object->sprite.Render();
+  }
+
+  if (object->name_visible) {
+    glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
+    text_writer->PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
+      "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
+  }
+}
 
 template<class T>
 struct Rect {
@@ -353,6 +335,9 @@ public:
     _animations.clear();
 
     //_render_window.Finalize();
+    
+    default_text_writer->Destroy();
+    delete default_text_writer;
 
     _state = STATE_FINALIZED;
   }
@@ -461,6 +446,9 @@ private:
     _last_loop = _GetTime();
     
     InitMenu();
+    
+    default_text_writer = new TextWriter();
+    default_text_writer->InitFont("data/fonts/tahoma.ttf", 12);
 
     _state = STATE_INITIALIZED;
 
@@ -1089,13 +1077,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        it->second->Render(render_time);
+        RenderObject(it->second, render_time, default_text_writer);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        it->second->Render(render_time);
+        RenderObject(it->second, render_time, default_text_writer);
       }
 
-      _player->Render(render_time);
+      RenderObject(_player, render_time, default_text_writer);
       
       _RenderHUD();
       //RenderMenu(_menu);
@@ -1105,6 +1093,8 @@ private:
   }
 
   bool _is_running;
+  
+  TextWriter* default_text_writer;
 
   Enet _enet;
   ClientHost* _client;
