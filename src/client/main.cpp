@@ -46,6 +46,8 @@ static float fround(float f) {
 using namespace bm;
 
 void Warning(const char* fmt, ...) {
+  CHECK(fmt != NULL);
+
   char buf[1024];
 
   va_list args;
@@ -58,6 +60,9 @@ void Warning(const char* fmt, ...) {
 
 // Appends packet type and data to the end of the buffer.
 template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
+  CHECK(data != NULL);
+  CHECK(Packet::TYPE_UNKNOWN <= packet_type && packet_type <= Packet::TYPE_MAX_VALUE);
+
   // Append packet type.
   buf.insert(buf.end(), 
     reinterpret_cast<const char*>(&packet_type),
@@ -71,6 +76,10 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
 
 // Attempts to synchronously disconnect the peer.
 bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint32_t timeout) {
+  CHECK(peer != NULL);
+  CHECK(event != NULL);
+  CHECK(host != NULL);
+
   peer->Disconnect();
 
   uint32_t start = SDL_GetTicks();
@@ -201,6 +210,9 @@ struct Object {
 };
 
 void RenderObject(Object* object, TimeType time, TextWriter* text_writer) {
+  CHECK(object != NULL);
+  CHECK(text_writer != NULL);
+
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
