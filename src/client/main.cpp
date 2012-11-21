@@ -746,18 +746,6 @@ private:
     }
   }
 
-  void DeleteEntity() {
-    
-  }
-
-  void AddEntity() {
-
-  }
-
-  void UpdateEntity() {
-  
-  }
-
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
