@@ -45,6 +45,51 @@ static float fround(float f) {
 
 using namespace bm;
 
+void Warning(const char* fmt, ...) {
+  char buf[1024];
+
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
+  va_end(args);
+
+  fprintf(stderr, "WARN: %s\n", buf);
+}
+
+// Appends packet type and data to the end of the buffer.
+template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
+  // Append packet type.
+  buf.insert(buf.end(), 
+    reinterpret_cast<const char*>(&packet_type),
+    reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
+
+  // Append packet data.
+  buf.insert(buf.end(), 
+    reinterpret_cast<const char*>(data),
+    reinterpret_cast<const char*>(data) + sizeof(*data));
+}
+
+bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint32_t timeout) {
+  peer->Disconnect();
+
+  TimeType start = SDL_GetTicks();
+
+  while(SDL_GetTicks() - start <= timeout) {
+    bool rv = host->Service(event, (uint32_t) timeout);
+    if(rv == false) {
+      return false;
+    }
+
+    if(event != NULL && event->GetType() == Event::EVENT_DISCONNECT) {
+      printf("Client disconnected.\n");
+      return true;
+    }
+  }
+
+  BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.\n");
+  return false;
+}
+
 struct ObjectState {
   glm::vec2 position;
   float blowCharge;
@@ -555,9 +600,12 @@ private:
           }
           case SDLK_ESCAPE: {
             _is_running = false;
-            if(!_Disconnect()) {
+            
+            CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+            if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
               return false;
             }
+            
             break;
           }
         }
@@ -589,21 +637,18 @@ private:
             keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
             _keyboard_events.push_back(keyboard_event);
             break;
-          case SDLK_ESCAPE:
-            _is_running = false;
-            if(!_Disconnect()) {
-              return false;
-            }
-            break;
         }
         break;
       }
 
       case SDL_QUIT: {
-        if(!_Disconnect()) {
+        CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+        _is_running = false;
+        
+        if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           return false;
         }
-        _is_running = false;
+        
         break;
       }
 
@@ -643,17 +688,6 @@ private:
     }
 
     return true;
-  }
-
-  void Warning(const char* fmt, ...) {
-    char buf[1024];
-    
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-    va_end(args);
-    
-    fprintf(stderr, "WARN: %s\n", buf);
   }
 
   bool _PumpPackets(uint32_t timeout) {
@@ -710,19 +744,6 @@ private:
     }
   }
 
-  // Appends packet type and data to the end of the buffer.
-  template<class T> void writePacket(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
-    // Append packet type.
-    buf.insert(buf.end(), 
-      reinterpret_cast<const char*>(&packet_type),
-      reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
-
-    // Append packet data.
-    buf.insert(buf.end(), 
-      reinterpret_cast<const char*>(data),
-      reinterpret_cast<const char*>(data) + sizeof(*data));
-  }
-
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
@@ -746,7 +767,7 @@ private:
           request_data.client_time = TimeType(SDL_GetTicks());
           
           std::vector<char> buf;
-          writePacket(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
+          AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
 
           bool rv = _peer->Send(&buf[0], buf.size(), true);
           if(rv == false) {
@@ -963,7 +984,7 @@ private:
     for(size_t i = 0; i < _keyboard_events.size(); i++) {
       buf.clear();
       
-      writePacket(buf, &_keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
+      AppendPacketToBuffer(buf, &_keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
       
       bool rv = _peer->Send(&buf[0], buf.size());
       if(rv == false) {
@@ -975,7 +996,7 @@ private:
     for(size_t i = 0; i < _mouse_events.size(); i++) {
       buf.clear();
       
-      writePacket(buf, &_mouse_events[i], Packet::TYPE_MOUSE_EVENT);
+      AppendPacketToBuffer(buf, &_mouse_events[i], Packet::TYPE_MOUSE_EVENT);
       
       bool rv = _peer->Send(&buf[0], buf.size());
       if(rv == false) {
@@ -1060,26 +1081,6 @@ private:
 
       _render_window.SwapBuffers();
     }
-  }
-
-  bool _Disconnect() {
-    _peer->Disconnect();
-
-    TimeType start = _GetTime();
-    while(_GetTime() - start <= _connect_timeout) {
-      CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-      bool rv = _client->Service(_event, (uint32_t) _connect_timeout);
-      if(rv == false) {
-        return false;
-      }
-      if(_event != NULL && _event->GetType() == Event::EVENT_DISCONNECT) {
-        printf("Client disconnected.\n");
-        return true;
-      }
-    }
-
-    BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.\n");
-    return false;
   }
 
   bool _is_running;
