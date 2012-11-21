@@ -710,6 +710,19 @@ private:
     }
   }
 
+  // Appends packet type and data to the end of the buffer.
+  template<class T> void writePacket(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
+    // Append packet type.
+    buf.insert(buf.end(), 
+      reinterpret_cast<const char*>(&packet_type),
+      reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
+
+    // Append packet data.
+    buf.insert(buf.end(), 
+      reinterpret_cast<const char*>(data),
+      reinterpret_cast<const char*>(data) + sizeof(*data));
+  }
+
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
@@ -731,15 +744,11 @@ private:
           // Send a time synchronization request.
           TimeSyncData request_data;
           request_data.client_time = TimeType(SDL_GetTicks());
-          Packet::Type request_type = Packet::TYPE_SYNC_TIME_REQUEST;
+          
+          std::vector<char> buf;
+          writePacket(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
 
-          std::vector<char> message;
-          message.insert(message.end(), reinterpret_cast<char*>(&request_type),
-            reinterpret_cast<char*>(&request_type) + sizeof(request_type));
-          message.insert(message.end(), reinterpret_cast<char*>(&request_data),
-            reinterpret_cast<char*>(&request_data) + sizeof(request_data));
-
-          bool rv = _peer->Send(&message[0], message.size(), true);
+          bool rv = _peer->Send(&buf[0], buf.size(), true);
           if(rv == false) {
             return false;
           }
@@ -944,19 +953,6 @@ private:
     }
 
     return true;
-  }
-
-  // Appends packet type and data to the end of the buffer.
-  template<class T> void writePacket(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
-    // Append packet type.
-    buf.insert(buf.end(), 
-               reinterpret_cast<char*>(&packet_type),
-               reinterpret_cast<char*>(&packet_type) + sizeof(packet_type));
-
-    // Append packet data.
-    buf.insert(buf.end(), 
-               reinterpret_cast<char*>(data),
-               reinterpret_cast<char*>(data) + sizeof(*data));
   }
 
   // Sends input events to the server and 
