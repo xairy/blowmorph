@@ -746,6 +746,18 @@ private:
     }
   }
 
+  void DeleteEntity() {
+    
+  }
+
+  void AddEntity() {
+
+  }
+
+  void UpdateEntity() {
+  
+  }
+
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
@@ -818,58 +830,37 @@ private:
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
           if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-            DeleteObject(snapshot->id);
+            return OnEntityDisappearance(snapshot);
 
-            if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
-              // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
-              // TODO[12.08.2012 xairy]: remove magic numbers;
-              Animation* animation = new Animation();
-              CHECK(animation != NULL);
-              bool rv = animation->Initialize(_explosion_texture, 30);
-              if(rv == false) {
-                return false;
-              }
-              animation->SetPivot(glm::vec2(0.5f, 0.5f));
-              animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
-              animation->Play();
-              _animations.push_back(animation);
-            }
           } else {
-            glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
-            TimeType time = snapshot->time;
-
             if(snapshot->id == _player->id) {
-              glm::vec2 distance = _player->GetPosition() - position;
-              
-              ObjectState state;
-              state.position = position;
-              _player_health = static_cast<float>(snapshot->data[0]);
-              _player_blow_charge = static_cast<float>(snapshot->data[1]);
-              _player_morph_charge = static_cast<float>(snapshot->data[2]);
-              
-              if(glm::length(distance) > _max_error) {
-                _player->EnforceState(state, snapshot->time);
-              } else {
-                //_player->UpdateCurrentState(state, snapshot->time);
-              }
-              
+              OnPlayerUpdate(snapshot);
               break;
             }
 
             if(_objects.count(snapshot->id) > 0 || _walls.count(snapshot->id) > 0) {
-              ObjectState state;
-              state.position = position;
-              state.health = static_cast<float>(snapshot->data[0]);
-              state.blowCharge = static_cast<float>(snapshot->data[1]);
-              state.morphCharge = static_cast<float>(snapshot->data[2]);
-              
-              if(snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-                _walls[snapshot->id]->UpdateCurrentState(state, time);
-              } else {
-                _objects[snapshot->id]->UpdateCurrentState(state, time);
-              }
+              OnEntityAppearance(snapshot);
             } else {
-              switch(snapshot->type) {
+              OnEntityUpdate(snapshot);
+            }
+          }
+        } else {
+          Warning("Received packet is not an entity snapshot.");
+        }
+        
+        return true;
+      } break;
+      
+      default:
+        return false;
+        break;
+    }
+    return false;
+  }
+
+  void OnEntityUpdate( const EntitySnapshot* snapshot ) 
+  {
+    switch(snapshot->type) {
                 case EntitySnapshot::ENTITY_TYPE_WALL: {
                   _walls[snapshot->id] = new Object(position, time, snapshot->id);
                   size_t tile;
@@ -885,7 +876,7 @@ private:
                   _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _walls[snapshot->id]->visible = true;
                   _walls[snapshot->id]->name_visible = false;
-                } break;
+                                                       } break;
 
                 case EntitySnapshot::ENTITY_TYPE_BULLET: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
@@ -894,7 +885,7 @@ private:
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _objects[snapshot->id]->visible = true;
                   _objects[snapshot->id]->name_visible = false;
-                } break;
+                                                         } break;
 
                 case EntitySnapshot::ENTITY_TYPE_PLAYER: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
@@ -903,7 +894,7 @@ private:
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _objects[snapshot->id]->visible = true;
                   _objects[snapshot->id]->name_visible = true;
-                } break;
+                                                         } break;
 
                 case EntitySnapshot::ENTITY_TYPE_DUMMY: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
@@ -912,7 +903,7 @@ private:
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _objects[snapshot->id]->visible = true;
                   _objects[snapshot->id]->name_visible = false;
-                } break;
+                                                        } break;
 
                 case EntitySnapshot::ENTITY_TYPE_STATION: {
                   _objects[snapshot->id] = new Object(position, time, snapshot->id);
@@ -931,22 +922,62 @@ private:
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
                   _objects[snapshot->id]->visible = true;
                   _objects[snapshot->id]->name_visible = false;
-                } break;
-              }
-            }
-          }
-        } else {
-          Warning("Received packet is not an entity snapshot.");
-        }
-        
-        return true;
-      } break;
-      
-      default:
-        return false;
-        break;
+                                                          } break;
     }
-    return false;
+  }
+
+  void OnEntityAppearance( const EntitySnapshot* snapshot ) 
+  {
+    TimeType time = snapshot->time;
+
+    ObjectState state;
+    state.position = position;
+    state.health = static_cast<float>(snapshot->data[0]);
+    state.blowCharge = static_cast<float>(snapshot->data[1]);
+    state.morphCharge = static_cast<float>(snapshot->data[2]);
+
+    if(snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
+      _walls[snapshot->id]->UpdateCurrentState(state, time);
+    } else {
+      _objects[snapshot->id]->UpdateCurrentState(state, time);
+    }
+  }
+
+  void OnPlayerUpdate( const EntitySnapshot* snapshot ) 
+  {
+    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
+    glm::vec2 distance = _player->GetPosition() - position;
+
+    ObjectState state;
+    state.position = position;
+    _player_health = static_cast<float>(snapshot->data[0]);
+    _player_blow_charge = static_cast<float>(snapshot->data[1]);
+    _player_morph_charge = static_cast<float>(snapshot->data[2]);
+
+    if(glm::length(distance) > _max_error) {
+      _player->EnforceState(state, snapshot->time);
+    } else {
+      //_player->UpdateCurrentState(state, snapshot->time);
+    }
+  }
+
+  bool OnEntityDisappearance(const EntitySnapshot* snapshot) {
+    DeleteObject(snapshot->id);
+
+    if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
+      // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
+      // TODO[12.08.2012 xairy]: remove magic numbers;
+      Animation* animation = new Animation();
+      CHECK(animation != NULL);
+      bool rv = animation->Initialize(_explosion_texture, 30);
+      if(rv == false) {
+        return false;
+      }
+      animation->SetPivot(glm::vec2(0.5f, 0.5f));
+      animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
+      animation->Play();
+      _animations.push_back(animation);
+    }
   }
 
   bool _Loop() {   
