@@ -830,8 +830,9 @@ private:
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
           if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-            return OnEntityDisappearance(snapshot);
-
+            if (!OnEntityDisappearance(snapshot)) {
+              return false;
+            }
           } else {
             if(snapshot->id == _player->id) {
               OnPlayerUpdate(snapshot);
@@ -858,77 +859,83 @@ private:
     return false;
   }
 
-  void OnEntityUpdate( const EntitySnapshot* snapshot ) 
-  {
+  void OnEntityUpdate(const EntitySnapshot* snapshot) {
+    CHECK(snapshot != NULL);
+  
+    TimeType time = snapshot->time;
+    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
+    
     switch(snapshot->type) {
-                case EntitySnapshot::ENTITY_TYPE_WALL: {
-                  _walls[snapshot->id] = new Object(position, time, snapshot->id);
-                  size_t tile;
-                  if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-                    tile = 3;
-                  } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-                    tile = 2;
-                  } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-                    tile = 1;
-                  }
-                  _walls[snapshot->id]->SetSprite(_wall_texture, tile);
-                  _walls[snapshot->id]->EnableInterpolation();
-                  _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _walls[snapshot->id]->visible = true;
-                  _walls[snapshot->id]->name_visible = false;
-                                                       } break;
+      case EntitySnapshot::ENTITY_TYPE_WALL: {
+        _walls[snapshot->id] = new Object(position, time, snapshot->id);
+        size_t tile;
+        if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
+          tile = 3;
+        } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
+          tile = 2;
+        } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
+          tile = 1;
+        }
+        _walls[snapshot->id]->SetSprite(_wall_texture, tile);
+        _walls[snapshot->id]->EnableInterpolation();
+        _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+        _walls[snapshot->id]->visible = true;
+        _walls[snapshot->id]->name_visible = false;
+      } break;
 
-                case EntitySnapshot::ENTITY_TYPE_BULLET: {
-                  _objects[snapshot->id] = new Object(position, time, snapshot->id);
-                  _objects[snapshot->id]->SetSprite(_bullet_texture);
-                  _objects[snapshot->id]->EnableInterpolation();
-                  _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _objects[snapshot->id]->visible = true;
-                  _objects[snapshot->id]->name_visible = false;
-                                                         } break;
+      case EntitySnapshot::ENTITY_TYPE_BULLET: {
+        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id]->SetSprite(_bullet_texture);
+        _objects[snapshot->id]->EnableInterpolation();
+        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+        _objects[snapshot->id]->visible = true;
+        _objects[snapshot->id]->name_visible = false;
+      } break;
 
-                case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-                  _objects[snapshot->id] = new Object(position, time, snapshot->id);
-                  _objects[snapshot->id]->SetSprite(_player_texture);
-                  _objects[snapshot->id]->EnableInterpolation();
-                  _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _objects[snapshot->id]->visible = true;
-                  _objects[snapshot->id]->name_visible = true;
-                                                         } break;
+      case EntitySnapshot::ENTITY_TYPE_PLAYER: {
+        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id]->SetSprite(_player_texture);
+        _objects[snapshot->id]->EnableInterpolation();
+        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+        _objects[snapshot->id]->visible = true;
+        _objects[snapshot->id]->name_visible = true;
+      } break;
 
-                case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-                  _objects[snapshot->id] = new Object(position, time, snapshot->id);
-                  _objects[snapshot->id]->SetSprite(_dummy_texture);
-                  _objects[snapshot->id]->EnableInterpolation();
-                  _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _objects[snapshot->id]->visible = true;
-                  _objects[snapshot->id]->name_visible = false;
-                                                        } break;
+      case EntitySnapshot::ENTITY_TYPE_DUMMY: {
+        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id]->SetSprite(_dummy_texture);
+        _objects[snapshot->id]->EnableInterpolation();
+        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+        _objects[snapshot->id]->visible = true;
+        _objects[snapshot->id]->name_visible = false;
+      } break;
 
-                case EntitySnapshot::ENTITY_TYPE_STATION: {
-                  _objects[snapshot->id] = new Object(position, time, snapshot->id);
-                  size_t tile;
-                  if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
-                    tile = 0;
-                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_BLOW) {
-                    tile = 2;
-                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_MORPH) {
-                    tile = 1;
-                  } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
-                    tile = 3;
-                  }
-                  _objects[snapshot->id]->SetSprite(_station_texture, tile);
-                  _objects[snapshot->id]->EnableInterpolation();
-                  _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _objects[snapshot->id]->visible = true;
-                  _objects[snapshot->id]->name_visible = false;
-                                                          } break;
+      case EntitySnapshot::ENTITY_TYPE_STATION: {
+        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        size_t tile;
+        if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
+          tile = 0;
+        } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_BLOW) {
+          tile = 2;
+        } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_MORPH) {
+          tile = 1;
+        } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
+          tile = 3;
+        }
+        _objects[snapshot->id]->SetSprite(_station_texture, tile);
+        _objects[snapshot->id]->EnableInterpolation();
+        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+        _objects[snapshot->id]->visible = true;
+        _objects[snapshot->id]->name_visible = false;
+      } break;
     }
   }
 
-  void OnEntityAppearance( const EntitySnapshot* snapshot ) 
-  {
+  void OnEntityAppearance(const EntitySnapshot* snapshot) {
+    CHECK(snapshot != NULL);
+  
     TimeType time = snapshot->time;
+    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
 
     ObjectState state;
     state.position = position;
@@ -943,8 +950,9 @@ private:
     }
   }
 
-  void OnPlayerUpdate( const EntitySnapshot* snapshot ) 
-  {
+  void OnPlayerUpdate(const EntitySnapshot* snapshot) {
+    CHECK(snapshot != NULL);
+  
     glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
     glm::vec2 distance = _player->GetPosition() - position;
 
@@ -962,6 +970,8 @@ private:
   }
 
   bool OnEntityDisappearance(const EntitySnapshot* snapshot) {
+    CHECK(snapshot != NULL);
+  
     DeleteObject(snapshot->id);
 
     if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
@@ -978,6 +988,8 @@ private:
       animation->Play();
       _animations.push_back(animation);
     }
+    
+    return true;
   }
 
   bool _Loop() {   
