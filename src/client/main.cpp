@@ -128,40 +128,24 @@ struct Object {
     state.morphCharge = 0;
     state.position = position;
     interpolator.Push(state, time);
+    
+    name_render_offset = glm::vec2(-8.0f, -20.0f);
   }
 
   bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
     bool rv = sprite.Init(texture, tile);
+    
     if(rv == false) {
       return false;
     }
-    visible = true;
+    
     return true;
-  }
-
-  void ResetSprite() {
-    visible = false;
-  }
-
-  bool EnableCaption() {
-    name_render_offset = glm::vec2(-8.0f, -20.0f);
-    name_visible = true;
-    return true;
-  }
-
-  void DisableCaption() {
-    name_visible = false;
   }
   
   void SetPivot(const glm::vec2& value) {
-    CHECK(visible == true);
     sprite.SetPivot(value);
   }
   
-  int GetId() const {
-    return id;
-  }
-
   void EnableInterpolation() {
     interpolation_enabled = true;
     interpolator.SetFrameCount(2);
@@ -807,7 +791,8 @@ private:
           _player->SetSprite(_player_texture);
           _player->SetPosition(glm::vec2(_client_options->x, _client_options->y));
           _player->SetPivot(glm::vec2(0.5f, 0.5f));
-          _player->EnableCaption();
+          _player->visible = true;
+          _player->name_visible = true;
         }
         
         return true;
@@ -841,7 +826,7 @@ private:
             glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
             TimeType time = snapshot->time;
 
-            if(snapshot->id == _player->GetId()) {
+            if(snapshot->id == _player->id) {
               glm::vec2 distance = _player->GetPosition() - position;
               
               ObjectState state;
@@ -886,6 +871,8 @@ private:
                   _walls[snapshot->id]->SetSprite(_wall_texture, tile);
                   _walls[snapshot->id]->EnableInterpolation();
                   _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+                  _walls[snapshot->id]->visible = true;
+                  _walls[snapshot->id]->name_visible = false;
                 } break;
 
                 case EntitySnapshot::ENTITY_TYPE_BULLET: {
@@ -893,6 +880,8 @@ private:
                   _objects[snapshot->id]->SetSprite(_bullet_texture);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+                  _objects[snapshot->id]->visible = true;
+                  _objects[snapshot->id]->name_visible = false;
                 } break;
 
                 case EntitySnapshot::ENTITY_TYPE_PLAYER: {
@@ -900,7 +889,8 @@ private:
                   _objects[snapshot->id]->SetSprite(_player_texture);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
-                  _objects[snapshot->id]->EnableCaption();
+                  _objects[snapshot->id]->visible = true;
+                  _objects[snapshot->id]->name_visible = true;
                 } break;
 
                 case EntitySnapshot::ENTITY_TYPE_DUMMY: {
@@ -908,6 +898,8 @@ private:
                   _objects[snapshot->id]->SetSprite(_dummy_texture);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+                  _objects[snapshot->id]->visible = true;
+                  _objects[snapshot->id]->name_visible = false;
                 } break;
 
                 case EntitySnapshot::ENTITY_TYPE_STATION: {
@@ -925,6 +917,8 @@ private:
                   _objects[snapshot->id]->SetSprite(_station_texture, tile);
                   _objects[snapshot->id]->EnableInterpolation();
                   _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
+                  _objects[snapshot->id]->visible = true;
+                  _objects[snapshot->id]->name_visible = false;
                 } break;
               }
             }
