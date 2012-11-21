@@ -69,10 +69,11 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
     reinterpret_cast<const char*>(data) + sizeof(*data));
 }
 
+// Attempts to synchronously disconnect the peer.
 bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint32_t timeout) {
   peer->Disconnect();
 
-  TimeType start = SDL_GetTicks();
+  uint32_t start = SDL_GetTicks();
 
   while(SDL_GetTicks() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
@@ -81,12 +82,10 @@ bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint
     }
 
     if(event != NULL && event->GetType() == Event::EVENT_DISCONNECT) {
-      printf("Client disconnected.\n");
       return true;
     }
   }
 
-  BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
   return false;
 }
 
@@ -600,7 +599,10 @@ private:
             
             CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
             if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+              BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
               return false;
+            } else {
+              printf("Client disconnected.\n");
             }
             
             break;
@@ -639,11 +641,14 @@ private:
       }
 
       case SDL_QUIT: {
-        CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
         _is_running = false;
         
+        CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
         if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+          BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
           return false;
+        } else {
+          printf("Client disconnected.\n");
         }
         
         break;
