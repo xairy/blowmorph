@@ -86,7 +86,7 @@ bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint
     }
   }
 
-  BM_ERROR("Not received EVENT_DISCONNECT event while disconnecting.\n");
+  BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
   return false;
 }
 
