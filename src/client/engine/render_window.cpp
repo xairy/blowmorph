@@ -33,6 +33,9 @@ bool RenderWindow::Initialize(const char* title, int width, int height, bool ful
   if (!initOpenGL(width, height)) {
     return false;
   }
+  
+  _width = width;
+  _height = height;
 
   _state = STATE_INITIALIZED;
   return true;
@@ -48,6 +51,14 @@ void RenderWindow::SwapBuffers() {
   CHECK(_state == STATE_INITIALIZED);
 
   SDL_GL_SwapBuffers();
+}
+
+int RenderWindow::GetWidth() const {
+  return _width;
+}
+
+int RenderWindow::GetHeight() const {
+  return _height;
 }
 
 bool RenderWindow::initSDL(const char* title, int width, int height, bool fullscreen) {

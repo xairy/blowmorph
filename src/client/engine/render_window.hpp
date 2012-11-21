@@ -14,6 +14,9 @@ public:
   bool Initialize(const char* title, int width, int height, bool fullscreen);
   void Finalize();
   void SwapBuffers();
+  
+  int GetWidth() const;
+  int GetHeight() const;
 
 private:
   bool initSDL(const char* title, int width, int height, bool fullscreen);
@@ -29,6 +32,8 @@ private:
 
   State _state;
   SDL_Surface* _sdl_surface;
+  int _width;
+  int _height;
 };
 
 } // namespace bm

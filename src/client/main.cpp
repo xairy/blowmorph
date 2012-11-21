@@ -430,9 +430,6 @@ private:
     _last_tick = TimeType(0);
     _tick_rate = 30;
 
-    _resolution_x = 600;
-    _resolution_y = 600;
-
     _player_texture = NULL;
     _bullet_texture = NULL;
     _wall_texture = NULL;
@@ -665,8 +662,11 @@ private:
           mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
         }
         mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
-        mouse_event.x = (event->button.x - _resolution_x / 2) + _player->GetPosition().x;
-        mouse_event.y = (event->button.y - _resolution_y / 2) + _player->GetPosition().y;
+        
+        int screenWidth = _render_window.GetWidth();
+        int screenHeight = _render_window.GetHeight();
+        mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
+        mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
         _mouse_events.push_back(mouse_event);
         break;
       }
@@ -680,8 +680,10 @@ private:
           mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
         }
         mouse_event.event_type = MouseEvent::EVENT_KEYUP;
-        mouse_event.x = (event->button.x - _resolution_x / 2) + _player->GetPosition().x;
-        mouse_event.y = (event->button.y - _resolution_y / 2) + _player->GetPosition().y;
+        int screenWidth = _render_window.GetWidth();
+        int screenHeight = _render_window.GetHeight();
+        mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
+        mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
         _mouse_events.push_back(mouse_event);
         break;
       }
@@ -1049,8 +1051,11 @@ private:
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
       
-      glTranslatef(::fround(_resolution_x / 2 - player_position.x), 
-                   ::fround(_resolution_y / 2 - player_position.y), 0);
+      int screenWidth = _render_window.GetWidth();
+      int screenHeight = _render_window.GetHeight();
+      
+      glTranslatef(::fround(screenWidth / 2.0f - player_position.x), 
+                   ::fround(screenHeight / 2.0f - player_position.y), 0);
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
@@ -1096,9 +1101,6 @@ private:
   TimeType _last_tick;
   int _tick_rate;
   TimeType _last_loop;
-
-  int _resolution_x;
-  int _resolution_y;
 
   RenderWindow _render_window;
   Canvas _canvas;
