@@ -700,8 +700,19 @@ private:
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
     
+    uint32_t start_time = SDL_GetTicks();
     do {
-      bool rv = _client->Service(_event, timeout);
+      uint32_t time = SDL_GetTicks();
+      CHECK(time >= start_time);
+      
+      // If we have run out of time, break and return
+      // unless timeout is zero.
+      if (time - start_time > timeout && timeout != 0) {
+        break;
+      }
+      uint32_t service_timeout = timeout == 0 ? 0 : timeout - (time - start_time);
+      
+      bool rv = _client->Service(_event, service_timeout);
       if(rv == false) {
         return false;
       }
