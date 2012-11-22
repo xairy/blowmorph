@@ -1,11 +1,19 @@
 #include "canvas.hpp"
 
+#include <base/macros.hpp>
+#include "texture_atlas.hpp"
+#include "texture.hpp"
+
 #include <GL/glew.h>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace {
+
+static float fround(float f) {
+  return ::floorf(f + 0.5f);
+}
 
 void GetViewport(glm::vec2& leftTopCorner, glm::vec2& rightBottomCorner) {
   GLint viewport[4];
@@ -139,6 +147,41 @@ void Canvas::FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius
       glVertex2d(pos.x + radius * ::cos(angle), pos.y + radius * ::sin(angle));
     }
   glEnd();
+}
+
+void Canvas::DrawTexturedQuad(const glm::vec2& pos, const glm::vec2& pivot, glm::float_t zIndex, 
+                              TextureAtlas* texture, size_t tile) {
+  assert(texture != NULL);
+  assert(tile < texture->GetTileCount());
+  
+  glColor3f(1.0f, 1.0f, 1.0f);
+
+  texture->GetTexture()->Bind(bm::Texture::Pixels);
+
+  glPushMatrix();
+  //glLoadIdentity();
+  glTranslatef(::fround(pos.x), ::fround(pos.y), 0);
+  //glScalef(scale.x, scale.y, 1.0);
+  //glRotatef(static_cast<GLfloat>(angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
+
+  glm::vec2 size = texture->GetTileSize(tile);
+  glm::vec2 tilePos = texture->GetTilePosition(tile);
+
+  glBegin(GL_QUADS);
+  glTexCoord2f(tilePos.x + 0.5f, tilePos.y + 0.5f);
+  glVertex3f(-pivot.x * size.x, -pivot.y * size.y, zIndex);
+
+  glTexCoord2f(tilePos.x + 0.5f, tilePos.y + size.y - 0.5f);
+  glVertex3f(-pivot.x * size.x, (1 - pivot.y) * size.y, zIndex);
+
+  glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + size.y - 0.5f);
+  glVertex3f((1 - pivot.x) * size.x, (1 - pivot.y) * size.y, zIndex);
+
+  glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + 0.5f);
+  glVertex3f((1 - pivot.x) * size.x, -pivot.y * size.y, zIndex);
+  glEnd();
+
+  glPopMatrix();
 }
 
 } // namespace bm
