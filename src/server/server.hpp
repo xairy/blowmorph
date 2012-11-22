@@ -45,20 +45,21 @@ public:
   Server() : _world_manager(&_id_manager, &_settings) { }
 
   ~Server() {
-    _Destroy();
+    Destroy();
   }
 
   bool Execute() {
-    if(!_Initialize()) {
+    if(!Initialize()) {
       return false;
     }
 
     printf("Server started.\n");
-
+    
+    // FIXME[23.11.2012 alex]: is it really needed inside the server class?
     _is_running = true;
 
     while(_is_running) {
-      if(!_Tick()) {
+      if(!Tick()) {
         return false;
       }
     }
@@ -68,8 +69,7 @@ public:
     return true;
   }
 
-private:
-  bool _Initialize() {
+  bool Initialize() {
     if(!_settings.Load("data/server.xml")) {
       return false;
     }
@@ -116,7 +116,7 @@ private:
     return true;
   }
 
-  void _Destroy() {
+  void Destroy() {
     if(_event != NULL) {
       delete _event;
     }
@@ -125,7 +125,7 @@ private:
     }
   }
 
-  bool _Tick() {
+  bool Tick() {
     if(_timer.GetTime() - _last_broadcast >= _broadcast_time) {
       _last_broadcast = _timer.GetTime();
       if(!_BroadcastDynamicEntities()) {
@@ -163,6 +163,12 @@ private:
 
     return true;
   }
+  
+  bool IsRunning() {
+    return _is_running;
+  }
+  
+private:
 
   bool _UpdateWorld() {
     // Temporary.
