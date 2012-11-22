@@ -299,13 +299,11 @@ public:
     //CHECK(_state == STATE_INITIALIZED);
 
     // Delete all loaded textures.
-    if (_player_texture != NULL) delete _player_texture;
-    if (_bullet_texture != NULL) delete _bullet_texture;
-    if (_wall_texture != NULL) delete _wall_texture;
-    if (_dummy_texture != NULL) delete _dummy_texture;
-    if (_explosion_texture != NULL) delete _explosion_texture;
-    if (_station_texture != NULL) delete _station_texture;
-
+    for (std::map<uint32_t, TextureAtlas*>::iterator it = textures.begin(); it != textures.end(); it++) {
+      delete it->second;
+    }
+    textures.clear();
+    
     if(_player != NULL) delete _player;
     if(_client_options != NULL) delete _client_options;
 
@@ -410,13 +408,6 @@ private:
     _last_tick = TimeType(0);
     _tick_rate = 30;
 
-    _player_texture = NULL;
-    _bullet_texture = NULL;
-    _wall_texture = NULL;
-    _dummy_texture = NULL;
-    _explosion_texture = NULL;
-    _station_texture = NULL;
-
     _player = NULL;
     
     _client_options = NULL;
@@ -456,39 +447,24 @@ private:
       return false;
     }
     
+    // Init 2D canvas.
     if (!_canvas.Init()) {
       return false;
     }
 
-    // XXX[24.7.2012 alex]: awful lot of copypasta
-    _player_texture = bm::LoadOldTexture("data/images/player.png", 0);
-    if(_player_texture == NULL) {
-      return false;
-    }
-
-    _bullet_texture = bm::LoadOldTexture("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
-    if(_bullet_texture == NULL) {
-      return false;
-    }
+    // Load all textures.
+    textures[EntitySnapshot::ENTITY_TYPE_PLAYER] = bm::LoadOldTexture("data/images/player.png", 0);
+    textures[EntitySnapshot::ENTITY_TYPE_BULLET] = bm::LoadOldTexture("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
+    textures[EntitySnapshot::ENTITY_TYPE_WALL] = bm::LoadTileset("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
+    textures[EntitySnapshot::ENTITY_TYPE_DUMMY] = bm::LoadOldTexture("data/images/guy.png", 0);
+    textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION] = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
+    textures[EntitySnapshot::ENTITY_TYPE_STATION] = bm::LoadTileset("data/images/kits.png", 0, 1, 1, 31, 31, 30, 30);
     
-    _wall_texture = bm::LoadTileset("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
-    if(_wall_texture == NULL) {
-      return false;
-    }
-
-    _dummy_texture = bm::LoadOldTexture("data/images/guy.png", 0);
-    if(_dummy_texture == NULL) {
-      return false;
-    }
-
-    _explosion_texture = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
-    if(_explosion_texture == NULL) {
-      return false;
-    }
-
-    _station_texture = bm::LoadTileset("data/images/kits.png", 0, 1, 1, 31, 31, 30, 30);
-    if(_station_texture == NULL) {
-      return false;
+    // Check if all the textures were loaded successfully.
+    for (std::map<uint32_t, TextureAtlas*>::iterator it = textures.begin(); it != textures.end(); it++) {
+      if (it->second == NULL) {
+        return false;
+      }
     }
 
     return true;
@@ -800,7 +776,7 @@ private:
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
-          _player->SetSprite(_player_texture);
+          _player->SetSprite(textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
           _player->SetPosition(glm::vec2(_client_options->x, _client_options->y));
           _player->SetPivot(glm::vec2(0.5f, 0.5f));
           _player->visible = true;
@@ -828,9 +804,9 @@ private:
             }
 
             if(_objects.count(snapshot->id) > 0 || _walls.count(snapshot->id) > 0) {
-              OnEntityAppearance(snapshot);
-            } else {
               OnEntityUpdate(snapshot);
+            } else {
+              OnEntityAppearance(snapshot);
             }
           }
         } else {
@@ -847,7 +823,7 @@ private:
     return false;
   }
 
-  void OnEntityUpdate(const EntitySnapshot* snapshot) {
+  void OnEntityAppearance(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
   
     TimeType time = snapshot->time;
@@ -864,7 +840,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id]->SetSprite(_wall_texture, tile);
+        _walls[snapshot->id]->SetSprite(textures[snapshot->type], tile);
         _walls[snapshot->id]->EnableInterpolation();
         _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _walls[snapshot->id]->visible = true;
@@ -873,7 +849,7 @@ private:
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id);
-        _objects[snapshot->id]->SetSprite(_bullet_texture);
+        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
@@ -882,7 +858,7 @@ private:
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id);
-        _objects[snapshot->id]->SetSprite(_player_texture);
+        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
@@ -891,7 +867,7 @@ private:
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id);
-        _objects[snapshot->id]->SetSprite(_dummy_texture);
+        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
@@ -910,7 +886,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id]->SetSprite(_station_texture, tile);
+        _objects[snapshot->id]->SetSprite(textures[snapshot->type], tile);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
@@ -919,7 +895,7 @@ private:
     }
   }
 
-  void OnEntityAppearance(const EntitySnapshot* snapshot) {
+  void OnEntityUpdate(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
   
     TimeType time = snapshot->time;
@@ -967,7 +943,7 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Animation* animation = new Animation();
       CHECK(animation != NULL);
-      bool rv = animation->Initialize(_explosion_texture, 30);
+      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30);
       if(rv == false) {
         return false;
       }
@@ -1149,12 +1125,7 @@ private:
   Canvas _canvas;
 
   // XXX[24.7.2012 alex]: copypasta
-  TextureAtlas* _player_texture;
-  TextureAtlas* _bullet_texture;
-  TextureAtlas* _wall_texture;
-  TextureAtlas* _dummy_texture;
-  TextureAtlas* _explosion_texture;
-  TextureAtlas* _station_texture;
+  std::map<uint32_t, TextureAtlas*> textures;
 
   Object* _player;
 
