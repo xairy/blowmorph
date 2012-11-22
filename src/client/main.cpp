@@ -127,8 +127,8 @@ typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolat
 // TODO[24.7.2012 alex]: fix method names
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, TimeType time, uint32_t id)
-    : id(id), visible(false), interpolation_enabled(false),
+  Object(const glm::vec2& position, TimeType time, uint32_t id, uint32_t type)
+    : id(id), type(type), visible(false), interpolation_enabled(false),
     name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1))
   {
     ObjectState state;
@@ -142,6 +142,8 @@ struct Object {
   }
 
   bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
+    CHECK(texture != NULL);
+  
     bool rv = sprite.Init(texture, tile);
     
     if(rv == false) {
@@ -198,6 +200,7 @@ struct Object {
   }
 
   uint32_t id;
+  uint32_t type;
 
   bool visible;
   Sprite sprite;
@@ -772,7 +775,8 @@ private:
           _network_state = NETWORK_STATE_LOGGED_IN;
           
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
-          _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0), _client_options->id);
+          _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0), 
+                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER);
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -831,7 +835,7 @@ private:
     
     switch(snapshot->type) {
       case EntitySnapshot::ENTITY_TYPE_WALL: {
-        _walls[snapshot->id] = new Object(position, time, snapshot->id);
+        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
           tile = 3;
@@ -848,7 +852,7 @@ private:
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
@@ -857,7 +861,7 @@ private:
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
@@ -866,7 +870,7 @@ private:
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
@@ -875,7 +879,7 @@ private:
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_STATION: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
           tile = 0;
