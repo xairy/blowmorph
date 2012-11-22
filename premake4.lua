@@ -214,7 +214,9 @@ solution "blowmorph"
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",
-            "src/base/**.hpp" }
+            "src/base/**.hpp",
+            "src/base/**.h",
+            "src/base/**.c" }
 
   project "bm-enet"
     kind "SharedLib"
