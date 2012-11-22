@@ -212,15 +212,15 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, TimeType time, TextWriter* text_writer) {
+void RenderObject(Object* object, TimeType time, TextWriter* text_writer, Canvas* canvas) {
   CHECK(object != NULL);
   CHECK(text_writer != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    object->sprite.SetPosition(state.position);
-    object->sprite.Render();
+    bm::TextureAtlas* atlas = object->sprite.GetTexture();
+    canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->sprite.GetTile());
   }
 
   if (object->name_visible) {
@@ -1094,13 +1094,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, default_text_writer);
+        RenderObject(it->second, render_time, default_text_writer, &_canvas);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, default_text_writer);
+        RenderObject(it->second, render_time, default_text_writer, &_canvas);
       }
 
-      RenderObject(_player, render_time, default_text_writer);
+      RenderObject(_player, render_time, default_text_writer, &_canvas);
       
       _RenderHUD();
       //RenderMenu(_menu);
