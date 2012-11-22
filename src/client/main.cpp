@@ -129,7 +129,7 @@ struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, TimeType time, uint32_t id, uint32_t type)
     : id(id), type(type), visible(false), interpolation_enabled(false),
-    name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1))
+    name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1)), tile(0)
   {
     ObjectState state;
     state.blowCharge = 0;
@@ -139,22 +139,6 @@ struct Object {
     interpolator.Push(state, time);
     
     name_render_offset = glm::vec2(-8.0f, -20.0f);
-  }
-
-  bool SetSprite(TextureAtlas* texture, size_t tile = 0) {
-    CHECK(texture != NULL);
-  
-    bool rv = sprite.Init(texture, tile);
-    
-    if(rv == false) {
-      return false;
-    }
-    
-    return true;
-  }
-  
-  void SetPivot(const glm::vec2& value) {
-    sprite.SetPivot(value);
   }
   
   void EnableInterpolation() {
@@ -201,9 +185,9 @@ struct Object {
 
   uint32_t id;
   uint32_t type;
+  size_t tile;
 
   bool visible;
-  Sprite sprite;
   
   bool name_visible;
   glm::vec2 name_render_offset;
@@ -212,15 +196,19 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, TimeType time, TextWriter* text_writer, Canvas* canvas) {
+void RenderObject(Object* object, TimeType time, std::map<uint32_t, TextureAtlas*> textures,
+                  TextWriter* text_writer, Canvas* canvas) {
   CHECK(object != NULL);
   CHECK(text_writer != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    bm::TextureAtlas* atlas = object->sprite.GetTexture();
-    canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->sprite.GetTile());
+    std::map<uint32_t, TextureAtlas*>::const_iterator it = textures.find(object->type);
+    if (it != textures.end()) {
+      bm::TextureAtlas* atlas = it->second;
+      canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->tile);
+    }
   }
 
   if (object->name_visible) {
@@ -780,9 +768,7 @@ private:
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
-          _player->SetSprite(textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
           _player->SetPosition(glm::vec2(_client_options->x, _client_options->y));
-          _player->SetPivot(glm::vec2(0.5f, 0.5f));
           _player->visible = true;
           _player->name_visible = true;
         }
@@ -844,36 +830,29 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id]->SetSprite(textures[snapshot->type], tile);
+        _walls[snapshot->id]->tile = tile;
         _walls[snapshot->id]->EnableInterpolation();
-        _walls[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _walls[snapshot->id]->visible = true;
         _walls[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
-        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
-        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
-        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
-        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = true;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
         _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
-        _objects[snapshot->id]->SetSprite(textures[snapshot->type]);
         _objects[snapshot->id]->EnableInterpolation();
-        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
@@ -890,9 +869,8 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id]->SetSprite(textures[snapshot->type], tile);
+        _objects[snapshot->id]->tile = tile;
         _objects[snapshot->id]->EnableInterpolation();
-        _objects[snapshot->id]->SetPivot(glm::vec2(0.5f, 0.5f));
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
@@ -1094,13 +1072,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
       }
 
-      RenderObject(_player, render_time, default_text_writer, &_canvas);
+      RenderObject(_player, render_time, textures, default_text_writer, &_canvas);
       
       _RenderHUD();
       //RenderMenu(_menu);
