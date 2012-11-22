@@ -1025,7 +1025,7 @@ private:
     
     TimeType render_time = _GetTime();
     
-    std::map<int, Object*>::iterator it;
+    std::map<int, Object*>::const_iterator it;
     for (it = _objects.begin(); it != _objects.end(); ++it) {
       Object* obj = it->second;
       
@@ -1033,6 +1033,26 @@ private:
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+      }
+    }
+    
+    for (it = _walls.begin(); it != _walls.end(); ++it) {
+      Object* obj = it->second;
+
+      glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
+      if (glm::length(rel) < 400) {
+        rel = rel * (60.0f / 400.0f);
+        _canvas.DrawCircle(glm::vec4(0, 1, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+      }
+    }
+    
+    {
+      Object* obj = _player;
+
+      glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
+      if (glm::length(rel) < 400) {
+        rel = rel * (60.0f / 400.0f);
+        _canvas.DrawCircle(glm::vec4(0, 0, 1, 1), glm::vec2(80, 80) + rel, 1, 6);
       }
     }
   }
