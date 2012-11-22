@@ -51,6 +51,8 @@ public:
   void SetTile(size_t tile);
   size_t GetTile() const;
   
+  bm::TextureAtlas* GetTexture() const;
+  
 private:
   glm::float_t zIndex;
   glm::vec2 position;

@@ -127,4 +127,8 @@ size_t Sprite::GetTile() const {
   return tile;
 }
 
+bm::TextureAtlas* Sprite::GetTexture() const {
+  return texture;
+}
+
 } // namespace bm
