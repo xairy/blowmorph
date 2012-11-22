@@ -514,84 +514,131 @@ private:
 
   bool _ProcessEvent(SDL_Event* event) {
     switch(event->type) {
-      case SDL_KEYDOWN: {
-        KeyboardEvent keyboard_event;
-        keyboard_event.time = _GetTime();
-        keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
-        switch(event->key.keysym.sym) {
-          case SDLK_a: {
-            _keyboard_state.left = true;
-            keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          }
-          case SDLK_d: {
-            _keyboard_state.right = true;
-            keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          }
-          case SDLK_w: {
-            _keyboard_state.up = true;
-            keyboard_event.key_type = KeyboardEvent::KEY_UP;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          }
-          case SDLK_s: {
-            _keyboard_state.down = true;
-            keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          }
-          case SDLK_ESCAPE: {
-            _is_running = false;
-            
-            CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-            if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
-              BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
-              return false;
-            } else {
-              printf("Client disconnected.\n");
-            }
-            
-            break;
-          }
-        }
-        break;
-      }
+      case SDL_KEYDOWN: return OnKeyDown(event);
+      case SDL_KEYUP: return OnKeyUp(event);
+      case SDL_QUIT: return OnSDLQuit(event);
+      case SDL_MOUSEMOTION: break;
+      case SDL_MOUSEBUTTONDOWN: return OnMouseButtonDown(event);
+      case SDL_MOUSEBUTTONUP: return OnMouseButtonUp(event);
+      default: break;
+    }
+    
+    return true;
+  }
 
-      case SDL_KEYUP: {
-        KeyboardEvent keyboard_event;
-        keyboard_event.time = _GetTime();
-        keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
-        switch(event->key.keysym.sym) {
-          case SDLK_a:
-            _keyboard_state.left = false;
-            keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          case SDLK_d:
-            _keyboard_state.right = false;
-            keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          case SDLK_w:
-            _keyboard_state.up = false;
-            keyboard_event.key_type = KeyboardEvent::KEY_UP;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-          case SDLK_s:
-            _keyboard_state.down = false;
-            keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-            _keyboard_events.push_back(keyboard_event);
-            break;
-        }
-        break;
-      }
+  bool OnMouseButtonUp(SDL_Event* event) {
+    MouseEvent mouse_event;
+    mouse_event.time = _GetTime();
+    if(event->button.button == SDL_BUTTON_LEFT) {
+      mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+    } else {
+      mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
+    }
+    mouse_event.event_type = MouseEvent::EVENT_KEYUP;
+    int screenWidth = _render_window.GetWidth();
+    int screenHeight = _render_window.GetHeight();
+    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
+    _mouse_events.push_back(mouse_event);
+    
+    return true;
+  }
 
-      case SDL_QUIT: {
+  bool OnMouseButtonDown(SDL_Event* event) {
+    MouseEvent mouse_event;
+    mouse_event.time = _GetTime();
+    if(event->button.button == SDL_BUTTON_LEFT) {
+      mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+    } else {
+      mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
+    }
+    mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
+
+    int screenWidth = _render_window.GetWidth();
+    int screenHeight = _render_window.GetHeight();
+    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
+    _mouse_events.push_back(mouse_event);
+    
+    return true;
+  }
+
+  bool OnSDLQuit(SDL_Event* event) {
+    _is_running = false;
+
+    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+    if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+      BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
+      return false;
+    } else {
+      printf("Client disconnected.\n");
+    }
+    
+    return true;
+  }
+
+  bool OnKeyUp(SDL_Event* event) {
+    KeyboardEvent keyboard_event;
+    keyboard_event.time = _GetTime();
+    keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
+    switch(event->key.keysym.sym) {
+      case SDLK_a:
+        _keyboard_state.left = false;
+        keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+      case SDLK_d:
+        _keyboard_state.right = false;
+        keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+      case SDLK_w:
+        _keyboard_state.up = false;
+        keyboard_event.key_type = KeyboardEvent::KEY_UP;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+      case SDLK_s:
+        _keyboard_state.down = false;
+        keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+    }
+    
+    return true;
+  }
+
+  bool OnKeyDown(SDL_Event* event) {
+    KeyboardEvent keyboard_event;
+    keyboard_event.time = _GetTime();
+    keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
+    switch(event->key.keysym.sym) {
+      case SDLK_a: {
+        _keyboard_state.left = true;
+        keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+                   }
+      case SDLK_d: {
+        _keyboard_state.right = true;
+        keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+                   }
+      case SDLK_w: {
+        _keyboard_state.up = true;
+        keyboard_event.key_type = KeyboardEvent::KEY_UP;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+                   }
+      case SDLK_s: {
+        _keyboard_state.down = true;
+        keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
+        _keyboard_events.push_back(keyboard_event);
+        break;
+                   }
+      case SDLK_ESCAPE: {
         _is_running = false;
-        
+
         CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
         if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
@@ -599,50 +646,11 @@ private:
         } else {
           printf("Client disconnected.\n");
         }
-        
-        break;
-      }
 
-      case SDL_MOUSEMOTION: {
-        break;
-      }
-
-      case SDL_MOUSEBUTTONDOWN: {
-        MouseEvent mouse_event;
-        mouse_event.time = _GetTime();
-        if(event->button.button == SDL_BUTTON_LEFT) {
-          mouse_event.button_type = MouseEvent::BUTTON_LEFT;
-        } else {
-          mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
-        }
-        mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
-        
-        int screenWidth = _render_window.GetWidth();
-        int screenHeight = _render_window.GetHeight();
-        mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-        mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
-        _mouse_events.push_back(mouse_event);
-        break;
-      }
-        
-      case SDL_MOUSEBUTTONUP: {
-        MouseEvent mouse_event;
-        mouse_event.time = _GetTime();
-        if(event->button.button == SDL_BUTTON_LEFT) {
-          mouse_event.button_type = MouseEvent::BUTTON_LEFT;
-        } else {
-          mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
-        }
-        mouse_event.event_type = MouseEvent::EVENT_KEYUP;
-        int screenWidth = _render_window.GetWidth();
-        int screenHeight = _render_window.GetHeight();
-        mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-        mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
-        _mouse_events.push_back(mouse_event);
         break;
       }
     }
-
+    
     return true;
   }
 
