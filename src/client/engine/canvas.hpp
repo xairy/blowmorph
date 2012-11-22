@@ -6,6 +6,8 @@
 
 namespace bm {
 
+class TextureAtlas;
+
 class Canvas {
 public:
   enum CoordinateType {
@@ -25,6 +27,9 @@ public:
   void FillRect(const glm::vec4& clr, const glm::vec2& pos, const glm::vec2& size);
   void DrawCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps);
   void FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps);
+  
+  void DrawTexturedQuad(const glm::vec2& pos, const glm::vec2& pivot, glm::float_t zIndex, 
+                        TextureAtlas* texture, size_t tile);
 
 private:
   
