@@ -85,7 +85,8 @@ void GameController::ProcessTimeSyncData(const TimeSyncData& time_sync_data) {
   CHECK(time_sync_data.server_time + latency / 2 >= time);
   _time_correction = time_sync_data.server_time + latency / 2 - time;
 
-  printf("Time correction: %lld\n", _time_correction);
+  // XXX[xairy]: linux x64: uint64_t == long int == %ld != %lld.
+  //printf("Time correction: %lld\n", _time_correction);
 
   _game_state = STATE_GAME_LOGGED_IN;
 }

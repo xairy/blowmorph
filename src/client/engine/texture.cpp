@@ -1,5 +1,7 @@
 #include "texture.hpp"
 
+#include <limits>
+
 #include <base/error.hpp>
 
 #include <GL/glew.h>
@@ -113,7 +115,9 @@ bool Texture::Update(const bm::Image* image) {
   
   glBindTexture(GL_TEXTURE_2D, _texture_id);
   
-  SCHECK(sizeof(GLsizei) >= sizeof(image->Width()));
+  //SCHECK(sizeof(GLsizei) >= sizeof(image->Width()));
+  CHECK(image->Width() <= std::numeric_limits<GLsizei>::max());
+  CHECK(image->Height() <= std::numeric_limits<GLsizei>::max());
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 
                   static_cast<GLsizei>(image->Width()),
                   static_cast<GLsizei>(image->Height()),

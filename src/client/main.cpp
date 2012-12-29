@@ -763,8 +763,9 @@ private:
           TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
-          printf("Time correction is %lld ms.\n", _time_correction);
-          printf("Latency is %lld.\n", latency);
+          // XXX[xairy]: linux x64: uint64_t == long int == %ld != %lld.
+          //printf("Time correction is %lld ms.\n", _time_correction);
+          //printf("Latency is %lld.\n", latency);
 
           _network_state = NETWORK_STATE_LOGGED_IN;
           
