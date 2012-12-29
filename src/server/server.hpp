@@ -476,8 +476,9 @@ private:
 
       _host->Flush();
 
-      printf("#%u: Time syncronized: client: %lld, server: %lld.\n",
-        client->entity->GetId(), sync_data.client_time, sync_data.server_time);
+      // XXX[xairy]: linux x64: uint64_t == long int == %ld != %lld.
+      //printf("#%u: Time syncronized: client: %lld, server: %lld.\n",
+      //  client->entity->GetId(), sync_data.client_time, sync_data.server_time);
 
       //XXX[14.08.2012 xairy]: hack?
       if(!_BroadcastStaticEntities(true)) {

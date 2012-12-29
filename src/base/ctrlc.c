@@ -17,7 +17,7 @@ BOOL WINAPI WinHandler(DWORD dwEvent) {
 }
 #else
 void unix_handler(int s) {
-  if (s == SIGINT)
+  if (s == SIGINT) {
     sighandler();
   }
 }
