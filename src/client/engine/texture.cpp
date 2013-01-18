@@ -53,7 +53,11 @@ void SetTextureMatrix(const glm::mat4x4& matrix) {
 
 namespace bm {
 
-Texture::Texture() : _texture_id(0), _width(0), _height(0), _actual_width(0), _actual_height(0) { }
+Texture::Texture() : _texture_id(0), _width(0), _height(0), _actual_width(0), _actual_height(0) {
+  _flags.repeated = 0;
+  _flags.smooth = 1;
+  _flags.flipped = 0;
+}
 Texture::~Texture() {
   Dispose();
 }

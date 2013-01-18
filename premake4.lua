@@ -98,6 +98,7 @@ solution "blowmorph"
   project "client"
     kind "ConsoleApp"
     language "C++"
+    targetname "bm-client"
     
     includedirs { "src", "inc" }
     files { "src/client/**.cpp",
@@ -169,6 +170,7 @@ solution "blowmorph"
   project "server"
     kind "ConsoleApp"
     language "C++"
+    targetname "bm-server"
     
     includedirs { "src", "inc" }
     files { "src/server/**.cpp",
@@ -186,26 +188,6 @@ solution "blowmorph"
       links { "pugixml" }
     configuration "linux"
       links { "pugixml" }
-  
-  project "sample-server"
-    kind "ConsoleApp"
-    language "C++"
-    
-    includedirs { "src", "inc" }
-    files { "src/enet-sample/server.cpp" }
-    
-    links { "bm-base" }
-    links { "bm-enet" }
-      
-  project "sample-client"
-    kind "ConsoleApp"
-    language "C++"
-    
-    includedirs { "src", "inc" }
-    files { "src/enet-sample/client.cpp" }
-    
-    links { "bm-base" }
-    links { "bm-enet" }
   
   project "bm-base"
     kind "SharedLib"
