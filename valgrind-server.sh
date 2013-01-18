@@ -2,4 +2,4 @@
 cd bin
 export LD_LIBRARY_PATH=`pwd`
 cd ..
-./bin/bm-client
+valgrind ./bin/bm-server

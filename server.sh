@@ -2,4 +2,4 @@
 cd bin
 export LD_LIBRARY_PATH=`pwd`
 cd ..
-./bin/server
+./bin/bm-server
