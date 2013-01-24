@@ -313,7 +313,9 @@ struct TextWriter::FontData {
   FontDataPrivate fontData;
 };
 
-TextWriter::TextWriter() { }
+TextWriter::TextWriter() {
+  _state = STATE_DELETED;
+}
 
 TextWriter::~TextWriter() {
   CHECK(_state = STATE_DELETED);
