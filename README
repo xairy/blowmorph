@@ -7,20 +7,46 @@ How to build under Microsoft Windows, Visual Studio 2008:
   2. Build build\blowmorph.sln.
 
 How to build under Ubuntu Linux:
-  1. Install SDL-1.2.15
-  2. Install glew
-  3. Install FreeImage
-  4. Install FreeType
-  5. Install pugixml-1.2
-  6. ./premake4 gmake
-  7. cd build
-  8. make
+  1. Install SDL-1.2
+     > sudo apt-get install libsdl1.2-dev
 
-How-to compile SDL2 under linux:
-  hg clone ...
-  cd SDL2
-  rm -r .hg
-  ./autogen.sh
-  ./configure
-  make
-  sudo make install
+  2. Install glew
+     > sudo apt-get install libglew-dev
+
+  3. Install FreeImage
+     > sudo apt-get install libfreeimage-dev
+
+  4. Install FreeType
+     > sudo apt-get install libfreetype6-dev
+
+  5. Install pugixml-1.2
+     https://code.google.com/p/pugixml/
+
+  6. Install ENetPlus.
+     https://bitbucket.org/xairy/enet-plus
+     TODO: HOWTO.
+
+  7. Generate project files
+     > ./premake4 gmake
+
+  8. > cd build
+
+  9. On x32 system:
+     > make
+     On x64 system:
+     > make config=release64
+
+How to install pugixml-1.2:
+  1. Download pugixml-1.2.tar.gz from https://code.google.com/p/pugixml/ and extract
+  2. > cd pugixml-1.2/scripts
+  3. > cmake .
+  4. > make
+  5. > sudo make install
+
+How to start server:
+  1. Set port in blowmorph/data/server.xml, default: 4242
+  2. > ./server.sh
+
+How to start client:
+  1. Set server's port and ip in blowmorph/data/client.ini, default: 127.0.0.1:4242
+  2. > ./client.sh
