@@ -22,7 +22,7 @@
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <interpolator/interpolator.hpp>
 
@@ -75,7 +75,7 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
 }
 
 // Attempts to synchronously disconnect the peer.
-bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint32_t timeout) {
+bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host, uint32_t timeout) {
   CHECK(peer != NULL);
   CHECK(event != NULL);
   CHECK(host != NULL);
@@ -90,7 +90,7 @@ bool DisconnectPeer(bm::Peer* peer, bm::Event* event, bm::ClientHost* host, uint
       return false;
     }
 
-    if(event != NULL && event->GetType() == Event::EVENT_DISCONNECT) {
+    if(event != NULL && event->GetType() == enet::Event::TYPE_DISCONNECT) {
       return true;
     }
   }
@@ -464,7 +464,7 @@ private:
       return false;
     }
 
-    std::auto_ptr<ClientHost> client(_enet.CreateClientHost());
+    std::auto_ptr<enet::ClientHost> client(_enet.CreateClientHost());
     if(client.get() == NULL) {
       return false;
     }
@@ -472,12 +472,12 @@ private:
     std::string host = IniFile::GetValue<std::string>(settings, "server.host", "127.0.0.1");
     uint16_t port = IniFile::GetValue(settings, "server.port", 4242);
 
-    std::auto_ptr<Peer> peer(client->Connect(host, port));
+    std::auto_ptr<enet::Peer> peer(client->Connect(host, port));
     if(peer.get() == NULL) {
       return false;
     }
 
-    std::auto_ptr<Event> event(_enet.CreateEvent());
+    std::auto_ptr<enet::Event> event(_enet.CreateEvent());
     if(event.get() == NULL) {
       return false;
     }
@@ -487,7 +487,7 @@ private:
     if(rv == false) {
       return false;
     }
-    if(event->GetType() != Event::EVENT_CONNECT) {
+    if(event->GetType() != enet::Event::TYPE_CONNECT) {
       BM_ERROR("Could not connect to server.");
       return false;
     }
@@ -497,7 +497,7 @@ private:
 
     _network_state = NETWORK_STATE_CONNECTED;
 
-    printf("Connected to %s:%u.\n", _event->GetPeerIp().c_str(), _event->GetPeerPort());
+    printf("Connected to %s:%u.\n", _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
 
     return true;
   }
@@ -674,9 +674,8 @@ private:
         return false;
       }
       switch(_event->GetType()) {
-        case Event::EVENT_RECEIVE: {
+        case enet::Event::TYPE_RECEIVE: {
           _event->GetData(&message);
-          _event->DestroyPacket();
 
           const Packet::Type* type = reinterpret_cast<Packet::Type*>(&message[0]);
           const void* data = reinterpret_cast<void*>(&message[0] + sizeof(Packet::Type)); 
@@ -688,18 +687,18 @@ private:
           ProcessPacket(*type, data, len);
         } break;
         
-        case Event::EVENT_CONNECT: {
+        case enet::Event::TYPE_CONNECT: {
           Warning("Got EVENT_CONNECT while being already connected.");
         } break;
 
-        case Event::EVENT_DISCONNECT: {
+        case enet::Event::TYPE_DISCONNECT: {
           _network_state = NETWORK_STATE_DISCONNECTED;
           _is_running = false;
           BM_ERROR("Connection lost.");
           return false;
         } break;
       }
-    } while (_event->GetType() != Event::EVENT_NONE);
+    } while (_event->GetType() != enet::Event::TYPE_NONE);
     
     return true;
   }
@@ -1118,10 +1117,10 @@ private:
   
   TextWriter* default_text_writer;
 
-  Enet _enet;
-  ClientHost* _client;
-  Peer* _peer;
-  Event* _event;
+  enet::Enet _enet;
+  enet::ClientHost* _client;
+  enet::Peer* _peer;
+  enet::Event* _event;
 
   // In milliseconds.
   TimeType _connect_timeout;

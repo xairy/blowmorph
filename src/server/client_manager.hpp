@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <base/pstdint.hpp>
 
@@ -13,10 +13,10 @@
 namespace bm {
 
 struct Client {
-  Client(Peer* peer, Player* entity);
+  Client(enet::Peer* peer, Player* entity);
   ~Client();
 
-  Peer* peer;
+  enet::Peer* peer;
   Player* entity;
 };
 

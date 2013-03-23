@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
@@ -12,7 +12,7 @@
 
 namespace bm {
 
-Client::Client(Peer* peer, Player* entity) : peer(peer), entity(entity) {
+Client::Client(enet::Peer* peer, Player* entity) : peer(peer), entity(entity) {
   CHECK(peer != NULL);
 }
 Client::~Client() {

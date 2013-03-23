@@ -6,7 +6,7 @@
 #include <list>
 #include <string>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
@@ -51,10 +51,10 @@ private:
   std::string _host;
   int _port;
 
-  Enet _enet;
-  ClientHost* _client;
-  Peer* _peer;
-  Event* _event;
+  enet::Enet _enet;
+  enet::ClientHost* _client;
+  enet::Peer* _peer;
+  enet::Event* _event;
 
   std::list<Listener*> _listeners;
 

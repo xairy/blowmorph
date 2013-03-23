@@ -105,12 +105,17 @@ solution "blowmorph"
             "src/client/**.hpp" }
     
     links { "bm-base" }
-    links { "bm-enet" }
     links { "interpolator" }
     
     links { "ini-file" }
     
     resource("data", "data")
+
+    -- ENetPlus
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "enet-plus" }
       
     -- GLM
     includedirs { "ext-libs/glm/include" }
@@ -177,9 +182,14 @@ solution "blowmorph"
             "src/server/**.hpp" }
     
     links { "bm-base" }
-    links { "bm-enet" }
 
     resource("data", "data")
+
+    -- ENetPlus
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "enet-plus" }
     
     -- PugiXML
     configuration "windows"
@@ -199,27 +209,6 @@ solution "blowmorph"
             "src/base/**.hpp",
             "src/base/**.h",
             "src/base/**.c" }
-
-  project "bm-enet"
-    kind "SharedLib"
-    language "C++"
-      
-    defines { "BM_ENET_DLL" }
-    includedirs { "src", "inc" }
-    files { "src/enet-wrapper/**.cpp",
-            "src/enet-wrapper/**.hpp" }
-     
-    links { "bm-base" }
-        
-    -- ENet
-    configuration "windows"
-      includedirs { "ext-libs/enet/include" }      
-      windows_libdir("ext-libs/enet/bin")
-      windows_binary("ext-libs/enet/bin", "enet.dll")
-      links { "enet" }
-      links { "ws2_32", "winmm" }
-    configuration "linux"
-      links { "enet" }
     
   project "interpolator"
     kind "StaticLib"

@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <base/error.hpp>
 #include <base/macros.hpp>
@@ -35,13 +35,13 @@ bool NetworkController::Initialize(const std::string& host, int port) {
     return false;
   }
 
-  std::auto_ptr<ClientHost> client(_enet.CreateClientHost());
+  std::auto_ptr<enet::ClientHost> client(_enet.CreateClientHost());
   if(client.get() == NULL) {
     BM_ERROR("Could not create client host!");
     return false;
   }
 
-  std::auto_ptr<Event> event(_enet.CreateEvent());
+  std::auto_ptr<enet::Event> event(_enet.CreateEvent());
   if(event.get() == NULL) {
     BM_ERROR("Could not create event!");
     return false;
@@ -89,9 +89,8 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
       return false;
     }
     switch(_event->GetType()) {
-      case Event::EVENT_RECEIVE: {
+      case enet::Event::TYPE_RECEIVE: {
         _event->GetData(&message);
-        _event->DestroyPacket();
 
         std::list<Listener*>::iterator itr;
         for(itr = _listeners.begin(); itr != _listeners.end(); ++itr) {
@@ -99,12 +98,12 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
         }
       } break;
       
-      case Event::EVENT_CONNECT: {
+      case enet::Event::TYPE_CONNECT: {
         BM_ERROR("Got EVENT_CONNECT while being already connected.");
         return false;
       } break;
 
-      case Event::EVENT_DISCONNECT: {
+      case enet::Event::TYPE_DISCONNECT: {
         _network_state = NETWORK_STATE_DISCONNECTED;
 
         std::list<Listener*>::iterator itr;
@@ -117,7 +116,7 @@ bool NetworkController::Service(/*uint32_t timeout*/) {
         return false;
       } break;
     }
-  } while (_event->GetType() != Event::EVENT_NONE);
+  } while (_event->GetType() != enet::Event::TYPE_NONE);
   
   return true;
 }
@@ -126,7 +125,7 @@ bool NetworkController::Connect(uint32_t timeout) {
   CHECK(_state == STATE_INITIALIZED);
   CHECK(_network_state == NETWORK_STATE_DISCONNECTED);
 
-  std::auto_ptr<Peer> peer(_client->Connect(_host, _port));
+  std::auto_ptr<enet::Peer> peer(_client->Connect(_host, _port));
   if(peer.get() == NULL) {
     return false;
   }
@@ -136,7 +135,7 @@ bool NetworkController::Connect(uint32_t timeout) {
     BM_ERROR("Could not service client host!");
     return false;
   }
-  if(_event->GetType() != Event::EVENT_CONNECT) {
+  if(_event->GetType() != enet::Event::TYPE_CONNECT) {
     BM_ERROR("Got something else while waiting for EVENT_CONNECT!");
     return false;
   }
@@ -164,7 +163,7 @@ bool NetworkController::Disconnect(uint32_t timeout) {
       BM_ERROR("Could not service client host!");
       return false;
     }
-    if(_event != NULL && _event->GetType() == Event::EVENT_DISCONNECT) {
+    if(_event != NULL && _event->GetType() == enet::Event::TYPE_DISCONNECT) {
       return true;
     }
   }
