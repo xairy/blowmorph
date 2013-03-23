@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include <enet-wrapper/enet.hpp>
+#include <enet-plus/enet.hpp>
 
 #include <base/error.hpp>
 #include <base/macros.hpp>
@@ -100,12 +100,12 @@ public:
       return false;
     }
 
-    std::auto_ptr<ServerHost> host(_enet.CreateServerHost(_server_port));
+    std::auto_ptr<enet::ServerHost> host(_enet.CreateServerHost(_server_port));
     if(host.get() == NULL) {
       return false;
     }
 
-    std::auto_ptr<Event> event(_enet.CreateEvent());
+    std::auto_ptr<enet::Event> event(_enet.CreateEvent());
     if(event.get() == NULL) {
       return false;
     }
@@ -258,39 +258,39 @@ private:
       }
       
       switch(_event->GetType()) {
-        case Event::EVENT_CONNECT: {
+        case enet::Event::TYPE_CONNECT: {
           if(!_OnConnect()) {
             return false;
           }
           break;
         }
 
-        case Event::EVENT_RECEIVE: {
+        case enet::Event::TYPE_RECEIVE: {
           if(!_OnReceive()) {
             return false;
           }
           break;
         }
 
-        case Event::EVENT_DISCONNECT: {
+        case enet::Event::TYPE_DISCONNECT: {
           if(!_OnDisconnect()) {
             return false;
           }
           break;
         }
       }
-    } while(_event->GetType() != Event::EVENT_NONE);
+    } while(_event->GetType() != enet::Event::TYPE_NONE);
 
     return true;
   }
 
   bool _OnConnect() {
-    CHECK(_event->GetType() == Event::EVENT_CONNECT);
+    CHECK(_event->GetType() == enet::Event::TYPE_CONNECT);
 
     printf("Client from %s:%u is trying to connect.\n",
-      _event->GetPeerIp().c_str(), _event->GetPeerPort());
+      _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
 
-    std::auto_ptr<Peer> peer(_event->GetPeer());
+    std::auto_ptr<enet::Peer> peer(_event->GetPeer());
     if(peer.get() == NULL) {
       return false;
     }
@@ -316,7 +316,7 @@ private:
     _world_manager.AddEntity(client_id, player);
 
     printf("Client from %s:%u connected. Id #%u assigned.\n",
-      _event->GetPeerIp().c_str(), _event->GetPeerPort(), client_id);
+      _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort(), client_id);
 
     if(!_SendClientOptions(client)) {
       return false;
@@ -376,9 +376,9 @@ private:
   }
 
   bool _OnDisconnect() {
-    CHECK(_event->GetType() == Event::EVENT_DISCONNECT);
+    CHECK(_event->GetType() == enet::Event::TYPE_DISCONNECT);
 
-    void* peer_data = _event->GetPeerData();
+    void* peer_data = _event->GetPeer()->GetData();
     // So complicated to make it work under x64.
     uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
     Client* client = _client_manager.GetClient(id);
@@ -393,15 +393,15 @@ private:
     _client_manager.DeleteClient(id, true);
 
     printf("#%u from %s:%u disconnected.\n", id,
-      _event->GetPeerIp().c_str(), _event->GetPeerPort());
+      _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
 
     return true;
   }
 
   bool _OnReceive() {
-    CHECK(_event->GetType() == Event::EVENT_RECEIVE);
+    CHECK(_event->GetType() == enet::Event::TYPE_RECEIVE);
 
-    void* peer_data = _event->GetPeerData();
+    void* peer_data = _event->GetPeer()->GetData();
     // So complicated to make it work under x64.
     uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
     Client* client = _client_manager.GetClient(id);
@@ -509,7 +509,7 @@ private:
   }
 
   template<class T>
-  bool _SendPacket(Peer* peer, Packet::Type type, const T& data, bool reliable) {
+  bool _SendPacket(enet::Peer* peer, Packet::Type type, const T& data, bool reliable) {
     std::vector<char> message;
     message.insert(message.end(), reinterpret_cast<const char*>(&type),
       reinterpret_cast<const char*>(&type) + sizeof(type));
@@ -557,9 +557,9 @@ private:
 
   std::string _map_file;
 
-  Enet _enet;
-  ServerHost* _host;
-  Event* _event;
+  enet::Enet _enet;
+  enet::ServerHost* _host;
+  enet::Event* _event;
 
   IdManager _id_manager;
   WorldManager _world_manager;
