@@ -15,9 +15,7 @@ namespace bm {
 Client::Client(enet::Peer* peer, Player* entity) : peer(peer), entity(entity) {
   CHECK(peer != NULL);
 }
-Client::~Client() {
-  delete peer;
-}
+Client::~Client() { }
 
 ClientManager::ClientManager() { }
 ClientManager::~ClientManager() {
