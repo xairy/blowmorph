@@ -229,14 +229,3 @@ solution "blowmorph"
     
     files { "src/ini-file/**.cpp",
             "src/ini-file/**.hpp" }
-  
-  project "simple-leak-detector"
-    kind "SharedLib"
-    language "C++"
-    
-    defines "SIMPLELEAKDETECTOR_DLL"
-    
-    includedirs { "src", "inc" }
-    
-    files { "src/simple-leak-detector/**.cpp",
-            "src/simple-leak-detector/**.hpp" }
