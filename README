@@ -24,7 +24,6 @@ How to build under Ubuntu Linux:
 
   6. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
-     TODO: HOWTO.
 
   7. Generate project files
      > ./premake4 gmake
@@ -32,7 +31,7 @@ How to build under Ubuntu Linux:
   8. > cd build
 
   9. On x32 system:
-     > make
+     > make config=release32
      On x64 system:
      > make config=release64
 
