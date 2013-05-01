@@ -346,7 +346,6 @@ public:
     if(_client_options != NULL) delete _client_options;
 
     if(_client != NULL) delete _client;
-    if(_peer != NULL) delete _peer;
     if(_event != NULL) delete _event;
 
     std::map<int, Object*>::iterator it;
