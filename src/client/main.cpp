@@ -250,78 +250,6 @@ void RenderObject(Object* object, TimeType time, std::map<uint32_t, TextureAtlas
   }
 }
 
-template<class T>
-struct Rect {
-  T left;
-  T right;
-  T top;
-  T bottom;
-
-  Rect() : left(0), right(0), top(0), bottom(0) { }
-  Rect(T left, T right, T bottom, T top) : left(left), right(right), top(top), bottom(bottom) {
-    CHECK(bottom <= top);
-    CHECK(left <= right);
-  }
-};
-
-template<class T> bool IsInside(const Rect<T>& rect, T x, T y) {
-  return (rect.left <= x && x <= rect.right) &&
-    (rect.bottom <= y && y <= rect.top);
-}
-
-class Game {
-public:
-  void Update();
-  void Render();
-};
-
-struct MenuItem {
-  std::string text;
-  void (Game::*buttonHandler)(MenuItem* menuItem);
-
-  MenuItem(const std::string& text) : text(text) { }
-};
-struct Menu {
-  std::vector<MenuItem> items;
-  size_t selected;
-};
-
-void RenderMenu(Menu& menu, Canvas* canvas, TextWriter* text_writer) {
-  const float ITEM_HEIGHT = 30.0f;
-  const float ITEM_WIDTH = 200.0f;
-
-  canvas->SetCoordinateType(Canvas::PixelsFlipped);
-
-  // Move the coordinate axes to the center of the screen.
-  glm::vec2 screenSize = canvas->GetSize();
-  glm::mat3x3 centerTranslation(1, 0, screenSize.x / 2,
-    0, 1, screenSize.y / 2,
-    0, 0,                1);
-  // Transpose since glm keeps matrices in a column-major order.
-  centerTranslation = glm::transpose(centerTranslation);
-  canvas->SetTransform(centerTranslation);
-
-  size_t itemCount = menu.items.size();
-  float firstY = itemCount * ITEM_HEIGHT / 2;
-  for (size_t i = 0; i < itemCount; i++) {
-
-
-    MenuItem item = menu.items[i];
-
-    glm::vec2 pos = glm::vec2(-ITEM_WIDTH / 2, firstY - i * ITEM_HEIGHT);
-    glm::vec2 size = glm::vec2(ITEM_WIDTH, ITEM_HEIGHT);
-
-    // Select color for the item.
-    glm::vec4 clr(1, 1, 1, 1);
-    if (menu.selected == i) {
-      clr = glm::vec4(1, 0, 0, 1);
-    }
-
-    canvas->DrawRect(clr, pos, size);
-    text_writer->PrintText(clr, pos.x, pos.y - size.y, item.text.c_str());
-  }
-}
-
 class Application {
 public:
   Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
@@ -406,16 +334,6 @@ public:
   }
 
 private:
-
-  /*void InitMenu() {
-    _menu.items.push_back(MenuItem("Test"));
-    _menu.items.push_back(MenuItem("Test2"));
-    _menu.items.push_back(MenuItem("Test3"));
-    _menu.selected = 0;
-
-    _menuFont.InitFont("data/fonts/tahoma.ttf", 12);
-  }*/
-
   bool _Initialize() {
     _is_running = false;
 
@@ -451,8 +369,6 @@ private:
     }
 
     _last_loop = _GetTime();
-
-    //InitMenu();
 
     default_text_writer = new TextWriter();
     default_text_writer->InitFont("data/fonts/tahoma.ttf", 12);
@@ -1106,7 +1022,6 @@ private:
       RenderObject(_player, render_time, textures, default_text_writer, &_canvas);
 
       _RenderHUD();
-      //RenderMenu(_menu);
 
       _render_window.SwapBuffers();
     }
