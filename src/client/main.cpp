@@ -64,14 +64,46 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
   CHECK(Packet::TYPE_UNKNOWN <= packet_type && packet_type <= Packet::TYPE_MAX_VALUE);
 
   // Append packet type.
-  buf.insert(buf.end(), 
+  buf.insert(buf.end(),
     reinterpret_cast<const char*>(&packet_type),
     reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
 
   // Append packet data.
-  buf.insert(buf.end(), 
+  buf.insert(buf.end(),
     reinterpret_cast<const char*>(data),
     reinterpret_cast<const char*>(data) + sizeof(*data));
+}
+
+// Sends input events to the server and
+// clears the input event queues afterwards.
+bool SendInputEvents(enet::Peer* peer, std::vector<KeyboardEvent>& keyboard_events, std::vector<MouseEvent>& mouse_events) {
+  std::vector<char> buf;
+
+  for(size_t i = 0; i < keyboard_events.size(); i++) {
+    buf.clear();
+
+    AppendPacketToBuffer(buf, &keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
+
+    bool rv = peer->Send(&buf[0], buf.size());
+    if(rv == false) {
+      return false;
+    }
+  }
+  keyboard_events.clear();
+
+  for(size_t i = 0; i < mouse_events.size(); i++) {
+    buf.clear();
+
+    AppendPacketToBuffer(buf, &mouse_events[i], Packet::TYPE_MOUSE_EVENT);
+
+    bool rv = peer->Send(&buf[0], buf.size());
+    if(rv == false) {
+      return false;
+    }
+  }
+  mouse_events.clear();
+
+  return true;
 }
 
 // Attempts to synchronously disconnect the peer.
@@ -137,10 +169,10 @@ struct Object {
     state.morphCharge = 0;
     state.position = position;
     interpolator.Push(state, time);
-    
+
     name_render_offset = glm::vec2(-8.0f, -20.0f);
   }
-  
+
   void EnableInterpolation() {
     interpolation_enabled = true;
     interpolator.SetFrameCount(2);
@@ -150,16 +182,16 @@ struct Object {
     interpolation_enabled = false;
     interpolator.SetFrameCount(1);
   }
-  
+
   void EnforceState(const ObjectState& state, TimeType time) {
     interpolator.Clear();
     interpolator.Push(state, time);
   }
-  
+
   void UpdateCurrentState(const ObjectState& state, TimeType time) {
     interpolator.Push(state, time);
-  }  
-  
+  }
+
   glm::vec2 GetPosition(TimeType time) {
     return interpolator.Interpolate(time).position;
   }
@@ -188,7 +220,7 @@ struct Object {
   size_t tile;
 
   bool visible;
-  
+
   bool name_visible;
   glm::vec2 name_render_offset;
 
@@ -301,7 +333,7 @@ public:
     if (!IniFile::LoadINI("data/client.ini", settings)) {
       return false;
     }
-  
+
     // XXX[24.7.2012 alex]: switch to a FSM
     if(!_Initialize()) {
       return false;
@@ -324,7 +356,7 @@ public:
       TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
-        _SendInputEvents();
+        SendInputEvents(_peer, _keyboard_events, _mouse_events);
       }
     }
 
@@ -332,7 +364,7 @@ public:
 
     return true;
   }
-  
+
   void Finalize() {
     //CHECK(_state == STATE_INITIALIZED);
 
@@ -341,7 +373,7 @@ public:
       delete it->second;
     }
     textures.clear();
-    
+
     if(_player != NULL) delete _player;
     if(_client_options != NULL) delete _client_options;
 
@@ -366,7 +398,7 @@ public:
     _animations.clear();
 
     //_render_window.Finalize();
-    
+
     default_text_writer->Destroy();
     delete default_text_writer;
 
@@ -374,13 +406,13 @@ public:
   }
 
 private:
-  
+
   /*void InitMenu() {
     _menu.items.push_back(MenuItem("Test"));
     _menu.items.push_back(MenuItem("Test2"));
     _menu.items.push_back(MenuItem("Test3"));
     _menu.selected = 0;
-    
+
     _menuFont.InitFont("data/fonts/tahoma.ttf", 12);
   }*/
 
@@ -397,12 +429,12 @@ private:
     _tick_rate = 30;
 
     _player = NULL;
-    
+
     _client_options = NULL;
 
     _wall_size = 16;
     _player_size = 30;
-    
+
     // TODO: think about more accurate name.
     _max_error = 25.f;
 
@@ -419,9 +451,9 @@ private:
     }
 
     _last_loop = _GetTime();
-    
+
     //InitMenu();
-    
+
     default_text_writer = new TextWriter();
     default_text_writer->InitFont("data/fonts/tahoma.ttf", 12);
 
@@ -434,7 +466,7 @@ private:
     if (!_render_window.Initialize("Blowmorph", 600, 600, false)) {
       return false;
     }
-    
+
     // Init 2D canvas.
     if (!_canvas.Init()) {
       return false;
@@ -447,7 +479,7 @@ private:
     textures[EntitySnapshot::ENTITY_TYPE_DUMMY] = bm::LoadOldTexture("data/images/guy.png", 0);
     textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION] = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
     textures[EntitySnapshot::ENTITY_TYPE_STATION] = bm::LoadTileset("data/images/kits.png", 0, 1, 1, 31, 31, 30, 30);
-    
+
     // Check if all the textures were loaded successfully.
     for (std::map<uint32_t, TextureAtlas*>::iterator it = textures.begin(); it != textures.end(); it++) {
       if (it->second == NULL) {
@@ -521,7 +553,7 @@ private:
       case SDL_MOUSEBUTTONUP: return OnMouseButtonUp(event);
       default: break;
     }
-    
+
     return true;
   }
 
@@ -539,7 +571,7 @@ private:
     mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
     mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
-    
+
     return true;
   }
 
@@ -558,7 +590,7 @@ private:
     mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
     mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
-    
+
     return true;
   }
 
@@ -572,7 +604,7 @@ private:
     } else {
       printf("Client disconnected.\n");
     }
-    
+
     return true;
   }
 
@@ -602,7 +634,7 @@ private:
         _keyboard_events.push_back(keyboard_event);
         break;
     }
-    
+
     return true;
   }
 
@@ -649,25 +681,25 @@ private:
         break;
       }
     }
-    
+
     return true;
   }
 
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
-    
+
     uint32_t start_time = SDL_GetTicks();
     do {
       uint32_t time = SDL_GetTicks();
       CHECK(time >= start_time);
-      
+
       // If we have run out of time, break and return
       // unless timeout is zero.
       if (time - start_time > timeout && timeout != 0) {
         break;
       }
       uint32_t service_timeout = timeout == 0 ? 0 : timeout - (time - start_time);
-      
+
       bool rv = _client->Service(_event, service_timeout);
       if(rv == false) {
         return false;
@@ -677,15 +709,15 @@ private:
           _event->GetData(&message);
 
           const Packet::Type* type = reinterpret_cast<Packet::Type*>(&message[0]);
-          const void* data = reinterpret_cast<void*>(&message[0] + sizeof(Packet::Type)); 
+          const void* data = reinterpret_cast<void*>(&message[0] + sizeof(Packet::Type));
           size_t len = message.size() - sizeof(Packet::Type);
-          
+
           //printf("Received %d.", *type);
-          
+
           // XXX[24.7.2012 alex]: will only process single packet at a time
           ProcessPacket(*type, data, len);
         } break;
-        
+
         case enet::Event::TYPE_CONNECT: {
           Warning("Got EVENT_CONNECT while being already connected.");
         } break;
@@ -698,7 +730,7 @@ private:
         } break;
       }
     } while (_event->GetType() != enet::Event::TYPE_NONE);
-    
+
     return true;
   }
 
@@ -709,7 +741,7 @@ private:
       delete it->second;
       _objects.erase(it);
     }
-    
+
     it = _walls.find(id);
     if (it != _walls.end()) {
       delete it->second;
@@ -729,16 +761,16 @@ private:
         } else if (len != sizeof(ClientOptions)) {
           Warning("Received packet has incorrect length.");
         } else {
-          const ClientOptions* options = reinterpret_cast<const ClientOptions*>(data); 
+          const ClientOptions* options = reinterpret_cast<const ClientOptions*>(data);
           _client_options = new ClientOptions(*options);
-          
+
           // Switch to a new state.
           _network_state = NETWORK_STATE_SYNCHRONIZATION;
-          
+
           // Send a time synchronization request.
           TimeSyncData request_data;
           request_data.client_time = TimeType(SDL_GetTicks());
-          
+
           std::vector<char> buf;
           AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
 
@@ -757,7 +789,7 @@ private:
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          TimeType client_time = TimeType(SDL_GetTicks()); 
+          TimeType client_time = TimeType(SDL_GetTicks());
           TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
@@ -766,9 +798,9 @@ private:
           //printf("Latency is %lld.\n", latency);
 
           _network_state = NETWORK_STATE_LOGGED_IN;
-          
+
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
-          _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0), 
+          _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0),
                                _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER);
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
@@ -777,7 +809,7 @@ private:
           _player->visible = true;
           _player->name_visible = true;
         }
-        
+
         return true;
       } break;
       case NETWORK_STATE_LOGGED_IN: {
@@ -785,7 +817,7 @@ private:
                           (type == Packet::TYPE_ENTITY_APPEARED ||
                            type == Packet::TYPE_ENTITY_DISAPPEARED ||
                            type == Packet::TYPE_ENTITY_UPDATED);
-                           
+
         if (isSnapshot) {
           const EntitySnapshot* snapshot = reinterpret_cast<const EntitySnapshot*>(data);
           if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
@@ -807,10 +839,10 @@ private:
         } else {
           Warning("Received packet is not an entity snapshot.");
         }
-        
+
         return true;
       } break;
-      
+
       default:
         return false;
         break;
@@ -820,10 +852,10 @@ private:
 
   void OnEntityAppearance(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
-  
+
     TimeType time = snapshot->time;
     glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
-    
+
     switch(snapshot->type) {
       case EntitySnapshot::ENTITY_TYPE_WALL: {
         _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
@@ -884,7 +916,7 @@ private:
 
   void OnEntityUpdate(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
-  
+
     TimeType time = snapshot->time;
     glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
 
@@ -903,7 +935,7 @@ private:
 
   void OnPlayerUpdate(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
-  
+
     glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
     glm::vec2 distance = _player->GetPosition() - position;
 
@@ -922,7 +954,7 @@ private:
 
   bool OnEntityDisappearance(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
-  
+
     DeleteObject(snapshot->id);
 
     if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
@@ -939,11 +971,11 @@ private:
       animation->Play();
       _animations.push_back(animation);
     }
-    
+
     return true;
   }
 
-  bool _Loop() {   
+  bool _Loop() {
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
       TimeType current_time = _GetTime();
       TimeType delta_time = current_time - _last_loop;
@@ -960,7 +992,7 @@ private:
 
       for(it = _walls.begin() ; it != _walls.end(); it++) {
         glm::vec2 wall_position = it->second->GetPosition(current_time);
-        if(abs(wall_position.x - (player_position.x + delta_x)) < (_player_size + _wall_size) / 2 
+        if(abs(wall_position.x - (player_position.x + delta_x)) < (_player_size + _wall_size) / 2
           && abs(wall_position.y - (player_position.y)) < (_player_size + _wall_size) / 2) {
           intersection_x = true;
           break;
@@ -968,48 +1000,16 @@ private:
       }
       for(it = _walls.begin() ; it != _walls.end(); it++) {
         glm::vec2 wall_position = it->second->GetPosition(current_time);
-        if(abs(wall_position.x - (player_position.x)) < (_player_size + _wall_size) / 2 
+        if(abs(wall_position.x - (player_position.x)) < (_player_size + _wall_size) / 2
           && abs(wall_position.y - (player_position.y + delta_y)) < (_player_size + _wall_size) / 2) {
           intersection_y = true;
           break;
         }
-      } 
-      
+      }
+
       if(!intersection_x) _player->Move(glm::vec2(delta_x, 0.0f));
       if(!intersection_y) _player->Move(glm::vec2(0.0f, delta_y));
     }
-
-    return true;
-  }
-
-  // Sends input events to the server and 
-  // clears the input event queues afterwards.
-  bool _SendInputEvents() {
-    std::vector<char> buf;
-
-    for(size_t i = 0; i < _keyboard_events.size(); i++) {
-      buf.clear();
-      
-      AppendPacketToBuffer(buf, &_keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
-      
-      bool rv = _peer->Send(&buf[0], buf.size());
-      if(rv == false) {
-        return false;
-      }
-    }
-    _keyboard_events.clear();
-    
-    for(size_t i = 0; i < _mouse_events.size(); i++) {
-      buf.clear();
-      
-      AppendPacketToBuffer(buf, &_mouse_events[i], Packet::TYPE_MOUSE_EVENT);
-      
-      bool rv = _peer->Send(&buf[0], buf.size());
-      if(rv == false) {
-        return false;
-      }
-    }
-    _mouse_events.clear();
 
     return true;
   }
@@ -1018,29 +1018,29 @@ private:
   TimeType _GetTime() {
     return TimeType(SDL_GetTicks()) + _time_correction;
   }
-  
+
   void _RenderHUD() {
     _canvas.SetCoordinateType(Canvas::PixelsFlipped);
     _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
     _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
     _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
-  
+
     _canvas.SetCoordinateType(Canvas::Pixels);
     _canvas.DrawCircle(glm::vec4(1, 1, 1, 1), glm::vec2(80, 80), 60, 20);
-    
+
     TimeType render_time = _GetTime();
-    
+
     std::map<int, Object*>::const_iterator it;
     for (it = _objects.begin(); it != _objects.end(); ++it) {
       Object* obj = it->second;
-      
+
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
       }
     }
-    
+
     for (it = _walls.begin(); it != _walls.end(); ++it) {
       Object* obj = it->second;
 
@@ -1050,7 +1050,7 @@ private:
         _canvas.DrawCircle(glm::vec4(0, 1, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
       }
     }
-    
+
     {
       Object* obj = _player;
 
@@ -1065,20 +1065,20 @@ private:
   // Renders everything.
   void _Render() {
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    if (_network_state == NETWORK_STATE_LOGGED_IN) {  
+
+    if (_network_state == NETWORK_STATE_LOGGED_IN) {
       _canvas.SetCoordinateType(Canvas::Pixels);
-      
+
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      
+
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
-      
+
       int screenWidth = _render_window.GetWidth();
       int screenHeight = _render_window.GetHeight();
-      
-      glTranslatef(::fround(screenWidth / 2.0f - player_position.x), 
+
+      glTranslatef(::fround(screenWidth / 2.0f - player_position.x),
                    ::fround(screenHeight / 2.0f - player_position.y), 0);
 
       std::list<Animation*>::iterator it2;
@@ -1104,7 +1104,7 @@ private:
       }
 
       RenderObject(_player, render_time, textures, default_text_writer, &_canvas);
-      
+
       _RenderHUD();
       //RenderMenu(_menu);
 
@@ -1113,7 +1113,7 @@ private:
   }
 
   bool _is_running;
-  
+
   TextWriter* default_text_writer;
 
   enet::Enet _enet;
@@ -1165,13 +1165,13 @@ private:
     bool left;
   };
   KeyboardState _keyboard_state;
-  
+
   enum State {
     STATE_INITIALIZED,
     STATE_FINALIZED
   };
   State _state;
-  
+
   enum NetworkState {
     NETWORK_STATE_DISCONNECTED,
     NETWORK_STATE_CONNECTED,
@@ -1179,11 +1179,11 @@ private:
     NETWORK_STATE_LOGGED_IN
   };
   NetworkState _network_state;
-  
+
   IniFile::RecordMap settings;
 };
 
-int main(int argc, char** argv) { 
+int main(int argc, char** argv) {
   Application app;
   if(!app.Execute()) {
     Error::Print();
