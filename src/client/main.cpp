@@ -13,7 +13,8 @@
 #include <string>
 
 #include <GL/glew.h>
-#include <SDL/SDL.h>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
 #include <FreeImage.h>
 
@@ -29,18 +30,22 @@
 #include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
-#include "engine/render_window.hpp"
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
 #include "engine/text_writer.hpp"
 #include "engine/canvas.hpp"
 
 //#include <base/leak_detector.hpp>
+#include "sys.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 static float fround(float f) {
   return ::floorf(f + 0.5f);
+}
+
+bm::TimeType getTicks() {
+  return bm::TimeType(sys::Timestamp() * 1000);
 }
 
 using namespace bm;
@@ -114,9 +119,9 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
 
   peer->Disconnect();
 
-  uint32_t start = SDL_GetTicks();
+  TimeType start = getTicks();
 
-  while(SDL_GetTicks() - start <= timeout) {
+  while(getTicks() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
     if(rv == false) {
       return false;
@@ -325,10 +330,10 @@ public:
     }
     _animations.clear();
 
-    //_render_window.Finalize();
-
     default_text_writer->Destroy();
     delete default_text_writer;
+
+    delete _render_window;
 
     _state = STATE_FINALIZED;
   }
@@ -379,9 +384,7 @@ private:
   }
 
   bool _InitializeGraphics() {
-    if (!_render_window.Initialize("Blowmorph", 600, 600, false)) {
-      return false;
-    }
+    _render_window = new sf::RenderWindow(sf::VideoMode(600, 600), "Blowmorph");
 
     // Init 2D canvas.
     if (!_canvas.Init()) {
@@ -450,8 +453,8 @@ private:
   }
 
   bool _PumpEvents() {
-    SDL_Event event;
-    while(SDL_PollEvent(&event)) {
+    sf::Event event;
+    while(_render_window->pollEvent(event)) {
       if(!_ProcessEvent(&event)) {
         return false;
       }
@@ -459,58 +462,58 @@ private:
     return true;
   }
 
-  bool _ProcessEvent(SDL_Event* event) {
+  bool _ProcessEvent(sf::Event* event) {
     switch(event->type) {
-      case SDL_KEYDOWN: return OnKeyDown(event);
-      case SDL_KEYUP: return OnKeyUp(event);
-      case SDL_QUIT: return OnSDLQuit(event);
-      case SDL_MOUSEMOTION: break;
-      case SDL_MOUSEBUTTONDOWN: return OnMouseButtonDown(event);
-      case SDL_MOUSEBUTTONUP: return OnMouseButtonUp(event);
+      case sf::Event::KeyPressed: return OnKeyDown(event);
+      case sf::Event::KeyReleased: return OnKeyUp(event);
+      case sf::Event::Closed: return OnSDLQuit(event);
+      case sf::Event::MouseMoved: break;
+      case sf::Event::MouseButtonPressed: return OnMouseButtonDown(event);
+      case sf::Event::MouseButtonReleased: return OnMouseButtonUp(event);
       default: break;
     }
 
     return true;
   }
 
-  bool OnMouseButtonUp(SDL_Event* event) {
+  bool OnMouseButtonUp(sf::Event* event) {
     MouseEvent mouse_event;
     mouse_event.time = _GetTime();
-    if(event->button.button == SDL_BUTTON_LEFT) {
+    if(event->mouseButton.button == sf::Mouse::Left) {
       mouse_event.button_type = MouseEvent::BUTTON_LEFT;
     } else {
       mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
     }
     mouse_event.event_type = MouseEvent::EVENT_KEYUP;
-    int screenWidth = _render_window.GetWidth();
-    int screenHeight = _render_window.GetHeight();
-    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
+    int screenWidth = _render_window->getSize().x;
+    int screenHeight = _render_window->getSize().y;
+    mouse_event.x = (event->mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event->mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
 
     return true;
   }
 
-  bool OnMouseButtonDown(SDL_Event* event) {
+  bool OnMouseButtonDown(sf::Event* event) {
     MouseEvent mouse_event;
     mouse_event.time = _GetTime();
-    if(event->button.button == SDL_BUTTON_LEFT) {
+    if(event->mouseButton.button == sf::Mouse::Left) {
       mouse_event.button_type = MouseEvent::BUTTON_LEFT;
     } else {
       mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
     }
     mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
 
-    int screenWidth = _render_window.GetWidth();
-    int screenHeight = _render_window.GetHeight();
-    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
+    int screenWidth = _render_window->getSize().x;
+    int screenHeight = _render_window->getSize().y;
+    mouse_event.x = (event->mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event->mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
 
     return true;
   }
 
-  bool OnSDLQuit(SDL_Event* event) {
+  bool OnSDLQuit(sf::Event* event) {
     _is_running = false;
 
     CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
@@ -524,27 +527,27 @@ private:
     return true;
   }
 
-  bool OnKeyUp(SDL_Event* event) {
+  bool OnKeyUp(sf::Event* event) {
     KeyboardEvent keyboard_event;
     keyboard_event.time = _GetTime();
     keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
-    switch(event->key.keysym.sym) {
-      case SDLK_a:
+    switch(event->key.code) {
+      case sf::Keyboard::A:
         _keyboard_state.left = false;
         keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
         _keyboard_events.push_back(keyboard_event);
         break;
-      case SDLK_d:
+      case sf::Keyboard::D:
         _keyboard_state.right = false;
         keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
         _keyboard_events.push_back(keyboard_event);
         break;
-      case SDLK_w:
+      case sf::Keyboard::W:
         _keyboard_state.up = false;
         keyboard_event.key_type = KeyboardEvent::KEY_UP;
         _keyboard_events.push_back(keyboard_event);
         break;
-      case SDLK_s:
+      case sf::Keyboard::S:
         _keyboard_state.down = false;
         keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
         _keyboard_events.push_back(keyboard_event);
@@ -554,36 +557,36 @@ private:
     return true;
   }
 
-  bool OnKeyDown(SDL_Event* event) {
+  bool OnKeyDown(sf::Event* event) {
     KeyboardEvent keyboard_event;
     keyboard_event.time = _GetTime();
     keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
-    switch(event->key.keysym.sym) {
-      case SDLK_a: {
+    switch(event->key.code) {
+      case sf::Keyboard::A: {
         _keyboard_state.left = true;
         keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
         _keyboard_events.push_back(keyboard_event);
         break;
                    }
-      case SDLK_d: {
+      case sf::Keyboard::D: {
         _keyboard_state.right = true;
         keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
         _keyboard_events.push_back(keyboard_event);
         break;
                    }
-      case SDLK_w: {
+      case sf::Keyboard::W: {
         _keyboard_state.up = true;
         keyboard_event.key_type = KeyboardEvent::KEY_UP;
         _keyboard_events.push_back(keyboard_event);
         break;
                    }
-      case SDLK_s: {
+      case sf::Keyboard::S: {
         _keyboard_state.down = true;
         keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
         _keyboard_events.push_back(keyboard_event);
         break;
                    }
-      case SDLK_ESCAPE: {
+      case sf::Keyboard::Escape: {
         _is_running = false;
 
         CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
@@ -604,9 +607,9 @@ private:
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
 
-    uint32_t start_time = SDL_GetTicks();
+    TimeType start_time = getTicks();
     do {
-      uint32_t time = SDL_GetTicks();
+      TimeType time = getTicks();
       CHECK(time >= start_time);
 
       // If we have run out of time, break and return
@@ -685,7 +688,7 @@ private:
 
           // Send a time synchronization request.
           TimeSyncData request_data;
-          request_data.client_time = TimeType(SDL_GetTicks());
+          request_data.client_time = getTicks();
 
           std::vector<char> buf;
           AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
@@ -705,7 +708,7 @@ private:
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          TimeType client_time = TimeType(SDL_GetTicks());
+          TimeType client_time = getTicks();
           TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
@@ -932,7 +935,7 @@ private:
 
   // Returns approximate server time (with the correction).
   TimeType _GetTime() {
-    return TimeType(SDL_GetTicks()) + _time_correction;
+    return getTicks() + _time_correction;
   }
 
   void _RenderHUD() {
@@ -991,8 +994,8 @@ private:
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
 
-      int screenWidth = _render_window.GetWidth();
-      int screenHeight = _render_window.GetHeight();
+      int screenWidth = _render_window->getSize().x;
+      int screenHeight = _render_window->getSize().y;
 
       glTranslatef(::fround(screenWidth / 2.0f - player_position.x),
                    ::fround(screenHeight / 2.0f - player_position.y), 0);
@@ -1023,7 +1026,7 @@ private:
 
       _RenderHUD();
 
-      _render_window.SwapBuffers();
+      _render_window->display();
     }
   }
 
@@ -1043,7 +1046,7 @@ private:
   int _tick_rate;
   TimeType _last_loop;
 
-  RenderWindow _render_window;
+  sf::RenderWindow* _render_window;
   Canvas _canvas;
 
   // XXX[24.7.2012 alex]: copypasta
