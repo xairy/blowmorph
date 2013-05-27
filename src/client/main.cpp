@@ -48,8 +48,6 @@ bm::TimeType getTicks() {
   return bm::TimeType(sys::Timestamp() * 1000);
 }
 
-using namespace bm;
-
 void Warning(const char* fmt, ...) {
   CHECK(fmt != NULL);
 
@@ -64,9 +62,9 @@ void Warning(const char* fmt, ...) {
 }
 
 // Appends packet type and data to the end of the buffer.
-template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
+template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, bm::Packet::Type packet_type) {
   CHECK(data != NULL);
-  CHECK(Packet::TYPE_UNKNOWN <= packet_type && packet_type <= Packet::TYPE_MAX_VALUE);
+  CHECK(bm::Packet::TYPE_UNKNOWN <= packet_type && packet_type <= bm::Packet::TYPE_MAX_VALUE);
 
   // Append packet type.
   buf.insert(buf.end(),
@@ -81,13 +79,13 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
 
 // Sends input events to the server and
 // clears the input event queues afterwards.
-bool SendInputEvents(enet::Peer* peer, std::vector<KeyboardEvent>& keyboard_events, std::vector<MouseEvent>& mouse_events) {
+bool SendInputEvents(enet::Peer* peer, std::vector<bm::KeyboardEvent>& keyboard_events, std::vector<bm::MouseEvent>& mouse_events) {
   std::vector<char> buf;
 
   for(size_t i = 0; i < keyboard_events.size(); i++) {
     buf.clear();
 
-    AppendPacketToBuffer(buf, &keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
+    AppendPacketToBuffer(buf, &keyboard_events[i], bm::Packet::TYPE_KEYBOARD_EVENT);
 
     bool rv = peer->Send(&buf[0], buf.size());
     if(rv == false) {
@@ -99,7 +97,7 @@ bool SendInputEvents(enet::Peer* peer, std::vector<KeyboardEvent>& keyboard_even
   for(size_t i = 0; i < mouse_events.size(); i++) {
     buf.clear();
 
-    AppendPacketToBuffer(buf, &mouse_events[i], Packet::TYPE_MOUSE_EVENT);
+    AppendPacketToBuffer(buf, &mouse_events[i], bm::Packet::TYPE_MOUSE_EVENT);
 
     bool rv = peer->Send(&buf[0], buf.size());
     if(rv == false) {
@@ -119,7 +117,7 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
 
   peer->Disconnect();
 
-  TimeType start = getTicks();
+  bm::TimeType start = getTicks();
 
   while(getTicks() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
@@ -134,6 +132,8 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
 
   return false;
 }
+
+using namespace bm;
 
 struct ObjectState {
   glm::vec2 position;
