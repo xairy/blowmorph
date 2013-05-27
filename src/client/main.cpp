@@ -32,7 +32,6 @@
 #include "engine/animation.hpp"
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
-#include "engine/text_writer.hpp"
 #include "engine/canvas.hpp"
 
 //#include <base/leak_detector.hpp>
@@ -232,9 +231,9 @@ struct Object {
 };
 
 void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
-                  bm::TextWriter* text_writer, bm::Canvas* canvas) {
+                  sf::Font* font, sf::RenderWindow* window, bm::Canvas* canvas) {
   CHECK(object != NULL);
-  CHECK(text_writer != NULL);
+  CHECK(font != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
@@ -248,8 +247,11 @@ void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::Text
 
   if (object->name_visible) {
     glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
-    text_writer->PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
-      "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
+    sf::Text text("Hello SFML", *font, 12);
+    text.setPosition(caption_position.x, caption_position.y);
+    window->draw(text);
+    //text_writer->PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
+    //  "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
   }
 }
 
@@ -330,7 +332,6 @@ public:
     }
     _animations.clear();
 
-    default_text_writer->Destroy();
     delete default_text_writer;
 
     delete _render_window;
@@ -375,8 +376,8 @@ private:
 
     _last_loop = _GetTime();
 
-    default_text_writer = new TextWriter();
-    default_text_writer->InitFont("data/fonts/tahoma.ttf", 12);
+    default_text_writer = new sf::Font();
+    default_text_writer->loadFromFile("data/fonts/tahoma.ttf");
 
     _state = STATE_INITIALIZED;
 
@@ -1016,13 +1017,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, _render_window, &_canvas);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, _render_window, &_canvas);
       }
 
-      RenderObject(_player, render_time, textures, default_text_writer, &_canvas);
+      RenderObject(_player, render_time, textures, default_text_writer, _render_window, &_canvas);
 
       _RenderHUD();
 
@@ -1032,7 +1033,7 @@ private:
 
   bool _is_running;
 
-  TextWriter* default_text_writer;
+  sf::Font* default_text_writer;
 
   enet::Enet _enet;
   enet::ClientHost* _client;
