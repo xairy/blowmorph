@@ -133,8 +133,6 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
   return false;
 }
 
-using namespace bm;
-
 struct ObjectState {
   glm::vec2 position;
   float blowCharge;
@@ -159,14 +157,14 @@ namespace interpolator {
   }
 };
 
-typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolator;
+typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterpolator;
 
 // TODO[24.7.2012 alex]: fix method names
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, TimeType time, uint32_t id, uint32_t type)
+  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type)
     : id(id), type(type), visible(false), interpolation_enabled(false),
-    name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1)), tile(0)
+    name_visible(false), interpolator(ObjectInterpolator(bm::TimeType(75), 1)), tile(0)
   {
     ObjectState state;
     state.blowCharge = 0;
@@ -188,36 +186,36 @@ struct Object {
     interpolator.SetFrameCount(1);
   }
 
-  void EnforceState(const ObjectState& state, TimeType time) {
+  void EnforceState(const ObjectState& state, bm::TimeType time) {
     interpolator.Clear();
     interpolator.Push(state, time);
   }
 
-  void UpdateCurrentState(const ObjectState& state, TimeType time) {
+  void UpdateCurrentState(const ObjectState& state, bm::TimeType time) {
     interpolator.Push(state, time);
   }
 
-  glm::vec2 GetPosition(TimeType time) {
+  glm::vec2 GetPosition(bm::TimeType time) {
     return interpolator.Interpolate(time).position;
   }
 
   glm::vec2 GetPosition() {
     assert(!interpolation_enabled);
-    return GetPosition(TimeType(0));
+    return GetPosition(bm::TimeType(0));
   }
 
   void SetPosition(const glm::vec2& value) {
     assert(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(bm::TimeType(0));
     state.position = value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, bm::TimeType(0));
   }
 
   void Move(const glm::vec2& value) {
     assert(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(bm::TimeType(0));
     state.position = state.position + value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, bm::TimeType(0));
   }
 
   uint32_t id;
@@ -233,15 +231,15 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, TimeType time, std::map<uint32_t, TextureAtlas*> textures,
-                  TextWriter* text_writer, Canvas* canvas) {
+void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
+                  bm::TextWriter* text_writer, bm::Canvas* canvas) {
   CHECK(object != NULL);
   CHECK(text_writer != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    std::map<uint32_t, TextureAtlas*>::const_iterator it = textures.find(object->type);
+    std::map<uint32_t, bm::TextureAtlas*>::const_iterator it = textures.find(object->type);
     if (it != textures.end()) {
       bm::TextureAtlas* atlas = it->second;
       canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->tile);
@@ -254,6 +252,8 @@ void RenderObject(Object* object, TimeType time, std::map<uint32_t, TextureAtlas
       "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
   }
 }
+
+using namespace bm;
 
 class Application {
 public:
