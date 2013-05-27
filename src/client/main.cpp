@@ -1106,59 +1106,8 @@ int main(int argc, char** argv) {
   if(!app.Execute()) {
     Error::Print();
     app.Finalize();
-    //bm::leak_detector::PrintAllLeaks();
-    //while(true);
     return EXIT_FAILURE;
   }
   app.Finalize();
-  //bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
-
-/*
-#include "game_controller.hpp"
-#include "network_controller.hpp"
-#include "packet_processer.hpp"
-#include "window.hpp"
-
-int main(int argc, char** argv) {
-  NetworkController nc;
-  bool rv = nc.Initialize("127.0.0.1", 4242);
-  CHECK(rv == true);
-  rv = nc.Connect(500);
-  CHECK(rv == true);
-
-  PacketProcesser pp;
-  GameController gc;
-  Window ww;
-
-  rv = pp.Initialize(&nc, &gc);
-  CHECK(rv == true);
-
-  rv = gc.Initialize(&pp, &ww);
-  CHECK(rv == true);
-
-  rv = ww.Initialize(NULL);
-  CHECK(rv == true);
-
-  while(true) {
-    rv = nc.Service();
-    CHECK(rv == true);
-    rv = gc.Update();
-    CHECK(rv == true);
-    rv = ww.Render();
-    CHECK(rv == true);
-    rv = ww.PumpEvents();
-    CHECK(rv == true);
-  }
-
-  nc.Finalize();
-  rv = pp.Finalize();
-  CHECK(rv == true);
-  rv = gc.Finalize();
-  CHECK(rv == true);
-  ww.Finalize();
-
-  return EXIT_SUCCESS;
-}
-*/
