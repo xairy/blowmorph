@@ -231,7 +231,7 @@ struct Object {
 };
 
 void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
-                  sf::Font* font, sf::RenderWindow* window, bm::Canvas* canvas) {
+                  sf::Font* font, sf::RenderWindow& renderWindow, bm::Canvas* canvas) {
   CHECK(object != NULL);
   CHECK(font != NULL);
 
@@ -249,9 +249,7 @@ void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::Text
     glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
     sf::Text text("Hello SFML", *font, 12);
     text.setPosition(caption_position.x, caption_position.y);
-    window->draw(text);
-    //text_writer->PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
-    //  "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
+    renderWindow.draw(text);
   }
 }
 
@@ -286,7 +284,7 @@ public:
       if(!_Loop()) {
         return false;
       }
-      _Render();
+      _Render(*_render_window);
 
       TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
@@ -456,65 +454,59 @@ private:
   bool _PumpEvents() {
     sf::Event event;
     while(_render_window->pollEvent(event)) {
-      if(!_ProcessEvent(&event)) {
+      if(!_ProcessEvent(event)) {
         return false;
       }
     }
     return true;
   }
 
-  bool _ProcessEvent(sf::Event* event) {
-    switch(event->type) {
-      case sf::Event::KeyPressed: return OnKeyDown(event);
-      case sf::Event::KeyReleased: return OnKeyUp(event);
-      case sf::Event::Closed: return OnSDLQuit(event);
-      case sf::Event::MouseMoved: break;
-      case sf::Event::MouseButtonPressed: return OnMouseButtonDown(event);
-      case sf::Event::MouseButtonReleased: return OnMouseButtonUp(event);
+  bool _ProcessEvent(const sf::Event& event) {
+    switch(event.type) {
+      case sf::Event::Closed:
+        return OnSDLQuit(event);
+      case sf::Event::KeyPressed:
+      case sf::Event::KeyReleased:
+        return OnKeyEvent(event);
+      case sf::Event::MouseMoved:
+        break;
+      case sf::Event::MouseButtonPressed:
+      case sf::Event::MouseButtonReleased:
+        return OnMouseButtonEvent(event);
       default: break;
     }
 
     return true;
   }
 
-  bool OnMouseButtonUp(sf::Event* event) {
+  bool OnMouseButtonEvent(const sf::Event& event) {
     MouseEvent mouse_event;
     mouse_event.time = _GetTime();
-    if(event->mouseButton.button == sf::Mouse::Left) {
+
+    if(event.mouseButton.button == sf::Mouse::Left) {
       mouse_event.button_type = MouseEvent::BUTTON_LEFT;
     } else {
       mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
     }
-    mouse_event.event_type = MouseEvent::EVENT_KEYUP;
+
+    if (event.type == sf::Event::MouseButtonReleased) {
+      mouse_event.event_type = MouseEvent::EVENT_KEYUP;
+    } else if (event.type == sf::Event::MouseButtonPressed) {
+      mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
+    } else {
+      CHECK(false);
+    }
+
     int screenWidth = _render_window->getSize().x;
     int screenHeight = _render_window->getSize().y;
-    mouse_event.x = (event->mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
+    mouse_event.x = (event.mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event.mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
 
     return true;
   }
 
-  bool OnMouseButtonDown(sf::Event* event) {
-    MouseEvent mouse_event;
-    mouse_event.time = _GetTime();
-    if(event->mouseButton.button == sf::Mouse::Left) {
-      mouse_event.button_type = MouseEvent::BUTTON_LEFT;
-    } else {
-      mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
-    }
-    mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
-
-    int screenWidth = _render_window->getSize().x;
-    int screenHeight = _render_window->getSize().y;
-    mouse_event.x = (event->mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
-    _mouse_events.push_back(mouse_event);
-
-    return true;
-  }
-
-  bool OnSDLQuit(sf::Event* event) {
+  bool OnSDLQuit(const sf::Event& event) {
     _is_running = false;
 
     CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
@@ -528,67 +520,41 @@ private:
     return true;
   }
 
-  bool OnKeyUp(sf::Event* event) {
+  bool OnKeyEvent(const sf::Event& event) {
     KeyboardEvent keyboard_event;
     keyboard_event.time = _GetTime();
-    keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
-    switch(event->key.code) {
-      case sf::Keyboard::A:
-        _keyboard_state.left = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case sf::Keyboard::D:
-        _keyboard_state.right = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case sf::Keyboard::W:
-        _keyboard_state.up = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_UP;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case sf::Keyboard::S:
-        _keyboard_state.down = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-        _keyboard_events.push_back(keyboard_event);
-        break;
+
+    bool pressed;
+
+    if (event.type == sf::Event::KeyReleased) {
+      keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
+      pressed = false;
+    } else if (event.type == sf::Event::KeyPressed) {
+      keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
+      pressed = true;
+    } else {
+      CHECK(false);
     }
 
-    return true;
-  }
-
-  bool OnKeyDown(sf::Event* event) {
-    KeyboardEvent keyboard_event;
-    keyboard_event.time = _GetTime();
-    keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
-    switch(event->key.code) {
-      case sf::Keyboard::A: {
-        _keyboard_state.left = true;
+    switch(event.key.code) {
+      case sf::Keyboard::A:
+        _keyboard_state.left = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case sf::Keyboard::D: {
-        _keyboard_state.right = true;
+      case sf::Keyboard::D:
+        _keyboard_state.right = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case sf::Keyboard::W: {
-        _keyboard_state.up = true;
+      case sf::Keyboard::W:
+        _keyboard_state.up = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_UP;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case sf::Keyboard::S: {
-        _keyboard_state.down = true;
+      case sf::Keyboard::S:
+        _keyboard_state.down = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
       case sf::Keyboard::Escape: {
-        _is_running = false;
+        _is_running = !pressed;
 
         CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
         if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
@@ -601,6 +567,8 @@ private:
         break;
       }
     }
+
+    _keyboard_events.push_back(keyboard_event);
 
     return true;
   }
@@ -983,8 +951,8 @@ private:
   }
 
   // Renders everything.
-  void _Render() {
-    glClear(GL_COLOR_BUFFER_BIT);
+  void _Render(sf::RenderWindow& renderWindow) {
+    renderWindow.clear();
 
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
       _canvas.SetCoordinateType(Canvas::Pixels);
@@ -995,11 +963,13 @@ private:
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
 
-      int screenWidth = _render_window->getSize().x;
-      int screenHeight = _render_window->getSize().y;
+      int screenWidth = renderWindow.getSize().x;
+      int screenHeight = renderWindow.getSize().y;
 
-      glTranslatef(::fround(screenWidth / 2.0f - player_position.x),
-                   ::fround(screenHeight / 2.0f - player_position.y), 0);
+      sf::Transform transform;
+      transform.translate(::fround(screenWidth / 2.0f - player_position.x),
+                          ::fround(screenHeight / 2.0f - player_position.y));
+      glLoadMatrixf(transform.getMatrix());
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
@@ -1017,18 +987,18 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, _render_window, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, renderWindow, &_canvas);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, _render_window, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, renderWindow, &_canvas);
       }
 
-      RenderObject(_player, render_time, textures, default_text_writer, _render_window, &_canvas);
+      RenderObject(_player, render_time, textures, default_text_writer, renderWindow, &_canvas);
 
       _RenderHUD();
-
-      _render_window->display();
     }
+
+    renderWindow.display();
   }
 
   bool _is_running;
