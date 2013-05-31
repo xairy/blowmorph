@@ -2,12 +2,13 @@
 
 #include <base/macros.hpp>
 #include "texture_atlas.hpp"
-#include "texture.hpp"
 
 #include <GL/glew.h>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <SFML/Graphics.hpp>
 
 namespace {
 
@@ -18,12 +19,12 @@ static float fround(float f) {
 void GetViewport(glm::vec2& leftTopCorner, glm::vec2& rightBottomCorner) {
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
-  
+
   float x = static_cast<float>(viewport[0]);
   float y = static_cast<float>(viewport[1]);
   float width = static_cast<float>(viewport[2]);
   float height = static_cast<float>(viewport[3]);
-  
+
   leftTopCorner.x = x;
   leftTopCorner.y = y;
   rightBottomCorner.x = x + width;
@@ -34,14 +35,14 @@ void SetProjectionMatrix(const glm::mat4x4& matrix) {
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(glm::value_ptr(matrix));
-  glPopAttrib(); 
+  glPopAttrib();
 }
 
 void SetModelviewMatrix(const glm::mat4x4& matrix) {
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf(glm::value_ptr(matrix));
-  glPopAttrib(); 
+  glPopAttrib();
 }
 
 } // anonymous namespace
@@ -66,7 +67,7 @@ void Canvas::SetCoordinateType(CoordinateType ct) {
   GetViewport(leftTopCorner, rightBottomCorner);
 
   glm::mat4x4 projMatrix;
-  
+
   if (ct == Canvas::Pixels) {
     projMatrix = glm::ortho(leftTopCorner.x,
                             rightBottomCorner.x,
@@ -82,7 +83,7 @@ void Canvas::SetCoordinateType(CoordinateType ct) {
   } else if (ct == Canvas::NormalizedFlipped) {
     projMatrix = glm::ortho(0, 1, 0, 1);
   }
-  
+
   SetProjectionMatrix(projMatrix);
   SetModelviewMatrix(glm::mat4x4(1));
 }
@@ -99,7 +100,7 @@ void Canvas::SetTransform(const glm::mat3x3& m) {
   mvm[1] = glm::vec4(m[1][0], m[1][1], 0, m[1][2]);
   mvm[2] = glm::vec4(0,       0,       1,       0);
   mvm[3] = glm::vec4(m[2][0], m[2][1], 0, m[2][2]);
-  
+
   SetModelviewMatrix(mvm);
 }
 
@@ -138,7 +139,7 @@ void Canvas::DrawCircle(const glm::vec4& clr, const glm::vec2& pos, float radius
 void Canvas::FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius, size_t steps) {
   glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
   glBindTexture(GL_TEXTURE_2D, 0);
-  
+
   glBegin(GL_TRIANGLE_FAN);
     glColor4fv(glm::value_ptr(clr));
     glVertex2d(pos.x, pos.y);
@@ -149,14 +150,14 @@ void Canvas::FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius
   glEnd();
 }
 
-void Canvas::DrawTexturedQuad(const glm::vec2& pos, const glm::vec2& pivot, glm::float_t zIndex, 
+void Canvas::DrawTexturedQuad(const glm::vec2& pos, const glm::vec2& pivot, glm::float_t zIndex,
                               TextureAtlas* texture, size_t tile) {
   assert(texture != NULL);
   assert(tile < texture->GetTileCount());
-  
+
   glColor3f(1.0f, 1.0f, 1.0f);
 
-  texture->GetTexture()->Bind(bm::Texture::Pixels);
+  sf::Texture::bind(texture->GetTexture(), sf::Texture::Pixels);
 
   glPushMatrix();
   //glLoadIdentity();
