@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 namespace {
 
@@ -152,6 +153,7 @@ void Canvas::FillCircle(const glm::vec4& clr, const glm::vec2& pos, float radius
 
 void Canvas::DrawTexturedQuad(const glm::vec2& pos, const glm::vec2& pivot, glm::float_t zIndex,
                               TextureAtlas* texture, size_t tile) {
+  //std::cerr << texture->GetTileCount() << " " << tile << std::endl;
   assert(texture != NULL);
   assert(tile < texture->GetTileCount());
 
