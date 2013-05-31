@@ -6,6 +6,12 @@
   #include <sys/time.h>
 #endif
 
+#include <cstdarg>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cassert>
+
 namespace sys {
 
 double Timestamp() {
@@ -37,6 +43,19 @@ double Timestamp() {
     return (double) (time.tv_sec-secsFirstCall) +
       (double) time.tv_usec / (1000.0 * 1000.0);
   #endif
+}
+
+void Warning(const char* fmt, ...) {
+  assert(fmt != NULL);
+
+  char buf[1024];
+
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
+  va_end(args);
+
+  fprintf(stderr, "WARN: %s\n", buf);
 }
 
 }  // namespace sys
