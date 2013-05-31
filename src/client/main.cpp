@@ -36,6 +36,7 @@
 
 //#include <base/leak_detector.hpp>
 #include "sys.hpp"
+#include "net.hpp"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -45,91 +46,6 @@ static float fround(float f) {
 
 bm::TimeType getTicks() {
   return bm::TimeType(sys::Timestamp() * 1000);
-}
-
-void Warning(const char* fmt, ...) {
-  CHECK(fmt != NULL);
-
-  char buf[1024];
-
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-  va_end(args);
-
-  fprintf(stderr, "WARN: %s\n", buf);
-}
-
-// Appends packet type and data to the end of the buffer.
-template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, bm::Packet::Type packet_type) {
-  CHECK(data != NULL);
-  CHECK(bm::Packet::TYPE_UNKNOWN <= packet_type && packet_type <= bm::Packet::TYPE_MAX_VALUE);
-
-  // Append packet type.
-  buf.insert(buf.end(),
-    reinterpret_cast<const char*>(&packet_type),
-    reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
-
-  // Append packet data.
-  buf.insert(buf.end(),
-    reinterpret_cast<const char*>(data),
-    reinterpret_cast<const char*>(data) + sizeof(*data));
-}
-
-// Sends input events to the server and
-// clears the input event queues afterwards.
-bool SendInputEvents(enet::Peer* peer, std::vector<bm::KeyboardEvent>& keyboard_events, std::vector<bm::MouseEvent>& mouse_events) {
-  std::vector<char> buf;
-
-  for(size_t i = 0; i < keyboard_events.size(); i++) {
-    buf.clear();
-
-    AppendPacketToBuffer(buf, &keyboard_events[i], bm::Packet::TYPE_KEYBOARD_EVENT);
-
-    bool rv = peer->Send(&buf[0], buf.size());
-    if(rv == false) {
-      return false;
-    }
-  }
-  keyboard_events.clear();
-
-  for(size_t i = 0; i < mouse_events.size(); i++) {
-    buf.clear();
-
-    AppendPacketToBuffer(buf, &mouse_events[i], bm::Packet::TYPE_MOUSE_EVENT);
-
-    bool rv = peer->Send(&buf[0], buf.size());
-    if(rv == false) {
-      return false;
-    }
-  }
-  mouse_events.clear();
-
-  return true;
-}
-
-// Attempts to synchronously disconnect the peer.
-bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host, uint32_t timeout) {
-  CHECK(peer != NULL);
-  CHECK(event != NULL);
-  CHECK(host != NULL);
-
-  peer->Disconnect();
-
-  bm::TimeType start = getTicks();
-
-  while(getTicks() - start <= timeout) {
-    bool rv = host->Service(event, (uint32_t) timeout);
-    if(rv == false) {
-      return false;
-    }
-
-    if(event != NULL && event->GetType() == enet::Event::TYPE_DISCONNECT) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 struct ObjectState {
@@ -289,7 +205,7 @@ public:
       TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
-        SendInputEvents(_peer, _keyboard_events, _mouse_events);
+        bm::net::SendInputEvents(_peer, _keyboard_events, _mouse_events);
       }
     }
 
@@ -510,7 +426,7 @@ private:
     _is_running = false;
 
     CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-    if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+    if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
       BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
       return false;
     } else {
@@ -557,7 +473,7 @@ private:
         _is_running = !pressed;
 
         CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-        if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+        if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
           return false;
         } else {
@@ -607,7 +523,7 @@ private:
         } break;
 
         case enet::Event::TYPE_CONNECT: {
-          Warning("Got EVENT_CONNECT while being already connected.");
+          sys::Warning("Got EVENT_CONNECT while being already connected.");
         } break;
 
         case enet::Event::TYPE_DISCONNECT: {
@@ -640,14 +556,14 @@ private:
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
-        Warning("Received a packet while being in disconnected state.");
+        sys::Warning("Received a packet while being in disconnected state.");
         return true;
       } break;
       case NETWORK_STATE_CONNECTED: {
         if (type != Packet::TYPE_CLIENT_OPTIONS) {
-          Warning("Received packet with a type %d while waiting for client options.", type);
+          sys::Warning("Received packet with a type %d while waiting for client options.", type);
         } else if (len != sizeof(ClientOptions)) {
-          Warning("Received packet has incorrect length.");
+          sys::Warning("Received packet has incorrect length.");
         } else {
           const ClientOptions* options = reinterpret_cast<const ClientOptions*>(data);
           _client_options = new ClientOptions(*options);
@@ -660,7 +576,7 @@ private:
           request_data.client_time = getTicks();
 
           std::vector<char> buf;
-          AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
+          bm::net::AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
 
           bool rv = _peer->Send(&buf[0], buf.size(), true);
           if(rv == false) {
@@ -671,9 +587,9 @@ private:
       } break;
       case NETWORK_STATE_SYNCHRONIZATION: {
         if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
-          Warning("Received packet with a type %d while waiting for time sync response.", type);
+          sys::Warning("Received packet with a type %d while waiting for time sync response.", type);
         } else if (len != sizeof(TimeSyncData)) {
-          Warning("Received packet has incorrect length.");
+          sys::Warning("Received packet has incorrect length.");
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
@@ -725,7 +641,7 @@ private:
             }
           }
         } else {
-          Warning("Received packet is not an entity snapshot.");
+          sys::Warning("Received packet is not an entity snapshot.");
         }
 
         return true;
