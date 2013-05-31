@@ -67,10 +67,11 @@ TextureAtlas* LoadOldTexture(const std::string& path,
 
   result->texture = new sf::Texture();
   CHECK(result->texture != NULL);
-  result->texture->update(image);
+  result->texture->loadFromImage(image);
 
   result->tileset.push_back(TileRect(0, 0, image.getSize().x, image.getSize().y));
 
+  CHECK(result->tileset.size() > 0);
   return result;
 }
 
@@ -90,6 +91,7 @@ TextureAtlas* LoadTileset(const std::string& path,
     tileWidth, tileHeight,
     result->texture->getSize().x,
     result->texture->getSize().y);
+  CHECK(result->tileset.size() > 0);
   return result;
 }
 
