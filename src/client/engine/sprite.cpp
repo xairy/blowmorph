@@ -10,7 +10,7 @@
 #include <base/macros.hpp>
 
 #include "texture_atlas.hpp"
-#include "texture.hpp"
+#include <SFML/Graphics.hpp>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -28,45 +28,45 @@ bool Sprite::Init(bm::TextureAtlas* texture, size_t tile) {
   CHECK(tile < texture->GetTileCount());
 
   this->texture = texture;
-  this->tile = tile;  
-  
+  this->tile = tile;
+
   zIndex = 0;
   position = glm::vec2(0, 0);
   pivot = glm::vec2(0, 0);
   scale = glm::vec2(1, 1);
   angle = 0;
-  
+
   return true;
 }
 
-void Sprite::Render() {  
+void Sprite::Render() {
   glColor3f(1.0f, 1.0f, 1.0f);
 
-  texture->GetTexture()->Bind(Texture::Pixels);
-  
+  sf::Texture::bind(texture->GetTexture(), sf::Texture::Pixels);
+
   glPushMatrix();
   //glLoadIdentity();
   glTranslatef(::fround(position.x), ::fround(position.y), 0);
   glScalef(scale.x, scale.y, 1.0);
   glRotatef(static_cast<GLfloat>(angle / M_PI * 180.0f), 0.0, 0.0, 1.0);
-  
+
   glm::vec2 size = texture->GetTileSize(tile);
   glm::vec2 tilePos = texture->GetTilePosition(tile);
-  
+
   glBegin(GL_QUADS);
     glTexCoord2f(tilePos.x + 0.5f, tilePos.y + 0.5f);
     glVertex3f(-pivot.x * size.x, -pivot.y * size.y, zIndex);
-    
+
     glTexCoord2f(tilePos.x + 0.5f, tilePos.y + size.y - 0.5f);
     glVertex3f(-pivot.x * size.x, (1 - pivot.y) * size.y, zIndex);
-    
+
     glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + size.y - 0.5f);
     glVertex3f((1 - pivot.x) * size.x, (1 - pivot.y) * size.y, zIndex);
-    
+
     glTexCoord2f(tilePos.x + size.x - 0.5f, tilePos.y + 0.5f);
     glVertex3f((1 - pivot.x) * size.x, -pivot.y * size.y, zIndex);
   glEnd();
-  
+
   glPopMatrix();
 }
 
