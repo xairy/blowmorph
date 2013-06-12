@@ -124,6 +124,8 @@ solution "blowmorph"
     configuration "windows"
       links { "opengl32" }
       links { "glu32" }
+    configuration "linux"
+      links { "GL" }
 
     -- FreeType2
     configuration "windows"
