@@ -3,10 +3,11 @@
 
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include <base/pstdint.hpp>
 #include <base/timer.hpp>
+
+#include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
 
 namespace bm {
 
@@ -29,7 +30,7 @@ public:
   void Finalize();
 
   // Renders current frame.
-  void Render();
+  void Render(sf::RenderWindow& render_window);
 
   // Starts changing frames over time.
   void Play();
