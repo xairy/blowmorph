@@ -78,8 +78,8 @@ typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterp
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type)
-    : id(id), type(type), visible(false), interpolation_enabled(false),
-    name_visible(false), interpolator(ObjectInterpolator(bm::TimeType(75), 1)), tile(0)
+    : id(id), type(type), visible(false), interpolation_enabled(false), name_visible(false),
+      interpolator(ObjectInterpolator(bm::TimeType(75), 1)), tile(0)
   {
     ObjectState state;
     state.blowCharge = 0;
@@ -90,6 +90,10 @@ struct Object {
 
     name_render_offset = glm::vec2(-8.0f, -20.0f);
   }
+
+  /*bool Initialize(TextureAtlas* texture, size_t tile) {
+    
+  }*/
 
   void EnableInterpolation() {
     interpolation_enabled = true;
@@ -135,6 +139,8 @@ struct Object {
 
   uint32_t id;
   uint32_t type;
+
+  //Sprite* sprite;
   size_t tile;
 
   bool visible;
@@ -766,7 +772,7 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Animation* animation = new Animation();
       CHECK(animation != NULL);
-      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30);
+      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true);
       if(rv == false) {
         return false;
       }
@@ -889,7 +895,7 @@ private:
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
-        (*it2)->Render();
+        (*it2)->Render(*_render_window);
         if((*it2)->IsStopped()) {
           std::list<Animation*>::iterator it1 = it2;
           ++it1;
