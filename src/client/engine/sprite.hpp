@@ -10,10 +10,8 @@ class TextureAtlas;
 
 class Sprite {
 public:
-  Sprite();
+  Sprite(bm::TextureAtlas* texture, size_t tile = 0);
   ~Sprite();
-
-  bool Init(bm::TextureAtlas* texture, size_t tile = 0);
 
   void Render(sf::RenderWindow& render_window);
 

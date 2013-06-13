@@ -1,29 +1,14 @@
-﻿// XXX[12.8.2012 alex]: better include order?
-#define _USE_MATH_DEFINES
 #include "sprite.hpp"
-
-#include <cmath>
-
-#include <GL/glew.h>
-#include <glm/glm.hpp>
 
 #include <base/macros.hpp>
 
 #include "texture_atlas.hpp"
-#include <SFML/Graphics.hpp>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-static float fround(float f) {
-  return ::floorf(f + 0.5f);
-}
+#include <SFML/Graphics.hpp>
 
 namespace bm {
 
-Sprite::Sprite() { }
-Sprite::~Sprite() { }
-
-bool Sprite::Init(bm::TextureAtlas* texture, size_t tile) {
+Sprite::Sprite(bm::TextureAtlas* texture, size_t tile) {
   CHECK(texture != NULL);
   CHECK(tile < texture->GetTileCount());
 
@@ -33,11 +18,11 @@ bool Sprite::Init(bm::TextureAtlas* texture, size_t tile) {
   sprite.setTexture(*texture->GetTexture());
   sprite.setTextureRect(sf::IntRect(tile_position.x, tile_position.y,
     tile_size.x, tile_size.y));
-
-  return true;
 }
 
-// TODO[xairy]: render sprite from outside.
+Sprite::~Sprite() { }
+
+// TODO[xairy]: render sprite from outside?
 void Sprite::Render(sf::RenderWindow& render_window) {
   render_window.draw(sprite);
 }

@@ -30,12 +30,9 @@ bool Animation::Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic)
   _frame_count = _texture->GetTileCount();
   _frames.resize(_frame_count, NULL);
   for(size_t frame = 0; frame < _frame_count; frame++) {
-    Sprite* sprite = new Sprite();
+    Sprite* sprite = new Sprite(texture, frame);
     CHECK(sprite != NULL);
     _frames[frame] = sprite;
-    if(!sprite->Init(texture, frame)) {
-      return false;
-    }
   }
 
   return true;
