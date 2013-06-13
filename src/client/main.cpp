@@ -817,15 +817,34 @@ private:
     return getTicks() + _time_correction;
   }
 
-  // TODO[xairy]: draw it using SFML.
-  /*void _RenderHUD() {
-    _canvas.SetCoordinateType(Canvas::PixelsFlipped);
-    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
-    _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
-    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
+  // FIXME[xairy]: magic numbers.
+  // TODO[xairy]: prettier HUD.
+  void _RenderHUD() {
+    // Sets origin to the left top corner.
+    sf::Transform hud_transform;
+    hud_transform.translate(_view.getCenter() - _view.getSize() / 2.0f);
 
-    _canvas.SetCoordinateType(Canvas::Pixels);
-    _canvas.DrawCircle(glm::vec4(1, 1, 1, 1), glm::vec2(80, 80), 60, 20);
+    sf::RectangleShape health_rect(sf::Vector2f(100.0f * _player_health / _client_options->max_health, 10.0f));
+    health_rect.setPosition(sf::Vector2f(50.0f, 510.0f));
+    health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
+    _render_window->draw(health_rect, hud_transform);
+
+    sf::RectangleShape blow_charge_rect(sf::Vector2f(100.0f * _player_blow_charge / _client_options->blow_capacity, 10.0f));
+    blow_charge_rect.setPosition(sf::Vector2f(50.0f, 530.0f));
+    blow_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
+    _render_window->draw(blow_charge_rect, hud_transform);
+
+    sf::RectangleShape morph_charge_rect(sf::Vector2f(100.0f * _player_morph_charge / _client_options->morph_capacity, 10.0f));
+    morph_charge_rect.setPosition(sf::Vector2f(50.0f, 550.0f));
+    morph_charge_rect.setFillColor(sf::Color(0xFF, 0xFF, 0x00, 0xBB));
+    _render_window->draw(morph_charge_rect, hud_transform);
+
+    sf::CircleShape compass_border(60.0f);
+    compass_border.setPosition(20.0f, 20.0f); // Not center.
+    compass_border.setOutlineColor(sf::Color(0xFF, 0xFF, 0xFF, 0xFF));
+    compass_border.setOutlineThickness(1.0f);
+    compass_border.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
+    _render_window->draw(compass_border, hud_transform);
 
     TimeType render_time = _GetTime();
 
@@ -836,7 +855,10 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0xFF, 0x00, 0x00, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
 
@@ -846,7 +868,10 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(0, 1, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0x00, 0xFF, 0x00, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
 
@@ -856,10 +881,13 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(0, 0, 1, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
-  }*/
+  }
 
   // Renders everything.
   void _Render() {
@@ -896,7 +924,7 @@ private:
 
       RenderObject(_player, render_time, textures, default_text_writer, *_render_window);
 
-      //_RenderHUD();
+      _RenderHUD();
     }
 
     _render_window->display();
