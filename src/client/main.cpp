@@ -32,7 +32,7 @@
 #include "engine/animation.hpp"
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
-#include "engine/canvas.hpp"
+//#include "engine/canvas.hpp"
 
 //#include <base/leak_detector.hpp>
 #include "sys.hpp"
@@ -77,9 +77,9 @@ typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterp
 // TODO[24.7.2012 alex]: fix method names
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type)
+  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type, bm::TextureAtlas* texture, size_t tile = 0)
     : id(id), type(type), visible(false), interpolation_enabled(false), name_visible(false),
-      interpolator(ObjectInterpolator(bm::TimeType(75), 1)), tile(0)
+      interpolator(ObjectInterpolator(bm::TimeType(75), 1)), sprite(texture, tile)
   {
     ObjectState state;
     state.blowCharge = 0;
@@ -90,10 +90,6 @@ struct Object {
 
     name_render_offset = glm::vec2(-8.0f, -20.0f);
   }
-
-  /*bool Initialize(TextureAtlas* texture, size_t tile) {
-    
-  }*/
 
   void EnableInterpolation() {
     interpolation_enabled = true;
@@ -140,8 +136,7 @@ struct Object {
   uint32_t id;
   uint32_t type;
 
-  //Sprite* sprite;
-  size_t tile;
+  bm::Sprite sprite;
 
   bool visible;
 
@@ -153,25 +148,22 @@ struct Object {
 };
 
 void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
-                  sf::Font* font, sf::RenderWindow& renderWindow, bm::Canvas* canvas) {
+                  sf::Font* font, sf::RenderWindow& render_window) {
   CHECK(object != NULL);
   CHECK(font != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    std::map<uint32_t, bm::TextureAtlas*>::const_iterator it = textures.find(object->type);
-    if (it != textures.end()) {
-      bm::TextureAtlas* atlas = it->second;
-      canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->tile);
-    }
+    object->sprite.SetPosition(state.position);
+    object->sprite.Render(render_window);
   }
 
   if (object->name_visible) {
     glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
     sf::Text text("Hello SFML", *font, 12);
     text.setPosition(caption_position.x, caption_position.y);
-    renderWindow.draw(text);
+    render_window.draw(text);
   }
 }
 
@@ -206,7 +198,7 @@ public:
       if(!_Loop()) {
         return false;
       }
-      _Render(*_render_window);
+      _Render();
 
       TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
@@ -306,11 +298,8 @@ private:
 
   bool _InitializeGraphics() {
     _render_window = new sf::RenderWindow(sf::VideoMode(600, 600), "Blowmorph");
-
-    // Init 2D canvas.
-    if (!_canvas.Init()) {
-      return false;
-    }
+    _view.reset(sf::FloatRect(0, 0, 600, 600));
+    _render_window->setView(_view);
 
     // Load all textures.
     textures[EntitySnapshot::ENTITY_TYPE_PLAYER] = bm::LoadOldTexture("data/images/player.png", 0);
@@ -611,7 +600,7 @@ private:
 
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0),
-                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER);
+                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -668,7 +657,6 @@ private:
 
     switch(snapshot->type) {
       case EntitySnapshot::ENTITY_TYPE_WALL: {
-        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
           tile = 3;
@@ -677,35 +665,34 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id]->tile = tile;
+        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_WALL], tile);
         _walls[snapshot->id]->EnableInterpolation();
         _walls[snapshot->id]->visible = true;
         _walls[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_BULLET]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = true;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_DUMMY]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_STATION: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
           tile = 0;
@@ -716,7 +703,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id]->tile = tile;
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_STATION], tile);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
@@ -829,7 +816,8 @@ private:
     return getTicks() + _time_correction;
   }
 
-  void _RenderHUD() {
+  // TODO[xairy]: draw it using SFML.
+  /*void _RenderHUD() {
     _canvas.SetCoordinateType(Canvas::PixelsFlipped);
     _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
     _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
@@ -870,28 +858,18 @@ private:
         _canvas.DrawCircle(glm::vec4(0, 0, 1, 1), glm::vec2(80, 80) + rel, 1, 6);
       }
     }
-  }
+  }*/
 
   // Renders everything.
-  void _Render(sf::RenderWindow& renderWindow) {
-    renderWindow.clear();
+  void _Render() {
+    _render_window->clear();
 
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      _canvas.SetCoordinateType(Canvas::Pixels);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
 
-      int screenWidth = renderWindow.getSize().x;
-      int screenHeight = renderWindow.getSize().y;
-
-      sf::Transform transform;
-      transform.translate(::fround(screenWidth / 2.0f - player_position.x),
-                          ::fround(screenHeight / 2.0f - player_position.y));
-      glLoadMatrixf(transform.getMatrix());
+      _view.setCenter(player_position.x, player_position.y);
+      _render_window->setView(_view);
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
@@ -909,18 +887,18 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, renderWindow, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, renderWindow, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
       }
 
-      RenderObject(_player, render_time, textures, default_text_writer, renderWindow, &_canvas);
+      RenderObject(_player, render_time, textures, default_text_writer, *_render_window);
 
-      _RenderHUD();
+      //_RenderHUD();
     }
 
-    renderWindow.display();
+    _render_window->display();
   }
 
   bool _is_running;
@@ -940,7 +918,7 @@ private:
   TimeType _last_loop;
 
   sf::RenderWindow* _render_window;
-  Canvas _canvas;
+  sf::View _view;
 
   // XXX[24.7.2012 alex]: copypasta
   std::map<uint32_t, TextureAtlas*> textures;
