@@ -18,6 +18,9 @@ Sprite::Sprite(bm::TextureAtlas* texture, size_t tile) {
   sprite.setTexture(*texture->GetTexture());
   sprite.setTextureRect(sf::IntRect(tile_position.x, tile_position.y,
     tile_size.x, tile_size.y));
+
+  // XXX[xairy]: pivot is set by default.
+  SetPivot(glm::vec2(tile_size.x / 2.0f, tile_size.y / 2.0f));
 }
 
 Sprite::~Sprite() { }

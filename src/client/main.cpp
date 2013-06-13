@@ -467,6 +467,7 @@ private:
       case sf::Keyboard::Escape: {
         _is_running = !pressed;
 
+        // TODO[xairy]: use limits.
         CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
         if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
@@ -759,11 +760,11 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Animation* animation = new Animation();
       CHECK(animation != NULL);
-      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true);
+      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, false);
       if(rv == false) {
         return false;
       }
-      animation->SetPivot(glm::vec2(0.5f, 0.5f));
+      //animation->SetPivot(glm::vec2(0.5f, 0.5f));
       animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
       animation->Play();
       _animations.push_back(animation);
