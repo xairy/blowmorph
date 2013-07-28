@@ -1,18 +1,16 @@
-﻿// XXX[xairy]: linux fix.
-#define __STDC_LIMIT_MACROS
-
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <algorithm>
 
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <list>
 #include <map>
 #include <memory>
-#include <list>
 #include <string>
 
-#include <GL/glew.h>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
@@ -24,25 +22,15 @@
 #include <base/pstdint.hpp>
 
 #include <enet-plus/enet.hpp>
-
 #include <interpolator/interpolator.hpp>
-
 #include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
-//#include "engine/canvas.hpp"
 
-//#include <base/leak_detector.hpp>
-#include "sys.hpp"
 #include "net.hpp"
-
-#define _USE_MATH_DEFINES
-#include <math.h>
-static float fround(float f) {
-  return ::floorf(f + 0.5f);
-}
+#include "sys.hpp"
 
 bm::TimeType getTicks() {
   return bm::TimeType(sys::Timestamp() * 1000);
@@ -88,7 +76,7 @@ struct Object {
     state.position = position;
     interpolator.Push(state, time);
 
-    name_render_offset = glm::vec2(-8.0f, -20.0f);
+    name_render_offset = glm::vec2(-15.0f, -30.0f);
   }
 
   void EnableInterpolation() {
@@ -155,13 +143,13 @@ void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::Text
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    object->sprite.SetPosition(state.position);
+    object->sprite.SetPosition(glm::round(state.position));
     object->sprite.Render(render_window);
   }
 
   if (object->name_visible) {
     glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
-    sf::Text text("Hello SFML", *font, 12);
+    sf::Text text("Myself", *font, 12);
     text.setPosition(caption_position.x, caption_position.y);
     render_window.draw(text);
   }
@@ -342,7 +330,7 @@ private:
       return false;
     }
 
-    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+    CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
     bool rv = client->Service(event.get(), (uint32_t) _connect_timeout);
     if(rv == false) {
       return false;
@@ -420,7 +408,7 @@ private:
   bool OnSDLQuit(const sf::Event& event) {
     _is_running = false;
 
-    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+    CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
     if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
       BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
       return false;
@@ -468,7 +456,7 @@ private:
         _is_running = !pressed;
 
         // TODO[xairy]: use limits.
-        CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+        CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
         if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
           return false;
@@ -897,7 +885,7 @@ private:
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
 
-      _view.setCenter(player_position.x, player_position.y);
+      _view.setCenter(glm::round(player_position.x), glm::round(player_position.y));
       _render_window->setView(_view);
 
       std::list<Animation*>::iterator it2;

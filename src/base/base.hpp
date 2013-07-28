@@ -11,4 +11,4 @@
   #define BM_BASE_DECL 
 #endif
 
-#endif//BM_BASE_BASE_HPP_
+#endif // BM_BASE_BASE_HPP_
