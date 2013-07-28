@@ -155,6 +155,9 @@ solution "blowmorph"
     configuration "linux"
       links { "GLEW" }
 
+    -- SFML
+    configuration "windows"
+      -- TODO
     configuration "linux"
       links { "sfml-system" }
       links { "sfml-window" }
