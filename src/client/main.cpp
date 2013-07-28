@@ -29,11 +29,11 @@
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
 
-#include "net.hpp"
 #include "sys.hpp"
+#include "net.hpp"
 
 bm::TimeType getTicks() {
-  return bm::TimeType(sys::Timestamp() * 1000);
+  return sys::Timestamp();
 }
 
 struct ObjectState {

@@ -45,7 +45,7 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
 
   double start = sys::Timestamp();
 
-  while(sys::Timestamp() - start <= timeout / 1000.0f) {
+  while(sys::Timestamp() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
     if(rv == false) {
       return false;
