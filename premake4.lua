@@ -26,7 +26,7 @@ function restore_config()
   configuration(saved_config)
 end
 
-function windows_libdir(basePath) 
+function windows_libdir(basePath)
   save_config()
 
   --XXX: merge configurations?
@@ -39,7 +39,7 @@ function windows_libdir(basePath)
       end
     end
   end
-  
+
   restore_config()
 end
 
@@ -55,7 +55,7 @@ function windows_binary(basePath, dllName)
       end
     end
   end
-  
+
   restore_config()
 end
 
@@ -63,7 +63,7 @@ newaction {
   trigger = 'clean',
   description = 'Cleans up the project.',
   shortname = "clean",
-  
+
   execute = function()
     os.rmdir("bin")
     os.rmdir("build")
@@ -76,17 +76,17 @@ solution "blowmorph"
 
   location "build"
   targetdir "bin"
-  
+
   flags { "FatalWarnings", "NoRTTI" }
-  
+
   configuration { "linux" }
     flags { "NoExceptions" }
-  
+
   configuration { "windows" }
     includedirs { "inc/win32" }
     defines { "WIN32", "_WIN32" }
     defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE" }
-    
+
   configuration { "debug" }
     defines { "DEBUG" }
     flags { "Symbols" }
@@ -94,21 +94,21 @@ solution "blowmorph"
   configuration { "release" }
     defines { "NDEBUG" }
     flags { "Optimize" }
-  
+
   project "client"
     kind "ConsoleApp"
     language "C++"
     targetname "bm-client"
-    
+
     includedirs { "src", "inc" }
     files { "src/client/**.cpp",
             "src/client/**.hpp" }
-    
+
     links { "bm-base" }
     links { "interpolator" }
-    
+
     links { "ini-file" }
-    
+
     resource("data", "data")
 
     -- ENetPlus
@@ -116,15 +116,17 @@ solution "blowmorph"
       -- TODO
     configuration "linux"
       links { "enet-plus" }
-      
+
     -- GLM
     includedirs { "ext-libs/glm/include" }
-      
+
     -- OpenGL
     configuration "windows"
       links { "opengl32" }
       links { "glu32" }
-      
+    configuration "linux"
+      links { "GL" }
+
     -- FreeType2
     configuration "windows"
       includedirs { "ext-libs/freetype2/include" }
@@ -134,7 +136,7 @@ solution "blowmorph"
     configuration "linux"
       includedirs { "/usr/include/freetype2" }
       links { "freetype" }
-      
+
     -- FreeImage
     configuration "windows"
       includedirs { "ext-libs/FreeImage/include" }
@@ -143,7 +145,7 @@ solution "blowmorph"
       links { "freeimage" }
     configuration "linux"
       links { "freeimage" }
-    
+
     -- GLEW
     configuration { "windows" }
       includedirs { "ext-libs/glew/include" }
@@ -152,18 +154,16 @@ solution "blowmorph"
       links { "glew32" }
     configuration "linux"
       links { "GLEW" }
-    
-    -- SDL1.2
+
+    -- SFML
     configuration "windows"
-      includedirs { "ext-libs/SDL1.2/include" }
-      windows_libdir("ext-libs/SDL1.2/bin")
-      windows_binary("ext-libs/SDL1.2/bin", "SDL.dll")
-      links { "SDLmain" }
-      links { "SDL" }
+      -- TODO
     configuration "linux"
-      links { "SDLmain" }
-      links { "SDL" }
-    
+      links { "sfml-system" }
+      links { "sfml-window" }
+      links { "sfml-graphics" }
+      links { "sfml-audio" }
+
     -- PugiXML
     configuration "windows"
       includedirs { "ext-libs/pugixml/include" }
@@ -171,16 +171,16 @@ solution "blowmorph"
       links { "pugixml" }
     configuration "linux"
       links { "pugixml" }
-  
+
   project "server"
     kind "ConsoleApp"
     language "C++"
     targetname "bm-server"
-    
+
     includedirs { "src", "inc" }
     files { "src/server/**.cpp",
             "src/server/**.hpp" }
-    
+
     links { "bm-base" }
 
     resource("data", "data")
@@ -190,7 +190,7 @@ solution "blowmorph"
       -- TODO
     configuration "linux"
       links { "enet-plus" }
-    
+
     -- PugiXML
     configuration "windows"
       includedirs { "ext-libs/pugixml/include" }
@@ -198,34 +198,34 @@ solution "blowmorph"
       links { "pugixml" }
     configuration "linux"
       links { "pugixml" }
-  
+
   project "bm-base"
     kind "SharedLib"
     language "C++"
-    
+
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",
             "src/base/**.hpp",
             "src/base/**.h",
             "src/base/**.c" }
-    
+
   project "interpolator"
     kind "StaticLib"
     language "C++"
-                  
+
     includedirs { "src", "inc" }
-    
+
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }
 
   project "ini-file"
     kind "SharedLib"
     language "C++"
-    
+
     defines "INIFILE_DLL"
-    
+
     includedirs { "src", "inc" }
-    
+
     files { "src/ini-file/**.cpp",
             "src/ini-file/**.hpp" }

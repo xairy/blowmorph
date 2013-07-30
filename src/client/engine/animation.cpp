@@ -30,12 +30,9 @@ bool Animation::Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic)
   _frame_count = _texture->GetTileCount();
   _frames.resize(_frame_count, NULL);
   for(size_t frame = 0; frame < _frame_count; frame++) {
-    Sprite* sprite = new Sprite();
+    Sprite* sprite = new Sprite(texture, frame);
     CHECK(sprite != NULL);
     _frames[frame] = sprite;
-    if(!sprite->Init(texture, frame)) {
-      return false;
-    }
   }
 
   return true;
@@ -52,13 +49,13 @@ void Animation::Finalize() {
   _state = STATE_FINALIZED;
 }
 
-void Animation::Render() {
+void Animation::Render(sf::RenderWindow& render_window) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
   if(_state == STATE_PLAYING) {
     updateCurrentFrame();
   }
-  _frames[_current_frame]->Render();
+  _frames[_current_frame]->Render(render_window);
 }
 
 void Animation::Play() {
@@ -115,7 +112,7 @@ void Animation::updateCurrentFrame() {
   if(current_time >= _last_frame_change + _timeout) {
     _last_frame_change = current_time;
     DCHECK(_frame_count > 0);
-    if(_current_frame == _frame_count -1) {
+    if(_current_frame == _frame_count - 1) {
       if(!_cyclic) {
         Stop();
       } else {

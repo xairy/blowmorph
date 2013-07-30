@@ -7,33 +7,38 @@ How to build under Microsoft Windows, Visual Studio 2008:
   2. Build build\blowmorph.sln.
 
 How to build under Ubuntu Linux:
-  1. Install SDL-1.2
-     > sudo apt-get install libsdl1.2-dev
+  1. Install SFML-2.0
+     http://www.sfml-dev.org/download/sfml/2.0/
 
-  2. Install glew
-     > sudo apt-get install libglew-dev
-
-  3. Install FreeImage
+  2. Install FreeImage
      > sudo apt-get install libfreeimage-dev
 
-  4. Install FreeType
-     > sudo apt-get install libfreetype6-dev
-
-  5. Install pugixml-1.2
+  3. Install pugixml-1.2
      https://code.google.com/p/pugixml/
 
-  6. Install ENetPlus.
+  4. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
 
-  7. Generate project files
+  5. Generate project files
      > ./premake4 gmake
 
-  8. > cd build
+  6. > cd build
 
-  9. On x32 system:
+  7. On x32 system:
      > make config=release32
      On x64 system:
      > make config=release64
+
+How to install SFML-2.0:
+  1. Install cmake
+     > sudo apt-get install cmake
+  2. Install the dependencies listed at http://www.sfml-dev.org/tutorials/2.0/compile-with-cmake.php
+     > sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libsndfile1-dev libopenal-dev
+  3. Download SFML-2.0-sources.zip from http://www.sfml-dev.org/download/sfml/2.0/ and extract
+  4. > cd SFML-2.0
+  5. > cmake .
+  6. > make
+  7. > sudo make install
 
 How to install pugixml-1.2:
   1. Download pugixml-1.2.tar.gz from https://code.google.com/p/pugixml/ and extract
