@@ -1,19 +1,18 @@
-﻿// XXX[xairy]: linux fix.
-#define __STDC_LIMIT_MACROS
-
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <algorithm>
 
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <list>
 #include <map>
 #include <memory>
-#include <list>
 #include <string>
 
-#include <GL/glew.h>
-#include <SDL/SDL.h>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
 #include <FreeImage.h>
 
@@ -23,111 +22,18 @@
 #include <base/pstdint.hpp>
 
 #include <enet-plus/enet.hpp>
-
 #include <interpolator/interpolator.hpp>
-
 #include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
-#include "engine/render_window.hpp"
 #include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
-#include "engine/text_writer.hpp"
-#include "engine/canvas.hpp"
 
-//#include <base/leak_detector.hpp>
+#include "sys.hpp"
+#include "net.hpp"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-static float fround(float f) {
-  return ::floorf(f + 0.5f);
-}
-
-using namespace bm;
-
-void Warning(const char* fmt, ...) {
-  CHECK(fmt != NULL);
-
-  char buf[1024];
-
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-  va_end(args);
-
-  fprintf(stderr, "WARN: %s\n", buf);
-}
-
-// Appends packet type and data to the end of the buffer.
-template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, Packet::Type packet_type) {
-  CHECK(data != NULL);
-  CHECK(Packet::TYPE_UNKNOWN <= packet_type && packet_type <= Packet::TYPE_MAX_VALUE);
-
-  // Append packet type.
-  buf.insert(buf.end(),
-    reinterpret_cast<const char*>(&packet_type),
-    reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
-
-  // Append packet data.
-  buf.insert(buf.end(),
-    reinterpret_cast<const char*>(data),
-    reinterpret_cast<const char*>(data) + sizeof(*data));
-}
-
-// Sends input events to the server and
-// clears the input event queues afterwards.
-bool SendInputEvents(enet::Peer* peer, std::vector<KeyboardEvent>& keyboard_events, std::vector<MouseEvent>& mouse_events) {
-  std::vector<char> buf;
-
-  for(size_t i = 0; i < keyboard_events.size(); i++) {
-    buf.clear();
-
-    AppendPacketToBuffer(buf, &keyboard_events[i], Packet::TYPE_KEYBOARD_EVENT);
-
-    bool rv = peer->Send(&buf[0], buf.size());
-    if(rv == false) {
-      return false;
-    }
-  }
-  keyboard_events.clear();
-
-  for(size_t i = 0; i < mouse_events.size(); i++) {
-    buf.clear();
-
-    AppendPacketToBuffer(buf, &mouse_events[i], Packet::TYPE_MOUSE_EVENT);
-
-    bool rv = peer->Send(&buf[0], buf.size());
-    if(rv == false) {
-      return false;
-    }
-  }
-  mouse_events.clear();
-
-  return true;
-}
-
-// Attempts to synchronously disconnect the peer.
-bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host, uint32_t timeout) {
-  CHECK(peer != NULL);
-  CHECK(event != NULL);
-  CHECK(host != NULL);
-
-  peer->Disconnect();
-
-  uint32_t start = SDL_GetTicks();
-
-  while(SDL_GetTicks() - start <= timeout) {
-    bool rv = host->Service(event, (uint32_t) timeout);
-    if(rv == false) {
-      return false;
-    }
-
-    if(event != NULL && event->GetType() == enet::Event::TYPE_DISCONNECT) {
-      return true;
-    }
-  }
-
-  return false;
+bm::TimeType getTicks() {
+  return sys::Timestamp();
 }
 
 struct ObjectState {
@@ -154,14 +60,14 @@ namespace interpolator {
   }
 };
 
-typedef interpolator::LinearInterpolator<ObjectState, TimeType> ObjectInterpolator;
+typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterpolator;
 
 // TODO[24.7.2012 alex]: fix method names
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, TimeType time, uint32_t id, uint32_t type)
-    : id(id), type(type), visible(false), interpolation_enabled(false),
-    name_visible(false), interpolator(ObjectInterpolator(TimeType(75), 1)), tile(0)
+  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type, bm::TextureAtlas* texture, size_t tile = 0)
+    : id(id), type(type), visible(false), interpolation_enabled(false), name_visible(false),
+      interpolator(ObjectInterpolator(bm::TimeType(75), 1)), sprite(texture, tile)
   {
     ObjectState state;
     state.blowCharge = 0;
@@ -170,7 +76,7 @@ struct Object {
     state.position = position;
     interpolator.Push(state, time);
 
-    name_render_offset = glm::vec2(-8.0f, -20.0f);
+    name_render_offset = glm::vec2(-15.0f, -30.0f);
   }
 
   void EnableInterpolation() {
@@ -183,41 +89,42 @@ struct Object {
     interpolator.SetFrameCount(1);
   }
 
-  void EnforceState(const ObjectState& state, TimeType time) {
+  void EnforceState(const ObjectState& state, bm::TimeType time) {
     interpolator.Clear();
     interpolator.Push(state, time);
   }
 
-  void UpdateCurrentState(const ObjectState& state, TimeType time) {
+  void UpdateCurrentState(const ObjectState& state, bm::TimeType time) {
     interpolator.Push(state, time);
   }
 
-  glm::vec2 GetPosition(TimeType time) {
+  glm::vec2 GetPosition(bm::TimeType time) {
     return interpolator.Interpolate(time).position;
   }
 
   glm::vec2 GetPosition() {
     assert(!interpolation_enabled);
-    return GetPosition(TimeType(0));
+    return GetPosition(bm::TimeType(0));
   }
 
   void SetPosition(const glm::vec2& value) {
     assert(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(bm::TimeType(0));
     state.position = value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, bm::TimeType(0));
   }
 
   void Move(const glm::vec2& value) {
     assert(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(bm::TimeType(0));
     state.position = state.position + value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, bm::TimeType(0));
   }
 
   uint32_t id;
   uint32_t type;
-  size_t tile;
+
+  bm::Sprite sprite;
 
   bool visible;
 
@@ -228,27 +135,27 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, TimeType time, std::map<uint32_t, TextureAtlas*> textures,
-                  TextWriter* text_writer, Canvas* canvas) {
+void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
+                  sf::Font* font, sf::RenderWindow& render_window) {
   CHECK(object != NULL);
-  CHECK(text_writer != NULL);
+  CHECK(font != NULL);
 
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    std::map<uint32_t, TextureAtlas*>::const_iterator it = textures.find(object->type);
-    if (it != textures.end()) {
-      bm::TextureAtlas* atlas = it->second;
-      canvas->DrawTexturedQuad(state.position, glm::vec2(0.5f, 0.5f), 0.0f, atlas, object->tile);
-    }
+    object->sprite.SetPosition(glm::round(state.position));
+    object->sprite.Render(render_window);
   }
 
   if (object->name_visible) {
     glm::vec2 caption_position = glm::round(state.position + object->name_render_offset);
-    text_writer->PrintText(glm::vec4(1, 1, 1, 1), caption_position.x, caption_position.y,
-      "%u (%.2f,%.2f)", object->id, state.position.x, state.position.y);
+    sf::Text text("Myself", *font, 12);
+    text.setPosition(caption_position.x, caption_position.y);
+    render_window.draw(text);
   }
 }
+
+using namespace bm;
 
 class Application {
 public:
@@ -284,7 +191,7 @@ public:
       TimeType current_time = _GetTime();
       if(current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
-        SendInputEvents(_peer, _keyboard_events, _mouse_events);
+        bm::net::SendInputEvents(_peer, _keyboard_events, _mouse_events);
       }
     }
 
@@ -325,10 +232,9 @@ public:
     }
     _animations.clear();
 
-    //_render_window.Finalize();
-
-    default_text_writer->Destroy();
     delete default_text_writer;
+
+    delete _render_window;
 
     _state = STATE_FINALIZED;
   }
@@ -370,8 +276,8 @@ private:
 
     _last_loop = _GetTime();
 
-    default_text_writer = new TextWriter();
-    default_text_writer->InitFont("data/fonts/tahoma.ttf", 12);
+    default_text_writer = new sf::Font();
+    default_text_writer->loadFromFile("data/fonts/tahoma.ttf");
 
     _state = STATE_INITIALIZED;
 
@@ -379,14 +285,9 @@ private:
   }
 
   bool _InitializeGraphics() {
-    if (!_render_window.Initialize("Blowmorph", 600, 600, false)) {
-      return false;
-    }
-
-    // Init 2D canvas.
-    if (!_canvas.Init()) {
-      return false;
-    }
+    _render_window = new sf::RenderWindow(sf::VideoMode(600, 600), "Blowmorph");
+    _view.reset(sf::FloatRect(0, 0, 600, 600));
+    _render_window->setView(_view);
 
     // Load all textures.
     textures[EntitySnapshot::ENTITY_TYPE_PLAYER] = bm::LoadOldTexture("data/images/player.png", 0);
@@ -429,7 +330,7 @@ private:
       return false;
     }
 
-    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
+    CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
     bool rv = client->Service(event.get(), (uint32_t) _connect_timeout);
     if(rv == false) {
       return false;
@@ -450,71 +351,65 @@ private:
   }
 
   bool _PumpEvents() {
-    SDL_Event event;
-    while(SDL_PollEvent(&event)) {
-      if(!_ProcessEvent(&event)) {
+    sf::Event event;
+    while(_render_window->pollEvent(event)) {
+      if(!_ProcessEvent(event)) {
         return false;
       }
     }
     return true;
   }
 
-  bool _ProcessEvent(SDL_Event* event) {
-    switch(event->type) {
-      case SDL_KEYDOWN: return OnKeyDown(event);
-      case SDL_KEYUP: return OnKeyUp(event);
-      case SDL_QUIT: return OnSDLQuit(event);
-      case SDL_MOUSEMOTION: break;
-      case SDL_MOUSEBUTTONDOWN: return OnMouseButtonDown(event);
-      case SDL_MOUSEBUTTONUP: return OnMouseButtonUp(event);
+  bool _ProcessEvent(const sf::Event& event) {
+    switch(event.type) {
+      case sf::Event::Closed:
+        return OnSDLQuit(event);
+      case sf::Event::KeyPressed:
+      case sf::Event::KeyReleased:
+        return OnKeyEvent(event);
+      case sf::Event::MouseMoved:
+        break;
+      case sf::Event::MouseButtonPressed:
+      case sf::Event::MouseButtonReleased:
+        return OnMouseButtonEvent(event);
       default: break;
     }
 
     return true;
   }
 
-  bool OnMouseButtonUp(SDL_Event* event) {
+  bool OnMouseButtonEvent(const sf::Event& event) {
     MouseEvent mouse_event;
     mouse_event.time = _GetTime();
-    if(event->button.button == SDL_BUTTON_LEFT) {
+
+    if(event.mouseButton.button == sf::Mouse::Left) {
       mouse_event.button_type = MouseEvent::BUTTON_LEFT;
     } else {
       mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
     }
-    mouse_event.event_type = MouseEvent::EVENT_KEYUP;
-    int screenWidth = _render_window.GetWidth();
-    int screenHeight = _render_window.GetHeight();
-    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
+
+    if (event.type == sf::Event::MouseButtonReleased) {
+      mouse_event.event_type = MouseEvent::EVENT_KEYUP;
+    } else if (event.type == sf::Event::MouseButtonPressed) {
+      mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
+    } else {
+      CHECK(false);
+    }
+
+    int screenWidth = _render_window->getSize().x;
+    int screenHeight = _render_window->getSize().y;
+    mouse_event.x = (event.mouseButton.x - screenWidth / 2) + _player->GetPosition().x;
+    mouse_event.y = (event.mouseButton.y - screenHeight / 2) + _player->GetPosition().y;
     _mouse_events.push_back(mouse_event);
 
     return true;
   }
 
-  bool OnMouseButtonDown(SDL_Event* event) {
-    MouseEvent mouse_event;
-    mouse_event.time = _GetTime();
-    if(event->button.button == SDL_BUTTON_LEFT) {
-      mouse_event.button_type = MouseEvent::BUTTON_LEFT;
-    } else {
-      mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
-    }
-    mouse_event.event_type = MouseEvent::EVENT_KEYDOWN;
-
-    int screenWidth = _render_window.GetWidth();
-    int screenHeight = _render_window.GetHeight();
-    mouse_event.x = (event->button.x - screenWidth / 2) + _player->GetPosition().x;
-    mouse_event.y = (event->button.y - screenHeight / 2) + _player->GetPosition().y;
-    _mouse_events.push_back(mouse_event);
-
-    return true;
-  }
-
-  bool OnSDLQuit(SDL_Event* event) {
+  bool OnSDLQuit(const sf::Event& event) {
     _is_running = false;
 
-    CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-    if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+    CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
+    if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
       BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
       return false;
     } else {
@@ -524,70 +419,45 @@ private:
     return true;
   }
 
-  bool OnKeyUp(SDL_Event* event) {
+  bool OnKeyEvent(const sf::Event& event) {
     KeyboardEvent keyboard_event;
     keyboard_event.time = _GetTime();
-    keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
-    switch(event->key.keysym.sym) {
-      case SDLK_a:
-        _keyboard_state.left = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case SDLK_d:
-        _keyboard_state.right = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case SDLK_w:
-        _keyboard_state.up = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_UP;
-        _keyboard_events.push_back(keyboard_event);
-        break;
-      case SDLK_s:
-        _keyboard_state.down = false;
-        keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-        _keyboard_events.push_back(keyboard_event);
-        break;
+
+    bool pressed;
+
+    if (event.type == sf::Event::KeyReleased) {
+      keyboard_event.event_type = KeyboardEvent::EVENT_KEYUP;
+      pressed = false;
+    } else if (event.type == sf::Event::KeyPressed) {
+      keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
+      pressed = true;
+    } else {
+      CHECK(false);
     }
 
-    return true;
-  }
-
-  bool OnKeyDown(SDL_Event* event) {
-    KeyboardEvent keyboard_event;
-    keyboard_event.time = _GetTime();
-    keyboard_event.event_type = KeyboardEvent::EVENT_KEYDOWN;
-    switch(event->key.keysym.sym) {
-      case SDLK_a: {
-        _keyboard_state.left = true;
+    switch(event.key.code) {
+      case sf::Keyboard::A:
+        _keyboard_state.left = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_LEFT;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case SDLK_d: {
-        _keyboard_state.right = true;
+      case sf::Keyboard::D:
+        _keyboard_state.right = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_RIGHT;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case SDLK_w: {
-        _keyboard_state.up = true;
+      case sf::Keyboard::W:
+        _keyboard_state.up = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_UP;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case SDLK_s: {
-        _keyboard_state.down = true;
+      case sf::Keyboard::S:
+        _keyboard_state.down = pressed;
         keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
-        _keyboard_events.push_back(keyboard_event);
         break;
-                   }
-      case SDLK_ESCAPE: {
-        _is_running = false;
+      case sf::Keyboard::Escape: {
+        _is_running = !pressed;
 
-        CHECK(0 <= _connect_timeout && _connect_timeout <= UINT32_MAX);
-        if (!DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
+        // TODO[xairy]: use limits.
+        CHECK(0 <= _connect_timeout && _connect_timeout <= std::numeric_limits<uint32_t>::max());
+        if (!bm::net::DisconnectPeer(_peer, _event, _client, (uint32_t) _connect_timeout)) {
           BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
           return false;
         } else {
@@ -598,15 +468,17 @@ private:
       }
     }
 
+    _keyboard_events.push_back(keyboard_event);
+
     return true;
   }
 
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
 
-    uint32_t start_time = SDL_GetTicks();
+    TimeType start_time = getTicks();
     do {
-      uint32_t time = SDL_GetTicks();
+      TimeType time = getTicks();
       CHECK(time >= start_time);
 
       // If we have run out of time, break and return
@@ -635,7 +507,7 @@ private:
         } break;
 
         case enet::Event::TYPE_CONNECT: {
-          Warning("Got EVENT_CONNECT while being already connected.");
+          sys::Warning("Got EVENT_CONNECT while being already connected.");
         } break;
 
         case enet::Event::TYPE_DISCONNECT: {
@@ -668,14 +540,14 @@ private:
   bool ProcessPacket(Packet::Type type, const void* data, size_t len) {
     switch (_network_state) {
       case NETWORK_STATE_DISCONNECTED: {
-        Warning("Received a packet while being in disconnected state.");
+        sys::Warning("Received a packet while being in disconnected state.");
         return true;
       } break;
       case NETWORK_STATE_CONNECTED: {
         if (type != Packet::TYPE_CLIENT_OPTIONS) {
-          Warning("Received packet with a type %d while waiting for client options.", type);
+          sys::Warning("Received packet with a type %d while waiting for client options.", type);
         } else if (len != sizeof(ClientOptions)) {
-          Warning("Received packet has incorrect length.");
+          sys::Warning("Received packet has incorrect length.");
         } else {
           const ClientOptions* options = reinterpret_cast<const ClientOptions*>(data);
           _client_options = new ClientOptions(*options);
@@ -685,10 +557,10 @@ private:
 
           // Send a time synchronization request.
           TimeSyncData request_data;
-          request_data.client_time = TimeType(SDL_GetTicks());
+          request_data.client_time = getTicks();
 
           std::vector<char> buf;
-          AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
+          bm::net::AppendPacketToBuffer(buf, &request_data, Packet::TYPE_SYNC_TIME_REQUEST);
 
           bool rv = _peer->Send(&buf[0], buf.size(), true);
           if(rv == false) {
@@ -699,13 +571,13 @@ private:
       } break;
       case NETWORK_STATE_SYNCHRONIZATION: {
         if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
-          Warning("Received packet with a type %d while waiting for time sync response.", type);
+          sys::Warning("Received packet with a type %d while waiting for time sync response.", type);
         } else if (len != sizeof(TimeSyncData)) {
-          Warning("Received packet has incorrect length.");
+          sys::Warning("Received packet has incorrect length.");
         } else {
           const TimeSyncData* response_data = reinterpret_cast<const TimeSyncData*>(data);
           // Calculate the time correction.
-          TimeType client_time = TimeType(SDL_GetTicks());
+          TimeType client_time = getTicks();
           TimeType latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
@@ -717,7 +589,7 @@ private:
 
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0),
-                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER);
+                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -753,7 +625,7 @@ private:
             }
           }
         } else {
-          Warning("Received packet is not an entity snapshot.");
+          sys::Warning("Received packet is not an entity snapshot.");
         }
 
         return true;
@@ -774,7 +646,6 @@ private:
 
     switch(snapshot->type) {
       case EntitySnapshot::ENTITY_TYPE_WALL: {
-        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
           tile = 3;
@@ -783,35 +654,34 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id]->tile = tile;
+        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_WALL], tile);
         _walls[snapshot->id]->EnableInterpolation();
         _walls[snapshot->id]->visible = true;
         _walls[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_BULLET]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = true;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_DUMMY]);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_STATION: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type);
         size_t tile;
         if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_HEALTH) {
           tile = 0;
@@ -822,7 +692,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id]->tile = tile;
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_STATION], tile);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
@@ -878,11 +748,11 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Animation* animation = new Animation();
       CHECK(animation != NULL);
-      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30);
+      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, false);
       if(rv == false) {
         return false;
       }
-      animation->SetPivot(glm::vec2(0.5f, 0.5f));
+      //animation->SetPivot(glm::vec2(0.5f, 0.5f));
       animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
       animation->Play();
       _animations.push_back(animation);
@@ -932,17 +802,37 @@ private:
 
   // Returns approximate server time (with the correction).
   TimeType _GetTime() {
-    return TimeType(SDL_GetTicks()) + _time_correction;
+    return getTicks() + _time_correction;
   }
 
+  // FIXME[xairy]: magic numbers.
+  // TODO[xairy]: prettier HUD.
   void _RenderHUD() {
-    _canvas.SetCoordinateType(Canvas::PixelsFlipped);
-    _canvas.FillRect(glm::vec4(1, 0, 1, 0.8), glm::vec2(50, 90), glm::vec2(100 * _player_health / _client_options->max_health, 10));
-    _canvas.FillRect(glm::vec4(0, 1, 1, 0.8), glm::vec2(50, 70), glm::vec2(100 * _player_blow_charge / _client_options->blow_capacity, 10));
-    _canvas.FillRect(glm::vec4(1, 1, 0, 0.8), glm::vec2(50, 50), glm::vec2(100 * _player_morph_charge / _client_options->morph_capacity, 10));
+    // Sets origin to the left top corner.
+    sf::Transform hud_transform;
+    hud_transform.translate(_view.getCenter() - _view.getSize() / 2.0f);
 
-    _canvas.SetCoordinateType(Canvas::Pixels);
-    _canvas.DrawCircle(glm::vec4(1, 1, 1, 1), glm::vec2(80, 80), 60, 20);
+    sf::RectangleShape health_rect(sf::Vector2f(100.0f * _player_health / _client_options->max_health, 10.0f));
+    health_rect.setPosition(sf::Vector2f(50.0f, 510.0f));
+    health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
+    _render_window->draw(health_rect, hud_transform);
+
+    sf::RectangleShape blow_charge_rect(sf::Vector2f(100.0f * _player_blow_charge / _client_options->blow_capacity, 10.0f));
+    blow_charge_rect.setPosition(sf::Vector2f(50.0f, 530.0f));
+    blow_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
+    _render_window->draw(blow_charge_rect, hud_transform);
+
+    sf::RectangleShape morph_charge_rect(sf::Vector2f(100.0f * _player_morph_charge / _client_options->morph_capacity, 10.0f));
+    morph_charge_rect.setPosition(sf::Vector2f(50.0f, 550.0f));
+    morph_charge_rect.setFillColor(sf::Color(0xFF, 0xFF, 0x00, 0xBB));
+    _render_window->draw(morph_charge_rect, hud_transform);
+
+    sf::CircleShape compass_border(60.0f);
+    compass_border.setPosition(20.0f, 20.0f); // Not center.
+    compass_border.setOutlineColor(sf::Color(0xFF, 0xFF, 0xFF, 0xFF));
+    compass_border.setOutlineThickness(1.0f);
+    compass_border.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
+    _render_window->draw(compass_border, hud_transform);
 
     TimeType render_time = _GetTime();
 
@@ -953,7 +843,10 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(1, 0, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0xFF, 0x00, 0x00, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
 
@@ -963,7 +856,10 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(0, 1, 0, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0x00, 0xFF, 0x00, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
 
@@ -973,33 +869,28 @@ private:
       glm::vec2 rel = obj->GetPosition(render_time) - _player->GetPosition(render_time);
       if (glm::length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
-        _canvas.DrawCircle(glm::vec4(0, 0, 1, 1), glm::vec2(80, 80) + rel, 1, 6);
+        sf::CircleShape circle(1.0f);
+        circle.setPosition(sf::Vector2f(80.0f, 80.0f) + sf::Vector2f(rel.x, rel.y));
+        circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
+        _render_window->draw(circle, hud_transform);
       }
     }
   }
 
   // Renders everything.
   void _Render() {
-    glClear(GL_COLOR_BUFFER_BIT);
+    _render_window->clear();
 
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      _canvas.SetCoordinateType(Canvas::Pixels);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-
       TimeType render_time = _GetTime();
       glm::vec2 player_position = _player->GetPosition(render_time);
 
-      int screenWidth = _render_window.GetWidth();
-      int screenHeight = _render_window.GetHeight();
-
-      glTranslatef(::fround(screenWidth / 2.0f - player_position.x),
-                   ::fround(screenHeight / 2.0f - player_position.y), 0);
+      _view.setCenter(glm::round(player_position.x), glm::round(player_position.y));
+      _render_window->setView(_view);
 
       std::list<Animation*>::iterator it2;
       for(it2 = _animations.begin(); it2 != _animations.end();) {
-        (*it2)->Render();
+        (*it2)->Render(*_render_window);
         if((*it2)->IsStopped()) {
           std::list<Animation*>::iterator it1 = it2;
           ++it1;
@@ -1013,23 +904,23 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, &_canvas);
+        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
       }
 
-      RenderObject(_player, render_time, textures, default_text_writer, &_canvas);
+      RenderObject(_player, render_time, textures, default_text_writer, *_render_window);
 
       _RenderHUD();
-
-      _render_window.SwapBuffers();
     }
+
+    _render_window->display();
   }
 
   bool _is_running;
 
-  TextWriter* default_text_writer;
+  sf::Font* default_text_writer;
 
   enet::Enet _enet;
   enet::ClientHost* _client;
@@ -1043,8 +934,8 @@ private:
   int _tick_rate;
   TimeType _last_loop;
 
-  RenderWindow _render_window;
-  Canvas _canvas;
+  sf::RenderWindow* _render_window;
+  sf::View _view;
 
   // XXX[24.7.2012 alex]: copypasta
   std::map<uint32_t, TextureAtlas*> textures;
@@ -1103,59 +994,8 @@ int main(int argc, char** argv) {
   if(!app.Execute()) {
     Error::Print();
     app.Finalize();
-    //bm::leak_detector::PrintAllLeaks();
-    //while(true);
     return EXIT_FAILURE;
   }
   app.Finalize();
-  //bm::leak_detector::PrintAllLeaks();
   return EXIT_SUCCESS;
 }
-
-/*
-#include "game_controller.hpp"
-#include "network_controller.hpp"
-#include "packet_processer.hpp"
-#include "window.hpp"
-
-int main(int argc, char** argv) {
-  NetworkController nc;
-  bool rv = nc.Initialize("127.0.0.1", 4242);
-  CHECK(rv == true);
-  rv = nc.Connect(500);
-  CHECK(rv == true);
-
-  PacketProcesser pp;
-  GameController gc;
-  Window ww;
-
-  rv = pp.Initialize(&nc, &gc);
-  CHECK(rv == true);
-
-  rv = gc.Initialize(&pp, &ww);
-  CHECK(rv == true);
-
-  rv = ww.Initialize(NULL);
-  CHECK(rv == true);
-
-  while(true) {
-    rv = nc.Service();
-    CHECK(rv == true);
-    rv = gc.Update();
-    CHECK(rv == true);
-    rv = ww.Render();
-    CHECK(rv == true);
-    rv = ww.PumpEvents();
-    CHECK(rv == true);
-  }
-
-  nc.Finalize();
-  rv = pp.Finalize();
-  CHECK(rv == true);
-  rv = gc.Finalize();
-  CHECK(rv == true);
-  ww.Finalize();
-
-  return EXIT_SUCCESS;
-}
-*/
