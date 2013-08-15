@@ -8,7 +8,7 @@
     #define BM_BASE_DECL __declspec(dllimport)
   #endif
 #else
-  #define BM_BASE_DECL 
+  #define BM_BASE_DECL
 #endif
 
 #endif // BM_BASE_BASE_HPP_

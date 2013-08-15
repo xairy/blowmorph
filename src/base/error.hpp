@@ -20,8 +20,12 @@ namespace bm {
 class Error {
 public:
   static void Print() {
+    if (messages.empty()) {
+      fprintf(stderr, "No errors has been reported.\n");
+      return;
+    }
     std::vector<std::string>::const_iterator itr;
-    for(itr = messages.begin(); itr != messages.end(); ++itr) {
+    for (itr = messages.begin(); itr != messages.end(); ++itr) {
       fprintf(stderr, "%s\n", itr->c_str());
     }
   }
