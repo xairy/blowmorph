@@ -66,9 +66,13 @@ typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterp
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
   Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type, bm::TextureAtlas* texture, size_t tile = 0)
-    : id(id), type(type), visible(false), interpolation_enabled(false), name_visible(false),
-      interpolator(ObjectInterpolator(bm::TimeType(75), 1)), sprite(texture, tile)
-  {
+      : id(id),
+        type(type),
+        visible(false),
+        interpolation_enabled(false),
+        name_visible(false),
+        interpolator(ObjectInterpolator(bm::TimeType(75), 1)),
+        sprite(texture, tile) {
     ObjectState state;
     state.blowCharge = 0;
     state.health = 0;
@@ -159,7 +163,28 @@ using namespace bm;
 
 class Application {
 public:
-  Application() : _state(STATE_FINALIZED), _network_state(NETWORK_STATE_DISCONNECTED) { }
+  Application()
+      : _state(STATE_FINALIZED),
+        _network_state(NETWORK_STATE_DISCONNECTED),
+        _client(NULL),
+        _player_morph_charge(0.0f),
+        _player_blow_charge(0.0f),
+        _player_health(0.0f),
+        _player_size(0),
+        _player(NULL),
+        _render_window(NULL),
+        _last_tick(0),
+        _max_error(0.0f),
+        _peer(NULL),
+        _event(NULL),
+        _is_running(false),
+        _connect_timeout(0),
+        _tick_rate(0),
+        _wall_size(0),
+        _last_loop(0),
+        _client_options(NULL),
+        default_text_writer(NULL),
+        _time_correction(0) { }
   ~Application() {
     CHECK(_state == STATE_FINALIZED);
   }
