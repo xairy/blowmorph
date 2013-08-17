@@ -348,8 +348,8 @@ private:
     std::string host = IniFile::GetValue<std::string>(settings, "server.host", "127.0.0.1");
     uint16_t port = IniFile::GetValue(settings, "server.port", 4242);
 
-    std::auto_ptr<enet::Peer> peer(client->Connect(host, port));
-    if(peer.get() == NULL) {
+    _peer = client->Connect(host, port);
+    if(_peer == NULL) {
       return false;
     }
 
@@ -368,7 +368,6 @@ private:
       return false;
     }
     _client = client.release();
-    _peer = peer.release();
     _event = event.release();
 
     _network_state = NETWORK_STATE_CONNECTED;
