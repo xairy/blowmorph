@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 
 #include <base/ctrlc.hpp>
@@ -24,6 +25,11 @@ int main(int argc, char** argv) {
 
   while (!global_stop_flag) {
     if (!server.Tick()) {
+      if (errno == EINTR) {
+        // 'recvmsg()' in 'enet_service_host()' fails on 'SIGINT'.
+        printf("\nCaught SIGINT while in enet_host_service().\n");
+        break;
+      }
       bm::Error::Print();
       return EXIT_FAILURE;
     }
