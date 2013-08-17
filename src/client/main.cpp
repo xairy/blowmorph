@@ -937,7 +937,6 @@ private:
   sf::RenderWindow* _render_window;
   sf::View _view;
 
-  // XXX[24.7.2012 alex]: copypasta
   std::map<uint32_t, TextureAtlas*> textures;
 
   Object* _player;
