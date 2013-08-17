@@ -9,12 +9,14 @@ How to build under Microsoft Windows, Visual Studio 2008:
 How to build under Ubuntu Linux:
   1. Install SFML-2.0
      http://www.sfml-dev.org/download/sfml/2.0/
+     See the instructions below
 
   2. Install FreeImage
      > sudo apt-get install libfreeimage-dev
 
   3. Install pugixml-1.2
      https://code.google.com/p/pugixml/
+     See the instructions below
 
   4. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
