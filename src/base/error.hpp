@@ -21,7 +21,7 @@ class Error {
 public:
   static void Print() {
     if (messages.empty()) {
-      fprintf(stderr, "No errors has been reported.\n");
+      fprintf(stderr, "No errors have been reported.\n");
       return;
     }
     std::vector<std::string>::const_iterator itr;
