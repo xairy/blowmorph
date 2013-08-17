@@ -285,8 +285,11 @@ private:
   }
 
   bool _InitializeGraphics() {
-    _render_window = new sf::RenderWindow(sf::VideoMode(600, 600), "Blowmorph");
-    _view.reset(sf::FloatRect(0, 0, 600, 600));
+    uint32_t width = IniFile::GetValue<int>(settings, "resolution.width", 600);
+    uint32_t height = IniFile::GetValue<int>(settings, "resolution.height", 600);
+
+    _render_window = new sf::RenderWindow(sf::VideoMode(width, height), "Blowmorph");
+    _view.reset(sf::FloatRect(0, 0, width, height));
     _render_window->setView(_view);
 
     // Load all textures.
