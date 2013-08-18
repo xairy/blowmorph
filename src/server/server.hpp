@@ -12,6 +12,7 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 #include <base/timer.hpp>
 
 #include "client_manager.hpp"
@@ -19,7 +20,7 @@
 #include "id_manager.hpp"
 #include "vector.hpp"
 #include "shape.hpp"
-#include "settings_manager.hpp"
+
 #include "world_manager.hpp"
 
 #include "bullet.hpp"
