@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_CLIENT_ANIMATION_HPP_
-#define BLOWMORPH_CLIENT_ANIMATION_HPP_
+#ifndef BLOWMORPH_CLIENT_SPRITE_HPP__
+#define BLOWMORPH_CLIENT_SPRITE_HPP_
 
 #include <vector>
 
@@ -12,14 +12,13 @@
 namespace bm {
 
 class TextureAtlas;
-class Sprite;
 
-class Animation {
+class Sprite {
 public:
-  Animation();
-  ~Animation();
+  Sprite();
+  ~Sprite();
 
-  // Initializes animation. 'texture' is a tiled texture, tiles are used
+  // Initializes sprite. 'texture' is a tiled texture, tiles are used
   // as frames. 'timeout' is a delay between frames in ms. 0th frame is
   // set to render initially. If 'cyclic' is set to 'true' animation will
   // be playing cyclically.
