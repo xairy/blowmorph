@@ -26,7 +26,6 @@
 #include <ini-file/ini_file.hpp>
 
 #include "engine/animation.hpp"
-#include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
 
 #include "sys.hpp"
@@ -71,8 +70,10 @@ struct Object {
         visible(false),
         interpolation_enabled(false),
         name_visible(false),
-        interpolator(ObjectInterpolator(bm::TimeType(75), 1)),
-        sprite(texture, tile) {
+        interpolator(ObjectInterpolator(bm::TimeType(75), 1)) {
+    sprite.Initialize(texture, 0, false, false);
+    sprite.SetCurrentFrame(tile);
+
     ObjectState state;
     state.blowCharge = 0;
     state.health = 0;
@@ -128,7 +129,7 @@ struct Object {
   uint32_t id;
   uint32_t type;
 
-  bm::Sprite sprite;
+  bm::Animation sprite;
 
   bool visible;
 
@@ -775,7 +776,7 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Animation* animation = new Animation();
       CHECK(animation != NULL);
-      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, false);
+      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true, false);
       if(rv == false) {
         return false;
       }

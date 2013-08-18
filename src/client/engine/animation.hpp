@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include <base/pstdint.hpp>
-#include <base/timer.hpp>
-
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
+
+#include <base/pstdint.hpp>
+#include <base/timer.hpp>
 
 namespace bm {
 
@@ -24,7 +24,13 @@ public:
   // set to render initially. If 'cyclic' is set to 'true' animation will
   // be playing cyclically.
   // Returns 'true' on success, returns 'false' on error.
-  bool Initialize(TextureAtlas* texture, uint32_t timeout, bool cyclic = false);
+  // FIXME: comment.
+  bool Initialize(
+    TextureAtlas* texture,
+    int64_t timeout,
+    bool animated,
+    bool cyclic
+  );
 
   // Cleans up. Automatically called in '~Animation()'.
   void Finalize();
@@ -38,8 +44,8 @@ public:
   // Stops changing frames over time.
   void Stop();
 
-  // Returns current frame.
   size_t GetCurrentFrame() const;
+  void SetCurrentFrame(size_t frame);
 
   bool IsPlaying() const;
   bool IsStopped() const;
@@ -65,7 +71,9 @@ private:
   } _state;
 
   TextureAtlas* _texture;
-  uint32_t _timeout;
+  int64_t _timeout;
+
+  bool _animated;
   bool _cyclic;
 
   size_t _current_frame;
@@ -73,10 +81,9 @@ private:
 
   // XXX[12.08.2012 xairy]: use external timer?
   Timer _timer;
-  uint32_t _last_frame_change;
+  int64_t _last_frame_change;
 
-  // XXX[12.08.2012 xairy]: use opengl directly instead?
-  std::vector<Sprite*> _frames;
+  std::vector<sf::Sprite*> _frames;
 };
 
 } // namespace bm
