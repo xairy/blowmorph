@@ -25,8 +25,8 @@
 #include <interpolator/interpolator.hpp>
 #include <ini-file/ini_file.hpp>
 
-#include "engine/sprite.hpp"
-#include "engine/texture_atlas.hpp"
+#include "sprite.hpp"
+#include "texture_atlas.hpp"
 
 #include "sys.hpp"
 #include "net.hpp"
