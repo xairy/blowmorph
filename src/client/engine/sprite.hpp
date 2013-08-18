@@ -15,23 +15,21 @@ class TextureAtlas;
 
 class Sprite {
 public:
-  Sprite();
-  ~Sprite();
-
-  // Initializes sprite. 'texture' is a tiled texture, tiles are used
-  // as frames. 'timeout' is a delay between frames in ms. 0th frame is
-  // set to render initially. If 'cyclic' is set to 'true' animation will
-  // be playing cyclically.
-  // Returns 'true' on success, returns 'false' on error.
-  // FIXME: comment.
-  bool Initialize(
+  // 'texture' is a tiled texture, tiles are used as frames. If 'animated' is
+  // set to 'true' the spite will change frames over time after 'Play()' is
+  // called. 'timeout' is a delay between frames in ms. 0th frame is set to
+  // render initially. If 'cyclic' is set to 'true' animation will be playing
+  // cyclically. Returns 'true' on success, returns 'false' on error.
+  Sprite(
     TextureAtlas* texture,
-    int64_t timeout,
     bool animated,
+    int64_t timeout,
     bool cyclic
   );
 
-  // Cleans up. Automatically called in '~Animation()'.
+  ~Sprite();
+
+  // Cleans up. Automatically called in the destructor.
   void Finalize();
 
   // Renders current frame.
