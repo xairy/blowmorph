@@ -9,10 +9,10 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "id_manager.hpp"
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 

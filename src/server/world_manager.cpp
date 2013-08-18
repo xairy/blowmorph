@@ -10,11 +10,11 @@
 #include <base/error.hpp>
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "entity.hpp"
 #include "id_manager.hpp"
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 
 #include "bullet.hpp"
