@@ -12,18 +12,12 @@
 
 namespace bm {
 
-Sprite::Sprite() : _state(STATE_FINALIZED) { }
-Sprite::~Sprite() {
-  Finalize();
-}
-
-bool Sprite::Initialize(
+Sprite::Sprite(
   TextureAtlas* texture,
-  int64_t timeout,
   bool animated,
+  int64_t timeout,
   bool cyclic
 ) {
-  CHECK(_state == STATE_FINALIZED);
   CHECK(texture != NULL);
   CHECK(texture->GetTileCount() > 0);
   
@@ -49,8 +43,10 @@ bool Sprite::Initialize(
 
     _frames[frame] = sprite;
   }
+}
 
-  return true;
+Sprite::~Sprite() {
+  Finalize();
 }
 
 void Sprite::Finalize() {

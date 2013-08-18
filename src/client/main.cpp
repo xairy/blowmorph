@@ -70,8 +70,8 @@ struct Object {
         visible(false),
         interpolation_enabled(false),
         name_visible(false),
-        interpolator(ObjectInterpolator(bm::TimeType(75), 1)) {
-    sprite.Initialize(texture, 0, false, false);
+        interpolator(ObjectInterpolator(bm::TimeType(75), 1)),
+        sprite(texture, false, 0, false) {
     sprite.SetCurrentFrame(tile);
 
     ObjectState state;
@@ -774,12 +774,8 @@ private:
     if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
       // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
       // TODO[12.08.2012 xairy]: remove magic numbers;
-      Sprite* explosion = new Sprite();
+      Sprite* explosion = new Sprite(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], true, 30, false);
       CHECK(explosion != NULL);
-      bool rv = explosion->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true, false);
-      if(rv == false) {
-        return false;
-      }
       explosion->SetPosition(glm::vec2(snapshot->x, snapshot->y));
       explosion->Play();
       _explosions.push_back(explosion);
