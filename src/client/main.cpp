@@ -25,7 +25,7 @@
 #include <interpolator/interpolator.hpp>
 #include <ini-file/ini_file.hpp>
 
-#include "engine/animation.hpp"
+#include "engine/sprite.hpp"
 #include "engine/texture_atlas.hpp"
 
 #include "sys.hpp"
@@ -129,7 +129,7 @@ struct Object {
   uint32_t id;
   uint32_t type;
 
-  bm::Animation sprite;
+  bm::Sprite sprite;
 
   bool visible;
 
@@ -252,11 +252,11 @@ public:
     }
     _objects.clear();
 
-    std::list<Animation*>::iterator it2;
-    for(it2 = _animations.begin(); it2 != _animations.end(); ++it2) {
+    std::list<Sprite*>::iterator it2;
+    for(it2 = _explosions.begin(); it2 != _explosions.end(); ++it2) {
       delete *it2;
     }
-    _animations.clear();
+    _explosions.clear();
 
     delete default_text_writer;
 
@@ -774,16 +774,15 @@ private:
     if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
       // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
       // TODO[12.08.2012 xairy]: remove magic numbers;
-      Animation* animation = new Animation();
-      CHECK(animation != NULL);
-      bool rv = animation->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true, false);
+      Sprite* explosion = new Sprite();
+      CHECK(explosion != NULL);
+      bool rv = explosion->Initialize(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], 30, true, false);
       if(rv == false) {
         return false;
       }
-      //animation->SetPivot(glm::vec2(0.5f, 0.5f));
-      animation->SetPosition(glm::vec2(snapshot->x, snapshot->y));
-      animation->Play();
-      _animations.push_back(animation);
+      explosion->SetPosition(glm::vec2(snapshot->x, snapshot->y));
+      explosion->Play();
+      _explosions.push_back(explosion);
     }
 
     return true;
@@ -916,14 +915,14 @@ private:
       _view.setCenter(glm::round(player_position.x), glm::round(player_position.y));
       _render_window->setView(_view);
 
-      std::list<Animation*>::iterator it2;
-      for(it2 = _animations.begin(); it2 != _animations.end();) {
+      std::list<Sprite*>::iterator it2;
+      for(it2 = _explosions.begin(); it2 != _explosions.end();) {
         (*it2)->Render(*_render_window);
         if((*it2)->IsStopped()) {
-          std::list<Animation*>::iterator it1 = it2;
+          std::list<Sprite*>::iterator it1 = it2;
           ++it1;
           delete *it2;
-          _animations.erase(it2);
+          _explosions.erase(it2);
           it2 = it1;
         } else {
           ++it2;
@@ -972,7 +971,7 @@ private:
   std::map<int, Object*> _objects;
   std::map<int, Object*> _walls;
 
-  std::list<Animation*> _animations;
+  std::list<Sprite*> _explosions;
 
   ClientOptions* _client_options;
 

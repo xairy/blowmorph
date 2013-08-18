@@ -1,4 +1,4 @@
-#include "animation.hpp"
+#include "sprite.hpp"
 
 #include <vector>
 
@@ -12,12 +12,12 @@
 
 namespace bm {
 
-Animation::Animation() : _state(STATE_FINALIZED) { }
-Animation::~Animation() {
+Sprite::Sprite() : _state(STATE_FINALIZED) { }
+Sprite::~Sprite() {
   Finalize();
 }
 
-bool Animation::Initialize(
+bool Sprite::Initialize(
   TextureAtlas* texture,
   int64_t timeout,
   bool animated,
@@ -53,7 +53,7 @@ bool Animation::Initialize(
   return true;
 }
 
-void Animation::Finalize() {
+void Sprite::Finalize() {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frame_count; frame++) {
     if (_frames[frame] != NULL) {
@@ -64,7 +64,7 @@ void Animation::Finalize() {
   _state = STATE_FINALIZED;
 }
 
-void Animation::Render(sf::RenderWindow& render_window) {
+void Sprite::Render(sf::RenderWindow& render_window) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
   if (_state == STATE_PLAYING) {
@@ -73,34 +73,34 @@ void Animation::Render(sf::RenderWindow& render_window) {
   render_window.draw(*_frames[_current_frame]);
 }
 
-void Animation::Play() {
+void Sprite::Play() {
   CHECK(_state == STATE_STOPPED);
   _last_frame_change = _timer.GetTime();
   _state = STATE_PLAYING;
 }
 
-void Animation::Stop() {
+void Sprite::Stop() {
   CHECK(_state == STATE_PLAYING);
   _state = STATE_STOPPED;
 }
 
-size_t Animation::GetCurrentFrame() const {
+size_t Sprite::GetCurrentFrame() const {
   return _current_frame;
 }
 
-void Animation::SetCurrentFrame(size_t frame) {
+void Sprite::SetCurrentFrame(size_t frame) {
   _current_frame = frame;
 }
 
-bool Animation::IsPlaying() const {
+bool Sprite::IsPlaying() const {
   return _state == STATE_PLAYING;
 }
 
-bool Animation::IsStopped() const {
+bool Sprite::IsStopped() const {
   return _state == STATE_STOPPED;
 }
 
-void Animation::SetPosition(const glm::vec2& position) {
+void Sprite::SetPosition(const glm::vec2& position) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frame_count; frame++) {
     DCHECK(_frames[frame] != NULL);
@@ -108,14 +108,14 @@ void Animation::SetPosition(const glm::vec2& position) {
   }
 }
 
-glm::vec2 Animation::GetPosition() const {
+glm::vec2 Sprite::GetPosition() const {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
   sf::Vector2f position = _frames[_current_frame]->getPosition();
   return glm::vec2(position.x, position.y);
 }
 
-void Animation::SetPivot(const glm::vec2& pivot) {
+void Sprite::SetPivot(const glm::vec2& pivot) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frame_count; frame++) {
     DCHECK(_frames[frame] != NULL);
@@ -123,14 +123,14 @@ void Animation::SetPivot(const glm::vec2& pivot) {
   }
 }
 
-glm::vec2 Animation::GetPivot() const {
+glm::vec2 Sprite::GetPivot() const {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
   sf::Vector2f pivot = _frames[_current_frame]->getOrigin();
   return glm::vec2(pivot.x, pivot.y);
 }
 
-void Animation::updateCurrentFrame() {
+void Sprite::updateCurrentFrame() {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   if (!_animated) {
     return;
