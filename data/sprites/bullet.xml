@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sprite>
+  <source>data/images/bullet.png</source>
+  <transparent_color>538241</transparent_color>
+  <tiled>false</tiled>
+
+  <mode>
+    <name>idle</name>
+    <timeout>0</timeout>
+    <cyclic>false</cyclic>
+  </mode>
+</sprite>
