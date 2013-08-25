@@ -1,48 +1,88 @@
 #include "sprite.hpp"
 
+#include <map>
+#include <string>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
 
 #include <base/error.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 #include <base/timer.hpp>
 
 #include "texture_atlas.hpp"
-
+#include <iostream>
 namespace bm {
 
-Sprite::Sprite(
-  TextureAtlas* texture,
-  bool animated,
-  int64_t timeout,
-  bool cyclic
-) {
-  CHECK(texture != NULL);
-  CHECK(texture->GetTileCount() > 0);
-  
-  _texture = texture;
-  _timeout = timeout;
-  _cyclic = cyclic;
-  _animated = animated;
-  _current_frame = 0;
-  _state = STATE_STOPPED;
+Sprite::Sprite() : _state(STATE_FINALIZED) { }
 
-  _frame_count = _texture->GetTileCount();
-  _frames.resize(_frame_count, NULL);
-  for (size_t frame = 0; frame < _frame_count; frame++) {
-    glm::vec2 tile_position = texture->GetTilePosition(frame);
-    glm::vec2 tile_size = texture->GetTileSize(frame);
+bool Sprite::Initialize(const std::string& path) {
+  SettingsManager settings;
+  bool rv = settings.Load(path);
+  if (rv == false) {
+    std::cerr << path << std::endl;
+    return false;
+  }
+
+  std::string source = settings.GetValue("sprite.source", std::string(""));
+  uint32_t transparent_color = settings.GetValue("sprite.transparent_color", 0);
+  bool tiled = settings.GetValue("sprite.tiled", false);
+
+  // FIXME(xairy): texture shouldn't be loaded twice.
+  if (tiled) {
+    // FIXME(xairy): size_t?
+    size_t start_x = settings.GetValue("sprite.tile.start.x", 0);
+    size_t start_y = settings.GetValue("sprite.tile.start.y", 0);
+    size_t horizontal_step = settings.GetValue("sprite.tile.step.horizontal", 1);
+    size_t vertical_step = settings.GetValue("sprite.tile.step.vertical", 1);
+    size_t tile_width = settings.GetValue("sprite.tile.width", 10);
+    size_t tile_height = settings.GetValue("sprite.tile.height", 10);
+    _texture = LoadTileset(source, transparent_color, start_x, start_y,
+        horizontal_step, vertical_step, tile_width, tile_height);
+  } else {
+    _texture = LoadOldTexture(source, transparent_color);
+  }
+  if (_texture == NULL) {
+    return false;
+  }
+
+  CHECK(_texture->GetTileCount() > 0);
+
+  // FIXME(xairy): only one mode is supported.
+  // _current_mode.name = settings.GetValue("sprite.mode.name");
+  _current_mode.timeout = settings.GetValue("sprite.mode.timeout", 10);
+  _current_mode.cyclic = settings.GetValue("sprite.mode.cyclic", false);
+  // std::string tiles = settings.GetValue("sprite.mode.tiles");
+  // TODO: load tile numbers.
+  // for (size_t i = 0; i < texture->GetTileCount(); i++) {
+  //   _current_mode.tiles.push_back(i);
+  // }
+  
+  _frames_count = _texture->GetTileCount();
+  _frames.resize(_frames_count, NULL);
+  CHECK(_frames_count >= 1);
+
+  for (size_t frame = 0; frame < _frames_count; frame++) {
+    glm::vec2 tile_position = _texture->GetTilePosition(frame);
+    glm::vec2 tile_size = _texture->GetTileSize(frame);
 
     sf::Sprite* sprite = new sf::Sprite();
     CHECK(sprite != NULL);
-    sprite->setTexture(*texture->GetTexture());
+
+    sprite->setTexture(*_texture->GetTexture());
     sprite->setTextureRect(sf::IntRect(tile_position.x, tile_position.y,
       tile_size.x, tile_size.y));
     sprite->setOrigin(tile_size.x / 2.0f, tile_size.y / 2.0f);
 
     _frames[frame] = sprite;
   }
+
+  _current_frame = 0;
+  _last_frame_change = _timer.GetTime();
+
+  _state = STATE_STOPPED;
+  return true;
 }
 
 Sprite::~Sprite() {
@@ -51,7 +91,7 @@ Sprite::~Sprite() {
 
 void Sprite::Finalize() {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
-  for (size_t frame = 0; frame < _frame_count; frame++) {
+  for (size_t frame = 0; frame < _frames_count; frame++) {
     if (_frames[frame] != NULL) {
       delete _frames[frame];
       _frames[frame] = NULL;
@@ -63,9 +103,7 @@ void Sprite::Finalize() {
 void Sprite::Render(sf::RenderWindow& render_window) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
-  if (_state == STATE_PLAYING) {
-    updateCurrentFrame();
-  }
+  UpdateCurrentFrame();
   render_window.draw(*_frames[_current_frame]);
 }
 
@@ -98,7 +136,7 @@ bool Sprite::IsStopped() const {
 
 void Sprite::SetPosition(const glm::vec2& position) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
-  for (size_t frame = 0; frame < _frame_count; frame++) {
+  for (size_t frame = 0; frame < _frames_count; frame++) {
     DCHECK(_frames[frame] != NULL);
     _frames[frame]->setPosition(sf::Vector2f(position.x, position.y));
   }
@@ -113,7 +151,7 @@ glm::vec2 Sprite::GetPosition() const {
 
 void Sprite::SetPivot(const glm::vec2& pivot) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
-  for (size_t frame = 0; frame < _frame_count; frame++) {
+  for (size_t frame = 0; frame < _frames_count; frame++) {
     DCHECK(_frames[frame] != NULL);
     _frames[frame]->setOrigin(pivot.x, pivot.y);
   }
@@ -126,23 +164,22 @@ glm::vec2 Sprite::GetPivot() const {
   return glm::vec2(pivot.x, pivot.y);
 }
 
-void Sprite::updateCurrentFrame() {
+void Sprite::UpdateCurrentFrame() {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
-  if (!_animated) {
+  if (_state == STATE_STOPPED || _frames_count == 1) {
     return;
   }
   int64_t current_time = _timer.GetTime();
-  if (current_time >= _last_frame_change + _timeout) {
+  if (current_time >= _last_frame_change + _current_mode.timeout) {
     _last_frame_change = current_time;
-    DCHECK(_frame_count > 0);
-    if (_current_frame == _frame_count - 1) {
-      if (!_cyclic) {
+    if (_current_frame == _frames_count - 1) {
+      if (!_current_mode.cyclic) {
         Stop();
       } else {
         _current_frame = 0;
       }
     } else {
-      _current_frame = _current_frame + 1;
+      _current_frame++;
     }
   }
 }
