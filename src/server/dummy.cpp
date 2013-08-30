@@ -22,7 +22,9 @@ Dummy* Dummy::Create(
   TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetValue("dummy.speed", 0.0f);
+  float speed;
+  bool rv = settings->LookupFloat("dummy.speed", &speed);
+  CHECK(rv == true);
 
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   CHECK(dummy.get() != NULL);

@@ -111,12 +111,6 @@ solution "blowmorph"
 
     resource("data", "data")
 
-    -- libconfig
-    configuration "windows"
-      -- TODO
-    configuration "linux"
-      links { "config" }
-
     -- ENetPlus
     configuration "windows"
       -- TODO
@@ -208,6 +202,12 @@ solution "blowmorph"
   project "bm-base"
     kind "SharedLib"
     language "C++"
+
+    -- libconfig
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "config" }
 
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }

@@ -22,18 +22,36 @@ Player* Player::Create(
 ) {
   SettingsManager* _settings = world_manager->GetSettings();
 
-  float speed = _settings->GetValue("player.speed", 0.0f);
+  float speed;
+  bool rv = _settings->LookupFloat("player.speed", &speed);
+  CHECK(rv == true);
 
-  int max_health = _settings->GetValue("player.max_health", 1);
-  int health_regeneration = _settings->GetValue("player.health_regeneration", 0);
+  int max_health;
+  rv = _settings->LookupInt32("player.max_health", &max_health);
+  CHECK(rv == true);
+  int health_regeneration;
+  rv = _settings->LookupInt32("player.health_regeneration", &health_regeneration);
+  CHECK(rv == true);
 
-  int blow_capacity = _settings->GetValue("player.blow.capacity", 0);
-  int blow_consumption = _settings->GetValue("player.blow.consumption", 1);
-  int blow_regeneration = _settings->GetValue("player.blow.regeneration", 0);
+  int blow_capacity;
+  rv = _settings->LookupInt32("player.blow.capacity", &blow_capacity);
+  CHECK(rv == true);
+  int blow_consumption;
+  rv = _settings->LookupInt32("player.blow.consumption", &blow_consumption);
+  CHECK(rv == true);
+  int blow_regeneration;
+  rv = _settings->LookupInt32("player.blow.regeneration", &blow_regeneration);
+  CHECK(rv == true);
 
-  int morph_capacity = _settings->GetValue("player.morph.capacity", 0);
-  int morph_consumption = _settings->GetValue("player.morph.consumption", 1);
-  int morph_regeneration = _settings->GetValue("player.morph.regeneration", 0);
+  int morph_capacity;
+  rv = _settings->LookupInt32("player.morph.capacity", &morph_capacity);
+  CHECK(rv == true);
+  int morph_consumption;
+  rv = _settings->LookupInt32("player.morph.consumption", &morph_consumption);
+  CHECK(rv == true);
+  int morph_regeneration;
+  rv = _settings->LookupInt32("player.morph.regeneration", &morph_regeneration);
+  CHECK(rv == true);
 
   std::auto_ptr<Player> player(new Player(world_manager, id));
   CHECK(player.get() != NULL);

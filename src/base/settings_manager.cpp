@@ -1,112 +1,145 @@
 #include "settings_manager.hpp"
 
-#include <cstdlib>
-#include <cstring>
-
-#include <map>
 #include <string>
 
-#include <pugixml.hpp>
+#include <libconfig.h>
 
 #include <base/error.hpp>
 #include <base/macros.hpp>
-
-namespace {
-
-std::string BuildKey(const pugi::xml_node& node) {
-  CHECK(node.type() == pugi::node_element);
-  if(node.parent().type() == pugi::node_document) {
-    return std::string(node.name());
-  } else if(node.parent().type() == pugi::node_element) {
-    return BuildKey(node.parent()) + "." + std::string(node.name());
-  }
-  CHECK(false);
-  return "";
-}
-
-struct SettingsWalker : public pugi::xml_tree_walker {
-  typedef std::map<std::string, std::string> SettingsMap;
-
-  SettingsWalker(SettingsMap* settings)
-    : pugi::xml_tree_walker(), _settings(settings) { }
-
-  virtual bool for_each(pugi::xml_node& node) {
-    if(node.type() == pugi::node_pcdata) {
-      std::string key = BuildKey(node.parent());
-      std::string value = std::string(node.value());
-      (*_settings)[key] = value;
-      printf("'%s' = '%s'\n", key.c_str(), value.c_str());
-    }
-    return true;
-  }
-
-  SettingsMap* _settings;
-};
-
-} // anonymous namespace
+#include <base/pstdint.hpp>
 
 namespace bm {
 
-SettingsManager::SettingsManager() { }
-SettingsManager::~SettingsManager() { }
+SettingsManager::SettingsManager() : state_(STATE_CLOSED) { }
+SettingsManager::~SettingsManager() {
+  Close();
+}
 
-bool SettingsManager::Load(const std::string& path) {
-  pugi::xml_document document;
-  pugi::xml_parse_result parse_result = document.load_file(path.c_str());
-  if(!parse_result) {
-    BM_ERROR("Unable to parse settings.");
+bool SettingsManager::Open(const std::string& path) {
+  config_init(&cfg_);
+  if (!config_read_file(&cfg_, path.c_str())) {
+    config_destroy(&cfg_);
+    BM_ERROR("Unable to read config!");
     return false;
   }
-
-  SettingsWalker walker(&_settings);
-  document.traverse(walker);
-
+  state_ = STATE_OPENED;
   return true;
 }
 
-std::string SettingsManager::GetValue(const std::string& key, std::string def_value) const {
-  SettingsMap::const_iterator i = _settings.find(key);
-  if(i != _settings.end()) {
-    return i->second;
+void SettingsManager::Close() {
+  if (state_ == STATE_OPENED) {
+    config_destroy(&cfg_);
+    state_ = STATE_CLOSED;
   }
-  printf("Warning: returning default value for '%s'.\n", key.c_str());
-  return def_value;
 }
-int SettingsManager::GetValue(const std::string& key, int def_value) const {
-  SettingsMap::const_iterator i = _settings.find(key);
-  if(i != _settings.end()) {
-    // XXX[21.08.2012 xairy]: malformed int?
-    return atoi(i->second.c_str());
-  }
-  printf("Warning: returning default value for '%s'.\n", key.c_str());
-  return def_value;
+
+bool SettingsManager::HasSetting(const char* key) {
+  CHECK(state_ == STATE_OPENED);
+  return (config_lookup(&cfg_, key) != NULL);
 }
-bool SettingsManager::GetValue(const std::string& key, bool def_value) const {
-  SettingsMap::const_iterator i = _settings.find(key);
-  if(i != _settings.end()) {
-    std::string value = i->second;
-    return (value == "1" || value == "yes" || value == "true");
+
+// FIXME(xairy): do static_casts.
+
+bool SettingsManager::LookupInt16(const char* key, int16_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  int tmp;
+  int rv = config_lookup_int(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = tmp;
+    return true;
   }
-  printf("Warning: returning default value for '%s'.\n", key.c_str());
-  return def_value;
+  return false;
 }
-float SettingsManager::GetValue(const std::string& key, float def_value) const {
-  SettingsMap::const_iterator i = _settings.find(key);
-  if(i != _settings.end()) {
-    // XXX[21.08.2012 xairy]: malformed float?
-    return static_cast<float>(atof(i->second.c_str()));
+
+bool SettingsManager::LookupUInt16(const char* key, uint16_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  int tmp;
+  int rv = config_lookup_int(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = tmp;
+    return true;
   }
-  printf("Warning: returning default value for '%s'.\n", key.c_str());
-  return def_value;
+  return false;
 }
-double SettingsManager::GetValue(const std::string& key, double def_value) const {
-  SettingsMap::const_iterator i = _settings.find(key);
-  if(i != _settings.end()) {
-    // XXX[21.08.2012 xairy]: malformed double?
-    return atof(i->second.c_str());
+
+bool SettingsManager::LookupInt32(const char* key, int32_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  int rv = config_lookup_int(&cfg_, key, output);
+  return (rv == CONFIG_TRUE);
+}
+
+// TODO(xairy): test.
+bool SettingsManager::LookupUInt32(const char* key, uint32_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  int tmp;
+  int rv = config_lookup_int(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = tmp;
+    return true;
   }
-  printf("Warning: returning default value for '%s'.\n", key.c_str());
-  return def_value;
+  return false;
+}
+
+bool SettingsManager::LookupInt64(const char* key, int64_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = static_cast<int64_t>(tmp);
+    return true;
+  }
+  return false;
+}
+
+// TODO(xairy): test.
+bool SettingsManager::LookupUInt64(const char* key, uint64_t* output) {
+  CHECK(state_ == STATE_OPENED);
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = static_cast<uint64_t>(tmp);
+    return true;
+  }
+  return false;
+}
+
+bool SettingsManager::LookupFloat(const char* key, float* output) {
+  CHECK(state_ == STATE_OPENED);
+  double tmp;
+  int rv = config_lookup_float(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = tmp;
+    return true;
+  }
+  return false;
+}
+
+bool SettingsManager::LookupDouble(const char* key, double* output) {
+  CHECK(state_ == STATE_OPENED);
+  int rv = config_lookup_float(&cfg_, key, output);
+  return (rv == CONFIG_TRUE);
+}
+
+bool SettingsManager::LookupBool(const char* key, bool* output) {
+  CHECK(state_ == STATE_OPENED);
+  int tmp;
+  int rv = config_lookup_bool(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = (tmp != 0);
+    return true;
+  }
+  return false;
+}
+
+bool SettingsManager::LookupString(const char* key, std::string* output) {
+  CHECK(state_ == STATE_OPENED);
+  const char *tmp;
+  int rv = config_lookup_string(&cfg_, key, &tmp);
+  if (rv == CONFIG_TRUE) {
+    *output = tmp;
+    return true;
+  }
+  return false;
 }
 
 } // namespace bm
