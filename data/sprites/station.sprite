@@ -1,0 +1,13 @@
+sprite =
+{
+  source = "data/images/kits.png";
+  transparent_color = 0;
+
+  tile =
+  {
+    start = { x = 1; y = 1; };
+    step = { horizontal = 31; vertical = 31; };
+    width = 30;
+    height = 30;
+  };
+};

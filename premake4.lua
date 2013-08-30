@@ -111,6 +111,12 @@ solution "blowmorph"
 
     resource("data", "data")
 
+    -- libconfig
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "config" }
+
     -- ENetPlus
     configuration "windows"
       -- TODO
