@@ -23,13 +23,8 @@ bool Sprite::Initialize(const std::string& path) {
     return false;
   }
 
-  std::string source;
-  bool rv = settings.LookupString("sprite.source", &source);
-  CHECK(rv == true);
-
-  uint32_t transparent_color;
-  rv = settings.LookupUInt32("sprite.transparent_color", &transparent_color);
-  CHECK(rv == true);
+  std::string source = settings.GetString("sprite.source");
+  uint32_t transparent_color = settings.GetUInt32("sprite.transparent_color");
 
   bool tiled = false;
   if (settings.HasSetting("sprite.tile")) {
@@ -38,23 +33,12 @@ bool Sprite::Initialize(const std::string& path) {
 
   // FIXME(xairy): texture shouldn't be loaded twice.
   if (tiled) {
-    int32_t start_x, start_y;
-    rv = settings.LookupInt32("sprite.tile.start.x", &start_x);
-    CHECK(rv == true);
-    rv = settings.LookupInt32("sprite.tile.start.y", &start_y);
-    CHECK(rv == true);
-
-    int32_t horizontal_step, vertical_step;
-    rv = settings.LookupInt32("sprite.tile.step.horizontal", &horizontal_step);
-    CHECK(rv == true);
-    rv = settings.LookupInt32("sprite.tile.step.vertical", &vertical_step);
-    CHECK(rv == true);
-
-    int32_t width, height;
-    rv = settings.LookupInt32("sprite.tile.width", &width);
-    CHECK(rv == true);
-    rv = settings.LookupInt32("sprite.tile.height", &height);
-    CHECK(rv == true);
+    int32_t start_x = settings.GetInt32("sprite.tile.start.x");
+    int32_t start_y = settings.GetInt32("sprite.tile.start.y");
+    int32_t horizontal_step = settings.GetInt32("sprite.tile.step.horizontal");
+    int32_t vertical_step = settings.GetInt32("sprite.tile.step.vertical");
+    int32_t width = settings.GetInt32("sprite.tile.width");
+    int32_t height = settings.GetInt32("sprite.tile.height");
 
     // XXX(xairy): WTF size_t?.
     _texture = LoadTileset(source, transparent_color, start_x, start_y,

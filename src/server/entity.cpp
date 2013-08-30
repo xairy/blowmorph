@@ -159,9 +159,7 @@ bool Entity::Collide(Player* player1, Player* player2) {
 bool Entity::Collide(Player* player, Dummy* dummy) {
   if(player->_shape->Collide(dummy->_shape)) {
     SettingsManager* settings = dummy->_world_manager->GetSettings();
-    int damage;
-    bool rv = settings->LookupInt32("dummy.damage", &damage);
-    CHECK(rv == true);
+    int damage = settings->GetInt32("dummy.damage");
     player->Damage(damage);
     dummy->Damage(0);
     return true;

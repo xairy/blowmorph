@@ -8,6 +8,14 @@
 #include <base/macros.hpp>
 #include <base/pstdint.hpp>
 
+#define DEFINE_GET_METHOD(type, lookup_method, get_method) \
+type SettingsManager::get_method(const char* key) {        \
+  type result;                                             \
+  bool rv = lookup_method(key, &result);                   \
+  CHECK(rv == true);                                       \
+  return result;                                           \
+}
+
 namespace bm {
 
 SettingsManager::SettingsManager() : state_(STATE_CLOSED) { }
@@ -50,6 +58,7 @@ bool SettingsManager::LookupInt16(const char* key, int16_t* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(int16_t, LookupInt16, GetInt16);
 
 bool SettingsManager::LookupUInt16(const char* key, uint16_t* output) {
   CHECK(state_ == STATE_OPENED);
@@ -61,12 +70,14 @@ bool SettingsManager::LookupUInt16(const char* key, uint16_t* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(uint16_t, LookupUInt16, GetUInt16);
 
 bool SettingsManager::LookupInt32(const char* key, int32_t* output) {
   CHECK(state_ == STATE_OPENED);
   int rv = config_lookup_int(&cfg_, key, output);
   return (rv == CONFIG_TRUE);
 }
+DEFINE_GET_METHOD(int32_t, LookupInt32, GetInt32);
 
 // TODO(xairy): test.
 bool SettingsManager::LookupUInt32(const char* key, uint32_t* output) {
@@ -79,6 +90,7 @@ bool SettingsManager::LookupUInt32(const char* key, uint32_t* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(uint32_t, LookupUInt32, GetUInt32);
 
 bool SettingsManager::LookupInt64(const char* key, int64_t* output) {
   CHECK(state_ == STATE_OPENED);
@@ -90,6 +102,7 @@ bool SettingsManager::LookupInt64(const char* key, int64_t* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(int64_t, LookupInt64, GetInt64);
 
 // TODO(xairy): test.
 bool SettingsManager::LookupUInt64(const char* key, uint64_t* output) {
@@ -102,6 +115,7 @@ bool SettingsManager::LookupUInt64(const char* key, uint64_t* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(uint64_t, LookupUInt64, GetUInt64);
 
 bool SettingsManager::LookupFloat(const char* key, float* output) {
   CHECK(state_ == STATE_OPENED);
@@ -113,12 +127,14 @@ bool SettingsManager::LookupFloat(const char* key, float* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(float, LookupFloat, GetFloat);
 
 bool SettingsManager::LookupDouble(const char* key, double* output) {
   CHECK(state_ == STATE_OPENED);
   int rv = config_lookup_float(&cfg_, key, output);
   return (rv == CONFIG_TRUE);
 }
+DEFINE_GET_METHOD(double, LookupDouble, GetDouble);
 
 bool SettingsManager::LookupBool(const char* key, bool* output) {
   CHECK(state_ == STATE_OPENED);
@@ -130,6 +146,7 @@ bool SettingsManager::LookupBool(const char* key, bool* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(bool, LookupBool, GetBool);
 
 bool SettingsManager::LookupString(const char* key, std::string* output) {
   CHECK(state_ == STATE_OPENED);
@@ -141,5 +158,6 @@ bool SettingsManager::LookupString(const char* key, std::string* output) {
   }
   return false;
 }
+DEFINE_GET_METHOD(std::string, LookupString, GetString);
 
 } // namespace bm
