@@ -12,16 +12,8 @@
 
 namespace bm {
 
-// TODO[16.8.2012 alex]: replace it with a generic Rect/rect.
-struct TileRect {
-  size_t x;
-  size_t y;
-  size_t width;
-  size_t height;
-
-  TileRect(size_t x, size_t y, size_t width, size_t height) : x(x), y(y), width(width), height(height) { }
-};
-typedef std::vector<TileRect> Tileset;
+typedef sf::Rect<int64_t> TileRect;
+typedef std::vector<TileRect> TileSet;
 
 class TextureAtlas {
 public:
@@ -38,34 +30,44 @@ private:
   TextureAtlas();
 
   sf::Texture* texture;
-  Tileset tileset;
+  TileSet tileset;
 
-  friend TextureAtlas* LoadOldTexture(const std::string& path,
-                                 uint32_t transparentColor);
-  friend TextureAtlas* LoadTileset(const std::string& path,
-                                 uint32_t transparentColor,
-                                 size_t startX, size_t startY,
-                                 size_t horizontalStep, size_t verticalStep,
-                                 size_t tileWidth, size_t tileHeight);
+  friend TextureAtlas* LoadTexture(
+    const std::string& path,
+    uint32_t transparentColor
+  );
+  friend TextureAtlas* LoadTileset(
+    const std::string& path,
+    uint32_t transparent_color,
+    int64_t start_x, int64_t start_y,
+    int64_t horizontal_step, int64_t vertical_step,
+    int64_t tile_width, int64_t tile_height
+  );
 };
 
 // Loads an image or a tileset from a given path.
 // Returns NULL on failure.
-TextureAtlas* LoadOldTexture(const std::string& path,
-                        uint32_t transparentColor = 0xFFFFFFFF);
+TextureAtlas* LoadTexture(
+  const std::string& path,
+  uint32_t transparentColor = 0xFFFFFFFF
+);
 
 // Loads a tileset from a given path.
 // Returns NULL on failure.
-TextureAtlas* LoadTileset(const std::string& path,
-                     uint32_t transparentColor = 0xFFFFFFFF,
-                     size_t startX = 0, size_t startY = 0,
-                     size_t horizontalStep = 0, size_t verticalStep = 0,
-                     size_t tileWidth = 0, size_t tileHeight = 0);
+TextureAtlas* LoadTileset(
+  const std::string& path,
+  uint32_t transparent_color,
+  int64_t start_x, int64_t start_y,
+  int64_t horizontal_step, int64_t vertical_step,
+  int64_t tile_width, int64_t tile_height
+);
 
-Tileset MakeSimpleTileset(size_t startX = 0, size_t startY = 0,
-                          size_t horizontalStep = 0, size_t verticalStep = 0,
-                          size_t tileWidth = 0, size_t tileHeight = 0,
-                          size_t imageWidth = 0, size_t imageHeight = 0);
+TileSet MakeSimpleTileset(
+  int64_t start_x = 0, int64_t start_y = 0,
+  int64_t horizontal_step = 0, int64_t vertical_step = 0,
+  int64_t tile_width = 0, int64_t tile_height = 0,
+  int64_t image_width = 0, int64_t image_height = 0
+);
 
 } // namespace bm
 

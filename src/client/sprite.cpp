@@ -33,18 +33,16 @@ bool Sprite::Initialize(const std::string& path) {
 
   // FIXME(xairy): texture shouldn't be loaded twice.
   if (tiled) {
-    int32_t start_x = settings.GetInt32("sprite.tile.start.x");
-    int32_t start_y = settings.GetInt32("sprite.tile.start.y");
-    int32_t horizontal_step = settings.GetInt32("sprite.tile.step.horizontal");
-    int32_t vertical_step = settings.GetInt32("sprite.tile.step.vertical");
-    int32_t width = settings.GetInt32("sprite.tile.width");
-    int32_t height = settings.GetInt32("sprite.tile.height");
-
-    // XXX(xairy): WTF size_t?.
+    int64_t start_x = settings.GetInt64("sprite.tile.start.x");
+    int64_t start_y = settings.GetInt64("sprite.tile.start.y");
+    int64_t horizontal_step = settings.GetInt64("sprite.tile.step.horizontal");
+    int64_t vertical_step = settings.GetInt64("sprite.tile.step.vertical");
+    int64_t width = settings.GetInt64("sprite.tile.width");
+    int64_t height = settings.GetInt64("sprite.tile.height");
     _texture = LoadTileset(source, transparent_color, start_x, start_y,
         horizontal_step, vertical_step, width, height);
   } else {
-    _texture = LoadOldTexture(source, transparent_color);
+    _texture = LoadTexture(source, transparent_color);
   }
   if (_texture == NULL) {
     return false;
@@ -96,6 +94,7 @@ void Sprite::Finalize() {
       _frames[frame] = NULL;
     }
   }
+  delete _texture;
   _state = STATE_FINALIZED;
 }
 
