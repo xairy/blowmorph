@@ -78,27 +78,22 @@ public:
 
     _is_running = false;
 
-    bool rv = _settings.LookupUInt16("server.port", &_server_port);
-    CHECK(rv == true);
+    _server_port = _settings.GetUInt16("server.port");
 
-    rv = _settings.LookupUInt32("server.broadcast_rate", &_broadcast_rate);
-    CHECK(rv == true);
+    _broadcast_rate = _settings.GetUInt32("server.broadcast_rate");
     _broadcast_time = 1000 / _broadcast_rate;
     _last_broadcast = 0;
 
-    rv = _settings.LookupUInt32("server.update_rate", &_update_rate);
-    CHECK(rv == true);
+    _update_rate = _settings.GetUInt32("server.update_rate");
     _update_time = 1000 / _update_rate;
     _last_update = 0;
 
-    rv = _settings.LookupUInt32("server.latency_limit", &_latency_limit);
-    CHECK(rv == true);
+    _latency_limit = _settings.GetUInt32("server.latency_limit");
 
     _host = NULL;
     _event = NULL;
 
-    rv = _settings.LookupString("server.map", &_map_file);
-    CHECK(rv == true);
+    _map_file = _settings.GetString("server.map");
 
     if(!_world_manager.LoadMap(_map_file)) {
       return false;

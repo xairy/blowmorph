@@ -128,7 +128,6 @@ std::map<uint32_t, Entity*>* WorldManager::GetDynamicEntities() {
 
 void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   output->clear();
-  //XXX[14.08.2012 xairy]: hack.
   output->reserve(128);
 
   std::map<uint32_t, Entity*>::iterator itr, end;
@@ -470,12 +469,8 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute, Statio
 }
 
 bool WorldManager::Blow(const Vector2f& location) {
-  float radius;
-  bool rv = _settings->LookupFloat("player.blow.radius", &radius);
-  CHECK(rv == true);
-  int damage;
-  rv = _settings->LookupInt32("player.blow.damage", &damage);
-  CHECK(rv == true);
+  float radius = _settings->GetFloat("player.blow.radius");
+  int damage = _settings->GetInt32("player.blow.damage");
 
   Circle explosion(location, radius);
 
@@ -499,10 +494,7 @@ bool WorldManager::Blow(const Vector2f& location) {
 }
 
 bool WorldManager::Morph(const Vector2f& location) {
-  int radius;
-  bool rv = _settings->LookupInt32("player.morph.radius", &radius);
-  CHECK(rv == true);
-
+  int radius = _settings->GetInt32("player.morph.radius");
   int lx = static_cast<int>(round(static_cast<float>(location.x) / _block_size));
   int ly = static_cast<int>(round(static_cast<float>(location.y) / _block_size));
   for(int x = -radius; x <= radius; x++) {
@@ -538,30 +530,20 @@ Vector2f WorldManager::GetRandomSpawn() const {
 }
 
 Shape* WorldManager::LoadShape(const std::string& prefix) const {
-  std::string shape_type;
-  bool rv = _settings->LookupString((prefix + ".type").c_str(), &shape_type);
-  CHECK(rv == true);
-
+  std::string shape_type = _settings->GetString((prefix + ".type").c_str());
   if(shape_type == "circle") {
-    float radius;
-    rv = _settings->LookupFloat((prefix + ".radius").c_str(), &radius);
-    CHECK(rv == true);
+    float radius = _settings->GetFloat((prefix + ".radius").c_str());
     Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
     CHECK(shape != NULL);
     return shape;
   } else if(shape_type == "rectangle") {
-    float width, height;
-    rv = _settings->LookupFloat((prefix + ".width").c_str(), &width);
-    CHECK(rv == true);
-    rv = _settings->LookupFloat((prefix + ".height").c_str(), &height);
-    CHECK(rv == true);
+    float width = _settings->GetFloat((prefix + ".width").c_str());
+    float height = _settings->GetFloat((prefix + ".height").c_str());
     Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
     CHECK(shape != NULL);
     return shape;
   } else if(shape_type == "square") {
-    float side;
-    rv = _settings->LookupFloat((prefix + ".side").c_str(), &side);
-    CHECK(rv == true);
+    float side = _settings->GetFloat((prefix + ".side").c_str());
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     CHECK(shape != NULL);
     return shape;
