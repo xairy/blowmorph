@@ -595,7 +595,7 @@ private:
 
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0),
-                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.xml");
+                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -660,7 +660,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/wall.xml");
+        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/wall.sprite");
         _walls[snapshot->id]->sprite.SetCurrentFrame(tile);
         _walls[snapshot->id]->EnableInterpolation();
         _walls[snapshot->id]->visible = true;
@@ -668,21 +668,21 @@ private:
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/bullet.xml");
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/bullet.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/mechos.xml");
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/mechos.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = true;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/dummy.xml");
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/dummy.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
@@ -699,7 +699,7 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/station.xml");
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/station.sprite");
         _objects[snapshot->id]->sprite.SetCurrentFrame(tile);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
@@ -756,7 +756,7 @@ private:
       // TODO[12.08.2012 xairy]: remove magic numbers;
       Sprite* explosion = new Sprite();
       CHECK(explosion != NULL);
-      bool rv = explosion->Initialize("data/sprites/explosion.xml");
+      bool rv = explosion->Initialize("data/sprites/explosion.sprite");
       CHECK(rv == true); // FIXME(xairy).
       CHECK(explosion != NULL);
       explosion->SetPosition(glm::vec2(snapshot->x, snapshot->y));

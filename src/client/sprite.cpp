@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include <libconfig.h>
 #include <SFML/Graphics.hpp>
 
 #include <base/error.hpp>
@@ -12,53 +13,83 @@
 #include <base/timer.hpp>
 
 #include "texture_atlas.hpp"
-#include <iostream>
+
 namespace bm {
 
 Sprite::Sprite() : _state(STATE_FINALIZED) { }
 
 bool Sprite::Initialize(const std::string& path) {
-  SettingsManager settings;
-  bool rv = settings.Load(path);
-  if (rv == false) {
-    std::cerr << path << std::endl;
+  // TODO(xairy): use RAII for cfg.
+  config_t cfg;
+  config_init(&cfg);
+
+  if (!config_read_file(&cfg, path.c_str())) {
+    BM_ERROR("Unable to read config!");
     return false;
   }
 
-  std::string source = settings.GetValue("sprite.source", std::string(""));
-  uint32_t transparent_color = settings.GetValue("sprite.transparent_color", 0);
-  bool tiled = settings.GetValue("sprite.tiled", false);
+  const char* source = NULL;
+  int rv = config_lookup_string(&cfg, "sprite.source", &source);
+  CHECK(rv == CONFIG_TRUE);
+
+  // FIXME(xairy): correct lookup of uint32_t.
+  int transparent_color = 0;
+  rv = config_lookup_int(&cfg, "sprite.transparent_color", &transparent_color);
+  CHECK(rv == CONFIG_TRUE);
+
+  bool tiled = false;
+  if (config_lookup(&cfg, "sprite.tile")) {
+    tiled = true;
+  }
 
   // FIXME(xairy): texture shouldn't be loaded twice.
   if (tiled) {
-    // FIXME(xairy): size_t?
-    size_t start_x = settings.GetValue("sprite.tile.start.x", 0);
-    size_t start_y = settings.GetValue("sprite.tile.start.y", 0);
-    size_t horizontal_step = settings.GetValue("sprite.tile.step.horizontal", 1);
-    size_t vertical_step = settings.GetValue("sprite.tile.step.vertical", 1);
-    size_t tile_width = settings.GetValue("sprite.tile.width", 10);
-    size_t tile_height = settings.GetValue("sprite.tile.height", 10);
+    int start_x, start_y;
+    rv = config_lookup_int(&cfg, "sprite.tile.start.x", &start_x);
+    CHECK(rv == CONFIG_TRUE);
+    rv = config_lookup_int(&cfg, "sprite.tile.start.y", &start_y);
+    CHECK(rv == CONFIG_TRUE);
+
+    int horizontal_step, vertical_step;
+    rv = config_lookup_int(&cfg, "sprite.tile.step.horizontal", &horizontal_step);
+    CHECK(rv == CONFIG_TRUE);
+    rv = config_lookup_int(&cfg, "sprite.tile.step.vertical", &vertical_step);
+    CHECK(rv == CONFIG_TRUE);
+
+    int width, height;
+    rv = config_lookup_int(&cfg, "sprite.tile.width", &width);
+    CHECK(rv == CONFIG_TRUE);
+    rv = config_lookup_int(&cfg, "sprite.tile.height", &height);
+    CHECK(rv == CONFIG_TRUE);
+
+    // XXX(xairy): correct lookup of size_t (WTF size_t).
     _texture = LoadTileset(source, transparent_color, start_x, start_y,
-        horizontal_step, vertical_step, tile_width, tile_height);
+        horizontal_step, vertical_step, width, height);
   } else {
     _texture = LoadOldTexture(source, transparent_color);
   }
   if (_texture == NULL) {
+    config_destroy(&cfg);
     return false;
   }
 
   CHECK(_texture->GetTileCount() > 0);
 
-  // FIXME(xairy): only one mode is supported.
-  // _current_mode.name = settings.GetValue("sprite.mode.name");
-  _current_mode.timeout = settings.GetValue("sprite.mode.timeout", 10);
-  _current_mode.cyclic = settings.GetValue("sprite.mode.cyclic", false);
-  // std::string tiles = settings.GetValue("sprite.mode.tiles");
-  // TODO: load tile numbers.
-  // for (size_t i = 0; i < texture->GetTileCount(); i++) {
-  //   _current_mode.tiles.push_back(i);
-  // }
-  
+  // TODO(xairy): support multiple modes.
+  // TODO(xairy): support tile numbers.
+
+  // XXX(xairy): correct lookup of int64_t.
+  long long timeout = 0;
+  rv = config_lookup_int64(&cfg, "sprite.mode.timeout", &timeout);
+  //CHECK(rv == CONFIG_TRUE);
+  _current_mode.timeout = timeout;
+
+  // XXX(xairy): correct lookup of bool.
+  int cyclic = 0;
+  rv = config_lookup_bool(&cfg, "sprite.mode.cyclic", &cyclic);
+  //CHECK(rv == CONFIG_TRUE);
+  _current_mode.cyclic = (cyclic != 0);
+
   _frames_count = _texture->GetTileCount();
   _frames.resize(_frames_count, NULL);
   CHECK(_frames_count >= 1);
@@ -80,6 +111,8 @@ bool Sprite::Initialize(const std::string& path) {
 
   _current_frame = 0;
   _last_frame_change = _timer.GetTime();
+
+  config_destroy(&cfg);
 
   _state = STATE_STOPPED;
   return true;
