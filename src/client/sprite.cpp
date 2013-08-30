@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include <libconfig.h>
 #include <SFML/Graphics.hpp>
 
 #include <base/error.hpp>
@@ -19,57 +18,51 @@ namespace bm {
 Sprite::Sprite() : _state(STATE_FINALIZED) { }
 
 bool Sprite::Initialize(const std::string& path) {
-  // TODO(xairy): use RAII for cfg.
-  config_t cfg;
-  config_init(&cfg);
-
-  if (!config_read_file(&cfg, path.c_str())) {
-    BM_ERROR("Unable to read config!");
+  SettingsManager settings;
+  if (!settings.Open(path)) {
     return false;
   }
 
-  const char* source = NULL;
-  int rv = config_lookup_string(&cfg, "sprite.source", &source);
-  CHECK(rv == CONFIG_TRUE);
+  std::string source;
+  bool rv = settings.LookupString("sprite.source", &source);
+  CHECK(rv == true);
 
-  // FIXME(xairy): correct lookup of uint32_t.
-  int transparent_color = 0;
-  rv = config_lookup_int(&cfg, "sprite.transparent_color", &transparent_color);
-  CHECK(rv == CONFIG_TRUE);
+  uint32_t transparent_color;
+  rv = settings.LookupUInt32("sprite.transparent_color", &transparent_color);
+  CHECK(rv == true);
 
   bool tiled = false;
-  if (config_lookup(&cfg, "sprite.tile")) {
+  if (settings.HasSetting("sprite.tile")) {
     tiled = true;
   }
 
   // FIXME(xairy): texture shouldn't be loaded twice.
   if (tiled) {
-    int start_x, start_y;
-    rv = config_lookup_int(&cfg, "sprite.tile.start.x", &start_x);
-    CHECK(rv == CONFIG_TRUE);
-    rv = config_lookup_int(&cfg, "sprite.tile.start.y", &start_y);
-    CHECK(rv == CONFIG_TRUE);
+    int32_t start_x, start_y;
+    rv = settings.LookupInt32("sprite.tile.start.x", &start_x);
+    CHECK(rv == true);
+    rv = settings.LookupInt32("sprite.tile.start.y", &start_y);
+    CHECK(rv == true);
 
-    int horizontal_step, vertical_step;
-    rv = config_lookup_int(&cfg, "sprite.tile.step.horizontal", &horizontal_step);
-    CHECK(rv == CONFIG_TRUE);
-    rv = config_lookup_int(&cfg, "sprite.tile.step.vertical", &vertical_step);
-    CHECK(rv == CONFIG_TRUE);
+    int32_t horizontal_step, vertical_step;
+    rv = settings.LookupInt32("sprite.tile.step.horizontal", &horizontal_step);
+    CHECK(rv == true);
+    rv = settings.LookupInt32("sprite.tile.step.vertical", &vertical_step);
+    CHECK(rv == true);
 
-    int width, height;
-    rv = config_lookup_int(&cfg, "sprite.tile.width", &width);
-    CHECK(rv == CONFIG_TRUE);
-    rv = config_lookup_int(&cfg, "sprite.tile.height", &height);
-    CHECK(rv == CONFIG_TRUE);
+    int32_t width, height;
+    rv = settings.LookupInt32("sprite.tile.width", &width);
+    CHECK(rv == true);
+    rv = settings.LookupInt32("sprite.tile.height", &height);
+    CHECK(rv == true);
 
-    // XXX(xairy): correct lookup of size_t (WTF size_t).
+    // XXX(xairy): WTF size_t?.
     _texture = LoadTileset(source, transparent_color, start_x, start_y,
         horizontal_step, vertical_step, width, height);
   } else {
     _texture = LoadOldTexture(source, transparent_color);
   }
   if (_texture == NULL) {
-    config_destroy(&cfg);
     return false;
   }
 
@@ -78,17 +71,8 @@ bool Sprite::Initialize(const std::string& path) {
   // TODO(xairy): support multiple modes.
   // TODO(xairy): support tile numbers.
 
-  // XXX(xairy): correct lookup of int64_t.
-  long long timeout = 0;
-  rv = config_lookup_int64(&cfg, "sprite.mode.timeout", &timeout);
-  //CHECK(rv == CONFIG_TRUE);
-  _current_mode.timeout = timeout;
-
-  // XXX(xairy): correct lookup of bool.
-  int cyclic = 0;
-  rv = config_lookup_bool(&cfg, "sprite.mode.cyclic", &cyclic);
-  //CHECK(rv == CONFIG_TRUE);
-  _current_mode.cyclic = (cyclic != 0);
+  settings.LookupInt64("sprite.mode.timeout", &_current_mode.timeout);
+  settings.LookupBool("sprite.mode.cyclic", &_current_mode.cyclic);
 
   _frames_count = _texture->GetTileCount();
   _frames.resize(_frames_count, NULL);
@@ -111,8 +95,6 @@ bool Sprite::Initialize(const std::string& path) {
 
   _current_frame = 0;
   _last_frame_change = _timer.GetTime();
-
-  config_destroy(&cfg);
 
   _state = STATE_STOPPED;
   return true;

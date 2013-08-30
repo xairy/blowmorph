@@ -43,7 +43,8 @@ namespace bm {
 
 class Server {
 public:
-  Server() : _world_manager(&_id_manager, &_settings) { }
+  Server() :
+    _host(NULL), _event(NULL), _world_manager(&_id_manager, &_settings) { }
 
   ~Server() {
     Destroy();
@@ -71,27 +72,33 @@ public:
   }
 
   bool Initialize() {
-    if(!_settings.Load("data/server.xml")) {
+    if(!_settings.Open("data/server.cfg")) {
       return false;
     }
 
     _is_running = false;
-    _server_port = _settings.GetValue("server.port", 4242);
 
-    _broadcast_rate = _settings.GetValue("server.broadcast_rate", 20);
+    bool rv = _settings.LookupUInt16("server.port", &_server_port);
+    CHECK(rv == true);
+
+    rv = _settings.LookupUInt32("server.broadcast_rate", &_broadcast_rate);
+    CHECK(rv == true);
     _broadcast_time = 1000 / _broadcast_rate;
     _last_broadcast = 0;
 
-    _update_rate = _settings.GetValue("server.update_rate", 100);
+    rv = _settings.LookupUInt32("server.update_rate", &_update_rate);
+    CHECK(rv == true);
     _update_time = 1000 / _update_rate;
     _last_update = 0;
 
-    _latency_limit = _settings.GetValue("server.latency_limit", 100);
+    rv = _settings.LookupUInt32("server.latency_limit", &_latency_limit);
+    CHECK(rv == true);
 
     _host = NULL;
     _event = NULL;
 
-    _map_file = _settings.GetValue("server.map", std::string("data/map.xml"));
+    rv = _settings.LookupString("server.map", &_map_file);
+    CHECK(rv == true);
 
     if(!_world_manager.LoadMap(_map_file)) {
       return false;

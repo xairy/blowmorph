@@ -1,8 +1,11 @@
 #ifndef BLOWMORPH_BASE_SETTINGS_MANAGER_HPP_
 #define BLOWMORPH_BASE_SETTINGS_MANAGER_HPP_
 
-#include <map>
 #include <string>
+
+#include <libconfig.h>
+
+#include "pstdint.hpp"
 
 namespace bm {
 
@@ -11,18 +14,33 @@ public:
   SettingsManager();
   ~SettingsManager();
 
-  bool Load(const std::string& path);
-  //bool Save(const std::string& path);
+  bool Open(const std::string& path);
+  void Close();
 
-  std::string GetValue(const std::string& key, std::string def_value) const;
-  int GetValue(const std::string& key, int def_value) const;
-  bool GetValue(const std::string& key, bool def_value) const;
-  float GetValue(const std::string& key, float def_value) const;
-  double GetValue(const std::string& key, double def_value) const;
+  bool HasSetting(const char* key);
+
+  bool LookupInt16(const char* key, int16_t* output);
+  bool LookupUInt16(const char* key, uint16_t* output);
+
+  bool LookupInt32(const char* key, int32_t* output);
+  bool LookupUInt32(const char* key, uint32_t* output);
+
+  bool LookupInt64(const char* key, int64_t* output);
+  bool LookupUInt64(const char* key, uint64_t* output);
+
+  bool LookupFloat(const char* key, float* output);
+  bool LookupDouble(const char* key, double* output);
+
+  bool LookupBool(const char* key, bool* output);
+  bool LookupString(const char* key, std::string* output);
 
 private:
-  typedef std::map<std::string, std::string> SettingsMap;
-  SettingsMap _settings;
+  enum {
+    STATE_CLOSED,
+    STATE_OPENED
+  } state_;
+
+  config_t cfg_;
 };
 
 } // namespace bm

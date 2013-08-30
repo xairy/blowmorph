@@ -24,7 +24,9 @@ Bullet* Bullet::Create(
   TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetValue("bullet.speed", 0.0f);
+  float speed;
+  bool rv = settings->LookupFloat("bullet.speed", &speed);
+  CHECK(rv == true);
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   CHECK(bullet.get() != NULL);
