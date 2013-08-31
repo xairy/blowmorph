@@ -1,5 +1,6 @@
 #include "settings_manager.hpp"
 
+#include <limits>
 #include <string>
 
 #include <libconfig.h>
@@ -46,49 +47,65 @@ bool SettingsManager::HasSetting(const char* key) {
   return (config_lookup(&cfg_, key) != NULL);
 }
 
-// FIXME(xairy): do static_casts.
-
 bool SettingsManager::LookupInt16(const char* key, int16_t* output) {
   CHECK(state_ == STATE_OPENED);
-  int tmp;
-  int rv = config_lookup_int(&cfg_, key, &tmp);
-  if (rv == CONFIG_TRUE) {
-    *output = tmp;
-    return true;
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv != CONFIG_TRUE) {
+    return false;
   }
-  return false;
+  if (tmp < std::numeric_limits<int16_t>::min() ||
+      tmp > std::numeric_limits<int16_t>::max()) {
+    return false;
+  }
+  *output = static_cast<int16_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(int16_t, LookupInt16, GetInt16);
 
 bool SettingsManager::LookupUInt16(const char* key, uint16_t* output) {
   CHECK(state_ == STATE_OPENED);
-  int tmp;
-  int rv = config_lookup_int(&cfg_, key, &tmp);
-  if (rv == CONFIG_TRUE) {
-    *output = tmp;
-    return true;
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv != CONFIG_TRUE) {
+    return false;
   }
-  return false;
+  if (tmp < 0 || tmp > std::numeric_limits<uint16_t>::max()) {
+    return false;
+  }
+  *output = static_cast<uint16_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(uint16_t, LookupUInt16, GetUInt16);
 
 bool SettingsManager::LookupInt32(const char* key, int32_t* output) {
   CHECK(state_ == STATE_OPENED);
-  int rv = config_lookup_int(&cfg_, key, output);
-  return (rv == CONFIG_TRUE);
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv != CONFIG_TRUE) {
+    return false;
+  }
+  if (tmp < std::numeric_limits<int32_t>::min() ||
+      tmp > std::numeric_limits<int32_t>::max()) {
+    return false;
+  }
+  *output = static_cast<int32_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(int32_t, LookupInt32, GetInt32);
 
-// TODO(xairy): test.
 bool SettingsManager::LookupUInt32(const char* key, uint32_t* output) {
   CHECK(state_ == STATE_OPENED);
-  int tmp;
-  int rv = config_lookup_int(&cfg_, key, &tmp);
-  if (rv == CONFIG_TRUE) {
-    *output = tmp;
-    return true;
+  long long tmp;
+  int rv = config_lookup_int64(&cfg_, key, &tmp);
+  if (rv != CONFIG_TRUE) {
+    return false;
   }
-  return false;
+  if (tmp < 0 || tmp > std::numeric_limits<uint32_t>::max()) {
+    return false;
+  }
+  *output = static_cast<uint32_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(uint32_t, LookupUInt32, GetUInt32);
 
@@ -96,24 +113,30 @@ bool SettingsManager::LookupInt64(const char* key, int64_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;
   int rv = config_lookup_int64(&cfg_, key, &tmp);
-  if (rv == CONFIG_TRUE) {
-    *output = static_cast<int64_t>(tmp);
-    return true;
+  if (rv != CONFIG_TRUE) {
+    return false;
   }
-  return false;
+  if (tmp < std::numeric_limits<int64_t>::min() ||
+      tmp > std::numeric_limits<int64_t>::max()) {
+    return false;
+  }
+  *output = static_cast<int64_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(int64_t, LookupInt64, GetInt64);
 
-// TODO(xairy): test.
 bool SettingsManager::LookupUInt64(const char* key, uint64_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;
   int rv = config_lookup_int64(&cfg_, key, &tmp);
-  if (rv == CONFIG_TRUE) {
-    *output = static_cast<uint64_t>(tmp);
-    return true;
+  if (rv != CONFIG_TRUE) {
+    return false;
   }
-  return false;
+  if (tmp < 0 || tmp > std::numeric_limits<uint64_t>::max()) {
+    return false;
+  }
+  *output = static_cast<uint64_t>(tmp);
+  return true;
 }
 DEFINE_GET_METHOD(uint64_t, LookupUInt64, GetUInt64);
 
@@ -122,7 +145,7 @@ bool SettingsManager::LookupFloat(const char* key, float* output) {
   double tmp;
   int rv = config_lookup_float(&cfg_, key, &tmp);
   if (rv == CONFIG_TRUE) {
-    *output = tmp;
+    *output = static_cast<float>(tmp);
     return true;
   }
   return false;
@@ -159,5 +182,7 @@ bool SettingsManager::LookupString(const char* key, std::string* output) {
   return false;
 }
 DEFINE_GET_METHOD(std::string, LookupString, GetString);
+
+#undef DEFINE_GET_METHOD
 
 } // namespace bm

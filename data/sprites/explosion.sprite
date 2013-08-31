@@ -1,18 +1,15 @@
-sprite =
-{
+sprite = {
   source = "data/images/explosion.png";
   transparent_color = 0;
 
-  tile =
-  {
+  tile = {
     start = { x = 1; y = 1; };
     step = { horizontal = 61; vertical = 61; };
     width = 60;
     height = 60;
   };
 
-  mode =
-  {
+  mode = {
     timeout = 30;
     cyclic = false;
   };
