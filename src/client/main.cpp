@@ -20,10 +20,10 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include <enet-plus/enet.hpp>
 #include <interpolator/interpolator.hpp>
-#include <ini-file/ini_file.hpp>
 
 #include "sprite.hpp"
 #include "texture_atlas.hpp"
@@ -190,7 +190,7 @@ public:
   }
 
   bool Execute() {
-    if (!IniFile::LoadINI("data/client.ini", settings)) {
+    if (!_settings.Open("data/client.cfg")) {
       return false;
     }
 
@@ -304,8 +304,8 @@ private:
   }
 
   bool _InitializeGraphics() {
-    uint32_t width = IniFile::GetValue<int>(settings, "resolution.width", 600);
-    uint32_t height = IniFile::GetValue<int>(settings, "resolution.height", 600);
+    uint32_t width = _settings.GetUInt32("resolution.width");
+    uint32_t height = _settings.GetUInt32("resolution.height");
 
     _render_window = new sf::RenderWindow(sf::VideoMode(width, height), "Blowmorph");
     _view.reset(sf::FloatRect(0, 0, width, height));
@@ -324,8 +324,8 @@ private:
       return false;
     }
 
-    std::string host = IniFile::GetValue<std::string>(settings, "server.host", "127.0.0.1");
-    uint16_t port = IniFile::GetValue(settings, "server.port", 4242);
+    std::string host = _settings.GetString("server.host");
+    uint16_t port = _settings.GetUInt16("server.port");
 
     _peer = client->Connect(host, port);
     if(_peer == NULL) {
@@ -989,7 +989,7 @@ private:
   };
   NetworkState _network_state;
 
-  IniFile::RecordMap settings;
+  SettingsManager _settings;
 };
 
 int main(int argc, char** argv) {
