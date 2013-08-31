@@ -21,15 +21,15 @@ How to build under Ubuntu Linux:
   4. Install libconfig
      > sudo apt-get install libconfig
 
-  4. Install ENetPlus.
+  5. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
 
-  5. Generate project files
+  6. Generate project files
      > ./premake4 gmake
 
-  6. > cd build
+  7. > cd build
 
-  7. On x32 system:
+  8. On x32 system:
      > make config=release32
      On x64 system:
      > make config=release64
