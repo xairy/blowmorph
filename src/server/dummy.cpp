@@ -7,9 +7,9 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -22,7 +22,7 @@ Dummy* Dummy::Create(
   TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetValue("dummy.speed", 0.0f);
+  float speed = settings->GetFloat("dummy.speed");
 
   std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
   CHECK(dummy.get() != NULL);
