@@ -12,6 +12,7 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 #include <base/timer.hpp>
 
 #include "client_manager.hpp"
@@ -19,7 +20,7 @@
 #include "id_manager.hpp"
 #include "vector.hpp"
 #include "shape.hpp"
-#include "settings_manager.hpp"
+
 #include "world_manager.hpp"
 
 #include "bullet.hpp"
@@ -42,7 +43,8 @@ namespace bm {
 
 class Server {
 public:
-  Server() : _world_manager(&_id_manager, &_settings) { }
+  Server() :
+    _host(NULL), _event(NULL), _world_manager(&_id_manager, &_settings) { }
 
   ~Server() {
     Destroy();
@@ -70,27 +72,28 @@ public:
   }
 
   bool Initialize() {
-    if(!_settings.Load("data/server.xml")) {
+    if(!_settings.Open("data/server.cfg")) {
       return false;
     }
 
     _is_running = false;
-    _server_port = _settings.GetValue("server.port", 4242);
 
-    _broadcast_rate = _settings.GetValue("server.broadcast_rate", 20);
+    _server_port = _settings.GetUInt16("server.port");
+
+    _broadcast_rate = _settings.GetUInt32("server.broadcast_rate");
     _broadcast_time = 1000 / _broadcast_rate;
     _last_broadcast = 0;
 
-    _update_rate = _settings.GetValue("server.update_rate", 100);
+    _update_rate = _settings.GetUInt32("server.update_rate");
     _update_time = 1000 / _update_rate;
     _last_update = 0;
 
-    _latency_limit = _settings.GetValue("server.latency_limit", 100);
+    _latency_limit = _settings.GetUInt32("server.latency_limit");
 
     _host = NULL;
     _event = NULL;
 
-    _map_file = _settings.GetValue("server.map", std::string("data/map.xml"));
+    _map_file = _settings.GetString("server.map");
 
     if(!_world_manager.LoadMap(_map_file)) {
       return false;
