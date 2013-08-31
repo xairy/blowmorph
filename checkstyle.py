@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import fnmatch
 import sys
 import subprocess
 
@@ -13,8 +14,8 @@ def hg_get_all_files():
 
 def get_src_files():
   files = hg_get_all_files()
-  extensions = ['c', 'cpp', 'h', 'hpp']
-  return [file for file in files if file.split('/')[0] == 'src' and file.split('.')[-1] in extensions]
+  extensions = ('c', 'cpp', 'h', 'hpp')
+  return [file for file in files if file.startswith('src/') and file.endswith(extensions)]
 
 def get_blacklisted_files():
   with open('blacklist', 'r') as blacklist:
