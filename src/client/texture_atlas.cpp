@@ -23,7 +23,7 @@ glm::vec2 TextureAtlas::GetTilePosition(size_t i) const {
   CHECK(texture != 0);
   CHECK(i < GetTileCount());
 
-  return glm::vec2(tileset[i].x, tileset[i].y);
+  return glm::vec2(tileset[i].left, tileset[i].top);
 }
 glm::vec2 TextureAtlas::GetTileSize(size_t i) const {
   CHECK(texture != NULL);
@@ -45,20 +45,21 @@ TextureAtlas::~TextureAtlas() {
   }
 }
 
-TextureAtlas* LoadOldTexture(const std::string& path,
-                        uint32_t transparentColor) {
+TextureAtlas* LoadTexture(
+  const std::string& path,
+  uint32_t transparent_color
+) {
   sf::Image image;
   if (!image.loadFromFile(path)) {
     BM_ERROR("Unable to load texture.");
     return NULL;
   }
 
-  if (transparentColor != 0xFFFFFFFF) {
-    transparentColor &= 0x00FFFFFF;
-    uint8_t r, g, b;
-    r = (transparentColor >> 16) & 0xFF;
-    g = (transparentColor >> 8) & 0xFF;
-    b = (transparentColor >> 0) & 0xFF;
+  if (transparent_color != 0xFFFFFFFF) {
+    transparent_color &= 0x00FFFFFF;
+    uint8_t r = (transparent_color >> 16) & 0xFF;
+    uint8_t g = (transparent_color >> 8) & 0xFF;
+    uint8_t b = (transparent_color >> 0) & 0xFF;
     image.createMaskFromColor(sf::Color(r, g, b));
   }
 
@@ -75,35 +76,41 @@ TextureAtlas* LoadOldTexture(const std::string& path,
   return result;
 }
 
-TextureAtlas* LoadTileset(const std::string& path,
-                     uint32_t transparentColor,
-                     size_t startX, size_t startY,
-                     size_t horizontalStep, size_t verticalStep,
-                     size_t tileWidth, size_t tileHeight) {
-  TextureAtlas* result = LoadOldTexture(path, transparentColor);
+TextureAtlas* LoadTileset(
+  const std::string& path,
+  uint32_t transparent_color,
+  int64_t start_x, int64_t start_y,
+  int64_t horizontal_step, int64_t vertical_step,
+  int64_t tile_width, int64_t tile_height
+) {
+  TextureAtlas* result = LoadTexture(path, transparent_color);
   if(result == NULL) {
     return NULL;
   }
 
   result->tileset.clear();
-  result->tileset = MakeSimpleTileset(startX, startY,
-    horizontalStep, verticalStep,
-    tileWidth, tileHeight,
+  result->tileset = MakeSimpleTileset(
+    start_x, start_y,
+    horizontal_step, vertical_step,
+    tile_width, tile_height,
     result->texture->getSize().x,
-    result->texture->getSize().y);
+    result->texture->getSize().y
+  );
   CHECK(result->tileset.size() > 0);
   return result;
 }
 
-Tileset MakeSimpleTileset(size_t startX, size_t startY,
-                          size_t horizontalStep, size_t verticalStep,
-                          size_t tileWidth, size_t tileHeight,
-                          size_t imageWidth, size_t imageHeight) {
-  Tileset result;
+TileSet MakeSimpleTileset(
+  int64_t start_x, int64_t start_y,
+  int64_t horizontal_step, int64_t vertical_step,
+  int64_t tile_width, int64_t tile_height,
+  int64_t image_width, int64_t image_height
+) {
+  TileSet result;
 
-  for (size_t y = startY; (y + tileHeight) <= imageHeight; y += verticalStep) {
-    for (size_t x = startX; (x + tileWidth) <= imageWidth; x += horizontalStep) {
-      result.push_back(TileRect(x, y, tileWidth, tileHeight));
+  for (int64_t y = start_y; (y + tile_height) <= image_height; y += vertical_step) {
+    for (int64_t x = start_x; (x + tile_width) <= image_width; x += horizontal_step) {
+      result.push_back(TileRect(x, y, tile_width, tile_height));
     }
   }
 

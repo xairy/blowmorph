@@ -9,10 +9,10 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "id_manager.hpp"
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -159,7 +159,7 @@ bool Entity::Collide(Player* player1, Player* player2) {
 bool Entity::Collide(Player* player, Dummy* dummy) {
   if(player->_shape->Collide(dummy->_shape)) {
     SettingsManager* settings = dummy->_world_manager->GetSettings();
-    int damage = settings->GetValue("dummy.damage", 0);
+    int damage = settings->GetInt32("dummy.damage");
     player->Damage(damage);
     dummy->Damage(0);
     return true;
