@@ -107,8 +107,6 @@ solution "blowmorph"
     links { "bm-base" }
     links { "interpolator" }
 
-    links { "ini-file" }
-
     resource("data", "data")
 
     -- ENetPlus
@@ -224,14 +222,3 @@ solution "blowmorph"
 
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.hpp" }
-
-  project "ini-file"
-    kind "SharedLib"
-    language "C++"
-
-    defines "INIFILE_DLL"
-
-    includedirs { "src", "inc" }
-
-    files { "src/ini-file/**.cpp",
-            "src/ini-file/**.hpp" }
