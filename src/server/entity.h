@@ -1,14 +1,14 @@
-#ifndef BLOWMORPH_SERVER_ENTITY_HPP_
-#define BLOWMORPH_SERVER_ENTITY_HPP_
+#ifndef BLOWMORPH_SERVER_ENTITY_H_
+#define BLOWMORPH_SERVER_ENTITY_H_
 
 #include <string>
 
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
-#include "vector.hpp"
-#include "shape.hpp"
+#include "vector.h"
+#include "shape.h"
 
 namespace bm {
 
@@ -93,4 +93,4 @@ protected:
 
 } // namespace bm
 
-#endif // BLOWMORPH_SERVER_ENTITY_HPP_
+#endif // BLOWMORPH_SERVER_ENTITY_H_

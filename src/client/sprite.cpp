@@ -1,4 +1,4 @@
-#include "sprite.hpp"
+#include "sprite.h"
 
 #include <map>
 #include <string>
@@ -6,12 +6,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <base/error.hpp>
-#include <base/pstdint.hpp>
-#include <base/settings_manager.hpp>
-#include <base/timer.hpp>
+#include <base/error.h>
+#include <base/pstdint.h>
+#include <base/settings_manager.h>
+#include <base/timer.h>
 
-#include "texture_atlas.hpp"
+#include "texture_atlas.h"
 
 namespace bm {
 

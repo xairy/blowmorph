@@ -1,16 +1,16 @@
-#include "station.hpp"
+#include "station.h"
 
 #include <memory>
 #include <string>
 
-#include <base/error.hpp>
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/error.h>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
-#include "vector.hpp"
-#include "shape.hpp"
-#include "world_manager.hpp"
+#include "vector.h"
+#include "shape.h"
+#include "world_manager.h"
 
 namespace bm {
 

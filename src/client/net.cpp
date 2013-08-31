@@ -1,7 +1,8 @@
-#include "net.hpp"
-#include "sys.hpp"
+#include "net.h"
+#include "sys.h"
 
-namespace bm { namespace net {
+namespace bm {
+namespace net {
 
 // Sends input events to the server and
 // clears the input event queues afterwards.
@@ -59,4 +60,5 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
   return false;
 }
 
-}}
+} // namespace bm
+} // namespace net

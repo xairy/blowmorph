@@ -1,10 +1,10 @@
-﻿#include "texture_atlas.hpp"
+﻿#include "texture_atlas.h"
 
 #include <map>
 #include <string>
 
-#include <base/error.hpp>
-#include <base/pstdint.hpp>
+#include <base/error.h>
+#include <base/pstdint.h>
 
 // TODO[24.7.2012 alex]: better think of something like "ResourceManager"
 

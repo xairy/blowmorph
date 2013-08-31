@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_BASE_ERROR_HPP_
-#define BLOWMORPH_BASE_ERROR_HPP_
+#ifndef BLOWMORPH_BASE_ERROR_H_
+#define BLOWMORPH_BASE_ERROR_H_
 
 // WARNING: 'Error' class in NOT thread safe.
 
@@ -12,8 +12,8 @@
 #include <sstream>
 #include <string>
 
-#include <base/base.hpp>
-#include <base/macros.hpp>
+#include <base/base.h>
+#include <base/macros.h>
 
 namespace bm {
 
@@ -56,4 +56,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_BASE_ERROR_HPP_
+#endif // BLOWMORPH_BASE_ERROR_H_

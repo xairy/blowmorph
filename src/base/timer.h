@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_BASE_TIMER_HPP_
-#define BLOWMORPH_BASE_TIMER_HPP_
+#ifndef BLOWMORPH_BASE_TIMER_H_
+#define BLOWMORPH_BASE_TIMER_H_
 
 // WARNING: Timer is NOT thread safe.
 
@@ -12,9 +12,9 @@
 # include <sys/time.h>
 #endif
 
-#include <base/base.hpp>
-#include <base/macros.hpp>
-#include <base/pstdint.hpp>
+#include <base/base.h>
+#include <base/macros.h>
+#include <base/pstdint.h>
 
 namespace bm {
 
@@ -35,5 +35,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_BASE_TIMER_HPP_
-
+#endif // BLOWMORPH_BASE_TIMER_H_

@@ -1,6 +1,6 @@
-#include "ctrlc.hpp"
+#include "ctrlc.h"
 
-#include "macros.hpp"
+#include "macros.h"
 
 #ifdef _WIN32
   #include <Windows.h>

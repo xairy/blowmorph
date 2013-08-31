@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_BASE_SINGLETON_HPP_
-#define BLOWMORPH_BASE_SINGLETON_HPP_
+#ifndef BLOWMORPH_BASE_SINGLETON_H_
+#define BLOWMORPH_BASE_SINGLETON_H_
 
 // WARNING: Singleton is NOT thread safe.
 
@@ -17,4 +17,4 @@ class Singleton {
   ~Singleton();
 };
 
-#endif // BLOWMORPH_BASE_SINGLETON_HPP_
+#endif // BLOWMORPH_BASE_SINGLETON_H_

@@ -1,7 +1,7 @@
-#ifndef BLOWMORPH_BASE_PSTDINT_HPP_
-#define BLOWMORPH_BASE_PSTDINT_HPP_
+#ifndef BLOWMORPH_BASE_PSTDINT_H_
+#define BLOWMORPH_BASE_PSTDINT_H_
 
-#include <base/macros.hpp>
+#include <base/macros.h>
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -25,4 +25,4 @@ SCHECK(sizeof(float64_t) == 8);
 // unicode character
 typedef uint32_t uchar_t;
 
-#endif //BLOWMORPH_BASE_PSTDINT_HPP_
+#endif // BLOWMORPH_BASE_PSTDINT_H_

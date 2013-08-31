@@ -1,4 +1,4 @@
-#include "timer.hpp"
+#include "timer.h"
 
 #include <limits>
 

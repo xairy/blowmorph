@@ -1,14 +1,14 @@
-#ifndef BLOWMORPH_SERVER_CLIENT_MANAGER_HPP_
-#define BLOWMORPH_SERVER_CLIENT_MANAGER_HPP_
+#ifndef BLOWMORPH_SERVER_CLIENT_MANAGER_H_
+#define BLOWMORPH_SERVER_CLIENT_MANAGER_H_
 
 #include <map>
 #include <vector>
 
 #include <enet-plus/enet.hpp>
 
-#include <base/pstdint.hpp>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
+#include "entity.h"
 
 namespace bm {
 
@@ -41,4 +41,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_SERVER_CLIENT_MANAGER_HPP_
+#endif // BLOWMORPH_SERVER_CLIENT_MANAGER_H_

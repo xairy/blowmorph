@@ -1,26 +1,26 @@
-#include "entity.hpp"
+#include "entity.h"
 
 #include <cmath>
 
 #include <memory>
 #include <string>
 
-#include <base/error.hpp>
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
-#include <base/settings_manager.hpp>
+#include <base/error.h>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
+#include <base/settings_manager.h>
 
-#include "id_manager.hpp"
-#include "vector.hpp"
-#include "shape.hpp"
-#include "world_manager.hpp"
+#include "id_manager.h"
+#include "vector.h"
+#include "shape.h"
+#include "world_manager.h"
 
-#include "bullet.hpp"
-#include "dummy.hpp"
-#include "player.hpp"
-#include "wall.hpp"
-#include "station.hpp"
+#include "bullet.h"
+#include "dummy.h"
+#include "player.h"
+#include "wall.h"
+#include "station.h"
 
 namespace bm {
 

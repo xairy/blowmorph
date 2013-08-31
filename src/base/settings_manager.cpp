@@ -1,13 +1,13 @@
-#include "settings_manager.hpp"
+#include "settings_manager.h"
 
 #include <limits>
 #include <string>
 
 #include <libconfig.h>
 
-#include <base/error.hpp>
-#include <base/macros.hpp>
-#include <base/pstdint.hpp>
+#include <base/error.h>
+#include <base/macros.h>
+#include <base/pstdint.h>
 
 #define DEFINE_GET_METHOD(type, lookup_method, get_method) \
 type SettingsManager::get_method(const char* key) {        \

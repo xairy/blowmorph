@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_CLIENT_SPRITE_HPP__
-#define BLOWMORPH_CLIENT_SPRITE_HPP_
+#ifndef BLOWMORPH_CLIENT_SPRITE_H_
+#define BLOWMORPH_CLIENT_SPRITE_H_
 
 #include <string>
 #include <vector>
@@ -7,8 +7,8 @@
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
 
-#include <base/pstdint.hpp>
-#include <base/timer.hpp>
+#include <base/pstdint.h>
+#include <base/timer.h>
 
 namespace bm {
 

@@ -1,9 +1,9 @@
-#include "shape.hpp"
+#include "shape.h"
 
 #include <cmath>
 #include <cstdlib>
 
-#include "vector.hpp"
+#include "vector.h"
 
 namespace bm {
 
