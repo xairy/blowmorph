@@ -18,6 +18,9 @@ How to build under Ubuntu Linux:
      https://code.google.com/p/pugixml/
      See the instructions below
 
+  4. Install libconfig
+     > sudo apt-get install libconfig
+
   4. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
 

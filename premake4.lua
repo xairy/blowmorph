@@ -203,6 +203,12 @@ solution "blowmorph"
     kind "SharedLib"
     language "C++"
 
+    -- libconfig
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "config" }
+
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",

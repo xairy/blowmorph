@@ -7,9 +7,9 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -24,7 +24,7 @@ Bullet* Bullet::Create(
   TimeType time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetValue("bullet.speed", 0.0f);
+  float speed = settings->GetFloat("bullet.speed");
 
   std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
   CHECK(bullet.get() != NULL);

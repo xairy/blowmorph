@@ -1,0 +1,4 @@
+sprite = {
+  source = "data/images/guy.png";
+  transparent_color = 0;
+};

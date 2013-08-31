@@ -7,9 +7,9 @@
 #include <base/macros.hpp>
 #include <base/protocol.hpp>
 #include <base/pstdint.hpp>
+#include <base/settings_manager.hpp>
 
 #include "vector.hpp"
-#include "settings_manager.hpp"
 #include "shape.hpp"
 #include "world_manager.hpp"
 
@@ -22,18 +22,18 @@ Player* Player::Create(
 ) {
   SettingsManager* _settings = world_manager->GetSettings();
 
-  float speed = _settings->GetValue("player.speed", 0.0f);
+  float speed = _settings->GetFloat("player.speed");
 
-  int max_health = _settings->GetValue("player.max_health", 1);
-  int health_regeneration = _settings->GetValue("player.health_regeneration", 0);
+  int max_health = _settings->GetInt32("player.max_health");
+  int health_regeneration = _settings->GetInt32("player.health_regeneration");
 
-  int blow_capacity = _settings->GetValue("player.blow.capacity", 0);
-  int blow_consumption = _settings->GetValue("player.blow.consumption", 1);
-  int blow_regeneration = _settings->GetValue("player.blow.regeneration", 0);
+  int blow_capacity = _settings->GetInt32("player.blow.capacity");
+  int blow_consumption = _settings->GetInt32("player.blow.consumption");
+  int blow_regeneration = _settings->GetInt32("player.blow.regeneration");
 
-  int morph_capacity = _settings->GetValue("player.morph.capacity", 0);
-  int morph_consumption = _settings->GetValue("player.morph.consumption", 1);
-  int morph_regeneration = _settings->GetValue("player.morph.regeneration", 0);
+  int morph_capacity = _settings->GetInt32("player.morph.capacity");
+  int morph_consumption = _settings->GetInt32("player.morph.consumption");
+  int morph_regeneration = _settings->GetInt32("player.morph.regeneration");
 
   std::auto_ptr<Player> player(new Player(world_manager, id));
   CHECK(player.get() != NULL);

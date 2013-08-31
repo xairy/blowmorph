@@ -25,8 +25,8 @@
 #include <interpolator/interpolator.hpp>
 #include <ini-file/ini_file.hpp>
 
-#include "engine/sprite.hpp"
-#include "engine/texture_atlas.hpp"
+#include "sprite.hpp"
+#include "texture_atlas.hpp"
 
 #include "sys.hpp"
 #include "net.hpp"
@@ -64,15 +64,15 @@ typedef interpolator::LinearInterpolator<ObjectState, bm::TimeType> ObjectInterp
 // TODO[24.7.2012 alex]: fix method names
 struct Object {
   // FIXME[18.11.2012 alex]: hardcoded initial interpolation time step.
-  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type, bm::TextureAtlas* texture, size_t tile = 0)
+  Object(const glm::vec2& position, bm::TimeType time, uint32_t id, uint32_t type, const std::string& path)
       : id(id),
         type(type),
         visible(false),
         interpolation_enabled(false),
         name_visible(false),
-        interpolator(ObjectInterpolator(bm::TimeType(75), 1)),
-        sprite(texture, false, 0, false) {
-    sprite.SetCurrentFrame(tile);
+        interpolator(ObjectInterpolator(bm::TimeType(75), 1)) {
+    bool rv = sprite.Initialize(path);
+    CHECK(rv == true);
 
     ObjectState state;
     state.blowCharge = 0;
@@ -140,8 +140,7 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, bm::TimeType time, std::map<uint32_t, bm::TextureAtlas*> textures,
-                  sf::Font* font, sf::RenderWindow& render_window) {
+void RenderObject(Object* object, bm::TimeType time, sf::Font* font, sf::RenderWindow& render_window) {
   CHECK(object != NULL);
   CHECK(font != NULL);
 
@@ -229,12 +228,6 @@ public:
   void Finalize() {
     //CHECK(_state == STATE_INITIALIZED);
 
-    // Delete all loaded textures.
-    for (std::map<uint32_t, TextureAtlas*>::iterator it = textures.begin(); it != textures.end(); it++) {
-      delete it->second;
-    }
-    textures.clear();
-
     if(_player != NULL) delete _player;
     if(_client_options != NULL) delete _client_options;
 
@@ -317,21 +310,6 @@ private:
     _render_window = new sf::RenderWindow(sf::VideoMode(width, height), "Blowmorph");
     _view.reset(sf::FloatRect(0, 0, width, height));
     _render_window->setView(_view);
-
-    // Load all textures.
-    textures[EntitySnapshot::ENTITY_TYPE_PLAYER] = bm::LoadOldTexture("data/images/player.png", 0);
-    textures[EntitySnapshot::ENTITY_TYPE_BULLET] = bm::LoadOldTexture("data/images/bullet.png", (8 << 16) + (54 << 8) + 129);
-    textures[EntitySnapshot::ENTITY_TYPE_WALL] = bm::LoadTileset("data/images/walls.png", 0, 1, 1, 17, 17, 16, 16);
-    textures[EntitySnapshot::ENTITY_TYPE_DUMMY] = bm::LoadOldTexture("data/images/guy.png", 0);
-    textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION] = bm::LoadTileset("data/images/explosion.png", 0, 1, 1, 61, 61, 60, 60);
-    textures[EntitySnapshot::ENTITY_TYPE_STATION] = bm::LoadTileset("data/images/kits.png", 0, 1, 1, 31, 31, 30, 30);
-
-    // Check if all the textures were loaded successfully.
-    for (std::map<uint32_t, TextureAtlas*>::iterator it = textures.begin(); it != textures.end(); it++) {
-      if (it->second == NULL) {
-        return false;
-      }
-    }
 
     return true;
   }
@@ -617,7 +595,7 @@ private:
 
           // XXX[24.7.2012 alex]: move it to the ProcessPacket method
           _player = new Object(glm::vec2(_client_options->x, _client_options->y), TimeType(0),
-                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
+                               _client_options->id, EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
           CHECK(_player != NULL);
           // XXX[24.7.2012 alex]: maybe we should have a xml file for each object with
           //                      texture paths, pivots, captions, etc
@@ -682,28 +660,29 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
           tile = 1;
         }
-        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_WALL], tile);
+        _walls[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/wall.sprite");
+        _walls[snapshot->id]->sprite.SetCurrentFrame(tile);
         _walls[snapshot->id]->EnableInterpolation();
         _walls[snapshot->id]->visible = true;
         _walls[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_BULLET: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_BULLET]);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/bullet.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_PLAYER]);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/mechos.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = true;
       } break;
 
       case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_DUMMY]);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/dummy.sprite");
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
@@ -720,7 +699,8 @@ private:
         } else if(snapshot->data[0] == EntitySnapshot::STATION_TYPE_COMPOSITE) {
           tile = 3;
         }
-        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, textures[EntitySnapshot::ENTITY_TYPE_STATION], tile);
+        _objects[snapshot->id] = new Object(position, time, snapshot->id, snapshot->type, "data/sprites/station.sprite");
+        _objects[snapshot->id]->sprite.SetCurrentFrame(tile);
         _objects[snapshot->id]->EnableInterpolation();
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
@@ -774,7 +754,10 @@ private:
     if(snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
       // TODO[12.08.2012 xairy]: create explosion animation on explosion packet.
       // TODO[12.08.2012 xairy]: remove magic numbers;
-      Sprite* explosion = new Sprite(textures[EntitySnapshot::ENTITY_TYPE_EXPLOSION], true, 30, false);
+      Sprite* explosion = new Sprite();
+      CHECK(explosion != NULL);
+      bool rv = explosion->Initialize("data/sprites/explosion.sprite");
+      CHECK(rv == true); // FIXME(xairy).
       CHECK(explosion != NULL);
       explosion->SetPosition(glm::vec2(snapshot->x, snapshot->y));
       explosion->Play();
@@ -927,13 +910,13 @@ private:
 
       std::map<int,Object*>::iterator it;
       for(it = _walls.begin() ; it != _walls.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
+        RenderObject(it->second, render_time, default_text_writer, *_render_window);
       }
       for(it = _objects.begin() ; it != _objects.end(); ++it) {
-        RenderObject(it->second, render_time, textures, default_text_writer, *_render_window);
+        RenderObject(it->second, render_time, default_text_writer, *_render_window);
       }
 
-      RenderObject(_player, render_time, textures, default_text_writer, *_render_window);
+      RenderObject(_player, render_time, default_text_writer, *_render_window);
 
       _RenderHUD();
     }
@@ -959,8 +942,6 @@ private:
 
   sf::RenderWindow* _render_window;
   sf::View _view;
-
-  std::map<uint32_t, TextureAtlas*> textures;
 
   Object* _player;
 
