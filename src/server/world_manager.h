@@ -1,21 +1,21 @@
-#ifndef BLOWMORPH_SERVER_WORLD_MANAGER_HPP_
-#define BLOWMORPH_SERVER_WORLD_MANAGER_HPP_
+#ifndef BLOWMORPH_SERVER_WORLD_MANAGER_H_
+#define BLOWMORPH_SERVER_WORLD_MANAGER_H_
 
 #include <map>
 #include <vector>
 
 #include <pugixml.hpp>
 
-#include <base/pstdint.hpp>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
-#include "vector.hpp"
+#include "entity.h"
+#include "vector.h"
 
-#include "bullet.hpp"
-#include "dummy.hpp"
-#include "player.hpp"
-#include "wall.hpp"
-#include "station.hpp"
+#include "bullet.h"
+#include "dummy.h"
+#include "player.h"
+#include "wall.h"
+#include "station.h"
 
 namespace bm {
 
@@ -111,4 +111,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_SERVER_WORLD_MANAGER_HPP_
+#endif // BLOWMORPH_SERVER_WORLD_MANAGER_H_

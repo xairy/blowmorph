@@ -1,12 +1,12 @@
-#ifndef BLOWMORPH_CLIENT_NET_HPP_
-#define BLOWMORPH_CLIENT_NET_HPP_
+#ifndef BLOWMORPH_CLIENT_NET_H_
+#define BLOWMORPH_CLIENT_NET_H_
 
 #include <vector>
 
-#include <base/error.hpp>
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/error.h>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
 #include <enet-plus/enet.hpp>
 
@@ -37,4 +37,4 @@ bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host
 
 } }
 
-#endif  // BLOWMORPH_CLIENT_NET_HPP_
+#endif  // BLOWMORPH_CLIENT_NET_H_

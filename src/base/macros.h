@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_BASE_MACROS_HPP_
-#define BLOWMORPH_BASE_MACROS_HPP_
+#ifndef BLOWMORPH_BASE_MACROS_H_
+#define BLOWMORPH_BASE_MACROS_H_
 
 #include <cstdio>
 #include <cstdlib>
@@ -60,4 +60,4 @@
 // TODO: Implement it.
 #define THREAD_LOCAL
 
-#endif // BLOWMORPH_BASE_MACROS_HPP_
+#endif // BLOWMORPH_BASE_MACROS_H_

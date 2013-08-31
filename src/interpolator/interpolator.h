@@ -1,7 +1,8 @@
-#ifndef BM_INTERPOLATOR_HPP_
-#define BM_INTERPOLATOR_HPP_
+#ifndef BM_INTERPOLATOR_H_
+#define BM_INTERPOLATOR_H_
 
 #include <cstddef>
+
 #include <list>
 
 namespace interpolator {
@@ -95,4 +96,4 @@ typedef LinearInterpolator<Frame, bm::uint32_t> Interpolator;*/
 
 }; // namespace interpolator
 
-#endif//BM_INTERPOLATOR_HPP_
+#endif // BM_INTERPOLATOR_H_

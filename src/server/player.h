@@ -1,14 +1,14 @@
-#ifndef BLOWMORPH_SERVER_PLAYER_HPP_
-#define BLOWMORPH_SERVER_PLAYER_HPP_
+#ifndef BLOWMORPH_SERVER_PLAYER_H_
+#define BLOWMORPH_SERVER_PLAYER_H_
 
 #include <string>
 
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
-#include "vector.hpp"
+#include "entity.h"
+#include "vector.h"
 
 namespace bm {
 
@@ -127,4 +127,4 @@ protected:
 
 } // namespace bm
 
-#endif // BLOWMORPH_SERVER_PLAYER_HPP_
+#endif // BLOWMORPH_SERVER_PLAYER_H_

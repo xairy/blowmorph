@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_CLIENT_SYS_HPP_
-#define BLOWMORPH_CLIENT_SYS_HPP_
+#ifndef BLOWMORPH_CLIENT_SYS_H_
+#define BLOWMORPH_CLIENT_SYS_H_
 
 #include <stdint.h>
 
@@ -12,4 +12,4 @@ void Warning(const char* fmt, ...);
 
 } // namespace sys
 
-#endif // BLOWMORPH_CLIENT_SYS_HPP_
+#endif // BLOWMORPH_CLIENT_SYS_H_

@@ -1,28 +1,38 @@
-#ifndef BLOWMORPH_SERVER_DUMMY_HPP_
-#define BLOWMORPH_SERVER_DUMMY_HPP_
+#ifndef BLOWMORH_SERVER_STATION_H_
+#define BLOWMORH_SERVER_STATION_H_
 
 #include <string>
 
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
-#include "vector.hpp"
+#include "entity.h"
+#include "vector.h"
 
 namespace bm {
 
-class Dummy : public Entity {
+class Station : public Entity {
   friend class Entity;
 
 public:
-  static Dummy* Create(
+  enum Type {
+    TYPE_HEALTH,
+    TYPE_BLOW,
+    TYPE_MORPH,
+    TYPE_COMPOSITE
+  };
+
+  static Station* Create(
     WorldManager* world_manager,
     uint32_t id,
     const Vector2f& position,
-    TimeType time
+    int health_regeneration,
+    int blow_regeneration,
+    int morph_regeneration,
+    Type type
   );
-  virtual ~Dummy();
+  virtual ~Station();
 
   virtual std::string GetType();
   virtual bool IsStatic();
@@ -35,8 +45,6 @@ public:
 
   virtual void Damage(int damage);
 
-  virtual void SetPosition(const Vector2f& position);
-
   // Double dispatch. Collision detection.
 
   virtual bool Collide(Entity* entity);
@@ -48,15 +56,16 @@ public:
   virtual bool Collide(Station* other);
 
 protected:
-  DISALLOW_COPY_AND_ASSIGN(Dummy);
-  Dummy(WorldManager* world_manager, uint32_t id);
+  DISALLOW_COPY_AND_ASSIGN(Station);
+  Station(WorldManager* world_manager, uint32_t id);
 
-  float _speed;
-  Entity* _meat;
-  TimeType _last_update;
-  Vector2f _prev_position;
+  int _health_regeneration;
+  int _blow_regeneration;
+  int _morph_regeneration;
+
+  Type _type;
 };
 
 } // namespace bm
 
-#endif // BLOWMORPH_SERVER_DUMMY_HPP_
+#endif // BLOWMORH_SERVER_STATION_H_

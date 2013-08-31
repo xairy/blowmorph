@@ -1,14 +1,14 @@
-#ifndef BLOWMORH_SERVER_WALL_HPP_
-#define BLOWMORH_SERVER_WALL_HPP_
+#ifndef BLOWMORH_SERVER_WALL_H_
+#define BLOWMORH_SERVER_WALL_H_
 
 #include <string>
 
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
-#include "vector.hpp"
+#include "entity.h"
+#include "vector.h"
 
 namespace bm {
 
@@ -60,4 +60,4 @@ protected:
 
 } // namespace bm
 
-#endif // BLOWMORH_SERVER_WALL_HPP_
+#endif // BLOWMORH_SERVER_WALL_H_

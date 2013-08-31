@@ -1,6 +1,6 @@
-#include "id_manager.hpp"
+#include "id_manager.h"
 
-#include <base/pstdint.hpp>
+#include <base/pstdint.h>
 
 namespace bm {
 

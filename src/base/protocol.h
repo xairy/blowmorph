@@ -1,8 +1,8 @@
-#ifndef BLOWMORPH_BASE_PROTOCOL_HPP_
-#define BLOWMORPH_BASE_PROTOCOL_HPP_
+#ifndef BLOWMORPH_BASE_PROTOCOL_H_
+#define BLOWMORPH_BASE_PROTOCOL_H_
 
-#include "base/macros.hpp"
-#include "base/pstdint.hpp"
+#include "base/macros.h"
+#include "base/pstdint.h"
 
 namespace bm {
 
@@ -167,6 +167,6 @@ struct MouseEvent {
   float32_t x, y;
 };
 
-} //namespace bm
+} // namespace bm
 
-#endif //BLOWMORPH_BASE_PROTOCOL_HPP_
+#endif // BLOWMORPH_BASE_PROTOCOL_H_

@@ -1,7 +1,7 @@
-#ifndef BLOWMORPH_SERVER_ID_MANAGER_HPP_
-#define BLOWMORPH_SERVER_ID_MANAGER_HPP_
+#ifndef BLOWMORPH_SERVER_ID_MANAGER_H_
+#define BLOWMORPH_SERVER_ID_MANAGER_H_
 
-#include <base/pstdint.hpp>
+#include <base/pstdint.h>
 
 namespace bm {
 
@@ -18,4 +18,4 @@ private:
 
 } //namespace bm
 
-#endif //BLOWMORPH_SERVER_ID_MANAGER_HPP_
+#endif //BLOWMORPH_SERVER_ID_MANAGER_H_

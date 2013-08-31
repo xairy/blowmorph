@@ -1,14 +1,14 @@
-﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
-#define BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
+﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_
+#define BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_
 
 #include <map>
 #include <string>
 #include <vector>
 
 #include <glm/glm.hpp>
-
-#include <base/pstdint.hpp>
 #include <SFML/Graphics.hpp>
+
+#include <base/pstdint.h>
 
 namespace bm {
 
@@ -71,4 +71,4 @@ TileSet MakeSimpleTileset(
 
 } // namespace bm
 
-#endif // BLOWMORPH_CLIENT_TEXTURE_MANAGER_HPP_
+#endif // BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_

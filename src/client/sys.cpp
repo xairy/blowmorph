@@ -1,4 +1,4 @@
-#include "sys.hpp"
+#include "sys.h"
 
 #if defined(WIN32)
   #include <windows.h>
@@ -12,7 +12,7 @@
 #include <cstring>
 #include <cassert>
 
-#include <base/timer.hpp>
+#include <base/timer.h>
 
 namespace sys {
 

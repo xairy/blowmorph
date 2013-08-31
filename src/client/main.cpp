@@ -16,20 +16,20 @@
 #include <glm/glm.hpp>
 #include <FreeImage.h>
 
-#include <base/error.hpp>
-#include <base/macros.hpp>
-#include <base/protocol.hpp>
-#include <base/pstdint.hpp>
-#include <base/settings_manager.hpp>
+#include <base/error.h>
+#include <base/macros.h>
+#include <base/protocol.h>
+#include <base/pstdint.h>
+#include <base/settings_manager.h>
 
 #include <enet-plus/enet.hpp>
-#include <interpolator/interpolator.hpp>
+#include <interpolator/interpolator.h>
 
-#include "sprite.hpp"
-#include "texture_atlas.hpp"
+#include "sprite.h"
+#include "texture_atlas.h"
 
-#include "sys.hpp"
-#include "net.hpp"
+#include "sys.h"
+#include "net.h"
 
 bm::TimeType getTicks() {
   return sys::Timestamp();

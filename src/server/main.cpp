@@ -1,9 +1,9 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include <base/ctrlc.hpp>
+#include <base/ctrlc.h>
 
-#include "server.hpp"
+#include "server.h"
 
 // FIXME[23.11.2012 alex]: Not thread safe.
 bool global_stop_flag = false;

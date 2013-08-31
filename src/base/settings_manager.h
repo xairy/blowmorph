@@ -1,11 +1,11 @@
-#ifndef BLOWMORPH_BASE_SETTINGS_MANAGER_HPP_
-#define BLOWMORPH_BASE_SETTINGS_MANAGER_HPP_
+#ifndef BLOWMORPH_BASE_SETTINGS_MANAGER_H_
+#define BLOWMORPH_BASE_SETTINGS_MANAGER_H_
 
 #include <string>
 
 #include <libconfig.h>
 
-#include "pstdint.hpp"
+#include "pstdint.h"
 
 namespace bm {
 
@@ -55,4 +55,4 @@ private:
 
 } // namespace bm
 
-#endif // BLOWMORPH_BASE_SETTINGS_MANAGER_HPP_
+#endif // BLOWMORPH_BASE_SETTINGS_MANAGER_H_

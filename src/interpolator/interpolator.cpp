@@ -1,1 +1,1 @@
-#include "interpolator.hpp"
+#include "interpolator.h"

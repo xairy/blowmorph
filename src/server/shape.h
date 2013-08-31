@@ -1,7 +1,7 @@
-#ifndef BLOWMORPH_SERVER_SHAPE_HPP_
-#define BLOWMORPH_SERVER_SHAPE_HPP_
+#ifndef BLOWMORPH_SERVER_SHAPE_H_
+#define BLOWMORPH_SERVER_SHAPE_H_
 
-#include "vector.hpp"
+#include "vector.h"
 
 namespace bm {
 
@@ -86,4 +86,4 @@ public:
 
 };
 
-#endif // BLOWMORPH_SERVER_SHAPE_HPP_
+#endif // BLOWMORPH_SERVER_SHAPE_H_

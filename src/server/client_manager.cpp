@@ -1,14 +1,14 @@
-#include "client_manager.hpp"
+#include "client_manager.h"
 
 #include <map>
 #include <vector>
 
 #include <enet-plus/enet.hpp>
 
-#include <base/macros.hpp>
-#include <base/pstdint.hpp>
+#include <base/macros.h>
+#include <base/pstdint.h>
 
-#include "entity.hpp"
+#include "entity.h"
 
 namespace bm {
 

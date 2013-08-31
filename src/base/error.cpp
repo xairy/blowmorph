@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#include "error.hpp"
+#include <base/error.h>
 
 #include <cstdarg>
 

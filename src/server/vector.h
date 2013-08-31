@@ -1,5 +1,5 @@
-#ifndef BLOWMORPH_SERVER_VECTOR_HPP_
-#define BLOWMORPH_SERVER_VECTOR_HPP_
+#ifndef BLOWMORPH_SERVER_VECTOR_H_
+#define BLOWMORPH_SERVER_VECTOR_H_
 
 namespace bm {
 
@@ -33,4 +33,4 @@ Vector2f Normalize(const Vector2f& vector);
 
 #include "vector.inl"
 
-#endif // BLOWMORPH_SERVER_VECTOR_HPP_
+#endif // BLOWMORPH_SERVER_VECTOR_H_
