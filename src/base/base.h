@@ -1,5 +1,7 @@
-#ifndef BM_BASE_BASE_H_
-#define BM_BASE_BASE_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_BASE_BASE_H_
+#define SRC_BASE_BASE_H_
 
 #ifdef _MSC_VER
   #ifdef BM_BASE_DLL
@@ -11,4 +13,4 @@
   #define BM_BASE_DECL
 #endif
 
-#endif // BM_BASE_BASE_H_
+#endif  // SRC_BASE_BASE_H_
