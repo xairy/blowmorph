@@ -1,5 +1,4 @@
-#src/base/ctrlc.h
-src/base/error.h
+#src/base/error.h
 src/base/macros.h
 src/base/protocol.h
 src/base/pstdint.h
