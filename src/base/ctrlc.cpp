@@ -1,12 +1,14 @@
-#include "ctrlc.h"
+// Copyright (c) 2013 Blowmorph Team
 
-#include "macros.h"
+#include <base/ctrlc.h>
 
 #ifdef _WIN32
   #include <Windows.h>
 #else
   #include <signal.h>
 #endif
+
+#include <base/macros.h>
 
 static void (*signal_handler)();
 
@@ -28,7 +30,7 @@ void UnixHandler(int s) {
 // FIXME[23.11.2012 alex]: Not thread safe.
 void SetCtrlCHandler(void (*handler)()) {
   signal_handler = handler;
-  
+
   #ifdef _WIN32
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)WinHandler, TRUE);
     // FIXME[xairy]: check return value.
