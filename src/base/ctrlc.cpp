@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#include <base/ctrlc.h>
+#include "base/ctrlc.h"
 
 #ifdef _WIN32
   #include <Windows.h>
@@ -8,7 +8,7 @@
   #include <signal.h>
 #endif
 
-#include <base/macros.h>
+#include "base/macros.h"
 
 static void (*signal_handler)();
 
