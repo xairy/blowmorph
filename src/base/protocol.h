@@ -8,38 +8,6 @@
 
 namespace bm {
 
-/*class TimeType {
-public:
-  TimeType() { }
-  explicit TimeType(int32_t value) : value(value) { }
-  
-  TimeType operator+(const TimeType& dt) const {
-    return TimeType(value + dt.value);
-  }
-  TimeType operator-(const TimeType& dt) const {
-    return TimeType(value - dt.value);
-  }
-  
-  int operator/(const TimeType& dt) const {
-    return (int)(value / dt.value);
-  }
-  
-  TimeType operator/(int dt) const {
-    return TimeType(value / dt);
-  }
-  
-  operator int32_t() const {
-    return value;
-  }
-  
-  bool operator >=(const TimeType& t) const {
-    return value >= t.value;
-  }
-private:
-  int32_t value;
-};
-SCHECK(sizeof(TimeType) == sizeof(int32_t));*/
-
 typedef int64_t TimeType;
 
 class Packet {

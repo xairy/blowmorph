@@ -1,5 +1,4 @@
-#src/base/protocol.h
-src/base/pstdint.h
+#src/base/pstdint.h
 src/base/singleton.h
 src/base/timer.cpp
 src/base/timer.h

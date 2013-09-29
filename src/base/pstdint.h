@@ -1,10 +1,12 @@
-#ifndef BLOWMORPH_BASE_PSTDINT_H_
-#define BLOWMORPH_BASE_PSTDINT_H_
+// Copyright (c) 2013 Blowmorph Team
 
-#include <base/macros.h>
+#ifndef SRC_BASE_PSTDINT_H_
+#define SRC_BASE_PSTDINT_H_
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
+
+#include "base/macros.h"
 
 typedef float float32_t;
 typedef double float64_t;
@@ -22,7 +24,7 @@ SCHECK(sizeof(int64_t) == 8);
 SCHECK(sizeof(float32_t) == 4);
 SCHECK(sizeof(float64_t) == 8);
 
-// unicode character
+// Unicode character.
 typedef uint32_t uchar_t;
 
-#endif // BLOWMORPH_BASE_PSTDINT_H_
+#endif  // SRC_BASE_PSTDINT_H_
