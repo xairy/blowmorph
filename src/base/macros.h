@@ -1,21 +1,23 @@
-#ifndef BLOWMORPH_BASE_MACROS_H_
-#define BLOWMORPH_BASE_MACROS_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_BASE_MACROS_H_
+#define SRC_BASE_MACROS_H_
 
 #include <cstdio>
 #include <cstdlib>
 
 // The CHECK() macro is used for checking assertions, and will cause
 // an immediate crash if its assertion is not met. DCHECK() is like
-// CHECK() but is only compiled in on debug builds. 
+// CHECK() but is only compiled in on debug builds.
 #ifndef CHECK
   #define CHECK(x)                                                  \
     do {                                                            \
-      if(!(x)) {                                                    \
+      if (!(x)) {                                                   \
         fprintf(stderr, "Assertion failed: %s, file %s, line %u\n", \
           #x, __FILE__, __LINE__);                                  \
         abort();                                                    \
       }                                                             \
-    } while(0)
+    } while (0)
 #endif
 
 #ifndef DCHECK
@@ -26,15 +28,15 @@
   #endif
 #endif
 
-// The SCHECK() macro is used for checking compile-time assertions, 
+// The SCHECK() macro is used for checking compile-time assertions,
 // and will cause a compilation error if its assertion is not met.
-// FIXME: COMPILE_CHECK/COMPILE_ASSERT/CASSERT ?
 #ifndef SCHECK
   template<bool x> struct __SCHECK_F;
   template<      > struct __SCHECK_F <true> {};
   template<int  x> struct __SCHECK_P        {};
-  #define SCHECK(B) \
-    typedef __SCHECK_P<sizeof(__SCHECK_F<((B)? true : false)>)> __SCHECK_ASSERT##__LINE__
+  #define SCHECK(B)                                             \
+    typedef __SCHECK_P<sizeof(__SCHECK_F<((B)? true : false)>)> \
+    __SCHECK_ASSERT##__LINE__
 #endif
 
 // A macro to disallow the copy constructor and operator= functions.
@@ -57,7 +59,4 @@
     DISALLOW_COPY_AND_ASSIGN(TypeName)
 #endif
 
-// TODO: Implement it.
-#define THREAD_LOCAL
-
-#endif // BLOWMORPH_BASE_MACROS_H_
+#endif  // SRC_BASE_MACROS_H_
