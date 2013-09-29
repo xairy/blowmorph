@@ -1,4 +1,6 @@
-#include "sprite.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "client/sprite.h"
 
 #include <map>
 #include <string>
@@ -6,12 +8,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <base/error.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
-#include <base/timer.h>
+#include "base/error.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
+#include "base/timer.h"
 
-#include "texture_atlas.h"
+#include "client/texture_atlas.h"
 
 namespace bm {
 
@@ -182,4 +184,4 @@ void Sprite::UpdateCurrentFrame() {
   }
 }
 
-} // namespace bm
+}  // namespace bm
