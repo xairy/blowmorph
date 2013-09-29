@@ -1,5 +1,7 @@
-#ifndef BLOWMORPH_CLIENT_SPRITE_H_
-#define BLOWMORPH_CLIENT_SPRITE_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_CLIENT_SPRITE_H_
+#define SRC_CLIENT_SPRITE_H_
 
 #include <string>
 #include <vector>
@@ -83,6 +85,6 @@ private:
   int64_t _last_frame_change;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif
+#endif  // SRC_CLIENT_SPRITE_H_

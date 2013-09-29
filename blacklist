@@ -7,8 +7,6 @@ src/client/net.cpp
 src/client/net.h
 src/client/sys.cpp
 src/client/sys.h
-#src/interpolator/interpolator.cpp
-#src/interpolator/interpolator.h
 src/server/bullet.cpp
 src/server/bullet.h
 src/server/client_manager.cpp
