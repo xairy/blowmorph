@@ -18,6 +18,7 @@
         abort();                                                    \
       }                                                             \
     } while (0)
+  #define CHECK_EQ(x, y) CHECK((x) == (y))
 #endif
 
 #ifndef DCHECK
@@ -26,6 +27,7 @@
   #else
     #define DCHECK(x) CHECK(x)
   #endif
+  #define DCHECK_EQ(x, y) DCHECK((x) == (y))
 #endif
 
 // The SCHECK() macro is used for checking compile-time assertions,
