@@ -1,9 +1,12 @@
-#ifndef BM_INTERPOLATOR_H_
-#define BM_INTERPOLATOR_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_INTERPOLATOR_INTERPOLATOR_H_
+#define SRC_INTERPOLATOR_INTERPOLATOR_H_
 
 #include <cstddef>
 
 #include <list>
+#include <utility>
 
 namespace interpolator {
 
@@ -13,7 +16,7 @@ template<class V> V lerp(const V& a, const V& b, double bRatio) {
 
 template<class FrameT, class TimeT>
 class LinearInterpolator {
-public:
+ public:
   typedef std::pair<FrameT, TimeT> TimedFrame;
 
   LinearInterpolator(TimeT timeOffset, size_t frameCount = 2)
@@ -28,7 +31,7 @@ public:
       frames.pop_front();
     }
   }
-  
+
   TimeT GetTimeOffset() const {
     return timeOffset;
   }
@@ -43,14 +46,14 @@ public:
         return;
       }
     }
-    
+
     // add frame to the frame list, dropping previous if neccessary
     if (frames.size() == frameCount) {
       frames.pop_front();
     }
     frames.push_back(TimedFrame(frame, time));
   }
-  
+
   void Clear() {
     frames.clear();
   }
@@ -62,7 +65,7 @@ public:
     } else if (frames.size() == 1) {
       return frames.back().first;
     }
-    
+
     // subtract lag time (i.e. the difference in times on server and client)
     time = time - timeOffset;
 
@@ -70,30 +73,22 @@ public:
     typename std::list<TimedFrame>::reverse_iterator it = frames.rbegin();
     TimedFrame frame2 = *it;
     TimedFrame frame1 = *(++it);
-    
-    double ratio = ((double) time - (double)frame1.second) / ((double) frame2.second - (double) frame1.second);
-    
+
+    double t = static_cast<double>(time);
+    double f1t = static_cast<double>(frame1.second);
+    double f2t = static_cast<double>(frame2.second);
+    double ratio = (t - f1t) / (f2t - f1t);
+
     // interpolate over them
     return lerp(frame1.first, frame2.first, ratio);
   }
 
-private:
+ private:
   size_t frameCount;
   std::list<TimedFrame> frames;
   TimeT timeOffset;
 };
 
-/*struct Frame {
-  glm::vec2 position;
-};
-template<> Frame lerp(Frame& a, Frame& b, double bRatio) {
-  Frame result;
-  result.position = a.position * (1 - bRatio) + b.position * bRatio;
-  return result;
-}
+}  // namespace interpolator
 
-typedef LinearInterpolator<Frame, bm::uint32_t> Interpolator;*/
-
-}; // namespace interpolator
-
-#endif // BM_INTERPOLATOR_H_
+#endif  // SRC_INTERPOLATOR_INTERPOLATOR_H_

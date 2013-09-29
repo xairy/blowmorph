@@ -1,1 +1,3 @@
-#include "interpolator.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "interpolator/interpolator.h"
