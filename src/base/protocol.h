@@ -1,5 +1,7 @@
-#ifndef BLOWMORPH_BASE_PROTOCOL_H_
-#define BLOWMORPH_BASE_PROTOCOL_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_BASE_PROTOCOL_H_
+#define SRC_BASE_PROTOCOL_H_
 
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -41,7 +43,7 @@ SCHECK(sizeof(TimeType) == sizeof(int32_t));*/
 typedef int64_t TimeType;
 
 class Packet {
-public:
+ public:
   enum Type {
     TYPE_UNKNOWN = 0,
 
@@ -65,7 +67,8 @@ public:
 
     TYPE_MAX_VALUE
   };
-private:
+
+ private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Packet);
 };
 
@@ -167,6 +170,6 @@ struct MouseEvent {
   float32_t x, y;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_BASE_PROTOCOL_H_
+#endif  // SRC_BASE_PROTOCOL_H_
