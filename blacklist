@@ -1,7 +1,4 @@
-#src/base/base.h
-#src/base/ctrlc.cpp
-src/base/ctrlc.h
-#src/base/error.cpp
+#src/base/ctrlc.h
 src/base/error.h
 src/base/macros.h
 src/base/protocol.h
