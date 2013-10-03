@@ -1,5 +1,7 @@
-#ifndef BLOWMORPH_CLIENT_SYS_H_
-#define BLOWMORPH_CLIENT_SYS_H_
+// Copyright (c) 2013 SRC Team
+
+#ifndef SRC_CLIENT_SYS_H_
+#define SRC_CLIENT_SYS_H_
 
 #include <stdint.h>
 
@@ -10,6 +12,6 @@ int64_t Timestamp();
 
 void Warning(const char* fmt, ...);
 
-} // namespace sys
+}  // namespace sys
 
-#endif // BLOWMORPH_CLIENT_SYS_H_
+#endif  // SRC_CLIENT_SYS_H_
