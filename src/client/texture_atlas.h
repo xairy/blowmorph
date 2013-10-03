@@ -1,5 +1,7 @@
-﻿#ifndef BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_
-#define BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_
+﻿// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_CLIENT_TEXTURE_ATLAS_H_
+#define SRC_CLIENT_TEXTURE_ATLAS_H_
 
 #include <map>
 #include <string>
@@ -8,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <base/pstdint.h>
+#include "base/pstdint.h"
 
 namespace bm {
 
@@ -16,7 +18,7 @@ typedef sf::Rect<int64_t> TileRect;
 typedef std::vector<TileRect> TileSet;
 
 class TextureAtlas {
-public:
+ public:
   ~TextureAtlas();
 
   sf::Texture* GetTexture() const;
@@ -26,7 +28,7 @@ public:
   glm::vec2 GetTilePosition(size_t i) const;
   glm::vec2 GetTileSize(size_t i) const;
 
-private:
+ private:
   TextureAtlas();
 
   sf::Texture* texture;
@@ -36,6 +38,7 @@ private:
     const std::string& path,
     uint32_t transparentColor
   );
+
   friend TextureAtlas* LoadTileset(
     const std::string& path,
     uint32_t transparent_color,
@@ -69,6 +72,6 @@ TileSet MakeSimpleTileset(
   int64_t image_width = 0, int64_t image_height = 0
 );
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_CLIENT_TEXTURE_MANAGER_H_
+#endif  // SRC_CLIENT_TEXTURE_ATLAS_H_

@@ -1,12 +1,14 @@
-﻿#include "texture_atlas.h"
+﻿// Copyright (c) 2013 Blowmorph Team
+
+#include "client/texture_atlas.h"
 
 #include <map>
 #include <string>
 
-#include <base/error.h>
-#include <base/pstdint.h>
+#include "base/error.h"
+#include "base/pstdint.h"
 
-// TODO[24.7.2012 alex]: better think of something like "ResourceManager"
+// TODO(alex): better think of something like "ResourceManager"
 
 namespace bm {
 
@@ -70,7 +72,9 @@ TextureAtlas* LoadTexture(
   CHECK(result->texture != NULL);
   result->texture->loadFromImage(image);
 
-  result->tileset.push_back(TileRect(0, 0, image.getSize().x, image.getSize().y));
+  result->tileset.push_back(
+    TileRect(0, 0, image.getSize().x, image.getSize().y)
+  );
 
   CHECK(result->tileset.size() > 0);
   return result;
@@ -84,7 +88,7 @@ TextureAtlas* LoadTileset(
   int64_t tile_width, int64_t tile_height
 ) {
   TextureAtlas* result = LoadTexture(path, transparent_color);
-  if(result == NULL) {
+  if (result == NULL) {
     return NULL;
   }
 
@@ -102,14 +106,14 @@ TextureAtlas* LoadTileset(
 
 TileSet MakeSimpleTileset(
   int64_t start_x, int64_t start_y,
-  int64_t horizontal_step, int64_t vertical_step,
+  int64_t hor_step, int64_t ver_step,
   int64_t tile_width, int64_t tile_height,
   int64_t image_width, int64_t image_height
 ) {
   TileSet result;
 
-  for (int64_t y = start_y; (y + tile_height) <= image_height; y += vertical_step) {
-    for (int64_t x = start_x; (x + tile_width) <= image_width; x += horizontal_step) {
+  for (int64_t y = start_y; (y + tile_height) <= image_height; y += ver_step) {
+    for (int64_t x = start_x; (x + tile_width) <= image_width; x += hor_step) {
       result.push_back(TileRect(x, y, tile_width, tile_height));
     }
   }
@@ -117,4 +121,4 @@ TileSet MakeSimpleTileset(
   return result;
 }
 
-} // namespace bm
+}  // namespace bm
