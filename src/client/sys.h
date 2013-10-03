@@ -1,4 +1,4 @@
-// Copyright (c) 2013 SRC Team
+// Copyright (c) 2013 Blowmorph Team
 
 #ifndef SRC_CLIENT_SYS_H_
 #define SRC_CLIENT_SYS_H_

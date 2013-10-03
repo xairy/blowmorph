@@ -3,7 +3,6 @@ src/client/sprite.h
 src/client/texture_atlas.cpp
 src/client/texture_atlas.h
 src/client/main.cpp
-src/client/net.cpp
 src/client/net.h
 src/server/bullet.cpp
 src/server/bullet.h
