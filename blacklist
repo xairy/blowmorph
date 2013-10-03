@@ -5,7 +5,6 @@ src/client/texture_atlas.h
 src/client/main.cpp
 src/client/net.cpp
 src/client/net.h
-src/client/sys.h
 src/server/bullet.cpp
 src/server/bullet.h
 src/server/client_manager.cpp
