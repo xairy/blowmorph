@@ -1,21 +1,29 @@
-#ifndef BLOWMORPH_CLIENT_NET_H_
-#define BLOWMORPH_CLIENT_NET_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_CLIENT_NET_H_
+#define SRC_CLIENT_NET_H_
 
 #include <vector>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
-
 #include <enet-plus/enet.hpp>
 
-namespace bm { namespace net {
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
+
+namespace bm {
+namespace net {
 
 // Appends packet type and data to the end of the buffer.
-template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* data, bm::Packet::Type packet_type) {
+template<class T> void AppendPacketToBuffer(
+  std::vector<char>& buf,
+  const T* data,
+  bm::Packet::Type packet_type
+) {
   CHECK(data != NULL);
-  CHECK(bm::Packet::TYPE_UNKNOWN <= packet_type && packet_type <= bm::Packet::TYPE_MAX_VALUE);
+  CHECK(bm::Packet::TYPE_UNKNOWN <= packet_type &&
+        packet_type <= bm::Packet::TYPE_MAX_VALUE);
 
   // Append packet type.
   buf.insert(buf.end(),
@@ -30,11 +38,21 @@ template<class T> void AppendPacketToBuffer(std::vector<char>& buf, const T* dat
 
 // Sends input events to the server and
 // clears the input event queues afterwards.
-bool SendInputEvents(enet::Peer* peer, std::vector<bm::KeyboardEvent>& keyboard_events, std::vector<bm::MouseEvent>& mouse_events);
+bool SendInputEvents(
+  enet::Peer* peer,
+  std::vector<bm::KeyboardEvent>& keyboard_events,
+  std::vector<bm::MouseEvent>& mouse_events
+);
 
 // Attempts to synchronously disconnect the peer.
-bool DisconnectPeer(enet::Peer* peer, enet::Event* event, enet::ClientHost* host, uint32_t timeout);
+bool DisconnectPeer(
+  enet::Peer* peer,
+  enet::Event* event,
+  enet::ClientHost* host,
+  uint32_t timeout
+);
 
-} }
+}  // namespace net
+}  // namespace bm
 
-#endif  // BLOWMORPH_CLIENT_NET_H_
+#endif  // SRC_CLIENT_NET_H_
