@@ -1,4 +1,6 @@
-#include "sys.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "client/sys.h"
 
 #if defined(WIN32)
   #include <windows.h>
@@ -12,7 +14,7 @@
 #include <cstring>
 #include <cassert>
 
-#include <base/timer.h>
+#include "base/timer.h"
 
 namespace sys {
 
