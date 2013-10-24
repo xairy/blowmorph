@@ -4,16 +4,21 @@ import fnmatch
 import sys
 import subprocess
 
-def hg_get_commit_changes():
-  files = str(subprocess.check_output(['hg', 'status', '-man']))
+def git_get_staged_files():
+  files = str(subprocess.check_output(['git', 'diff', '--name-only', '--cached']))
   return [line for line in files.splitlines() if line != '']
 
-def hg_get_all_files():
-  files = str(subprocess.check_output(['hg', 'status', '-man', '--all']))
+def git_get_all_files():
+  files = str(subprocess.check_output(['git', 'ls-files']))
   return [line for line in files.splitlines() if line != '']
 
 def get_src_files():
-  files = hg_get_all_files()
+  files = git_get_all_files()
+  extensions = ('c', 'cpp', 'h', 'hpp')
+  return [file for file in files if file.startswith('src/') and file.endswith(extensions)]
+
+def get_staged_src_files():
+  files = git_get_staged_files()
   extensions = ('c', 'cpp', 'h', 'hpp')
   return [file for file in files if file.startswith('src/') and file.endswith(extensions)]
 
@@ -29,7 +34,7 @@ def cpplint_check_file(filename):
   return True
 
 def main():
-  src_files = get_src_files()
+  src_files = get_staged_src_files()
   blacklisted_files = get_blacklisted_files()
   files_to_check = [file for file in src_files if file not in blacklisted_files]
 
