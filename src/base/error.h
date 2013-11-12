@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_ERROR_H_
-#define SRC_BASE_ERROR_H_
+#ifndef BASE_ERROR_H_
+#define BASE_ERROR_H_
 
 // WARNING: 'Error' class in NOT thread safe.
 
@@ -58,4 +58,4 @@ class Error {
 
 }  // namespace bm
 
-#endif  // SRC_BASE_ERROR_H_
+#endif  // BASE_ERROR_H_

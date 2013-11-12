@@ -1,3 +1,4 @@
+src/server/main.cpp
 src/server/bullet.cpp
 src/server/bullet.h
 src/server/client_manager.cpp

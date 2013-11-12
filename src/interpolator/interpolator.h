@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_INTERPOLATOR_INTERPOLATOR_H_
-#define SRC_INTERPOLATOR_INTERPOLATOR_H_
+#ifndef INTERPOLATOR_INTERPOLATOR_H_
+#define INTERPOLATOR_INTERPOLATOR_H_
 
 #include <cstddef>
 
@@ -91,4 +91,4 @@ class LinearInterpolator {
 
 }  // namespace interpolator
 
-#endif  // SRC_INTERPOLATOR_INTERPOLATOR_H_
+#endif  // INTERPOLATOR_INTERPOLATOR_H_

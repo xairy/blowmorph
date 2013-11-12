@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_SINGLETON_H_
-#define SRC_BASE_SINGLETON_H_
+#ifndef BASE_SINGLETON_H_
+#define BASE_SINGLETON_H_
 
 // WARNING: Singleton is NOT thread safe.
 
@@ -19,4 +19,4 @@ class Singleton {
   ~Singleton();
 };
 
-#endif  // SRC_BASE_SINGLETON_H_
+#endif  // BASE_SINGLETON_H_
