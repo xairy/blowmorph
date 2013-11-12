@@ -1,4 +1,3 @@
-src/client/texture_atlas.h
 src/client/net.h
 src/server/bullet.cpp
 src/server/bullet.h
