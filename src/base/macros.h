@@ -18,7 +18,6 @@
         abort();                                                    \
       }                                                             \
     } while (0)
-  #define CHECK_EQ(x, y) CHECK((x) == (y))
 #endif
 
 #ifndef DCHECK
