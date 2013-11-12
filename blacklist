@@ -1,4 +1,3 @@
-src/client/net.h
 src/server/bullet.cpp
 src/server/bullet.h
 src/server/client_manager.cpp
@@ -12,8 +11,6 @@ src/server/id_manager.h
 src/server/player.cpp
 src/server/player.h
 src/server/server.h
-src/base/settings_manager.cpp
-src/base/settings_manager.h
 src/server/shape.cpp
 src/server/shape.h
 src/server/station.cpp
