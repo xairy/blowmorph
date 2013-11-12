@@ -54,13 +54,13 @@ int32_t Timer::GetTime() const {
 
 Timer::Timer() {
   int rv = gettimeofday(&_start, NULL);
-  CHECK_EQ(rv, 0);
+  CHECK(rv == 0);
 }
 
 int32_t Timer::GetTime() const {
   timeval current;
   int rv = gettimeofday(&current, NULL);
-  CHECK_EQ(rv, 0);
+  CHECK(rv == 0);
   int64_t seconds = current.tv_sec - _start.tv_sec;
   int64_t useconds = current.tv_usec - _start.tv_usec;
   int64_t time = seconds * 1000 + useconds / 1000;
