@@ -1,16 +1,18 @@
-#ifndef BLOWMORPH_BASE_SETTINGS_MANAGER_H_
-#define BLOWMORPH_BASE_SETTINGS_MANAGER_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SRC_BASE_SETTINGS_MANAGER_H_
+#define SRC_BASE_SETTINGS_MANAGER_H_
 
 #include <string>
 
 #include <libconfig.h>
 
-#include "pstdint.h"
+#include "base/pstdint.h"
 
 namespace bm {
 
 class SettingsManager {
-public:
+ public:
   SettingsManager();
   ~SettingsManager();
 
@@ -44,7 +46,7 @@ public:
   bool GetBool(const char* key);
   std::string GetString(const char* key);
 
-private:
+ private:
   enum {
     STATE_CLOSED,
     STATE_OPENED
@@ -53,6 +55,6 @@ private:
   config_t cfg_;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_BASE_SETTINGS_MANAGER_H_
+#endif  // SRC_BASE_SETTINGS_MANAGER_H_
