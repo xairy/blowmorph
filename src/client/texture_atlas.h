@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2013 Blowmorph Team
 
 #ifndef SRC_CLIENT_TEXTURE_ATLAS_H_
 #define SRC_CLIENT_TEXTURE_ATLAS_H_
@@ -36,16 +36,14 @@ class TextureAtlas {
 
   friend TextureAtlas* LoadTexture(
     const std::string& path,
-    uint32_t transparentColor
-  );
+    uint32_t transparentColor);
 
   friend TextureAtlas* LoadTileset(
     const std::string& path,
     uint32_t transparent_color,
     int64_t start_x, int64_t start_y,
     int64_t horizontal_step, int64_t vertical_step,
-    int64_t tile_width, int64_t tile_height
-  );
+    int64_t tile_width, int64_t tile_height);
 };
 
 // Loads an image or a tileset from a given path.
