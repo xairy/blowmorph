@@ -1,14 +1,16 @@
-#ifndef BLOWMORPH_SERVER_CLIENT_MANAGER_H_
-#define BLOWMORPH_SERVER_CLIENT_MANAGER_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_CLIENT_MANAGER_H_
+#define SERVER_CLIENT_MANAGER_H_
 
 #include <map>
 #include <vector>
 
 #include <enet-plus/enet.hpp>
 
-#include <base/pstdint.h>
+#include "base/pstdint.h"
 
-#include "entity.h"
+#include "server/entity.h"
 
 namespace bm {
 
@@ -21,7 +23,7 @@ struct Client {
 };
 
 class ClientManager {
-public:
+ public:
   ClientManager();
   ~ClientManager();
 
@@ -35,10 +37,10 @@ public:
   void DeleteClients(const std::vector<uint32_t>& input, bool deallocate);
   void DisconnectClients(const std::vector<uint32_t>& input);
 
-private:
+ private:
   std::map<uint32_t, Client*> _clients;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_CLIENT_MANAGER_H_
+#endif  // SERVER_CLIENT_MANAGER_H_

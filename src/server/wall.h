@@ -1,21 +1,23 @@
-#ifndef BLOWMORH_SERVER_WALL_H_
-#define BLOWMORH_SERVER_WALL_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_WALL_H_
+#define SERVER_WALL_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
 namespace bm {
 
 class Wall : public Entity {
   friend class Entity;
 
-public:
+ public:
   enum Type {
     TYPE_ORDINARY,
     TYPE_UNBREAKABLE,
@@ -26,8 +28,7 @@ public:
     WorldManager* world_manager,
     uint32_t id,
     const Vector2f& position,
-    Type type
-  );
+    Type type);
   virtual ~Wall();
 
   virtual std::string GetType();
@@ -51,13 +52,15 @@ public:
   virtual bool Collide(Wall* other);
   virtual bool Collide(Station* other);
 
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Wall);
+ protected:
   Wall(WorldManager* world_manager, uint32_t id);
 
   Type _type;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Wall);
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORH_SERVER_WALL_H_
+#endif  // SERVER_WALL_H_

@@ -1,7 +1,9 @@
-#ifndef BLOWMORPH_SERVER_SHAPE_H_
-#define BLOWMORPH_SERVER_SHAPE_H_
+// Copyright (c) 2013 Blowmorph Team
 
-#include "vector.h"
+#ifndef SERVER_SHAPE_H_
+#define SERVER_SHAPE_H_
+
+#include "server/vector.h"
 
 namespace bm {
 
@@ -9,8 +11,8 @@ class Circle;
 class Rectangle;
 
 class Shape {
-public:
-  Shape(const Vector2f& position);
+ public:
+  explicit Shape(const Vector2f& position);
   virtual ~Shape();
 
   virtual Vector2f GetPosition() const;
@@ -27,14 +29,14 @@ public:
   static bool Collide(Circle* circle, Rectangle* rectangle);
   static bool Collide(Rectangle* rectangle1, Rectangle* rectangle2);
 
-protected:
+ protected:
   Vector2f _position;
 };
 
 class Circle : public Shape {
-  //friend class Shape;
+  // friend class Shape;
 
-public:
+ public:
   Circle(const Vector2f& center, float radius);
   ~Circle();
 
@@ -49,14 +51,14 @@ public:
   virtual bool Collide(Circle* circle);
   virtual bool Collide(Rectangle* rectangle);
 
-protected:
+ protected:
   float _radius;
 };
 
 class Rectangle : public Shape {
-  //friend class Shape;
+  // friend class Shape;
 
-public:
+ public:
   Rectangle(const Vector2f& center, float width, float height);
   virtual ~Rectangle();
 
@@ -73,17 +75,17 @@ public:
   virtual bool Collide(Circle* circle);
   virtual bool Collide(Rectangle* rectangle);
 
-protected:
+ protected:
   float _width;
   float _height;
 };
 
 class Square : public Rectangle {
-public:
+ public:
   Square(const Vector2f& center, float side);
   ~Square();
 };
 
-};
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_SHAPE_H_
+#endif  // SERVER_SHAPE_H_

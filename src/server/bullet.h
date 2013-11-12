@@ -1,29 +1,30 @@
-#ifndef BLOWMORH_SERVER_BULLET_H_
-#define BLOWMORH_SERVER_BULLET_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_BULLET_H_
+#define SERVER_BULLET_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
 namespace bm {
 
 class Bullet : public Entity {
   friend class Entity;
 
-public:
+ public:
   static Bullet* Create(
     WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    TimeType time
-  );
+    TimeType time);
   virtual ~Bullet();
 
   virtual std::string GetType();
@@ -41,7 +42,7 @@ public:
 
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity) ;
+  virtual bool Collide(Entity* entity);
 
   virtual bool Collide(Player* other);
   virtual bool Collide(Dummy* other);
@@ -49,8 +50,7 @@ public:
   virtual bool Collide(Wall* other);
   virtual bool Collide(Station* other);
 
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Bullet);
+ protected:
   Bullet(WorldManager* world_manager, uint32_t id);
 
   uint32_t _owner_id;
@@ -63,8 +63,11 @@ protected:
 
   // Actual speed in any direction.
   float _speed;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Bullet);
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORH_SERVER_BULLET_H_
+#endif  // SERVER_BULLET_H_

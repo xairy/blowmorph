@@ -1,14 +1,16 @@
-#ifndef BLOWMORPH_SERVER_PLAYER_H_
-#define BLOWMORPH_SERVER_PLAYER_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_PLAYER_H_
+#define SERVER_PLAYER_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
 namespace bm {
 
@@ -30,13 +32,12 @@ class Player : public Entity {
     TimeType left;
   };
 
-public:
-  // XXX: create Shape in WorldManager? What to do with bullet creation?
+ public:
+  // XXX(xairy): create Shape in WorldManager? What to do with bullet creation?
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position
-  );
+    const Vector2f& position);
   virtual ~Player();
 
   virtual std::string GetType();
@@ -98,13 +99,12 @@ public:
   virtual bool Collide(Wall* other);
   virtual bool Collide(Station* other);
 
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Player);
+ protected:
   Player(WorldManager* world_manager, uint32_t id);
 
-  Vector2f _prev_position; // Before the last 'Update'.
+  Vector2f _prev_position;  // Before the last 'Update'.
 
-  float _speed; // In vertical and horizontal directions.
+  float _speed;  // In vertical and horizontal directions.
 
   int _health;
   int _max_health;
@@ -113,18 +113,21 @@ protected:
   int _blow_charge;
   int _blow_capacity;
   int _blow_consumption;
-  int _blow_regeneration; // Points per ms.
+  int _blow_regeneration;  // Points per ms.
 
   int _morph_charge;
   int _morph_capacity;
   int _morph_consumption;
-  int _morph_regeneration; // Points per ms.
+  int _morph_regeneration;  // Points per ms.
 
   TimeType _last_update_time;
   KeyboardState _keyboard_state;
   KeyboardUpdateTime _keyboard_update_time;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Player);
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_PLAYER_H_
+#endif  // SERVER_PLAYER_H_

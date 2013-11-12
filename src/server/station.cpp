@@ -1,16 +1,18 @@
-#include "station.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/station.h"
 
 #include <memory>
 #include <string>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "vector.h"
-#include "shape.h"
-#include "world_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
+#include "server/world_manager.h"
 
 namespace bm {
 
@@ -27,11 +29,11 @@ Station* Station::Create(
   CHECK(station.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("station.shape"));
-  if(shape.get() == NULL) {
+  if (shape.get() == NULL) {
     return NULL;
   }
   shape->SetPosition(position);
-  
+
   station->_shape = shape.release();
   station->_health_regeneration = health_regeneration;
   station->_blow_regeneration = blow_regeneration;
@@ -58,13 +60,13 @@ void Station::GetSnapshot(TimeType time, EntitySnapshot* output) {
   output->id = _id;
   output->x = _shape->GetPosition().x;
   output->y = _shape->GetPosition().y;
-  if(_type == TYPE_HEALTH) {
+  if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::STATION_TYPE_HEALTH;
-  } else if(_type == TYPE_BLOW) {
+  } else if (_type == TYPE_BLOW) {
     output->data[0] = EntitySnapshot::STATION_TYPE_BLOW;
-  } else if(_type == TYPE_MORPH) {
+  } else if (_type == TYPE_MORPH) {
     output->data[0] = EntitySnapshot::STATION_TYPE_MORPH;
-  } else if(_type == TYPE_COMPOSITE) {
+  } else if (_type == TYPE_COMPOSITE) {
     output->data[0] = EntitySnapshot::STATION_TYPE_COMPOSITE;
   } else {
     CHECK(false);
@@ -72,10 +74,8 @@ void Station::GetSnapshot(TimeType time, EntitySnapshot* output) {
 }
 
 void Station::OnEntityAppearance(Entity* entity) {
-
 }
 void Station::OnEntityDisappearance(Entity* entity) {
-
 }
 
 void Station::Damage(int damage) { }
@@ -102,7 +102,7 @@ bool Station::Collide(Station* other) {
   return Entity::Collide(other, this);
 }
 
-Station::Station(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
+Station::Station(WorldManager* world_manager, uint32_t id)
+  : Entity(world_manager, id) { }
 
-
-} // namespace bm
+}  // namespace bm

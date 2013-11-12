@@ -1,9 +1,11 @@
-#include "shape.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/shape.h"
 
 #include <cmath>
 #include <cstdlib>
 
-#include "vector.h"
+#include "server/vector.h"
 
 namespace bm {
 
@@ -115,10 +117,10 @@ bool Shape::Collide(Circle* circle, Rectangle* rectangle) {
   float dx = abs(cx - rx);
   float dy = abs(cy - ry);
 
-  if(dx > w / 2 + r || dy > h / 2 + r) {
+  if (dx > w / 2 + r || dy > h / 2 + r) {
     return false;
   }
-  if(dx <= w / 2 || dy <= h / 2) {
+  if (dx <= w / 2 || dy <= h / 2) {
     return true;
   }
   float cd2 = (dx - w / 2) * (dx - w / 2) + (dy - h / 2) * (dy - h / 2);
@@ -133,4 +135,4 @@ bool Shape::Collide(Rectangle* rectangle1, Rectangle* rectangle2) {
   return (dx < allowed_x && dy < allowed_y);
 }
 
-} // namespace bm
+}  // namespace bm

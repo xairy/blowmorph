@@ -1,26 +1,28 @@
-#include "entity.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/entity.h"
 
 #include <cmath>
 
 #include <memory>
 #include <string>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
 
-#include "id_manager.h"
-#include "vector.h"
-#include "shape.h"
-#include "world_manager.h"
+#include "server/id_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
+#include "server/world_manager.h"
 
-#include "bullet.h"
-#include "dummy.h"
-#include "player.h"
-#include "wall.h"
-#include "station.h"
+#include "server/bullet.h"
+#include "server/dummy.h"
+#include "server/player.h"
+#include "server/wall.h"
+#include "server/station.h"
 
 namespace bm {
 
@@ -32,7 +34,7 @@ Entity::Entity(WorldManager* world_manager, uint32_t id)
     _is_updated(true)
 { }
 Entity::~Entity() {
-  if(_shape != NULL) {
+  if (_shape != NULL) {
     delete _shape;
     _shape = NULL;
   }
@@ -79,7 +81,7 @@ bool Entity::Collide(Station* station, Wall* wall) {
   return false;
 }
 bool Entity::Collide(Station* station, Player* player) {
-  if(station->_shape->Collide(player->_shape)) {
+  if (station->_shape->Collide(player->_shape)) {
     player->RestoreHealth(station->_health_regeneration);
     player->RestoreBlow(station->_blow_regeneration);
     player->RestoreMorph(station->_morph_regeneration);
@@ -106,13 +108,13 @@ bool Entity::Collide(Wall* wall, Player* player) {
   Vector2f position = player->_shape->GetPosition();
 
   player->_shape->SetPosition(px);
-  if(player->_shape->Collide(wall->_shape)) {
+  if (player->_shape->Collide(wall->_shape)) {
     position.y = player->_prev_position.y;
     result &= true;
   }
 
   player->_shape->SetPosition(py);
-  if(player->_shape->Collide(wall->_shape)) {
+  if (player->_shape->Collide(wall->_shape)) {
     position.x = player->_prev_position.x;
     result &= true;
   }
@@ -130,13 +132,13 @@ bool Entity::Collide(Wall* wall, Dummy* dummy) {
   Vector2f position = dummy->_shape->GetPosition();
 
   dummy->_shape->SetPosition(px);
-  if(dummy->_shape->Collide(wall->_shape)) {
+  if (dummy->_shape->Collide(wall->_shape)) {
     position.y = dummy->_prev_position.y;
     result &= true;
   }
 
   dummy->_shape->SetPosition(py);
-  if(dummy->_shape->Collide(wall->_shape)) {
+  if (dummy->_shape->Collide(wall->_shape)) {
     position.x = dummy->_prev_position.x;
     result &= true;
   }
@@ -146,7 +148,7 @@ bool Entity::Collide(Wall* wall, Dummy* dummy) {
   return result;
 }
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
-  if(wall->_shape->Collide(bullet->_shape)) {
+  if (wall->_shape->Collide(bullet->_shape)) {
     bullet->Explode();
     wall->Damage(0);
     return true;
@@ -157,7 +159,7 @@ bool Entity::Collide(Player* player1, Player* player2) {
   return false;
 }
 bool Entity::Collide(Player* player, Dummy* dummy) {
-  if(player->_shape->Collide(dummy->_shape)) {
+  if (player->_shape->Collide(dummy->_shape)) {
     SettingsManager* settings = dummy->_world_manager->GetSettings();
     int damage = settings->GetInt32("dummy.damage");
     player->Damage(damage);
@@ -167,10 +169,10 @@ bool Entity::Collide(Player* player, Dummy* dummy) {
   return false;
 }
 bool Entity::Collide(Player* player, Bullet* bullet) {
-  if(bullet->_owner_id == player->GetId()) {
+  if (bullet->_owner_id == player->GetId()) {
     return false;
   }
-  if(player->_shape->Collide(bullet->_shape)) {
+  if (player->_shape->Collide(bullet->_shape)) {
     player->Damage(0);
     bullet->Explode();
     return true;
@@ -181,7 +183,7 @@ bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
   return false;
 }
 bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
-  if(dummy->_shape->Collide(bullet->_shape)) {
+  if (dummy->_shape->Collide(bullet->_shape)) {
     bullet->Explode();
     dummy->Damage(0);
     return true;
@@ -189,7 +191,7 @@ bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   return false;
 }
 bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
-  if(bullet1->_shape->Collide(bullet2->_shape)) {
+  if (bullet1->_shape->Collide(bullet2->_shape)) {
     bullet1->Explode();
     bullet2->Explode();
     return true;
@@ -197,4 +199,4 @@ bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
   return false;
 }
 
-} // namespace bm
+}  // namespace bm

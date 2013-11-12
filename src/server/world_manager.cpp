@@ -1,36 +1,52 @@
-#include "world_manager.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/world_manager.h"
 
 #include <cmath>
 #include <cstdlib>
 
 #include <map>
+#include <string>
+#include <vector>
 
 #include <pugixml.hpp>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
 
-#include "entity.h"
-#include "id_manager.h"
-#include "vector.h"
-#include "shape.h"
+#include "server/entity.h"
+#include "server/id_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
 
-#include "bullet.h"
-#include "dummy.h"
-#include "player.h"
-#include "wall.h"
-#include "station.h"
+#include "server/bullet.h"
+#include "server/dummy.h"
+#include "server/player.h"
+#include "server/wall.h"
+#include "server/station.h"
 
 namespace {
-  double round(double value) {
-    return ::floor(value + 0.5);
-  }
-  float round(float value) {
-    return ::floorf(value + 0.5f);
-  }
+
+// XXX(xairy): shouldn't it come from math.h?
+double round(double value) {
+  return ::floor(value + 0.5);
 }
+float round(float value) {
+  return ::floorf(value + 0.5f);
+}
+
+// Returns random number in the range [0, max).
+// XXX(xairy): not thread safe because of rand().
+size_t Random(size_t max) {
+  CHECK(max > 0);
+  double zero_to_one = static_cast<double>(rand()) /  // NOLINT
+    (static_cast<double>(RAND_MAX) + 1.0f);
+  return static_cast<size_t>(zero_to_one * max);
+}
+
+}  // anonymous namespace
 
 namespace bm {
 
@@ -40,11 +56,11 @@ WorldManager::WorldManager(IdManager* id_manager, SettingsManager* settings)
 WorldManager::~WorldManager() {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
-  for(i = _static_entities.begin(); i != end; ++i) {
+  for (i = _static_entities.begin(); i != end; ++i) {
     delete i->second;
   }
   end = _dynamic_entities.end();
-  for(i = _dynamic_entities.begin(); i != end; ++i) {
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
     delete i->second;
   }
 }
@@ -55,20 +71,20 @@ SettingsManager* WorldManager::GetSettings() {
 
 void WorldManager::AddEntity(uint32_t id, Entity* entity) {
   CHECK(_static_entities.count(id) == 0 && _dynamic_entities.count(id) == 0);
-  if(entity->IsStatic()) {
+  if (entity->IsStatic()) {
     _static_entities[id] = entity;
   } else {
     _dynamic_entities[id] = entity;
   }
-  
+
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _static_entities.end();
-  for(itr = _static_entities.begin(); itr != end; ++itr) {
+  for (itr = _static_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityAppearance(entity);
     entity->OnEntityAppearance(itr->second);
   }
   end = _dynamic_entities.end();
-  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityAppearance(entity);
     entity->OnEntityAppearance(itr->second);
   }
@@ -77,10 +93,10 @@ void WorldManager::AddEntity(uint32_t id, Entity* entity) {
 void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
   CHECK(_static_entities.count(id) + _dynamic_entities.count(id) == 1);
   Entity* entity = NULL;
-  if(_static_entities.count(id) == 1) {
+  if (_static_entities.count(id) == 1) {
     entity = _static_entities[id];
     _static_entities.erase(id);
-  } else if(_dynamic_entities.count(id) == 1) {
+  } else if (_dynamic_entities.count(id) == 1) {
     entity = _dynamic_entities[id];
     _dynamic_entities.erase(id);
   }
@@ -88,31 +104,32 @@ void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
 
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _static_entities.end();
-  for(itr = _static_entities.begin(); itr != end; ++itr) {
+  for (itr = _static_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityDisappearance(entity);
   }
   end = _dynamic_entities.end();
-  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
     itr->second->OnEntityDisappearance(entity);
   }
 
-  if(deallocate) {
+  if (deallocate) {
     delete entity;
   }
 }
 
-void WorldManager::DeleteEntities(const std::vector<uint32_t>& input, bool deallocate) {
+void WorldManager::DeleteEntities(const std::vector<uint32_t>& input,
+    bool deallocate) {
   size_t size = input.size();
-  for(size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     DeleteEntity(input[i], deallocate);
   }
 }
 
 Entity* WorldManager::GetEntity(uint32_t id) {
   CHECK(_static_entities.count(id) + _dynamic_entities.count(id) == 1);
-  if(_static_entities.count(id) == 1) {
+  if (_static_entities.count(id) == 1) {
     return _static_entities[id];
-  } else if(_dynamic_entities.count(id) == 1) {
+  } else if (_dynamic_entities.count(id) == 1) {
     return _dynamic_entities[id];
   }
   return NULL;
@@ -132,14 +149,14 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
 
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _static_entities.end();
-  for(itr = _static_entities.begin(); itr != end; ++itr) {
-    if(itr->second->IsDestroyed()) {
+  for (itr = _static_entities.begin(); itr != end; ++itr) {
+    if (itr->second->IsDestroyed()) {
       output->push_back(itr->first);
     }
   }
   end = _dynamic_entities.end();
-  for(itr = _dynamic_entities.begin(); itr != end; ++itr) {
-    if(itr->second->IsDestroyed()) {
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
+    if (itr->second->IsDestroyed()) {
       output->push_back(itr->first);
     }
   }
@@ -148,12 +165,12 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
 void WorldManager::UpdateEntities(TimeType time) {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
-  for(i = _static_entities.begin(); i != end; ++i) {
+  for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     entity->Update(time);
   }
   end = _dynamic_entities.end();
-  for(i = _dynamic_entities.begin(); i != end; ++i) {
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     entity->Update(time);
   }
@@ -163,13 +180,13 @@ void WorldManager::CollideEntities() {
   std::map<uint32_t, Entity*>::iterator s, d, s_end, d_end;
   d_end = _dynamic_entities.end();
   s_end = _static_entities.end();
-  for(d = _dynamic_entities.begin(); d != d_end; ++d) {
+  for (d = _dynamic_entities.begin(); d != d_end; ++d) {
     s = d;
     ++s;
-    for(; s != d_end; ++s) {
+    for (; s != d_end; ++s) {
       d->second->Collide(s->second);
     }
-    for(s = _static_entities.begin(); s != s_end; ++s) {
+    for (s = _static_entities.begin(); s != s_end; ++s) {
       d->second->Collide(s->second);
     }
   }
@@ -178,19 +195,19 @@ void WorldManager::CollideEntities() {
 void WorldManager::DestroyOutlyingEntities() {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
-  for(i = _static_entities.begin(); i != end; ++i) {
+  for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     Vector2f position = entity->GetPosition();
-    if(abs(position.x) > _bound || abs(position.y) > _bound) {
+    if (abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
   }
   end = _dynamic_entities.end();
-  for(i = _dynamic_entities.begin(); i != end; ++i) {
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     Vector2f position = entity->GetPosition();
-    if(abs(position.x) > _bound || abs(position.y) > _bound) {
-      if(entity->GetType() != "Player") {
+    if (abs(position.x) > _bound || abs(position.y) > _bound) {
+      if (entity->GetType() != "Player") {
         entity->Destroy();
       }
     }
@@ -207,7 +224,7 @@ bool WorldManager::CreateBullet(
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
   Bullet* bullet = Bullet::Create(this, id, owner_id, start, end, time);
-  if(bullet == NULL) {
+  if (bullet == NULL) {
     return false;
   }
   AddEntity(id, bullet);
@@ -220,7 +237,7 @@ bool WorldManager::CreateDummy(
 ) {
   uint32_t id = _id_manager->NewId();
   Dummy* dummy = Dummy::Create(this, id, position, time);
-  if(dummy == NULL) {
+  if (dummy == NULL) {
     return false;
   }
   AddEntity(id, dummy);
@@ -233,7 +250,7 @@ bool WorldManager::CreateWall(
 ) {
   uint32_t id = _id_manager->NewId();
   Wall* wall = Wall::Create(this, id, position, type);
-  if(wall == NULL) {
+  if (wall == NULL) {
     return false;
   }
   AddEntity(id, wall);
@@ -250,7 +267,7 @@ bool WorldManager::CreateStation(
   uint32_t id = _id_manager->NewId();
   Station* station = Station::Create(this, id, position, health_regeneration,
     blow_regeneration, morph_regeneration, type);
-  if(station == NULL) {
+  if (station == NULL) {
     return false;
   }
   AddEntity(id, station);
@@ -275,46 +292,50 @@ bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
 bool WorldManager::LoadMap(const std::string& file) {
   pugi::xml_document document;
   pugi::xml_parse_result parse_result = document.load_file(file.c_str());
-  if(!parse_result) {
+  if (!parse_result) {
     Error::Throw(__FILE__, __LINE__, "Unable to parse %s!\n", file.c_str());
     return false;
   }
   pugi::xml_node map_node = document.child("map");
-  if(!map_node) {
-    Error::Throw(__FILE__, __LINE__, "Tag 'map' not found in %s!\n", file.c_str());
+  if (!map_node) {
+    Error::Throw(__FILE__, __LINE__,
+      "Tag 'map' not found in %s!\n", file.c_str());
     return false;
   }
 
   pugi::xml_attribute block_size = map_node.attribute("block_size");
-  if(!block_size) {
-    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
+  if (!block_size) {
+    Error::Throw(__FILE__, __LINE__,
+      "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
     return false;
   }
   _block_size = block_size.as_float();
   _map_type = MAP_GRID;
 
   pugi::xml_attribute bound = map_node.attribute("bound");
-  if(!bound) {
-    Error::Throw(__FILE__, __LINE__, "Tag 'map' does not have attribute 'bound' in %s!\n", file.c_str());
+  if (!bound) {
+    Error::Throw(__FILE__, __LINE__,
+      "Tag 'map' does not have attribute 'bound' in %s!\n", file.c_str());
     return false;
   }
   _bound = bound.as_float();
 
-  for(pugi::xml_node node = map_node.first_child(); node; node = node.next_sibling()) {
-    if(std::string(node.name()) == "wall") {
-      if(!_LoadWall(node)) {
+  pugi::xml_node node;
+  for (node = map_node.first_child(); node; node = node.next_sibling()) {
+    if (std::string(node.name()) == "wall") {
+      if (!_LoadWall(node)) {
         return false;
       }
-    } else if(std::string(node.name()) == "chunk") {
-      if(!_LoadChunk(node)) {
+    } else if (std::string(node.name()) == "chunk") {
+      if (!_LoadChunk(node)) {
         return false;
       }
-    } else if(std::string(node.name()) == "spawn") {
-      if(!_LoadSpawn(node)) {
+    } else if (std::string(node.name()) == "spawn") {
+      if (!_LoadSpawn(node)) {
         return false;
       }
-    } else if(std::string(node.name()) == "station") {
-      if(!_LoadStation(node)) {
+    } else if (std::string(node.name()) == "station") {
+      if (!_LoadStation(node)) {
         return false;
       }
     }
@@ -323,7 +344,7 @@ bool WorldManager::LoadMap(const std::string& file) {
   return true;
 }
 
-// TODO: refactor.
+// TODO(xairy): refactor.
 bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "wall");
@@ -331,17 +352,17 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   pugi::xml_attribute x = node.attribute("x");
   pugi::xml_attribute y = node.attribute("y");
   pugi::xml_attribute type = node.attribute("type");
-  if(!x || !y || !type) {
+  if (!x || !y || !type) {
     BM_ERROR("Incorrect format of 'wall' in map file!\n");
     return false;
   } else {
     Wall::Type type_value;
     bool rv = _LoadWallType(type, &type_value);
-    if(rv == false) {
+    if (rv == false) {
       return false;
     }
     rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
-    if(rv == false) {
+    if (rv == false) {
       return false;
     }
   }
@@ -349,7 +370,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   return true;
 }
 
-// TODO: refactor.
+// TODO(xairy): refactor.
 bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "chunk");
@@ -359,7 +380,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   pugi::xml_attribute width = node.attribute("width");
   pugi::xml_attribute height = node.attribute("height");
   pugi::xml_attribute type = node.attribute("type");
-  if(!x || !y || !width || !height || !type) {
+  if (!x || !y || !width || !height || !type) {
     BM_ERROR("Incorrect format of 'chunk' in map file!\n");
     return false;
   } else {
@@ -369,13 +390,13 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
     int hv = height.as_int();
     Wall::Type type_value;
     bool rv = _LoadWallType(type, &type_value);
-    if(rv == false) {
+    if (rv == false) {
       return false;
     }
-    for(int i = 0; i < wv; i++) {
-      for(int j = 0; j < hv; j++) {
+    for (int i = 0; i < wv; i++) {
+      for (int j = 0; j < hv; j++) {
         bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
-        if(rv == false) {
+        if (rv == false) {
           return false;
         }
       }
@@ -391,7 +412,7 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
 
   pugi::xml_attribute x_attr = node.attribute("x");
   pugi::xml_attribute y_attr = node.attribute("y");
-  if(!x_attr || !y_attr) {
+  if (!x_attr || !y_attr) {
     BM_ERROR("Incorrect format of 'spawn' in map file!\n");
     return false;
   } else {
@@ -413,7 +434,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
   pugi::xml_attribute br_attr = node.attribute("blow_regeneration");
   pugi::xml_attribute mr_attr = node.attribute("morph_regeneration");
   pugi::xml_attribute type_attr = node.attribute("type");
-  if(!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
+  if (!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
     BM_ERROR("Incorrect format of 'station' in map file!\n");
     return false;
   } else {
@@ -424,11 +445,11 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     int mr = mr_attr.as_int();
     Station::Type type;
     bool rv = _LoadStationType(type_attr, &type);
-    if(rv == false) {
+    if (rv == false) {
       return false;
     }
     rv = CreateStation(Vector2f(x, y), hr, br, mr, type);
-    if(rv == false) {
+    if (rv == false) {
       return false;
     }
   }
@@ -436,13 +457,14 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
   return true;
 }
 
-bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output) {
+bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute,
+    Wall::Type* output) {
   CHECK(std::string(attribute.name()) == "type");
-  if(std::string(attribute.value()) == "ordinary") {
+  if (std::string(attribute.value()) == "ordinary") {
     *output = Wall::TYPE_ORDINARY;
-  } else if(std::string(attribute.value()) == "unbreakable") {
+  } else if (std::string(attribute.value()) == "unbreakable") {
     *output = Wall::TYPE_UNBREAKABLE;
-  } else if(std::string(attribute.value()) == "morphed") {
+  } else if (std::string(attribute.value()) == "morphed") {
     *output = Wall::TYPE_MORPHED;
   } else {
     BM_ERROR("Incorrect wall type in map file!\n");
@@ -451,15 +473,16 @@ bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute, Wall::Typ
   return true;
 }
 
-bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute, Station::Type* output) {
+bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
+    Station::Type* output) {
   CHECK(std::string(attribute.name()) == "type");
-  if(std::string(attribute.value()) == "health") {
+  if (std::string(attribute.value()) == "health") {
     *output = Station::TYPE_HEALTH;
-  } else if(std::string(attribute.value()) == "blow") {
+  } else if (std::string(attribute.value()) == "blow") {
     *output = Station::TYPE_BLOW;
-  } else if(std::string(attribute.value()) == "morph") {
+  } else if (std::string(attribute.value()) == "morph") {
     *output = Station::TYPE_MORPH;
-  } else if(std::string(attribute.value()) == "composite") {
+  } else if (std::string(attribute.value()) == "composite") {
     *output = Station::TYPE_COMPOSITE;
   } else {
     BM_ERROR("Incorrect station type in map file!\n");
@@ -476,16 +499,16 @@ bool WorldManager::Blow(const Vector2f& location) {
 
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
-  for(i = _static_entities.begin(); i != end; ++i) {
+  for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if(explosion.Collide(entity->GetShape())) {
+    if (explosion.Collide(entity->GetShape())) {
       entity->Damage(damage);
     }
   }
   end = _dynamic_entities.end();
-  for(i = _dynamic_entities.begin(); i != end; ++i) {
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if(explosion.Collide(entity->GetShape())) {
+    if (explosion.Collide(entity->GetShape())) {
       entity->Damage(damage);
     }
   }
@@ -495,13 +518,13 @@ bool WorldManager::Blow(const Vector2f& location) {
 
 bool WorldManager::Morph(const Vector2f& location) {
   int radius = _settings->GetInt32("player.morph.radius");
-  int lx = static_cast<int>(round(static_cast<float>(location.x) / _block_size));
-  int ly = static_cast<int>(round(static_cast<float>(location.y) / _block_size));
-  for(int x = -radius; x <= radius; x++) {
-    for(int y = -radius; y <= radius; y++) {
-      if(x * x + y * y <= radius * radius) {
+  int lx = static_cast<int>(round(location.x / _block_size));
+  int ly = static_cast<int>(round(location.y / _block_size));
+  for (int x = -radius; x <= radius; x++) {
+    for (int y = -radius; y <= radius; y++) {
+      if (x * x + y * y <= radius * radius) {
         bool rv = _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
-        if(rv == false) {
+        if (rv == false) {
           return false;
         }
       }
@@ -509,17 +532,6 @@ bool WorldManager::Morph(const Vector2f& location) {
   }
   return true;
 }
-
-namespace {
-
-// Returns random number in the range [0, max).
-size_t Random(size_t max) {
-  CHECK(max > 0);
-  double zero_to_one = static_cast<double>(rand()) / (static_cast<double>(RAND_MAX) + 1.0f);
-  return static_cast<size_t>(zero_to_one * max);
-}
-
-} // anonymous namespace
 
 Vector2f WorldManager::GetRandomSpawn() const {
   CHECK(_spawn_positions.size() > 0);
@@ -531,18 +543,18 @@ Vector2f WorldManager::GetRandomSpawn() const {
 
 Shape* WorldManager::LoadShape(const std::string& prefix) const {
   std::string shape_type = _settings->GetString((prefix + ".type").c_str());
-  if(shape_type == "circle") {
+  if (shape_type == "circle") {
     float radius = _settings->GetFloat((prefix + ".radius").c_str());
     Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
     CHECK(shape != NULL);
     return shape;
-  } else if(shape_type == "rectangle") {
+  } else if (shape_type == "rectangle") {
     float width = _settings->GetFloat((prefix + ".width").c_str());
     float height = _settings->GetFloat((prefix + ".height").c_str());
     Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
     CHECK(shape != NULL);
     return shape;
-  } else if(shape_type == "square") {
+  } else if (shape_type == "square") {
     float side = _settings->GetFloat((prefix + ".side").c_str());
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     CHECK(shape != NULL);
@@ -552,4 +564,4 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
   return NULL;
 }
 
-} // namespace bm
+}  // namespace bm

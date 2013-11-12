@@ -1,6 +1,8 @@
-#include "id_manager.h"
+// Copyright (c) 2013 Blowmorph Team
 
-#include <base/pstdint.h>
+#include "server/id_manager.h"
+
+#include "base/pstdint.h"
 
 namespace bm {
 
@@ -12,4 +14,4 @@ uint32_t IdManager::NewId() {
   return _max_id;
 }
 
-} // namespace bm
+}  // namespace bm
