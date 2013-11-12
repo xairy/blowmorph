@@ -9,15 +9,15 @@
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
 
-#include <base/pstdint.h>
-#include <base/timer.h>
+#include "base/pstdint.h"
+#include "base/timer.h"
 
 namespace bm {
 
 class TextureAtlas;
 
 class Sprite {
-public:
+ public:
   Sprite();
   ~Sprite();
 
@@ -57,7 +57,7 @@ public:
   void SetPivot(const glm::vec2& value);
   glm::vec2 GetPivot() const;
 
-private:
+ private:
   void UpdateCurrentFrame();
 
   enum {
