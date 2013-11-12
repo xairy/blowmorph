@@ -100,11 +100,11 @@ void Sprite::Finalize() {
   _state = STATE_FINALIZED;
 }
 
-void Sprite::Render(sf::RenderWindow& render_window) {
+void Sprite::Render(sf::RenderWindow* render_window) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
   UpdateCurrentFrame();
-  render_window.draw(*_frames[_current_frame]);
+  render_window->draw(*_frames[_current_frame]);
 }
 
 void Sprite::Play() {
