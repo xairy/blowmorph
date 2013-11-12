@@ -1,21 +1,24 @@
-#ifndef BLOWMORPH_SERVER_WORLD_MANAGER_H_
-#define BLOWMORPH_SERVER_WORLD_MANAGER_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_WORLD_MANAGER_H_
+#define SERVER_WORLD_MANAGER_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include <pugixml.hpp>
 
-#include <base/pstdint.h>
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
-#include "bullet.h"
-#include "dummy.h"
-#include "player.h"
-#include "wall.h"
-#include "station.h"
+#include "server/bullet.h"
+#include "server/dummy.h"
+#include "server/player.h"
+#include "server/wall.h"
+#include "server/station.h"
 
 namespace bm {
 
@@ -24,7 +27,7 @@ class IdManager;
 class SettingsManager;
 
 class WorldManager {
-public:
+ public:
   WorldManager(IdManager* id_manager, SettingsManager* settings);
   ~WorldManager();
 
@@ -40,7 +43,7 @@ public:
   std::map<uint32_t, Entity*>* GetStaticEntities();
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
-  
+
   void UpdateEntities(TimeType time);
   void CollideEntities();
   void DestroyOutlyingEntities();
@@ -49,23 +52,22 @@ public:
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    TimeType time
-  );
+    TimeType time);
+
   bool CreateDummy(
     const Vector2f& position,
-    TimeType time
-  );
+    TimeType time);
+
   bool CreateWall(
     const Vector2f& position,
-    Wall::Type type
-  );
+    Wall::Type type);
+
   bool CreateStation(
     const Vector2f& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
-    Station::Type type
-  );
+    Station::Type type);
 
   // Works only with grid map.
   bool CreateAlignedWall(float x, float y, Wall::Type type);
@@ -77,17 +79,17 @@ public:
   // Returns one of the spawn positions stored in '_spawn_positions'.
   Vector2f GetRandomSpawn() const;
 
-  // XXX[21.08.2012 xairy]: in WorldManager?
+  // XXX(xairy): in WorldManager?
   Shape* LoadShape(const std::string& settings_prefix) const;
 
-private:
+ private:
   bool _LoadWall(const pugi::xml_node& node);
   bool _LoadChunk(const pugi::xml_node& node);
   bool _LoadSpawn(const pugi::xml_node& node);
   bool _LoadStation(const pugi::xml_node& node);
 
   bool _LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output);
-  bool _LoadStationType(const pugi::xml_attribute& attribute, Station::Type* output);
+  bool _LoadStationType(const pugi::xml_attribute& attr, Station::Type* output);
 
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
@@ -102,13 +104,13 @@ private:
     MAP_GRID
   } _map_type;
 
-  float _block_size; // Works only with grid map.
-  float _bound; // Entities with greater coordinates are destroyed.
+  float _block_size;  // Works only with grid map.
+  float _bound;  // Entities with greater coordinates are destroyed.
 
   IdManager* _id_manager;
   SettingsManager* _settings;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_WORLD_MANAGER_H_
+#endif  // SERVER_WORLD_MANAGER_H_

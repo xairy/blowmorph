@@ -1,17 +1,19 @@
-#include "player.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/player.h"
 
 #include <memory>
 #include <string>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
 
-#include "vector.h"
-#include "shape.h"
-#include "world_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
+#include "server/world_manager.h"
 
 namespace bm {
 
@@ -39,7 +41,7 @@ Player* Player::Create(
   CHECK(player.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("player.shape"));
-  if(shape.get() == NULL) {
+  if (shape.get() == NULL) {
     return NULL;
   }
   shape->SetPosition(position);
@@ -95,17 +97,17 @@ void Player::Update(TimeType time) {
     + _keyboard_state.down * (_speed);
   _shape->Move(velocity * static_cast<float>(delta_time));
 
-  // FIXME[18.11.2012 alex]: casts to int?
-  _health += (int) delta_time * _health_regeneration;
-  if(_health > _max_health) {
+  // FIXME(alex): casts to int?
+  _health += static_cast<int>(delta_time * _health_regeneration);
+  if (_health > _max_health) {
     _health = _max_health;
   }
-  _blow_charge += (int) delta_time * _blow_regeneration;
-  if(_blow_charge > _blow_capacity) {
+  _blow_charge += static_cast<int>(delta_time * _blow_regeneration);
+  if (_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
   }
-  _morph_charge += (int) delta_time * _morph_regeneration;
-  if(_morph_charge > _morph_capacity) {
+  _morph_charge += static_cast<int>(delta_time * _morph_regeneration);
+  if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
 }
@@ -122,15 +124,13 @@ void Player::GetSnapshot(TimeType time, EntitySnapshot* output) {
 }
 
 void Player::OnEntityAppearance(Entity* entity) {
-
 }
 void Player::OnEntityDisappearance(Entity* entity) {
-
 }
 
 void Player::Damage(int damage) {
   _health -= damage;
-  if(_health <= 0) {
+  if (_health <= 0) {
     _health = _max_health;
     Respawn();
   }
@@ -142,11 +142,11 @@ void Player::SetPosition(const Vector2f& position) {
 }
 
 void Player::OnKeyboardEvent(const KeyboardEvent& event) {
-  switch(event.event_type) {
+  switch (event.event_type) {
     case KeyboardEvent::EVENT_KEYDOWN: {
-      switch(event.key_type) {
+      switch (event.key_type) {
         case KeyboardEvent::KEY_UP: {
-          if(event.time <= _keyboard_update_time.up) {
+          if (event.time <= _keyboard_update_time.up) {
             return;
           }
           _keyboard_state.up = true;
@@ -154,7 +154,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_DOWN: {
-          if(event.time <= _keyboard_update_time.down) {
+          if (event.time <= _keyboard_update_time.down) {
             return;
           }
           _keyboard_state.down = true;
@@ -162,7 +162,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_RIGHT: {
-          if(event.time <= _keyboard_update_time.right) {
+          if (event.time <= _keyboard_update_time.right) {
             return;
           }
           _keyboard_state.right = true;
@@ -170,7 +170,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_LEFT: {
-          if(event.time <= _keyboard_update_time.left) {
+          if (event.time <= _keyboard_update_time.left) {
             return;
           }
           _keyboard_state.left = true;
@@ -180,9 +180,9 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
       }
     }
     case KeyboardEvent::EVENT_KEYUP: {
-      switch(event.key_type) {
+      switch (event.key_type) {
         case KeyboardEvent::KEY_UP: {
-          if(event.time <= _keyboard_update_time.up) {
+          if (event.time <= _keyboard_update_time.up) {
             return;
           }
           _keyboard_state.up = false;
@@ -190,7 +190,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_DOWN: {
-          if(event.time <= _keyboard_update_time.down) {
+          if (event.time <= _keyboard_update_time.down) {
             return;
           }
           _keyboard_state.down = false;
@@ -198,7 +198,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_RIGHT: {
-          if(event.time <= _keyboard_update_time.right) {
+          if (event.time <= _keyboard_update_time.right) {
             return;
           }
           _keyboard_state.right = false;
@@ -206,7 +206,7 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
         case KeyboardEvent::KEY_LEFT: {
-          if(event.time <= _keyboard_update_time.left) {
+          if (event.time <= _keyboard_update_time.left) {
             return;
           }
           _keyboard_state.left = false;
@@ -219,25 +219,24 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
 }
 
 bool Player::OnMouseEvent(const MouseEvent& event, TimeType time) {
-  if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
-    if(_blow_charge >= _blow_consumption) {
+    if (_blow_charge >= _blow_consumption) {
       _blow_charge -= _blow_consumption;
       Vector2f start = GetPosition();
       Vector2f end(static_cast<float>(event.x), static_cast<float>(event.y));
-      if(_world_manager->CreateBullet(_id, start, end, time) == false)
-      {
+      if (_world_manager->CreateBullet(_id, start, end, time) == false) {
         return false;
       }
     }
   }
-  if(event.event_type == MouseEvent::EVENT_KEYDOWN &&
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_RIGHT) {
-    if(_morph_charge >= _morph_consumption) {
+    if (_morph_charge >= _morph_consumption) {
       _morph_charge -= _morph_consumption;
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
-      if(_world_manager->Morph(Vector2f(x, y)) == false) {
+      if (_world_manager->Morph(Vector2f(x, y)) == false) {
         return false;
       }
     }
@@ -319,21 +318,21 @@ void Player::SetMorphRegeneration(int regeneration) {
 
 void Player::RestoreHealth(int value) {
   _health += value;
-  if(_health > _max_health) {
+  if (_health > _max_health) {
     _health = _max_health;
   }
 }
 
 void Player::RestoreBlow(int value) {
   _blow_charge += value;
-  if(_blow_charge > _blow_capacity) {
+  if (_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
   }
 }
 
 void Player::RestoreMorph(int value) {
   _morph_charge += value;
-  if(_morph_charge > _morph_capacity) {
+  if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
 }
@@ -358,6 +357,7 @@ bool Player::Collide(Station* other) {
   return Entity::Collide(other, this);
 }
 
-Player::Player(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
+Player::Player(WorldManager* world_manager, uint32_t id)
+  : Entity(world_manager, id) { }
 
-} // namespace bm
+}  // namespace bm

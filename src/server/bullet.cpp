@@ -1,17 +1,19 @@
-#include "bullet.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/bullet.h"
 
 #include <memory>
 #include <string>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
 
-#include "vector.h"
-#include "shape.h"
-#include "world_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
+#include "server/world_manager.h"
 
 namespace bm {
 
@@ -30,7 +32,7 @@ Bullet* Bullet::Create(
   CHECK(bullet.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("bullet.shape"));
-  if(shape.get() == NULL) {
+  if (shape.get() == NULL) {
     return NULL;
   }
   shape->SetPosition(start);
@@ -58,7 +60,7 @@ void Bullet::Update(TimeType time) {
   CHECK(time >= _start_time);
   Vector2f direction = _end - _start;
   float magnitude = Magnitude(direction);
-  if(magnitude != 0.0f) {
+  if (magnitude != 0.0f) {
     float dt = static_cast<float>(time - _start_time);
     _shape->SetPosition(_start + direction / magnitude * dt * _speed);
   }
@@ -73,10 +75,8 @@ void Bullet::GetSnapshot(TimeType time, EntitySnapshot* output) {
 }
 
 void Bullet::OnEntityAppearance(Entity* entity) {
-
 }
 void Bullet::OnEntityDisappearance(Entity* entity) {
-
 }
 
 void Bullet::Damage(int damage) {
@@ -84,9 +84,9 @@ void Bullet::Damage(int damage) {
 }
 
 void Bullet::Explode() {
-  if(!IsDestroyed()) {
+  if (!IsDestroyed()) {
     bool rv = _world_manager->Blow(_shape->GetPosition());
-    // TODO[11.08.2012 xairy]: handle error.
+    // TODO(xairy): handle error.
     CHECK(rv == true);
     Destroy();
   }
@@ -114,6 +114,7 @@ bool Bullet::Collide(Station* other) {
   return Entity::Collide(other, this);
 }
 
-Bullet::Bullet(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
+Bullet::Bullet(WorldManager* world_manager, uint32_t id)
+  : Entity(world_manager, id) { }
 
-} // namespace bm
+}  // namespace bm

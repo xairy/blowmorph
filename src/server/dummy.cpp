@@ -1,17 +1,19 @@
-#include "dummy.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/dummy.h"
 
 #include <memory>
 #include <string>
 
-#include <base/error.h>
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
-#include <base/settings_manager.h>
+#include "base/error.h"
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
+#include "base/settings_manager.h"
 
-#include "vector.h"
-#include "shape.h"
-#include "world_manager.h"
+#include "server/vector.h"
+#include "server/shape.h"
+#include "server/world_manager.h"
 
 namespace bm {
 
@@ -28,7 +30,7 @@ Dummy* Dummy::Create(
   CHECK(dummy.get() != NULL);
 
   std::auto_ptr<Shape> shape(world_manager->LoadShape("dummy.shape"));
-  if(shape.get() == NULL) {
+  if (shape.get() == NULL) {
     return NULL;
   }
   shape->SetPosition(position);
@@ -53,7 +55,7 @@ bool Dummy::IsStatic() {
 
 void Dummy::Update(TimeType time) {
   _prev_position = _shape->GetPosition();
-  if(_meat != NULL) {
+  if (_meat != NULL) {
     TimeType dt = time - _last_update;
     Vector2f direction = _meat->GetPosition() - GetPosition();
     direction = Normalize(direction);
@@ -70,20 +72,20 @@ void Dummy::GetSnapshot(TimeType time, EntitySnapshot* output) {
 }
 
 void Dummy::OnEntityAppearance(Entity* entity) {
-  if(entity->GetType() == "Player") {
-    if(_meat == NULL) {
+  if (entity->GetType() == "Player") {
+    if (_meat == NULL) {
       _meat = entity;
     } else {
       float current_distance = Magnitude(_meat->GetPosition() - GetPosition());
       float new_distance = Magnitude(entity->GetPosition() - GetPosition());
-      if(new_distance < current_distance) {
+      if (new_distance < current_distance) {
         _meat = entity;
       }
     }
   }
 }
 void Dummy::OnEntityDisappearance(Entity* entity) {
-  if(_meat == entity) {
+  if (_meat == entity) {
     _meat = NULL;
   }
 }
@@ -117,7 +119,7 @@ bool Dummy::Collide(Station* other) {
   return Entity::Collide(other, this);
 }
 
+Dummy::Dummy(WorldManager* world_manager, uint32_t id)
+  : Entity(world_manager, id) { }
 
-Dummy::Dummy(WorldManager* world_manager, uint32_t id) : Entity(world_manager, id) { }
-
-} // namespace bm
+}  // namespace bm

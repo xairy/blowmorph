@@ -1,14 +1,16 @@
-#include "client_manager.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/client_manager.h"
 
 #include <map>
 #include <vector>
 
 #include <enet-plus/enet.hpp>
 
-#include <base/macros.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
+#include "server/entity.h"
 
 namespace bm {
 
@@ -20,7 +22,7 @@ Client::~Client() { }
 ClientManager::ClientManager() { }
 ClientManager::~ClientManager() {
   std::map<uint32_t, Client*>::iterator i;
-  for(i = _clients.begin(); i != _clients.end(); ++i) {
+  for (i = _clients.begin(); i != _clients.end(); ++i) {
     delete i->second;
   }
 }
@@ -37,7 +39,7 @@ Client* ClientManager::GetClient(uint32_t id) {
 
 void ClientManager::DeleteClient(uint32_t id, bool deallocate) {
   CHECK(_clients.count(id) == 1);
-  if(deallocate) {
+  if (deallocate) {
     delete _clients[id];
   }
   _clients.erase(id);
@@ -52,18 +54,19 @@ std::map<uint32_t, Client*>* ClientManager::GetClients() {
   return &_clients;
 }
 
-void ClientManager::DeleteClients(const std::vector<uint32_t>& input, bool deallocate) {
+void ClientManager::DeleteClients(const std::vector<uint32_t>& input,
+    bool deallocate) {
   size_t size = input.size();
-  for(size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     DeleteClient(input[i], deallocate);
   }
 }
 
 void ClientManager::DisconnectClients(const std::vector<uint32_t>& input) {
   size_t size = input.size();
-  for(size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     DisconnectClient(input[i]);
   }
 }
 
-} // namespace bm
+}  // namespace bm

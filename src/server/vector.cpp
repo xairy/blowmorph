@@ -1,4 +1,6 @@
-#include "vector.h"
+// Copyright (c) 2013 Blowmorph Team
+
+#include "server/vector.h"
 
 #include <cmath>
 
@@ -11,11 +13,11 @@ float Magnitude(const Vector2f& v) {
 Vector2f Normalize(const Vector2f& vector) {
   Vector2f result(vector);
   float magnitude = Magnitude(result);
-  if(magnitude != 0.0f) {
+  if (magnitude != 0.0f) {
     result.x /= magnitude;
     result.y /= magnitude;
   }
   return result;
 }
 
-} // namespace bm
+}  // namespace bm

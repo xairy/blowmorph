@@ -1,21 +1,23 @@
-#ifndef BLOWMORH_SERVER_STATION_H_
-#define BLOWMORH_SERVER_STATION_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_STATION_H_
+#define SERVER_STATION_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
 namespace bm {
 
 class Station : public Entity {
   friend class Entity;
 
-public:
+ public:
   enum Type {
     TYPE_HEALTH,
     TYPE_BLOW,
@@ -30,8 +32,7 @@ public:
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
-    Type type
-  );
+    Type type);
   virtual ~Station();
 
   virtual std::string GetType();
@@ -55,8 +56,7 @@ public:
   virtual bool Collide(Wall* other);
   virtual bool Collide(Station* other);
 
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Station);
+ protected:
   Station(WorldManager* world_manager, uint32_t id);
 
   int _health_regeneration;
@@ -64,8 +64,11 @@ protected:
   int _morph_regeneration;
 
   Type _type;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Station);
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORH_SERVER_STATION_H_
+#endif  // SERVER_STATION_H_

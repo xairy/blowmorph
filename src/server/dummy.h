@@ -1,27 +1,28 @@
-#ifndef BLOWMORPH_SERVER_DUMMY_H_
-#define BLOWMORPH_SERVER_DUMMY_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_DUMMY_H_
+#define SERVER_DUMMY_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "entity.h"
-#include "vector.h"
+#include "server/entity.h"
+#include "server/vector.h"
 
 namespace bm {
 
 class Dummy : public Entity {
   friend class Entity;
 
-public:
+ public:
   static Dummy* Create(
     WorldManager* world_manager,
     uint32_t id,
     const Vector2f& position,
-    TimeType time
-  );
+    TimeType time);
   virtual ~Dummy();
 
   virtual std::string GetType();
@@ -47,16 +48,18 @@ public:
   virtual bool Collide(Wall* other);
   virtual bool Collide(Station* other);
 
-protected:
-  DISALLOW_COPY_AND_ASSIGN(Dummy);
+ protected:
   Dummy(WorldManager* world_manager, uint32_t id);
 
   float _speed;
   Entity* _meat;
   TimeType _last_update;
   Vector2f _prev_position;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Dummy);
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_DUMMY_H_
+#endif  // SERVER_DUMMY_H_

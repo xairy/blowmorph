@@ -1,5 +1,7 @@
-#ifndef BLOWMORPH_SERVER_VECTOR_H_
-#define BLOWMORPH_SERVER_VECTOR_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_VECTOR_H_
+#define SERVER_VECTOR_H_
 
 namespace bm {
 
@@ -21,16 +23,18 @@ template<class T> Vector2<T> operator * (T scalar, const Vector2<T>& vector);
 
 template<class T> Vector2<T> operator / (const Vector2<T>& vector, T scalar);
 
-template<class T> Vector2<T> operator + (const Vector2<T>& first, const Vector2<T>& second);
-template<class T> Vector2<T> operator - (const Vector2<T>& first, const Vector2<T>& second);
+template<class T>
+Vector2<T> operator + (const Vector2<T>& first, const Vector2<T>& second);
+template<class T>
+Vector2<T> operator - (const Vector2<T>& first, const Vector2<T>& second);
 
 typedef Vector2<float> Vector2f;
 
 float Magnitude(const Vector2f& vector);
 Vector2f Normalize(const Vector2f& vector);
 
-} // namespace bm
+}  // namespace bm
 
 #include "vector.inl"
 
-#endif // BLOWMORPH_SERVER_VECTOR_H_
+#endif  // SERVER_VECTOR_H_

@@ -1,14 +1,16 @@
-#ifndef BLOWMORPH_SERVER_ENTITY_H_
-#define BLOWMORPH_SERVER_ENTITY_H_
+// Copyright (c) 2013 Blowmorph Team
+
+#ifndef SERVER_ENTITY_H_
+#define SERVER_ENTITY_H_
 
 #include <string>
 
-#include <base/macros.h>
-#include <base/protocol.h>
-#include <base/pstdint.h>
+#include "base/macros.h"
+#include "base/protocol.h"
+#include "base/pstdint.h"
 
-#include "vector.h"
-#include "shape.h"
+#include "server/vector.h"
+#include "server/shape.h"
 
 namespace bm {
 
@@ -21,11 +23,11 @@ class Wall;
 class Station;
 
 class Entity {
-public:
+ public:
   Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
-  // XXX[13.08.2012 xairy]: rename it to GetEntityType?
+  // XXX(xairy): rename it to GetEntityType?
   virtual std::string GetType() = 0;
   virtual bool IsStatic() = 0;
 
@@ -36,7 +38,7 @@ public:
   virtual void OnEntityDisappearance(Entity* entity) = 0;
 
   virtual void Damage(int damage) = 0;
-  
+
   virtual uint32_t GetId() const;
 
   virtual Shape* GetShape();
@@ -81,7 +83,7 @@ public:
 
   static bool Collide(Bullet* bullet1, Bullet* bullet2);
 
-protected:
+ protected:
   WorldManager* _world_manager;
 
   uint32_t _id;
@@ -91,6 +93,6 @@ protected:
   bool _is_updated;
 };
 
-} // namespace bm
+}  // namespace bm
 
-#endif // BLOWMORPH_SERVER_ENTITY_H_
+#endif  // SERVER_ENTITY_H_

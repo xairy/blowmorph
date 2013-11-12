@@ -1,3 +1,5 @@
+// Copyright (c) 2013 Blowmorph Team
+
 #include <cmath>
 
 namespace bm {
@@ -71,4 +73,4 @@ Vector2<T> operator - (const Vector2<T>& first, const Vector2<T>& second) {
   return result;
 }
 
-} // namespace bm
+}  // namespace bm
