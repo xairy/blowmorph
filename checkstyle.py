@@ -28,13 +28,15 @@ def get_blacklisted_files():
 
 def cpplint_check_file(filename):
   try:
-    subprocess.check_call(['python', 'cpplint.py', '--filter=-readability/check,-build/include_order', filename])
+    subprocess.check_call(['python', 'cpplint.py', '--root=src', '--filter=-readability/check,-build/include_order', filename])
   except subprocess.CalledProcessError as error:
     return False
   return True
 
 def main():
   src_files = get_staged_src_files()
+  if len(sys.argv) == 2 and sys.argv[1] == 'all':
+    src_files = get_src_files()
   blacklisted_files = get_blacklisted_files()
   files_to_check = [file for file in src_files if file not in blacklisted_files]
 

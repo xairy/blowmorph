@@ -1,11 +1,13 @@
+// Copyright (c) 2013 Blowmorph Team
+
 #include <errno.h>
 #include <stdio.h>
 
-#include <base/ctrlc.h>
+#include "base/ctrlc.h"
 
-#include "server.h"
+#include "server/server.h"
 
-// FIXME[23.11.2012 alex]: Not thread safe.
+// FIXME(alex): Not thread safe.
 bool global_stop_flag = false;
 
 void CtrlCHandler() {
@@ -16,7 +18,7 @@ int main(int argc, char** argv) {
   SetCtrlCHandler(&CtrlCHandler);
 
   bm::Server server;
-  
+
   if (!server.Initialize()) {
     return false;
   }
