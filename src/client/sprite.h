@@ -29,7 +29,7 @@ public:
   void Finalize();
 
   // Renders current frame.
-  void Render(sf::RenderWindow& render_window);
+  void Render(sf::RenderWindow* render_window);
 
   // Sets the mode of the sprite. 'mode' should be the name of one of the
   // modes declared in the sprite description file.

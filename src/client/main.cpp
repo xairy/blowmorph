@@ -161,7 +161,7 @@ void RenderObject(Object* object, TimeType time,
 
   if (object->visible) {
     object->sprite.SetPosition(glm::round(state.position));
-    object->sprite.Render(render_window);
+    object->sprite.Render(&render_window);
   }
 
   if (object->name_visible) {
@@ -971,7 +971,7 @@ class Application {
 
       std::list<Sprite*>::iterator it2;
       for (it2 = _explosions.begin(); it2 != _explosions.end();) {
-        (*it2)->Render(*_render_window);
+        (*it2)->Render(_render_window);
         if ((*it2)->IsStopped()) {
           std::list<Sprite*>::iterator it1 = it2;
           ++it1;
