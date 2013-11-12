@@ -28,7 +28,7 @@ def get_blacklisted_files():
 
 def cpplint_check_file(filename):
   try:
-    subprocess.check_call(['python', 'cpplint.py', '--filter=-readability/check', filename])
+    subprocess.check_call(['python', 'cpplint.py', '--filter=-readability/check,-build/include_order', filename])
   except subprocess.CalledProcessError as error:
     return False
   return True

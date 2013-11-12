@@ -2,7 +2,6 @@ src/client/sprite.cpp
 src/client/sprite.h
 src/client/texture_atlas.cpp
 src/client/texture_atlas.h
-src/client/main.cpp
 src/client/net.h
 src/server/bullet.cpp
 src/server/bullet.h
@@ -14,7 +13,6 @@ src/server/entity.cpp
 src/server/entity.h
 src/server/id_manager.cpp
 src/server/id_manager.h
-src/server/main.cpp
 src/server/player.cpp
 src/server/player.h
 src/server/server.h
