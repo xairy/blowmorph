@@ -1,4 +1,3 @@
-src/client/sprite.h
 src/client/texture_atlas.cpp
 src/client/texture_atlas.h
 src/client/net.h
