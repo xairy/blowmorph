@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_CLIENT_SYS_H_
-#define SRC_CLIENT_SYS_H_
+#ifndef CLIENT_SYS_H_
+#define CLIENT_SYS_H_
 
 #include <stdint.h>
 
@@ -14,4 +14,4 @@ void Warning(const char* fmt, ...);
 
 }  // namespace sys
 
-#endif  // SRC_CLIENT_SYS_H_
+#endif  // CLIENT_SYS_H_

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_TIMER_H_
-#define SRC_BASE_TIMER_H_
+#ifndef BASE_TIMER_H_
+#define BASE_TIMER_H_
 
 // WARNING: Timer is NOT thread safe.
 
@@ -37,4 +37,4 @@ class Timer {
 
 }  // namespace bm
 
-#endif  // SRC_BASE_TIMER_H_
+#endif  // BASE_TIMER_H_

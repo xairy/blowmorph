@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_PROTOCOL_H_
-#define SRC_BASE_PROTOCOL_H_
+#ifndef BASE_PROTOCOL_H_
+#define BASE_PROTOCOL_H_
 
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -140,4 +140,4 @@ struct MouseEvent {
 
 }  // namespace bm
 
-#endif  // SRC_BASE_PROTOCOL_H_
+#endif  // BASE_PROTOCOL_H_

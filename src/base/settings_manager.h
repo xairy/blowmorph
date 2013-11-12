@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_SETTINGS_MANAGER_H_
-#define SRC_BASE_SETTINGS_MANAGER_H_
+#ifndef BASE_SETTINGS_MANAGER_H_
+#define BASE_SETTINGS_MANAGER_H_
 
 #include <string>
 
@@ -57,4 +57,4 @@ class SettingsManager {
 
 }  // namespace bm
 
-#endif  // SRC_BASE_SETTINGS_MANAGER_H_
+#endif  // BASE_SETTINGS_MANAGER_H_

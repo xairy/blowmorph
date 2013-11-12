@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_CLIENT_NET_H_
-#define SRC_CLIENT_NET_H_
+#ifndef CLIENT_NET_H_
+#define CLIENT_NET_H_
 
 #include <vector>
 
@@ -55,4 +55,4 @@ bool DisconnectPeer(
 }  // namespace net
 }  // namespace bm
 
-#endif  // SRC_CLIENT_NET_H_
+#endif  // CLIENT_NET_H_

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_CLIENT_SPRITE_H_
-#define SRC_CLIENT_SPRITE_H_
+#ifndef CLIENT_SPRITE_H_
+#define CLIENT_SPRITE_H_
 
 #include <string>
 #include <vector>
@@ -87,4 +87,4 @@ class Sprite {
 
 }  // namespace bm
 
-#endif  // SRC_CLIENT_SPRITE_H_
+#endif  // CLIENT_SPRITE_H_

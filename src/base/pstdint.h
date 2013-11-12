@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_PSTDINT_H_
-#define SRC_BASE_PSTDINT_H_
+#ifndef BASE_PSTDINT_H_
+#define BASE_PSTDINT_H_
 
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -27,4 +27,4 @@ SCHECK(sizeof(float64_t) == 8);
 // Unicode character.
 typedef uint32_t uchar_t;
 
-#endif  // SRC_BASE_PSTDINT_H_
+#endif  // BASE_PSTDINT_H_

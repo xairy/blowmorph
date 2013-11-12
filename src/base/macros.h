@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_BASE_MACROS_H_
-#define SRC_BASE_MACROS_H_
+#ifndef BASE_MACROS_H_
+#define BASE_MACROS_H_
 
 #include <cstdio>
 #include <cstdlib>
@@ -60,4 +60,4 @@
     DISALLOW_COPY_AND_ASSIGN(TypeName)
 #endif
 
-#endif  // SRC_BASE_MACROS_H_
+#endif  // BASE_MACROS_H_

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SRC_CLIENT_TEXTURE_ATLAS_H_
-#define SRC_CLIENT_TEXTURE_ATLAS_H_
+#ifndef CLIENT_TEXTURE_ATLAS_H_
+#define CLIENT_TEXTURE_ATLAS_H_
 
 #include <map>
 #include <string>
@@ -72,4 +72,4 @@ TileSet MakeSimpleTileset(
 
 }  // namespace bm
 
-#endif  // SRC_CLIENT_TEXTURE_ATLAS_H_
+#endif  // CLIENT_TEXTURE_ATLAS_H_
