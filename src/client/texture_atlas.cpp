@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2013 Blowmorph Team
 
 #include "client/texture_atlas.h"
 
@@ -73,8 +73,7 @@ TextureAtlas* LoadTexture(
   result->texture->loadFromImage(image);
 
   result->tileset.push_back(
-    TileRect(0, 0, image.getSize().x, image.getSize().y)
-  );
+    TileRect(0, 0, image.getSize().x, image.getSize().y));
 
   CHECK(result->tileset.size() > 0);
   return result;
@@ -98,8 +97,7 @@ TextureAtlas* LoadTileset(
     horizontal_step, vertical_step,
     tile_width, tile_height,
     result->texture->getSize().x,
-    result->texture->getSize().y
-  );
+    result->texture->getSize().y);
   CHECK(result->tileset.size() > 0);
   return result;
 }
