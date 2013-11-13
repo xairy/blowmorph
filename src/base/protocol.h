@@ -8,8 +8,6 @@
 
 namespace bm {
 
-typedef int64_t TimeType;
-
 class Packet {
  public:
   enum Type {
@@ -50,8 +48,8 @@ struct ClientOptions {
 };
 
 struct TimeSyncData {
-  TimeType client_time;
-  TimeType server_time;
+  int64_t client_time;
+  int64_t server_time;
 };
 
 // type == EntitySnapshot::ENTITY_TYPE_PLAYER:
@@ -97,7 +95,7 @@ struct EntitySnapshot {
     STATION_TYPE_MAX_VALUE
   };
 
-  TimeType time;
+  int64_t time;
   uint32_t id;
   EntityType type;
   float32_t x;
@@ -117,7 +115,7 @@ struct KeyboardEvent {
     EVENT_KEYUP
   };
 
-  TimeType time;
+  int64_t time;
   KeyType key_type;
   EventType event_type;
 };
@@ -132,7 +130,7 @@ struct MouseEvent {
     EVENT_KEYUP
   };
 
-  TimeType time;
+  int64_t time;
   ButtonType button_type;
   EventType event_type;
   float32_t x, y;

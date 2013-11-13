@@ -26,10 +26,10 @@ class Player : public Entity {
 
   // The time of the last update of each key.
   struct KeyboardUpdateTime {
-    TimeType up;
-    TimeType down;
-    TimeType right;
-    TimeType left;
+    int64_t up;
+    int64_t down;
+    int64_t right;
+    int64_t left;
   };
 
  public:
@@ -43,8 +43,8 @@ class Player : public Entity {
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(TimeType time);
-  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
+  virtual void Update(int64_t time);
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
@@ -54,7 +54,7 @@ class Player : public Entity {
   virtual void SetPosition(const Vector2f& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
-  bool OnMouseEvent(const MouseEvent& event, TimeType time);
+  bool OnMouseEvent(const MouseEvent& event, int64_t time);
 
   void Respawn();
 
@@ -120,7 +120,7 @@ class Player : public Entity {
   int _morph_consumption;
   int _morph_regeneration;  // Points per ms.
 
-  TimeType _last_update_time;
+  int64_t _last_update_time;
   KeyboardState _keyboard_state;
   KeyboardUpdateTime _keyboard_update_time;
 
