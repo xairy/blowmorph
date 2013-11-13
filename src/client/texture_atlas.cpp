@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include <SFML/Graphics.hpp>
+
 #include "base/error.h"
 #include "base/pstdint.h"
 
@@ -21,22 +23,23 @@ size_t TextureAtlas::GetTileCount() const {
   return tileset.size();
 }
 
-glm::vec2 TextureAtlas::GetTilePosition(size_t i) const {
+sf::Vector2i TextureAtlas::GetTilePosition(size_t i) const {
   CHECK(texture != 0);
   CHECK(i < GetTileCount());
 
-  return glm::vec2(tileset[i].left, tileset[i].top);
+  return sf::Vector2i(tileset[i].left, tileset[i].top);
 }
-glm::vec2 TextureAtlas::GetTileSize(size_t i) const {
+
+sf::Vector2i TextureAtlas::GetTileSize(size_t i) const {
   CHECK(texture != NULL);
   CHECK(i < GetTileCount());
 
-  return glm::vec2(tileset[i].width, tileset[i].height);
+  return sf::Vector2i(tileset[i].width, tileset[i].height);
 }
 
-glm::vec2 TextureAtlas::GetSize() const {
+sf::Vector2i TextureAtlas::GetSize() const {
   CHECK(texture != NULL);
-  return glm::vec2(texture->getSize().x, texture->getSize().y);
+  return sf::Vector2i(texture->getSize().x, texture->getSize().y);
 }
 
 TextureAtlas::TextureAtlas() { }
@@ -82,9 +85,9 @@ TextureAtlas* LoadTexture(
 TextureAtlas* LoadTileset(
   const std::string& path,
   uint32_t transparent_color,
-  int64_t start_x, int64_t start_y,
-  int64_t horizontal_step, int64_t vertical_step,
-  int64_t tile_width, int64_t tile_height
+  int32_t start_x, int32_t start_y,
+  int32_t horizontal_step, int32_t vertical_step,
+  int32_t tile_width, int32_t tile_height
 ) {
   TextureAtlas* result = LoadTexture(path, transparent_color);
   if (result == NULL) {
@@ -103,15 +106,15 @@ TextureAtlas* LoadTileset(
 }
 
 TileSet MakeSimpleTileset(
-  int64_t start_x, int64_t start_y,
-  int64_t hor_step, int64_t ver_step,
-  int64_t tile_width, int64_t tile_height,
-  int64_t image_width, int64_t image_height
+  int32_t start_x, int32_t start_y,
+  int32_t hor_step, int32_t ver_step,
+  int32_t tile_width, int32_t tile_height,
+  int32_t image_width, int32_t image_height
 ) {
   TileSet result;
 
-  for (int64_t y = start_y; (y + tile_height) <= image_height; y += ver_step) {
-    for (int64_t x = start_x; (x + tile_width) <= image_width; x += hor_step) {
+  for (int32_t y = start_y; (y + tile_height) <= image_height; y += ver_step) {
+    for (int32_t x = start_x; (x + tile_width) <= image_width; x += hor_step) {
       result.push_back(TileRect(x, y, tile_width, tile_height));
     }
   }

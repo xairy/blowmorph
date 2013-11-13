@@ -15,8 +15,6 @@
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
-#include <glm/glm.hpp>
-#include <FreeImage.h>
 
 #include <enet-plus/enet.hpp>
 
@@ -34,12 +32,24 @@
 #include "client/sys.h"
 #include "client/net.h"
 
+namespace {
+
+float Length(const sf::Vector2f& vector) {
+  return sqrt(vector.x * vector.x + vector.y * vector.y);
+}
+
+sf::Vector2f Round(const sf::Vector2f& vector) {
+  return sf::Vector2f(round(vector.x), round(vector.y));
+}
+
+}  // anonymous namespace
+
 bm::TimeType getTicks() {
   return sys::Timestamp();
 }
 
 struct ObjectState {
-  glm::vec2 position;
+  sf::Vector2f position;
   float blowCharge;
   float morphCharge;
   float health;
@@ -48,8 +58,8 @@ struct ObjectState {
 namespace interpolator {
 
 template<>
-glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, double bRatio) {
-  glm::vec2 result;
+sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, double bRatio) {
+  sf::Vector2f result;
   result.x = lerp(a.x, b.x, bRatio);
   result.y = lerp(a.y, b.y, bRatio);
   return result;
@@ -75,7 +85,7 @@ typedef interpolator::LinearInterpolator<ObjectState, TimeType>
 // TODO(alex): fix method names.
 // FIXME(alex): hardcoded initial interpolation time step.
 struct Object {
-  Object(const glm::vec2& position, TimeType time,
+  Object(const sf::Vector2f& position, TimeType time,
     uint32_t id, uint32_t type, const std::string& path)
       : id(id),
         type(type),
@@ -93,7 +103,7 @@ struct Object {
     state.position = position;
     interpolator.Push(state, time);
 
-    name_offset = glm::vec2(-15.0f, -30.0f);
+    name_offset = sf::Vector2f(-15.0f, -30.0f);
   }
 
   void EnableInterpolation() {
@@ -115,24 +125,24 @@ struct Object {
     interpolator.Push(state, time);
   }
 
-  glm::vec2 GetPosition(TimeType time) {
+  sf::Vector2f GetPosition(TimeType time) {
     return interpolator.Interpolate(time).position;
   }
 
-  glm::vec2 GetPosition() {
-    assert(!interpolation_enabled);
+  sf::Vector2f GetPosition() {
+    CHECK(!interpolation_enabled);
     return GetPosition(TimeType(0));
   }
 
-  void SetPosition(const glm::vec2& value) {
-    assert(!interpolation_enabled);
+  void SetPosition(const sf::Vector2f& value) {
+    CHECK(!interpolation_enabled);
     ObjectState state = interpolator.Interpolate(TimeType(0));
     state.position = value;
     EnforceState(state, TimeType(0));
   }
 
-  void Move(const glm::vec2& value) {
-    assert(!interpolation_enabled);
+  void Move(const sf::Vector2f& value) {
+    CHECK(!interpolation_enabled);
     ObjectState state = interpolator.Interpolate(TimeType(0));
     state.position = state.position + value;
     EnforceState(state, TimeType(0));
@@ -146,7 +156,7 @@ struct Object {
   bool visible;
 
   bool name_visible;
-  glm::vec2 name_offset;
+  sf::Vector2f name_offset;
 
   bool interpolation_enabled;
   ObjectInterpolator interpolator;
@@ -160,14 +170,15 @@ void RenderObject(Object* object, TimeType time,
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    object->sprite.SetPosition(glm::round(state.position));
+    sf::Vector2f object_pos(round(state.position.x), round(state.position.y));
+    object->sprite.SetPosition(object_pos);
     object->sprite.Render(&render_window);
   }
 
   if (object->name_visible) {
-    glm::vec2 caption_pos = glm::round(state.position + object->name_offset);
-    sf::Text text("Myself", *font, 12);
-    text.setPosition(caption_pos.x, caption_pos.y);
+    sf::Vector2f name_pos = Round(state.position + object->name_offset);
+    sf::Text text("Player", *font, 12);
+    text.setPosition(name_pos.x, name_pos.y);
     render_window.draw(text);
   }
 }
@@ -621,7 +632,7 @@ class Application {
           _network_state = NETWORK_STATE_LOGGED_IN;
 
           // XXX(alex): move it to the ProcessPacket method
-          glm::vec2 player_pos(_client_options->x, _client_options->y);
+          sf::Vector2f player_pos(_client_options->x, _client_options->y);
           _player = new Object(player_pos, TimeType(0), _client_options->id,
               EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
           CHECK(_player != NULL);
@@ -678,7 +689,7 @@ class Application {
     CHECK(snapshot != NULL);
 
     TimeType time = snapshot->time;
-    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
+    sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
     switch (snapshot->type) {
       case EntitySnapshot::ENTITY_TYPE_WALL: {
@@ -755,7 +766,7 @@ class Application {
     CHECK(snapshot != NULL);
 
     TimeType time = snapshot->time;
-    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
+    sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
     ObjectState state;
     state.position = position;
@@ -773,8 +784,8 @@ class Application {
   void OnPlayerUpdate(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
 
-    glm::vec2 position = glm::vec2(snapshot->x, snapshot->y);
-    glm::vec2 distance = _player->GetPosition() - position;
+    sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
+    sf::Vector2f distance = _player->GetPosition() - position;
 
     ObjectState state;
     state.position = position;
@@ -782,7 +793,7 @@ class Application {
     _player_blow_charge = static_cast<float>(snapshot->data[1]);
     _player_morph_charge = static_cast<float>(snapshot->data[2]);
 
-    if (glm::length(distance) > _max_error) {
+    if (Length(distance) > _max_error) {
       _player->EnforceState(state, snapshot->time);
     } else {
       // _player->UpdateCurrentState(state, snapshot->time);
@@ -801,7 +812,7 @@ class Application {
       bool rv = explosion->Initialize("data/sprites/explosion.sprite");
       CHECK(rv == true);  // FIXME(xairy).
       CHECK(explosion != NULL);
-      explosion->SetPosition(glm::vec2(snapshot->x, snapshot->y));
+      explosion->SetPosition(sf::Vector2f(snapshot->x, snapshot->y));
       explosion->Play();
       _explosions.push_back(explosion);
     }
@@ -815,19 +826,19 @@ class Application {
       TimeType delta_time = current_time - _last_loop;
       _last_loop = current_time;
 
-      glm::float_t delta_x = (_keyboard_state.right - _keyboard_state.left) *
+      float delta_x = (_keyboard_state.right - _keyboard_state.left) *
         _client_options->speed * delta_time;
-      glm::float_t delta_y = (_keyboard_state.down - _keyboard_state.up) *
+      float delta_y = (_keyboard_state.down - _keyboard_state.up) *
         _client_options->speed * delta_time;
 
       bool intersection_x = false;
       bool intersection_y = false;
 
       std::map<int, Object*>::iterator it;
-      glm::vec2 player_pos = _player->GetPosition(current_time);
+      sf::Vector2f player_pos = _player->GetPosition(current_time);
 
       for (it = _walls.begin() ; it != _walls.end(); it++) {
-        glm::vec2 wall_pos = it->second->GetPosition(current_time);
+        sf::Vector2f wall_pos = it->second->GetPosition(current_time);
         float player_to_wall_x = abs(wall_pos.x - (player_pos.x + delta_x));
         float player_to_wall_y = abs(wall_pos.y - player_pos.y);
         if (player_to_wall_x < (_player_size + _wall_size) / 2 &&
@@ -837,7 +848,7 @@ class Application {
         }
       }
       for (it = _walls.begin() ; it != _walls.end(); it++) {
-        glm::vec2 wall_pos = it->second->GetPosition(current_time);
+        sf::Vector2f wall_pos = it->second->GetPosition(current_time);
         float player_to_wall_x = abs(wall_pos.x - player_pos.x);
         float player_to_wall_y = abs(wall_pos.y - (player_pos.y + delta_y));
         if (player_to_wall_x < (_player_size + _wall_size) / 2 &&
@@ -847,8 +858,8 @@ class Application {
         }
       }
 
-      if (!intersection_x) _player->Move(glm::vec2(delta_x, 0.0f));
-      if (!intersection_y) _player->Move(glm::vec2(0.0f, delta_y));
+      if (!intersection_x) _player->Move(sf::Vector2f(delta_x, 0.0f));
+      if (!intersection_y) _player->Move(sf::Vector2f(0.0f, delta_y));
     }
 
     return true;
@@ -912,10 +923,10 @@ class Application {
     for (it = _objects.begin(); it != _objects.end(); ++it) {
       Object* obj = it->second;
 
-      glm::vec2 obj_pos = obj->GetPosition(render_time);
-      glm::vec2 player_pos = _player->GetPosition(render_time);
-      glm::vec2 rel = obj_pos - player_pos;
-      if (glm::length(rel) < 400) {
+      sf::Vector2f obj_pos = obj->GetPosition(render_time);
+      sf::Vector2f player_pos = _player->GetPosition(render_time);
+      sf::Vector2f rel = obj_pos - player_pos;
+      if (Length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         sf::CircleShape circle(1.0f);
         sf::Vector2f compass_center(80.0f, 80.0f);
@@ -928,10 +939,10 @@ class Application {
     for (it = _walls.begin(); it != _walls.end(); ++it) {
       Object* obj = it->second;
 
-      glm::vec2 obj_pos = obj->GetPosition(render_time);
-      glm::vec2 player_pos = _player->GetPosition(render_time);
-      glm::vec2 rel = obj_pos - player_pos;
-      if (glm::length(rel) < 400) {
+      sf::Vector2f obj_pos = obj->GetPosition(render_time);
+      sf::Vector2f player_pos = _player->GetPosition(render_time);
+      sf::Vector2f rel = obj_pos - player_pos;
+      if (Length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         sf::CircleShape circle(1.0f);
         sf::Vector2f compass_center(80.0f, 80.0f);
@@ -944,10 +955,10 @@ class Application {
     {
       Object* obj = _player;
 
-      glm::vec2 obj_pos = obj->GetPosition(render_time);
-      glm::vec2 player_pos = _player->GetPosition(render_time);
-      glm::vec2 rel = obj_pos - player_pos;
-      if (glm::length(rel) < 400) {
+      sf::Vector2f obj_pos = obj->GetPosition(render_time);
+      sf::Vector2f player_pos = _player->GetPosition(render_time);
+      sf::Vector2f rel = obj_pos - player_pos;
+      if (Length(rel) < 400) {
         rel = rel * (60.0f / 400.0f);
         sf::CircleShape circle(1.0f);
         sf::Vector2f compass_center(80.0f, 80.0f);
@@ -964,9 +975,9 @@ class Application {
 
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
       TimeType render_time = _GetTime();
-      glm::vec2 player_pos = _player->GetPosition(render_time);
+      sf::Vector2f player_pos = _player->GetPosition(render_time);
 
-      _view.setCenter(glm::round(player_pos.x), glm::round(player_pos.y));
+      _view.setCenter(Round(player_pos));
       _render_window->setView(_view);
 
       std::list<Sprite*>::iterator it2;
@@ -1030,7 +1041,7 @@ class Application {
   uint32_t _wall_size;
   uint32_t _player_size;
 
-  glm::float_t _max_error;
+  float _max_error;
 
   float _player_health;
   float _player_blow_charge;

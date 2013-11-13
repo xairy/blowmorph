@@ -35,12 +35,12 @@ bool Sprite::Initialize(const std::string& path) {
 
   // FIXME(xairy): texture shouldn't be loaded twice.
   if (tiled) {
-    int64_t start_x = settings.GetInt64("sprite.tile.start.x");
-    int64_t start_y = settings.GetInt64("sprite.tile.start.y");
-    int64_t horizontal_step = settings.GetInt64("sprite.tile.step.horizontal");
-    int64_t vertical_step = settings.GetInt64("sprite.tile.step.vertical");
-    int64_t width = settings.GetInt64("sprite.tile.width");
-    int64_t height = settings.GetInt64("sprite.tile.height");
+    int32_t start_x = settings.GetInt32("sprite.tile.start.x");
+    int32_t start_y = settings.GetInt32("sprite.tile.start.y");
+    int32_t horizontal_step = settings.GetInt32("sprite.tile.step.horizontal");
+    int32_t vertical_step = settings.GetInt32("sprite.tile.step.vertical");
+    int32_t width = settings.GetInt32("sprite.tile.width");
+    int32_t height = settings.GetInt32("sprite.tile.height");
     _texture = LoadTileset(source, transparent_color, start_x, start_y,
         horizontal_step, vertical_step, width, height);
   } else {
@@ -63,15 +63,14 @@ bool Sprite::Initialize(const std::string& path) {
   CHECK(_frames_count >= 1);
 
   for (size_t frame = 0; frame < _frames_count; frame++) {
-    glm::vec2 tile_position = _texture->GetTilePosition(frame);
-    glm::vec2 tile_size = _texture->GetTileSize(frame);
+    sf::Vector2i tile_position = _texture->GetTilePosition(frame);
+    sf::Vector2i tile_size = _texture->GetTileSize(frame);
 
     sf::Sprite* sprite = new sf::Sprite();
     CHECK(sprite != NULL);
 
     sprite->setTexture(*_texture->GetTexture());
-    sprite->setTextureRect(sf::IntRect(tile_position.x, tile_position.y,
-      tile_size.x, tile_size.y));
+    sprite->setTextureRect(sf::IntRect(tile_position, tile_size));
     sprite->setOrigin(tile_size.x / 2.0f, tile_size.y / 2.0f);
 
     _frames[frame] = sprite;
@@ -134,34 +133,32 @@ bool Sprite::IsStopped() const {
   return _state == STATE_STOPPED;
 }
 
-void Sprite::SetPosition(const glm::vec2& position) {
+void Sprite::SetPosition(const sf::Vector2f& position) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frames_count; frame++) {
     DCHECK(_frames[frame] != NULL);
-    _frames[frame]->setPosition(sf::Vector2f(position.x, position.y));
+    _frames[frame]->setPosition(position);
   }
 }
 
-glm::vec2 Sprite::GetPosition() const {
+sf::Vector2f Sprite::GetPosition() const {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
-  sf::Vector2f position = _frames[_current_frame]->getPosition();
-  return glm::vec2(position.x, position.y);
+  return _frames[_current_frame]->getPosition();
 }
 
-void Sprite::SetPivot(const glm::vec2& pivot) {
+void Sprite::SetPivot(const sf::Vector2f& pivot) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frames_count; frame++) {
     DCHECK(_frames[frame] != NULL);
-    _frames[frame]->setOrigin(pivot.x, pivot.y);
+    _frames[frame]->setOrigin(pivot);
   }
 }
 
-glm::vec2 Sprite::GetPivot() const {
+sf::Vector2f Sprite::GetPivot() const {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   DCHECK(_frames[_current_frame] != NULL);
-  sf::Vector2f pivot = _frames[_current_frame]->getOrigin();
-  return glm::vec2(pivot.x, pivot.y);
+  return _frames[_current_frame]->getOrigin();
 }
 
 void Sprite::UpdateCurrentFrame() {
