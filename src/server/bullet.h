@@ -24,14 +24,14 @@ class Bullet : public Entity {
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    TimeType time);
+    int64_t time);
   virtual ~Bullet();
 
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(TimeType time);
-  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
+  virtual void Update(int64_t time);
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
@@ -59,7 +59,7 @@ class Bullet : public Entity {
   Vector2f _start;
   Vector2f _end;
 
-  TimeType _start_time;
+  int64_t _start_time;
 
   // Actual speed in any direction.
   float _speed;

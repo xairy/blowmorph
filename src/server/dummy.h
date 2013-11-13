@@ -22,14 +22,14 @@ class Dummy : public Entity {
     WorldManager* world_manager,
     uint32_t id,
     const Vector2f& position,
-    TimeType time);
+    int64_t time);
   virtual ~Dummy();
 
   virtual std::string GetType();
   virtual bool IsStatic();
 
-  virtual void Update(TimeType time);
-  virtual void GetSnapshot(TimeType time, EntitySnapshot* output);
+  virtual void Update(int64_t time);
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
@@ -53,7 +53,7 @@ class Dummy : public Entity {
 
   float _speed;
   Entity* _meat;
-  TimeType _last_update;
+  int64_t _last_update;
   Vector2f _prev_position;
 
  private:

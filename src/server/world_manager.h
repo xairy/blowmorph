@@ -44,7 +44,7 @@ class WorldManager {
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
 
-  void UpdateEntities(TimeType time);
+  void UpdateEntities(int64_t time);
   void CollideEntities();
   void DestroyOutlyingEntities();
 
@@ -52,11 +52,11 @@ class WorldManager {
     uint32_t owner_id,
     const Vector2f& start,
     const Vector2f& end,
-    TimeType time);
+    int64_t time);
 
   bool CreateDummy(
     const Vector2f& position,
-    TimeType time);
+    int64_t time);
 
   bool CreateWall(
     const Vector2f& position,

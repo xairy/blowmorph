@@ -20,7 +20,7 @@ namespace sys {
 
 int64_t Timestamp() {
   static bm::Timer timer;
-  return static_cast<int64_t>(timer.GetTime());
+  return timer.GetTime();
 }
 
 void Warning(const char* fmt, ...) {

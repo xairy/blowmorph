@@ -24,7 +24,7 @@ Timer::Timer() {
 }
 
 // XXX(xairy): this code was not tested.
-int32_t Timer::GetTime() const {
+int64_t Timer::GetTime() const {
     static LARGE_INTEGER nFreq = {0}, nCount = {0};
     static double dReturn = 0.0, dCheckTime = 5.0;
 
@@ -47,7 +47,7 @@ int32_t Timer::GetTime() const {
     dReturn = static_cast<double>nCount.QuadPart /
               static_cast<double>nFreq.QuadPart;
 
-    return static_cast<int32_t>(dReturn * 1000);
+    return static_cast<int64_t>(dReturn * 1000);
 }
 
 #else
@@ -57,15 +57,14 @@ Timer::Timer() {
   CHECK(rv == 0);
 }
 
-int32_t Timer::GetTime() const {
+int64_t Timer::GetTime() const {
   timeval current;
   int rv = gettimeofday(&current, NULL);
   CHECK(rv == 0);
   int64_t seconds = current.tv_sec - _start.tv_sec;
   int64_t useconds = current.tv_usec - _start.tv_usec;
   int64_t time = seconds * 1000 + useconds / 1000;
-  CHECK(0 <= time && time <= std::numeric_limits<int32_t>::max());
-  return static_cast<int32_t>(time);
+  return time;
 }
 
 #endif

@@ -25,7 +25,7 @@ class Timer {
   BM_BASE_DECL Timer();
 
   // Returns elapsed time in ms since timer's creation.
-  BM_BASE_DECL int32_t GetTime() const;
+  BM_BASE_DECL int64_t GetTime() const;
 
  private:
 #ifdef WIN32

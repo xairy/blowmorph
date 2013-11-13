@@ -44,7 +44,8 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 
 }  // anonymous namespace
 
-bm::TimeType getTicks() {
+// FIXME(xairy): remove.
+int64_t getTicks() {
   return sys::Timestamp();
 }
 
@@ -79,20 +80,20 @@ ObjectState lerp(const ObjectState& a, const ObjectState& b, double bRatio) {
 
 namespace bm {
 
-typedef interpolator::LinearInterpolator<ObjectState, TimeType>
+typedef interpolator::LinearInterpolator<ObjectState, int64_t>
   ObjectInterpolator;
 
 // TODO(alex): fix method names.
 // FIXME(alex): hardcoded initial interpolation time step.
 struct Object {
-  Object(const sf::Vector2f& position, TimeType time,
+  Object(const sf::Vector2f& position, int64_t time,
     uint32_t id, uint32_t type, const std::string& path)
       : id(id),
         type(type),
         visible(false),
         interpolation_enabled(false),
         name_visible(false),
-        interpolator(ObjectInterpolator(TimeType(75), 1)) {
+        interpolator(ObjectInterpolator(75, 1)) {
     bool rv = sprite.Initialize(path);
     CHECK(rv == true);
 
@@ -116,36 +117,36 @@ struct Object {
     interpolator.SetFrameCount(1);
   }
 
-  void EnforceState(const ObjectState& state, TimeType time) {
+  void EnforceState(const ObjectState& state, int64_t time) {
     interpolator.Clear();
     interpolator.Push(state, time);
   }
 
-  void UpdateCurrentState(const ObjectState& state, TimeType time) {
+  void UpdateCurrentState(const ObjectState& state, int64_t time) {
     interpolator.Push(state, time);
   }
 
-  sf::Vector2f GetPosition(TimeType time) {
+  sf::Vector2f GetPosition(int64_t time) {
     return interpolator.Interpolate(time).position;
   }
 
   sf::Vector2f GetPosition() {
     CHECK(!interpolation_enabled);
-    return GetPosition(TimeType(0));
+    return GetPosition(0);
   }
 
   void SetPosition(const sf::Vector2f& value) {
     CHECK(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(0);
     state.position = value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, 0);
   }
 
   void Move(const sf::Vector2f& value) {
     CHECK(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(TimeType(0));
+    ObjectState state = interpolator.Interpolate(0);
     state.position = state.position + value;
-    EnforceState(state, TimeType(0));
+    EnforceState(state, 0);
   }
 
   uint32_t id;
@@ -162,7 +163,7 @@ struct Object {
   ObjectInterpolator interpolator;
 };
 
-void RenderObject(Object* object, TimeType time,
+void RenderObject(Object* object, int64_t time,
     sf::Font* font, sf::RenderWindow& render_window) {
   CHECK(object != NULL);
   CHECK(font != NULL);
@@ -236,7 +237,7 @@ class Application {
       }
       _Render();
 
-      TimeType current_time = _GetTime();
+      int64_t current_time = _GetTime();
       if (current_time - _last_tick > 1000.0 / _tick_rate) {
         _last_tick = current_time;
         net::SendInputEvents(_peer, _keyboard_events, _mouse_events);
@@ -289,9 +290,9 @@ class Application {
     _peer = NULL;
     _event = NULL;
 
-    _connect_timeout = TimeType(500);
-    _time_correction = TimeType(0);
-    _last_tick = TimeType(0);
+    _connect_timeout = 500;
+    _time_correction = 0;
+    _last_tick = 0;
     _tick_rate = 30;
 
     _player = NULL;
@@ -510,9 +511,9 @@ class Application {
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
 
-    TimeType start_time = getTicks();
+    int64_t start_time = getTicks();
     do {
-      TimeType time = getTicks();
+      int64_t time = getTicks();
       CHECK(time >= start_time);
 
       // If we have run out of time, break and return
@@ -621,8 +622,8 @@ class Application {
               reinterpret_cast<const TimeSyncData*>(data);
 
           // Calculate the time correction.
-          TimeType client_time = getTicks();
-          TimeType latency = (client_time - response_data->client_time) / 2;
+          int64_t client_time = getTicks();
+          int64_t latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
           // XXX(xairy): linux x64: uint64_t == long int == %ld != %lld.
@@ -633,7 +634,7 @@ class Application {
 
           // XXX(alex): move it to the ProcessPacket method
           sf::Vector2f player_pos(_client_options->x, _client_options->y);
-          _player = new Object(player_pos, TimeType(0), _client_options->id,
+          _player = new Object(player_pos, 0, _client_options->id,
               EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
           CHECK(_player != NULL);
           // XXX(alex): maybe we should have a xml file for each object with
@@ -688,7 +689,7 @@ class Application {
   void OnEntityAppearance(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
 
-    TimeType time = snapshot->time;
+    int64_t time = snapshot->time;
     sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
     switch (snapshot->type) {
@@ -765,7 +766,7 @@ class Application {
   void OnEntityUpdate(const EntitySnapshot* snapshot) {
     CHECK(snapshot != NULL);
 
-    TimeType time = snapshot->time;
+    int64_t time = snapshot->time;
     sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
     ObjectState state;
@@ -822,8 +823,8 @@ class Application {
 
   bool _Loop() {
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      TimeType current_time = _GetTime();
-      TimeType delta_time = current_time - _last_loop;
+      int64_t current_time = _GetTime();
+      int64_t delta_time = current_time - _last_loop;
       _last_loop = current_time;
 
       float delta_x = (_keyboard_state.right - _keyboard_state.left) *
@@ -866,7 +867,7 @@ class Application {
   }
 
   // Returns approximate server time (with the correction).
-  TimeType _GetTime() {
+  int64_t _GetTime() {
     return getTicks() + _time_correction;
   }
 
@@ -917,7 +918,7 @@ class Application {
     compass_border.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
     _render_window->draw(compass_border, hud_transform);
 
-    TimeType render_time = _GetTime();
+    int64_t render_time = _GetTime();
 
     std::map<int, Object*>::const_iterator it;
     for (it = _objects.begin(); it != _objects.end(); ++it) {
@@ -974,7 +975,7 @@ class Application {
     _render_window->clear();
 
     if (_network_state == NETWORK_STATE_LOGGED_IN) {
-      TimeType render_time = _GetTime();
+      int64_t render_time = _GetTime();
       sf::Vector2f player_pos = _player->GetPosition(render_time);
 
       _view.setCenter(Round(player_pos));
@@ -1020,11 +1021,11 @@ class Application {
   enet::Event* _event;
 
   // In milliseconds.
-  TimeType _connect_timeout;
-  TimeType _time_correction;
-  TimeType _last_tick;
+  int64_t _connect_timeout;
+  int64_t _time_correction;
+  int64_t _last_tick;
   int _tick_rate;
-  TimeType _last_loop;
+  int64_t _last_loop;
 
   sf::RenderWindow* _render_window;
   sf::View _view;
