@@ -7,7 +7,6 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
-#include <glm/glm.hpp>
 
 #include "base/pstdint.h"
 #include "base/timer.h"
@@ -49,13 +48,13 @@ class Sprite {
   bool IsPlaying() const;
   bool IsStopped() const;
 
-  void SetPosition(const glm::vec2& value);
-  glm::vec2 GetPosition() const;
+  void SetPosition(const sf::Vector2f& value);
+  sf::Vector2f GetPosition() const;
 
   // Setter and getter for pivot (a point relative to
   // the texture to which sprite is attached).
-  void SetPivot(const glm::vec2& value);
-  glm::vec2 GetPivot() const;
+  void SetPivot(const sf::Vector2f& value);
+  sf::Vector2f GetPivot() const;
 
  private:
   void UpdateCurrentFrame();
