@@ -24,8 +24,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "interpolator/interpolator.h"
-
+#include "client/object.h"
 #include "client/sprite.h"
 #include "client/texture_atlas.h"
 
@@ -44,145 +43,7 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 
 }  // anonymous namespace
 
-// FIXME(xairy): remove.
-int64_t getTicks() {
-  return sys::Timestamp();
-}
-
-struct ObjectState {
-  sf::Vector2f position;
-  float blowCharge;
-  float morphCharge;
-  float health;
-};
-
-namespace interpolator {
-
-template<>
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, double bRatio) {
-  sf::Vector2f result;
-  result.x = lerp(a.x, b.x, bRatio);
-  result.y = lerp(a.y, b.y, bRatio);
-  return result;
-}
-
-template<>
-ObjectState lerp(const ObjectState& a, const ObjectState& b, double bRatio) {
-  ObjectState result;
-  result.position = lerp(a.position, b.position, bRatio);
-  result.blowCharge = lerp(a.blowCharge, b.blowCharge, bRatio);
-  result.morphCharge = lerp(a.morphCharge, b.morphCharge, bRatio);
-  result.health = lerp(a.health, b.health, bRatio);
-  return result;
-}
-
-}  // namespace interpolator
-
 namespace bm {
-
-typedef interpolator::LinearInterpolator<ObjectState, int64_t>
-  ObjectInterpolator;
-
-// TODO(alex): fix method names.
-// FIXME(alex): hardcoded initial interpolation time step.
-struct Object {
-  Object(const sf::Vector2f& position, int64_t time,
-    uint32_t id, uint32_t type, const std::string& path)
-      : id(id),
-        type(type),
-        visible(false),
-        interpolation_enabled(false),
-        name_visible(false),
-        interpolator(ObjectInterpolator(75, 1)) {
-    bool rv = sprite.Initialize(path);
-    CHECK(rv == true);
-
-    ObjectState state;
-    state.blowCharge = 0;
-    state.health = 0;
-    state.morphCharge = 0;
-    state.position = position;
-    interpolator.Push(state, time);
-
-    name_offset = sf::Vector2f(-15.0f, -30.0f);
-  }
-
-  void EnableInterpolation() {
-    interpolation_enabled = true;
-    interpolator.SetFrameCount(2);
-  }
-
-  void DisableInterpolation() {
-    interpolation_enabled = false;
-    interpolator.SetFrameCount(1);
-  }
-
-  void EnforceState(const ObjectState& state, int64_t time) {
-    interpolator.Clear();
-    interpolator.Push(state, time);
-  }
-
-  void UpdateCurrentState(const ObjectState& state, int64_t time) {
-    interpolator.Push(state, time);
-  }
-
-  sf::Vector2f GetPosition(int64_t time) {
-    return interpolator.Interpolate(time).position;
-  }
-
-  sf::Vector2f GetPosition() {
-    CHECK(!interpolation_enabled);
-    return GetPosition(0);
-  }
-
-  void SetPosition(const sf::Vector2f& value) {
-    CHECK(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(0);
-    state.position = value;
-    EnforceState(state, 0);
-  }
-
-  void Move(const sf::Vector2f& value) {
-    CHECK(!interpolation_enabled);
-    ObjectState state = interpolator.Interpolate(0);
-    state.position = state.position + value;
-    EnforceState(state, 0);
-  }
-
-  uint32_t id;
-  uint32_t type;
-
-  Sprite sprite;
-
-  bool visible;
-
-  bool name_visible;
-  sf::Vector2f name_offset;
-
-  bool interpolation_enabled;
-  ObjectInterpolator interpolator;
-};
-
-void RenderObject(Object* object, int64_t time,
-    sf::Font* font, sf::RenderWindow& render_window) {
-  CHECK(object != NULL);
-  CHECK(font != NULL);
-
-  ObjectState state = object->interpolator.Interpolate(time);
-
-  if (object->visible) {
-    sf::Vector2f object_pos(round(state.position.x), round(state.position.y));
-    object->sprite.SetPosition(object_pos);
-    object->sprite.Render(&render_window);
-  }
-
-  if (object->name_visible) {
-    sf::Vector2f name_pos = Round(state.position + object->name_offset);
-    sf::Text text("Player", *font, 12);
-    text.setPosition(name_pos.x, name_pos.y);
-    render_window.draw(text);
-  }
-}
 
 class Application {
  public:
@@ -511,9 +372,9 @@ class Application {
   bool _PumpPackets(uint32_t timeout) {
     std::vector<char> message;
 
-    int64_t start_time = getTicks();
+    int64_t start_time = sys::Timestamp();
     do {
-      int64_t time = getTicks();
+      int64_t time = sys::Timestamp();
       CHECK(time >= start_time);
 
       // If we have run out of time, break and return
@@ -598,7 +459,7 @@ class Application {
 
           // Send a time synchronization request.
           TimeSyncData request_data;
-          request_data.client_time = getTicks();
+          request_data.client_time = sys::Timestamp();
 
           std::vector<char> buf;
           net::AppendPacketToBuffer(buf, &request_data,
@@ -622,7 +483,7 @@ class Application {
               reinterpret_cast<const TimeSyncData*>(data);
 
           // Calculate the time correction.
-          int64_t client_time = getTicks();
+          int64_t client_time = sys::Timestamp();
           int64_t latency = (client_time - response_data->client_time) / 2;
           _time_correction = response_data->server_time + latency - client_time;
 
@@ -776,9 +637,9 @@ class Application {
     state.morphCharge = static_cast<float>(snapshot->data[2]);
 
     if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-      _walls[snapshot->id]->UpdateCurrentState(state, time);
+      _walls[snapshot->id]->UpdateState(state, time);
     } else {
-      _objects[snapshot->id]->UpdateCurrentState(state, time);
+      _objects[snapshot->id]->UpdateState(state, time);
     }
   }
 
@@ -811,8 +672,11 @@ class Application {
       Sprite* explosion = new Sprite();
       CHECK(explosion != NULL);
       bool rv = explosion->Initialize("data/sprites/explosion.sprite");
-      CHECK(rv == true);  // FIXME(xairy).
-      CHECK(explosion != NULL);
+      if (rv == false) {
+        // TODO(xairy): use auto_ptr.
+        delete explosion;
+        return false;
+      }
       explosion->SetPosition(sf::Vector2f(snapshot->x, snapshot->y));
       explosion->Play();
       _explosions.push_back(explosion);
@@ -868,7 +732,7 @@ class Application {
 
   // Returns approximate server time (with the correction).
   int64_t _GetTime() {
-    return getTicks() + _time_correction;
+    return sys::Timestamp() + _time_correction;
   }
 
   // FIXME(xairy): magic numbers.
