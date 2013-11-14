@@ -1,10 +1,10 @@
 function copy(src, dst, always)
-  local action = "python "
+  local action = "python"
   local script = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
-  postbuildcommands { action .. script .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
+  postbuildcommands { action .. " " .. script .. " " .. cwd .. " " .. src .. " " .. dst .. " " .. tostring(always) }
 end
 
 function resource(src, dst, always)
@@ -102,7 +102,7 @@ solution "blowmorph"
 
     includedirs { "src", "inc" }
     files { "src/client/**.cpp",
-            "src/client/**.hpp" }
+            "src/client/**.h" }
 
     links { "bm-base" }
     links { "interpolator" }
@@ -115,43 +115,13 @@ solution "blowmorph"
     configuration "linux"
       links { "enet-plus" }
 
-    -- GLM
-    includedirs { "ext-libs/glm/include" }
-
+    -- XXX: is it required?
     -- OpenGL
     configuration "windows"
       links { "opengl32" }
       links { "glu32" }
     configuration "linux"
       links { "GL" }
-
-    -- FreeType2
-    configuration "windows"
-      includedirs { "ext-libs/freetype2/include" }
-      windows_libdir("ext-libs/freetype2/bin")
-      windows_binary("ext-libs/freetype2/bin", "freetype.dll")
-      links { "freetype" }
-    configuration "linux"
-      includedirs { "/usr/include/freetype2" }
-      links { "freetype" }
-
-    -- FreeImage
-    configuration "windows"
-      includedirs { "ext-libs/FreeImage/include" }
-      windows_libdir("ext-libs/FreeImage/bin")
-      windows_binary("ext-libs/FreeImage/bin", "FreeImage.dll")
-      links { "freeimage" }
-    configuration "linux"
-      links { "freeimage" }
-
-    -- GLEW
-    configuration { "windows" }
-      includedirs { "ext-libs/glew/include" }
-      windows_libdir("ext-libs/glew/bin")
-      windows_binary("ext-libs/glew/bin", "glew32.dll")
-      links { "glew32" }
-    configuration "linux"
-      links { "GLEW" }
 
     -- SFML
     configuration "windows"
@@ -177,7 +147,7 @@ solution "blowmorph"
 
     includedirs { "src", "inc" }
     files { "src/server/**.cpp",
-            "src/server/**.hpp" }
+            "src/server/**.h" }
 
     links { "bm-base" }
 
@@ -210,9 +180,7 @@ solution "blowmorph"
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",
-            "src/base/**.hpp",
-            "src/base/**.h",
-            "src/base/**.c" }
+            "src/base/**.h" }
 
   project "interpolator"
     kind "StaticLib"
@@ -221,4 +189,4 @@ solution "blowmorph"
     includedirs { "src", "inc" }
 
     files { "src/interpolator/**.cpp",
-            "src/interpolator/**.hpp" }
+            "src/interpolator/**.h" }
