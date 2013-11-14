@@ -134,8 +134,8 @@ solution "blowmorph"
 
     -- PugiXML
     configuration "windows"
-      includedirs { "ext-libs/pugixml/include" }
-      windows_libdir("ext-libs/pugixml/bin")
+      includedirs { "third-party/pugixml/include" }
+      windows_libdir("third-party/pugixml/bin")
       links { "pugixml" }
     configuration "linux"
       links { "pugixml" }
@@ -161,8 +161,8 @@ solution "blowmorph"
 
     -- PugiXML
     configuration "windows"
-      includedirs { "ext-libs/pugixml/include" }
-      windows_libdir("ext-libs/pugixml/bin")
+      includedirs { "third-party/pugixml/include" }
+      windows_libdir("third-party/pugixml/bin")
       links { "pugixml" }
     configuration "linux"
       links { "pugixml" }
