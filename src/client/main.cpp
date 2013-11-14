@@ -266,7 +266,8 @@ class Application {
       case sf::Event::MouseButtonPressed:
       case sf::Event::MouseButtonReleased:
         return OnMouseButtonEvent(event);
-      default: break;
+      default:
+        break;
     }
 
     return true;
@@ -362,6 +363,8 @@ class Application {
           printf("Client disconnected.\n");
         }
       } break;
+      default:
+        break;
     }
 
     _keyboard_events.push_back(keyboard_event);
@@ -416,6 +419,9 @@ class Application {
           BM_ERROR("Connection lost.");
           return false;
         } break;
+
+        case enet::Event::TYPE_NONE:
+          break;
       }
     } while (_event->GetType() != enet::Event::TYPE_NONE);
 
@@ -621,6 +627,9 @@ class Application {
         _objects[snapshot->id]->visible = true;
         _objects[snapshot->id]->name_visible = false;
       } break;
+
+      default:
+        break;
     }
   }
 

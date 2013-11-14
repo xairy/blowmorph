@@ -277,6 +277,9 @@ class Server {
           }
           break;
         }
+
+        case enet::Event::TYPE_NONE:
+          break;
       }
     } while (_event->GetType() != enet::Event::TYPE_NONE);
 
