@@ -137,7 +137,6 @@ class Application {
     _explosions.clear();
 
     delete _font;
-
     delete _render_window;
 
     _state = STATE_FINALIZED;
@@ -257,7 +256,7 @@ class Application {
   bool _ProcessEvent(const sf::Event& event) {
     switch (event.type) {
       case sf::Event::Closed:
-        return OnSDLQuit(event);
+        return OnSFMLQuit(event);
       case sf::Event::KeyPressed:
       case sf::Event::KeyReleased:
         return OnKeyEvent(event);
@@ -302,7 +301,7 @@ class Application {
     return true;
   }
 
-  bool OnSDLQuit(const sf::Event& event) {
+  bool OnSFMLQuit(const sf::Event& event) {
     _is_running = false;
 
     CHECK(0 <= _connect_timeout);
@@ -451,7 +450,7 @@ class Application {
       } break;
       case NETWORK_STATE_CONNECTED: {
         if (type != Packet::TYPE_CLIENT_OPTIONS) {
-          sys::Warning("Received packet with a type %d"
+          sys::Warning("Received packet with a type %d "
               "while waiting for client options.", type);
         } else if (len != sizeof(ClientOptions)) {
           sys::Warning("Received packet has incorrect length.");
@@ -480,7 +479,7 @@ class Application {
       } break;
       case NETWORK_STATE_SYNCHRONIZATION: {
         if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
-          sys::Warning("Received packet with a type %d"
+          sys::Warning("Received packet with a type %d "
               "while waiting for time sync response.", type);
         } else if (len != sizeof(TimeSyncData)) {
           sys::Warning("Received packet has incorrect length.");
