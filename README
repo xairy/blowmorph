@@ -11,25 +11,22 @@ How to build under Ubuntu Linux:
      http://www.sfml-dev.org/download/sfml/2.0/
      See the instructions below
 
-  2. Install FreeImage
-     > sudo apt-get install libfreeimage-dev
-
-  3. Install pugixml-1.2
+  2. Install pugixml-1.2
      https://code.google.com/p/pugixml/
      See the instructions below
 
-  4. Install libconfig
+  3. Install libconfig
      > sudo apt-get install libconfig
 
-  5. Install ENetPlus.
+  4. Install ENetPlus.
      https://bitbucket.org/xairy/enet-plus
 
-  6. Generate project files
+  5. Generate project files
      > ./premake4 gmake
 
-  7. > cd build
+  6. > cd build
 
-  8. On x32 system:
+  7. On x32 system:
      > make config=release32
      On x64 system:
      > make config=release64
