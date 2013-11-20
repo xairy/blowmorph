@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <string>
+#include <vector>
 
 #include <libconfig.h>
 
@@ -184,6 +185,40 @@ bool SettingsManager::LookupString(const char* key, std::string* output) {
   return false;
 }
 DEFINE_GET_METHOD(std::string, LookupString, GetString);
+
+bool SettingsManager::LookupInt32List(const char* key,
+    std::vector<int32_t>* output) {
+  CHECK(state_ == STATE_OPENED);
+  config_setting_t* setting = config_lookup(&cfg_, key);
+  if (setting == NULL) {
+    return false;
+  }
+  if (config_setting_is_array(setting) == CONFIG_FALSE) {
+    return false;
+  }
+  int length = config_setting_length(setting);
+  if (length == 0) {
+    return false;
+  }
+  output->clear();
+  for (int i = 0; i < length; i++) {
+    config_setting_t* value_setting = config_setting_get_elem(setting, i);
+    if (value_setting == NULL) {
+      return false;
+    }
+    int value_type = config_setting_type(value_setting);
+    if (value_type != CONFIG_TYPE_INT && value_type != CONFIG_TYPE_INT64) {
+      return false;
+    }
+    long long value = config_setting_get_int64(value_setting);  // NOLINT
+    if (value < std::numeric_limits<int32_t>::min() ||
+        value > std::numeric_limits<int32_t>::max()) {
+      return false;
+    }
+    output->push_back(static_cast<int32_t>(value));
+  }
+  return true;
+}
 
 #undef DEFINE_GET_METHOD
 

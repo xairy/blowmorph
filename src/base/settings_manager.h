@@ -4,6 +4,7 @@
 #define BASE_SETTINGS_MANAGER_H_
 
 #include <string>
+#include <vector>
 
 #include <libconfig.h>
 
@@ -45,6 +46,14 @@ class SettingsManager {
   bool LookupString(const char* key, std::string* output);
   bool GetBool(const char* key);
   std::string GetString(const char* key);
+
+  // bool LookupInt16List(const char* key, std::vector<int16_t>* output);
+  bool LookupInt32List(const char* key, std::vector<int32_t>* output);
+  // bool LookupInt64List(const char* key, std::vector<int64_t>* output);
+
+  // bool LookupUInt16List(const char* key, std::vector<uint16_t>* output);
+  // bool LookupUInt32List(const char* key, std::vector<uint32_t>* output);
+  // bool LookupUInt64List(const char* key, std::vector<uint64_t>* output);
 
  private:
   enum {

@@ -69,7 +69,7 @@ class Sprite {
     // std::string name;
     int64_t timeout;
     bool cyclic;
-    // std::vector<size_t> tiles;
+    std::vector<size_t> tiles;
   };
 
   TextureAtlas* _texture;
