@@ -34,6 +34,9 @@ bool Sprite::Initialize(const std::string& path) {
   }
 
   // FIXME(xairy): texture shouldn't be loaded twice.
+  _texture = new TextureAtlas();
+  CHECK(_texture != NULL);
+
   if (tiled) {
     int32_t start_x = settings.GetInt32("sprite.tile.start.x");
     int32_t start_y = settings.GetInt32("sprite.tile.start.y");
@@ -41,13 +44,18 @@ bool Sprite::Initialize(const std::string& path) {
     int32_t vertical_step = settings.GetInt32("sprite.tile.step.vertical");
     int32_t width = settings.GetInt32("sprite.tile.width");
     int32_t height = settings.GetInt32("sprite.tile.height");
-    _texture = LoadTileset(source, transparent_color, start_x, start_y,
+    bool rv = _texture->LoadTileset(source, transparent_color, start_x, start_y,
         horizontal_step, vertical_step, width, height);
+    if (rv == false) {
+      delete _texture;
+      return false;
+    }
   } else {
-    _texture = LoadTexture(source, transparent_color);
-  }
-  if (_texture == NULL) {
-    return false;
+    bool rv = _texture->LoadTexture(source, transparent_color);
+    if (rv == false) {
+      delete _texture;
+      return false;
+    }
   }
 
   CHECK(_texture->GetTileCount() > 0);
