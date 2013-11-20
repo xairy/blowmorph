@@ -82,7 +82,7 @@ bool TextureAtlas::LoadTileset(
   return true;
 }
 
-bool TextureAtlas::Finalize() {
+void TextureAtlas::Finalize() {
   CHECK(state_ == STATE_INITIALIZED);
   delete texture_;
   state_ = STATE_FINALIZED;

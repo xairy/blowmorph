@@ -32,7 +32,7 @@ class TextureAtlas {
     int32_t horizontal_step, int32_t vertical_step,
     int32_t tile_width, int32_t tile_height);
 
-  bool Finalize();
+  void Finalize();
 
   sf::Texture* GetTexture() const;
   sf::Vector2i GetSize() const;
