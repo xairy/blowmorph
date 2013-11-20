@@ -53,18 +53,32 @@ bool Sprite::Initialize(const std::string& path) {
   CHECK(_texture->GetTileCount() > 0);
 
   // TODO(xairy): support multiple modes.
-  // TODO(xairy): support tile numbers.
 
   settings.LookupInt64("sprite.mode.timeout", &_current_mode.timeout);
   settings.LookupBool("sprite.mode.cyclic", &_current_mode.cyclic);
 
-  _frames_count = _texture->GetTileCount();
+  std::vector<int32_t> tiles;
+  bool tiles_specified = settings.LookupInt32List("sprite.mode.tiles", &tiles);
+  if (tiles_specified == true) {
+    for (size_t i = 0; i < tiles.size(); i++) {
+      CHECK(tiles[i] >= 0);
+      _current_mode.tiles.push_back(static_cast<size_t>(tiles[i]));
+    }
+  } else {
+    size_t tile_count = _texture->GetTileCount();
+    for (size_t tile = 0; tile < tile_count; tile++) {
+      _current_mode.tiles.push_back(tile);
+    }
+  }
+
+  _frames_count = _current_mode.tiles.size();
   _frames.resize(_frames_count, NULL);
   CHECK(_frames_count >= 1);
 
   for (size_t frame = 0; frame < _frames_count; frame++) {
-    sf::Vector2i tile_position = _texture->GetTilePosition(frame);
-    sf::Vector2i tile_size = _texture->GetTileSize(frame);
+    size_t tile = _current_mode.tiles[frame];
+    sf::Vector2i tile_position = _texture->GetTilePosition(tile);
+    sf::Vector2i tile_size = _texture->GetTileSize(tile);
 
     sf::Sprite* sprite = new sf::Sprite();
     CHECK(sprite != NULL);
