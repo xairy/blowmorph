@@ -3,13 +3,15 @@
 #ifndef CLIENT_SYS_H_
 #define CLIENT_SYS_H_
 
-#include <stdint.h>
+#include "base/pstdint.h"
 
+namespace bm {
 namespace sys {
 
-// Returns current timestamp in ms.
+// Returns time since some moment in ms.
 int64_t Timestamp();
 
 }  // namespace sys
+}  // namespace bm
 
 #endif  // CLIENT_SYS_H_

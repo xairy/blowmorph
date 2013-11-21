@@ -74,6 +74,7 @@ bool Application::Initialize() {
     return false;
   }
 
+  sync_timeout_ = 1000;
   connect_timeout_ = 500;
 
   if (!InitializeNetwork()) {
@@ -101,6 +102,25 @@ bool Application::Initialize() {
 
 bool Application::Run() {
   CHECK(state_ == STATE_INITIALIZED);
+
+  if (!Connect()) {
+    return false;
+  }
+
+  if (!Synchronize()) {
+    return false;
+  }
+
+  // FIXME(xairy): move to a separate method.
+  sf::Vector2f player_pos(client_options_->x, client_options_->y);
+  player_ = new Object(player_pos, 0, client_options_->id,
+      EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
+  CHECK(player_ != NULL);
+  // XXX(alex): maybe we should have a xml file for each object with
+  //            texture paths, pivots, captions, etc
+  player_->SetPosition(player_pos);
+  player_->visible = true;
+  player_->name_visible = true;
 
   is_running_ = true;
 
@@ -189,44 +209,137 @@ bool Application::InitializeNetwork() {
     return false;
   }
 
-  std::string host = settings_.GetString("server.host");
-  uint16_t port = settings_.GetUInt16("server.port");
-
-  peer_ = client->Connect(host, port);
-  if (peer_ == NULL) {
-    return false;
-  }
-
   std::auto_ptr<enet::Event> event(enet_.CreateEvent());
   if (event.get() == NULL) {
     return false;
   }
 
-  CHECK(0 <= connect_timeout_);
-  CHECK(connect_timeout_ <= std::numeric_limits<uint32_t>::max());
-  bool rv = client->Service(event.get(), (uint32_t) connect_timeout_);
-  if (rv == false) {
-    return false;
-  }
-  if (event->GetType() != enet::Event::TYPE_CONNECT) {
-    THROW_ERROR("Could not connect to server.");
-    return false;
-  }
   client_ = client.release();
   event_ = event.release();
 
-  network_state_ = NETWORK_STATE_CONNECTED;
+  network_state_ = NETWORK_STATE_INITIALIZED;
+  return true;
+}
+
+bool Application::Connect() {
+  CHECK(state_ == STATE_INITIALIZED);
+  CHECK(network_state_ == NETWORK_STATE_INITIALIZED);
+
+  std::string host = settings_.GetString("server.host");
+  uint16_t port = settings_.GetUInt16("server.port");
+
+  peer_ = client_->Connect(host, port);
+  if (peer_ == NULL) {
+    return false;
+  }
+
+  bool rv = client_->Service(event_, connect_timeout_);
+  if (rv == false) {
+    return false;
+  }
+  if (event_->GetType() != enet::Event::TYPE_CONNECT) {
+    THROW_ERROR("Could not connect to server.");
+    return false;
+  }
 
   printf("Connected to %s:%u.\n", event_->GetPeer()->GetIp().c_str(),
       event_->GetPeer()->GetPort());
 
+  network_state_ = NETWORK_STATE_CONNECTED;
+  return true;
+}
+
+bool Application::Synchronize() {
+  CHECK(state_ == STATE_INITIALIZED);
+  CHECK(network_state_ == NETWORK_STATE_CONNECTED);
+
+  int64_t start_time = sys::Timestamp();
+
+  while (true) {
+    int64_t time = sys::Timestamp();
+    if (time - start_time > sync_timeout_) {
+      THROW_ERROR("Could not synchronize with server.");
+      return false;
+    }
+
+    uint32_t service_timeout = (sync_timeout_ - (time - start_time));
+    bool rv = client_->Service(event_, service_timeout);
+    if (rv == false) {
+      return false;
+    }
+    if (event_->GetType() != enet::Event::TYPE_RECEIVE) {
+      continue;
+    }
+
+    std::vector<char> message;
+    event_->GetData(&message);
+    const Packet::Type* type = reinterpret_cast<Packet::Type*>(&message[0]);
+    if (*type != Packet::TYPE_CLIENT_OPTIONS) {
+      continue;
+    }
+    const ClientOptions* client_options =
+        reinterpret_cast<const ClientOptions*>(&message[0] + sizeof(*type));
+
+    client_options_ = new ClientOptions(*client_options);
+
+    break;
+  }
+
+  // Send a time synchronization request.
+  TimeSyncData request_data;
+  request_data.client_time = sys::Timestamp();
+
+  std::vector<char> buffer;
+  net::AppendPacketToBuffer(buffer, &request_data,
+      Packet::TYPE_SYNC_TIME_REQUEST);
+
+  bool rv = peer_->Send(&buffer[0], buffer.size(), true);
+  if (rv == false) {
+    return false;
+  }
+
+  while (true) {
+    int64_t time = sys::Timestamp();
+    if (time - start_time > sync_timeout_) {
+      THROW_ERROR("Could not synchronize with server.");
+      return false;
+    }
+
+    uint32_t service_timeout = (sync_timeout_ - (time - start_time));
+    bool rv = client_->Service(event_, service_timeout);
+    if (rv == false) {
+      return false;
+    }
+    if (event_->GetType() != enet::Event::TYPE_RECEIVE) {
+      continue;
+    }
+
+    std::vector<char> message;
+    event_->GetData(&message);
+    const Packet::Type* type = reinterpret_cast<Packet::Type*>(&message[0]);
+    if (*type != Packet::TYPE_SYNC_TIME_RESPONSE) {
+      continue;
+    }
+    const TimeSyncData* response_data =
+        reinterpret_cast<const TimeSyncData*>(&message[0] + sizeof(*type));
+
+    // Calculate the time correction.
+    int64_t client_time = sys::Timestamp();
+    int64_t latency = (client_time - response_data->client_time) / 2;
+    time_correction_ = response_data->server_time + latency - client_time;
+
+    break;
+  }
+
+  printf("Synchronized.\n");
+
+  network_state_ = NETWORK_STATE_LOGGED_IN;
   return true;
 }
 
 int64_t Application::GetServerTime() {
   CHECK(state_ == STATE_INITIALIZED);
-  // FIXME(xairy): enable this check.
-  // CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
+  CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
   return sys::Timestamp() + time_correction_;
 }
 
@@ -246,7 +359,7 @@ bool Application::ProcessEvent(const sf::Event& event) {
 
   switch (event.type) {
     case sf::Event::Closed:
-      return OnQuitEvent(event);
+      return OnQuitEvent();
     case sf::Event::KeyPressed:
     case sf::Event::KeyReleased:
       return OnKeyEvent(event);
@@ -262,24 +375,20 @@ bool Application::ProcessEvent(const sf::Event& event) {
   return true;
 }
 
-bool Application::OnQuitEvent(const sf::Event& event) {
+bool Application::OnQuitEvent() {
   CHECK(state_ == STATE_INITIALIZED);
 
   is_running_ = false;
 
-  CHECK(0 <= connect_timeout_);
-  CHECK(connect_timeout_ <= std::numeric_limits<uint32_t>::max());
-
   if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout_)) {
-    THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.\n");
+    THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
     return false;
   } else {
-    printf("Client disconnected.\n");
+    printf("Disconnected.\n");
   }
 
   return true;
 }
-
 
 bool Application::OnMouseButtonEvent(const sf::Event& event) {
   CHECK(state_ == STATE_INITIALIZED);
@@ -347,18 +456,9 @@ bool Application::OnKeyEvent(const sf::Event& event) {
       keyboard_state_.down = pressed;
       keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
       break;
-    case sf::Keyboard::Escape: {
-      is_running_ = !pressed;
-
-      CHECK(0 <= connect_timeout_);
-      CHECK(connect_timeout_ <= std::numeric_limits<uint32_t>::max());
-      if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout_)) {
-        THROW_ERROR("Did not receive EVENT_DISCONNECT while disconnecting.\n");
-        return false;
-      } else {
-        printf("Client disconnected.\n");
-      }
-    } break;
+    case sf::Keyboard::Escape:
+      OnQuitEvent();
+      break;
     default:
       break;
   }
@@ -370,6 +470,7 @@ bool Application::OnKeyEvent(const sf::Event& event) {
 
 bool Application::PumpPackets(uint32_t timeout) {
   CHECK(state_ == STATE_INITIALIZED);
+  CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
 
   std::vector<char> message;
 
@@ -384,7 +485,7 @@ bool Application::PumpPackets(uint32_t timeout) {
       break;
     }
 
-    uint32_t service_timeout = timeout == 0 ?
+    uint32_t service_timeout = (timeout == 0) ?
         0 : (timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
@@ -401,9 +502,7 @@ bool Application::PumpPackets(uint32_t timeout) {
             reinterpret_cast<void*>(&message[0] + sizeof(Packet::Type));
         size_t len = message.size() - sizeof(Packet::Type);
 
-        // printf("Received %d.", *type);
-
-        // XXX[24.7.2012 alex]: will only process single packet at a time
+        // FIXME(alex): will only process single packet at a time
         ProcessPacket(*type, data, len);
       } break;
 
@@ -413,7 +512,6 @@ bool Application::PumpPackets(uint32_t timeout) {
 
       case enet::Event::TYPE_DISCONNECT: {
         network_state_ = NETWORK_STATE_DISCONNECTED;
-        is_running_ = false;
         THROW_ERROR("Connection lost.");
         return false;
       } break;
@@ -429,114 +527,39 @@ bool Application::PumpPackets(uint32_t timeout) {
 bool Application::ProcessPacket(Packet::Type type,
     const void* data, size_t len) {
   CHECK(state_ == STATE_INITIALIZED);
+  CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
 
-  switch (network_state_) {
-    case NETWORK_STATE_DISCONNECTED: {
-      THROW_WARNING("Received a packet while being in disconnected state.");
-      return true;
-    } break;
-    case NETWORK_STATE_CONNECTED: {
-      if (type != Packet::TYPE_CLIENT_OPTIONS) {
-        THROW_WARNING("Received packet with a type %d "
-            "while waiting for client options.", type);
-      } else if (len != sizeof(ClientOptions)) {
-        THROW_WARNING("Received packet has incorrect length.");
-      } else {
-        const ClientOptions* options =
-            reinterpret_cast<const ClientOptions*>(data);
-        client_options_ = new ClientOptions(*options);
+  bool isSnapshot = len == sizeof(EntitySnapshot) &&
+                    (type == Packet::TYPE_ENTITY_APPEARED ||
+                     type == Packet::TYPE_ENTITY_DISAPPEARED ||
+                     type == Packet::TYPE_ENTITY_UPDATED);
 
-        // Switch to a new state.
-        network_state_ = NETWORK_STATE_SYNCHRONIZATION;
-
-        // Send a time synchronization request.
-        TimeSyncData request_data;
-        request_data.client_time = sys::Timestamp();
-
-        std::vector<char> buf;
-        net::AppendPacketToBuffer(buf, &request_data,
-            Packet::TYPE_SYNC_TIME_REQUEST);
-
-        bool rv = peer_->Send(&buf[0], buf.size(), true);
-        if (rv == false) {
-          return false;
-        }
+  // FIXME(xairy): simplify.
+  if (isSnapshot) {
+    const EntitySnapshot* snapshot =
+        reinterpret_cast<const EntitySnapshot*>(data);
+    if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
+      if (!OnEntityDisappearance(snapshot)) {
+        return false;
       }
-      return true;
-    } break;
-    case NETWORK_STATE_SYNCHRONIZATION: {
-      if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
-        THROW_WARNING("Received packet with a type %d "
-            "while waiting for time sync response.", type);
-      } else if (len != sizeof(TimeSyncData)) {
-        THROW_WARNING("Received packet has incorrect length.");
-      } else {
-        const TimeSyncData* response_data =
-            reinterpret_cast<const TimeSyncData*>(data);
-
-        // Calculate the time correction.
-        int64_t client_time = sys::Timestamp();
-        int64_t latency = (client_time - response_data->client_time) / 2;
-        time_correction_ = response_data->server_time + latency - client_time;
-
-        // XXX(xairy): linux x64: uint64_t == long int == %ld != %lld.
-        // printf("Time correction is %lld ms.\n", time_correction_);
-        // printf("Latency is %lld.\n", latency);
-
-        network_state_ = NETWORK_STATE_LOGGED_IN;
-
-        // XXX(alex): move it to the ProcessPacket method
-        sf::Vector2f player_pos(client_options_->x, client_options_->y);
-        player_ = new Object(player_pos, 0, client_options_->id,
-            EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
-        CHECK(player_ != NULL);
-        // XXX(alex): maybe we should have a xml file for each object with
-        //            texture paths, pivots, captions, etc
-        player_->SetPosition(player_pos);
-        player_->visible = true;
-        player_->name_visible = true;
+    } else {
+      if (snapshot->id == player_->id) {
+        OnPlayerUpdate(snapshot);
+        return true;
       }
 
-      return true;
-    } break;
-    case NETWORK_STATE_LOGGED_IN: {
-      bool isSnapshot = len == sizeof(EntitySnapshot) &&
-                        (type == Packet::TYPE_ENTITY_APPEARED ||
-                         type == Packet::TYPE_ENTITY_DISAPPEARED ||
-                         type == Packet::TYPE_ENTITY_UPDATED);
-
-      if (isSnapshot) {
-        const EntitySnapshot* snapshot =
-            reinterpret_cast<const EntitySnapshot*>(data);
-        if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-          if (!OnEntityDisappearance(snapshot)) {
-            return false;
-          }
-        } else {
-          if (snapshot->id == player_->id) {
-            OnPlayerUpdate(snapshot);
-            break;
-          }
-
-          if (objects_.count(snapshot->id) > 0 ||
-              walls_.count(snapshot->id) > 0) {
-            OnEntityUpdate(snapshot);
-          } else {
-            OnEntityAppearance(snapshot);
-          }
-        }
+      if (objects_.count(snapshot->id) > 0 ||
+          walls_.count(snapshot->id) > 0) {
+        OnEntityUpdate(snapshot);
       } else {
-        THROW_WARNING("Received packet is not an entity snapshot.");
+        OnEntityAppearance(snapshot);
       }
-
-      return true;
-    } break;
-
-    default:
-      return false;
-      break;
+    }
+  } else {
+    THROW_WARNING("Received packet is not an entity snapshot.");
   }
-  return false;
+
+  return true;
 }
 
 void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
