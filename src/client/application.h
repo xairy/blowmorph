@@ -78,7 +78,9 @@ class Application {
 
   int tick_rate_;
 
+  int64_t latency_;
   int64_t time_correction_;
+
   int64_t last_tick_;
   int64_t last_physics_simulation_;
 

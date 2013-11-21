@@ -49,16 +49,15 @@ bm::ObjectState lerp(const bm::ObjectState& a,
 namespace bm {
 
 // TODO(alex): fix method names.
-// FIXME(alex): hardcoded initial interpolation time step.
 // FIXME(xiary): make Object factory.
-Object::Object(const sf::Vector2f& position, int64_t time,
-    uint32_t id, uint32_t type, const std::string& path)
+Object::Object(const sf::Vector2f& position, int64_t time, uint32_t id,
+    uint32_t type, const std::string& path, int64_t time_offset)
       : id(id),
         type(type),
         visible(false),
         name_visible(false),
         interpolation_enabled(false),
-        interpolator(ObjectInterpolator(75, 1)) {
+        interpolator(ObjectInterpolator(time_offset, 1)) {
   bool rv = sprite.Initialize(path);
   CHECK(rv == true);
 

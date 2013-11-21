@@ -114,7 +114,8 @@ bool Application::Run() {
   // FIXME(xairy): move to a separate method.
   sf::Vector2f player_pos(client_options_->x, client_options_->y);
   player_ = new Object(player_pos, 0, client_options_->id,
-      EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite");
+      EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite",
+      latency_);
   CHECK(player_ != NULL);
   // XXX(alex): maybe we should have a xml file for each object with
   //            texture paths, pivots, captions, etc
@@ -325,13 +326,13 @@ bool Application::Synchronize() {
 
     // Calculate the time correction.
     int64_t client_time = sys::Timestamp();
-    int64_t latency = (client_time - response_data->client_time) / 2;
-    time_correction_ = response_data->server_time + latency - client_time;
+    latency_ = (client_time - response_data->client_time) / 2;
+    time_correction_ = response_data->server_time + latency_ - client_time;
 
     break;
   }
 
-  printf("Synchronized.\n");
+  printf("Synchronized, latency: %ld ms.\n", latency_);
 
   network_state_ = NETWORK_STATE_LOGGED_IN;
   return true;
@@ -580,7 +581,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         tile = 1;
       }
       walls_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/wall.sprite");
+          snapshot->type, "data/sprites/wall.sprite", latency_);
       walls_[snapshot->id]->sprite.SetCurrentFrame(tile);
       walls_[snapshot->id]->EnableInterpolation();
       walls_[snapshot->id]->visible = true;
@@ -589,7 +590,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
       objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/bullet.sprite");
+          snapshot->type, "data/sprites/bullet.sprite", latency_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = false;
@@ -597,7 +598,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
       objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/mechos.sprite");
+          snapshot->type, "data/sprites/mechos.sprite", latency_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = true;
@@ -605,7 +606,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
       objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/dummy.sprite");
+          snapshot->type, "data/sprites/dummy.sprite", latency_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = false;
@@ -631,7 +632,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         }
       }
       objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/station.sprite");
+          snapshot->type, "data/sprites/station.sprite", latency_);
       objects_[snapshot->id]->sprite.SetCurrentFrame(tile);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
