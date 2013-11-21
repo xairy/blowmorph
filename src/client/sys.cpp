@@ -2,25 +2,17 @@
 
 #include "client/sys.h"
 
-#if defined(WIN32)
-  #include <windows.h>
-#else
-  #include <sys/time.h>
-#endif
-
-#include <cstdarg>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cassert>
-
+#include "base/pstdint.h"
 #include "base/timer.h"
 
+namespace bm {
 namespace sys {
 
+// Warning: not thread safe.
 int64_t Timestamp() {
   static bm::Timer timer;
   return timer.GetTime();
 }
 
 }  // namespace sys
+}  // namespace bm

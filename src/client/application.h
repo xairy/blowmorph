@@ -34,13 +34,16 @@ class Application {
   bool InitializeGraphics();
   bool InitializeNetwork();
 
+  bool Connect();
+  bool Synchronize();
+
   // Returns approximate server time.
   int64_t GetServerTime();
 
   bool PumpEvents();
   bool ProcessEvent(const sf::Event& event);
 
-  bool OnQuitEvent(const sf::Event& event);
+  bool OnQuitEvent();
   bool OnMouseButtonEvent(const sf::Event& event);
   bool OnKeyEvent(const sf::Event& event);
 
@@ -65,12 +68,13 @@ class Application {
   sf::View view_;
   sf::Font* font_;
 
-  int64_t connect_timeout_;
+  uint32_t connect_timeout_;
+  int64_t sync_timeout_;
 
   enet::Enet enet_;
   enet::ClientHost* client_;
-  enet::Peer* peer_;
   enet::Event* event_;
+  enet::Peer* peer_;
 
   int tick_rate_;
 
@@ -112,8 +116,8 @@ class Application {
 
   enum NetworkState {
     NETWORK_STATE_DISCONNECTED,
+    NETWORK_STATE_INITIALIZED,
     NETWORK_STATE_CONNECTED,
-    NETWORK_STATE_SYNCHRONIZATION,
     NETWORK_STATE_LOGGED_IN
   };
   NetworkState network_state_;
