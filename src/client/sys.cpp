@@ -23,17 +23,4 @@ int64_t Timestamp() {
   return timer.GetTime();
 }
 
-void Warning(const char* fmt, ...) {
-  assert(fmt != NULL);
-
-  char buf[1024];
-
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(buf, sizeof(buf) - 1, fmt, args);
-  va_end(args);
-
-  fprintf(stderr, "WARN: %s\n", buf);
-}
-
 }  // namespace sys

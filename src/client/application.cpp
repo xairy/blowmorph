@@ -209,7 +209,7 @@ bool Application::InitializeNetwork() {
     return false;
   }
   if (event->GetType() != enet::Event::TYPE_CONNECT) {
-    BM_ERROR("Could not connect to server.");
+    THROW_ERROR("Could not connect to server.");
     return false;
   }
   client_ = client.release();
@@ -271,7 +271,7 @@ bool Application::OnQuitEvent(const sf::Event& event) {
   CHECK(connect_timeout_ <= std::numeric_limits<uint32_t>::max());
 
   if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout_)) {
-    BM_ERROR("Did not receive EVENT_DISCONNECT event while disconnecting.\n");
+    THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.\n");
     return false;
   } else {
     printf("Client disconnected.\n");
@@ -353,7 +353,7 @@ bool Application::OnKeyEvent(const sf::Event& event) {
       CHECK(0 <= connect_timeout_);
       CHECK(connect_timeout_ <= std::numeric_limits<uint32_t>::max());
       if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout_)) {
-        BM_ERROR("Did not receive EVENT_DISCONNECT while disconnecting.\n");
+        THROW_ERROR("Did not receive EVENT_DISCONNECT while disconnecting.\n");
         return false;
       } else {
         printf("Client disconnected.\n");
@@ -408,13 +408,13 @@ bool Application::PumpPackets(uint32_t timeout) {
       } break;
 
       case enet::Event::TYPE_CONNECT: {
-        sys::Warning("Got EVENT_CONNECT while being already connected.");
+        THROW_WARNING("Got EVENT_CONNECT while being already connected.");
       } break;
 
       case enet::Event::TYPE_DISCONNECT: {
         network_state_ = NETWORK_STATE_DISCONNECTED;
         is_running_ = false;
-        BM_ERROR("Connection lost.");
+        THROW_ERROR("Connection lost.");
         return false;
       } break;
 
@@ -432,15 +432,15 @@ bool Application::ProcessPacket(Packet::Type type,
 
   switch (network_state_) {
     case NETWORK_STATE_DISCONNECTED: {
-      sys::Warning("Received a packet while being in disconnected state.");
+      THROW_WARNING("Received a packet while being in disconnected state.");
       return true;
     } break;
     case NETWORK_STATE_CONNECTED: {
       if (type != Packet::TYPE_CLIENT_OPTIONS) {
-        sys::Warning("Received packet with a type %d "
+        THROW_WARNING("Received packet with a type %d "
             "while waiting for client options.", type);
       } else if (len != sizeof(ClientOptions)) {
-        sys::Warning("Received packet has incorrect length.");
+        THROW_WARNING("Received packet has incorrect length.");
       } else {
         const ClientOptions* options =
             reinterpret_cast<const ClientOptions*>(data);
@@ -466,10 +466,10 @@ bool Application::ProcessPacket(Packet::Type type,
     } break;
     case NETWORK_STATE_SYNCHRONIZATION: {
       if (type != Packet::TYPE_SYNC_TIME_RESPONSE) {
-        sys::Warning("Received packet with a type %d "
+        THROW_WARNING("Received packet with a type %d "
             "while waiting for time sync response.", type);
       } else if (len != sizeof(TimeSyncData)) {
-        sys::Warning("Received packet has incorrect length.");
+        THROW_WARNING("Received packet has incorrect length.");
       } else {
         const TimeSyncData* response_data =
             reinterpret_cast<const TimeSyncData*>(data);
@@ -526,7 +526,7 @@ bool Application::ProcessPacket(Packet::Type type,
           }
         }
       } else {
-        sys::Warning("Received packet is not an entity snapshot.");
+        THROW_WARNING("Received packet is not an entity snapshot.");
       }
 
       return true;

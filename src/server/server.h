@@ -305,7 +305,7 @@ class Server {
       client_id,
       Vector2f(0.0f, 0.0f));
     if (player == NULL) {
-      BM_ERROR("Unable to create player!");
+      THROW_ERROR("Unable to create player!");
       return false;
     }
     player->Respawn();

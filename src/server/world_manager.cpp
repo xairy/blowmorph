@@ -353,7 +353,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
   pugi::xml_attribute y = node.attribute("y");
   pugi::xml_attribute type = node.attribute("type");
   if (!x || !y || !type) {
-    BM_ERROR("Incorrect format of 'wall' in map file!\n");
+    THROW_ERROR("Incorrect format of 'wall' in map file!\n");
     return false;
   } else {
     Wall::Type type_value;
@@ -381,7 +381,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
   pugi::xml_attribute height = node.attribute("height");
   pugi::xml_attribute type = node.attribute("type");
   if (!x || !y || !width || !height || !type) {
-    BM_ERROR("Incorrect format of 'chunk' in map file!\n");
+    THROW_ERROR("Incorrect format of 'chunk' in map file!\n");
     return false;
   } else {
     int xv = x.as_int();
@@ -413,7 +413,7 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   pugi::xml_attribute x_attr = node.attribute("x");
   pugi::xml_attribute y_attr = node.attribute("y");
   if (!x_attr || !y_attr) {
-    BM_ERROR("Incorrect format of 'spawn' in map file!\n");
+    THROW_ERROR("Incorrect format of 'spawn' in map file!\n");
     return false;
   } else {
     float x = x_attr.as_float();
@@ -435,7 +435,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
   pugi::xml_attribute mr_attr = node.attribute("morph_regeneration");
   pugi::xml_attribute type_attr = node.attribute("type");
   if (!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
-    BM_ERROR("Incorrect format of 'station' in map file!\n");
+    THROW_ERROR("Incorrect format of 'station' in map file!\n");
     return false;
   } else {
     float x = x_attr.as_float();
@@ -467,7 +467,7 @@ bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute,
   } else if (std::string(attribute.value()) == "morphed") {
     *output = Wall::TYPE_MORPHED;
   } else {
-    BM_ERROR("Incorrect wall type in map file!\n");
+    THROW_ERROR("Incorrect wall type in map file!\n");
     return false;
   }
   return true;
@@ -485,7 +485,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   } else if (std::string(attribute.value()) == "composite") {
     *output = Station::TYPE_COMPOSITE;
   } else {
-    BM_ERROR("Incorrect station type in map file!\n");
+    THROW_ERROR("Incorrect station type in map file!\n");
     return false;
   }
   return true;
@@ -560,7 +560,7 @@ Shape* WorldManager::LoadShape(const std::string& prefix) const {
     CHECK(shape != NULL);
     return shape;
   }
-  BM_ERROR("Unknown shape type.");
+  THROW_ERROR("Unknown shape type.");
   return NULL;
 }
 

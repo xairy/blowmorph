@@ -30,7 +30,7 @@ bool TextureAtlas::LoadTexture(
 
   sf::Image image;
   if (!image.loadFromFile(path)) {
-    BM_ERROR("Unable to load texture.");
+    THROW_ERROR("Unable to load texture.");
     return false;
   }
 
