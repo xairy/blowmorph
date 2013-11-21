@@ -888,22 +888,12 @@ void Application::RenderHUD() {
     }
   }
 
-  {
-    Object* obj = player_;
-
-    // FIXME(xairy): wtf?
-    sf::Vector2f obj_pos = obj->GetPosition(render_time);
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
-    sf::Vector2f rel = obj_pos - player_pos;
-    if (Length(rel) < 400) {
-      rel = rel * (60.0f / 400.0f);
-      sf::CircleShape circle(1.0f);
-      sf::Vector2f compass_center(80.0f, 80.0f);
-      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
-      circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
-      render_window_->draw(circle, hud_transform);
-    }
-  }
+  // Draw client.
+  sf::CircleShape circle(1.0f);
+  sf::Vector2f compass_center(80.0f, 80.0f);
+  circle.setPosition(compass_center);
+  circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
+  render_window_->draw(circle, hud_transform);
 }
 
 }  // namespace bm
