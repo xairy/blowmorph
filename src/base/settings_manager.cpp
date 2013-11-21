@@ -31,7 +31,7 @@ bool SettingsManager::Open(const std::string& path) {
   config_init(&cfg_);
   if (!config_read_file(&cfg_, path.c_str())) {
     config_destroy(&cfg_);
-    BM_ERROR("Unable to read config!");
+    THROW_ERROR("Unable to read config!");
     return false;
   }
   state_ = STATE_OPENED;

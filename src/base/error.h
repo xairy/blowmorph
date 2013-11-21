@@ -4,7 +4,6 @@
 #define BASE_ERROR_H_
 
 // WARNING: 'Error' class in NOT thread safe.
-
 // TODO(xairy): make it thread safe.
 
 #include <cstdarg>
@@ -41,8 +40,7 @@ class Error {
     va_end(args);
 
     std::stringstream ss;
-    ss << "Error in file " << file << " on line " << line << ":" << std::endl;
-    ss << buf << std::endl << '\0';
+    ss << "Error: " << buf << " (" << file << ":" << line << ")";
 
     Error::messages.push_back(ss.str());
   }
@@ -53,8 +51,11 @@ class Error {
   DISALLOW_IMPLICIT_CONSTRUCTORS(Error);
 };
 
-// TODO(alex): VA_ARGS?
-#define BM_ERROR(msg) bm::Error::Throw(__FILE__, __LINE__, "%s", msg)
+#define THROW_ERROR(msg, ...) \
+  bm::Error::Throw(__FILE__, __LINE__, msg, ##__VA_ARGS__)
+
+#define THROW_WARNING(msg, ...) \
+  fprintf(stderr, "Warning: " msg "\n", ##__VA_ARGS__)
 
 }  // namespace bm
 
