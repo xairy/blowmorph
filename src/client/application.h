@@ -68,9 +68,6 @@ class Application {
   sf::View view_;
   sf::Font* font_;
 
-  uint32_t connect_timeout_;
-  int64_t sync_timeout_;
-
   enet::Enet enet_;
   enet::ClientHost* client_;
   enet::Event* event_;
@@ -99,7 +96,6 @@ class Application {
   uint32_t wall_size_;
   uint32_t player_size_;
 
-  // TODO(xairy): load from settings.
   float max_player_misposition_;
 
   // Input events since the last tick.

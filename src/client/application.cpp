@@ -74,14 +74,11 @@ bool Application::Initialize() {
     return false;
   }
 
-  sync_timeout_ = 1000;
-  connect_timeout_ = 500;
-
   if (!InitializeNetwork()) {
     return false;
   }
 
-  tick_rate_ = 30;
+  tick_rate_ = settings_.GetInt32("client.tick_rate");
 
   time_correction_ = 0;
   last_tick_ = 0;
@@ -94,7 +91,7 @@ bool Application::Initialize() {
   wall_size_ = 16;
   player_size_ = 30;
 
-  max_player_misposition_ = 25.0f;
+  max_player_misposition_ = settings_.GetFloat("client.max_player_misposition");
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -234,7 +231,9 @@ bool Application::Connect() {
     return false;
   }
 
-  bool rv = client_->Service(event_, connect_timeout_);
+  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+
+  bool rv = client_->Service(event_, connect_timeout);
   if (rv == false) {
     return false;
   }
@@ -254,16 +253,17 @@ bool Application::Synchronize() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_CONNECTED);
 
+  int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
   int64_t start_time = sys::Timestamp();
 
   while (true) {
     int64_t time = sys::Timestamp();
-    if (time - start_time > sync_timeout_) {
+    if (time - start_time > sync_timeout) {
       THROW_ERROR("Could not synchronize with server.");
       return false;
     }
 
-    uint32_t service_timeout = (sync_timeout_ - (time - start_time));
+    uint32_t service_timeout = (sync_timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
       return false;
@@ -301,12 +301,12 @@ bool Application::Synchronize() {
 
   while (true) {
     int64_t time = sys::Timestamp();
-    if (time - start_time > sync_timeout_) {
+    if (time - start_time > sync_timeout) {
       THROW_ERROR("Could not synchronize with server.");
       return false;
     }
 
-    uint32_t service_timeout = (sync_timeout_ - (time - start_time));
+    uint32_t service_timeout = (sync_timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
       return false;
@@ -381,7 +381,9 @@ bool Application::OnQuitEvent() {
 
   is_running_ = false;
 
-  if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout_)) {
+  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+
+  if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
     return false;
   } else {
