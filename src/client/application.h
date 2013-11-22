@@ -17,6 +17,7 @@
 #include "base/settings_manager.h"
 
 #include "client/object.h"
+#include "client/resource_manager.h"
 #include "client/sprite.h"
 
 namespace bm {
@@ -63,6 +64,7 @@ class Application {
   bool is_running_;
 
   SettingsManager settings_;
+  ResourceManager resource_manager_;
 
   sf::RenderWindow* render_window_;
   sf::View view_;
@@ -97,6 +99,7 @@ class Application {
   uint32_t player_size_;
 
   float max_player_misposition_;
+  int64_t interpolation_offset_;
 
   // Input events since the last tick.
   std::vector<KeyboardEvent> keyboard_events_;

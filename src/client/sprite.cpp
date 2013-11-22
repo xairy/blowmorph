@@ -19,55 +19,18 @@ namespace bm {
 
 Sprite::Sprite() : _state(STATE_FINALIZED) { }
 
-bool Sprite::Initialize(const std::string& path) {
-  SettingsManager settings;
-  if (!settings.Open(path)) {
-    return false;
-  }
-
-  std::string source = settings.GetString("sprite.source");
-  uint32_t transparent_color = settings.GetUInt32("sprite.transparent_color");
-
-  bool tiled = false;
-  if (settings.HasSetting("sprite.tile")) {
-    tiled = true;
-  }
-
-  // FIXME(xairy): texture shouldn't be loaded twice.
-  _texture = new TextureAtlas();
-  CHECK(_texture != NULL);
-
-  if (tiled) {
-    int32_t start_x = settings.GetInt32("sprite.tile.start.x");
-    int32_t start_y = settings.GetInt32("sprite.tile.start.y");
-    int32_t horizontal_step = settings.GetInt32("sprite.tile.step.horizontal");
-    int32_t vertical_step = settings.GetInt32("sprite.tile.step.vertical");
-    int32_t width = settings.GetInt32("sprite.tile.width");
-    int32_t height = settings.GetInt32("sprite.tile.height");
-    bool rv = _texture->LoadTileset(source, transparent_color, start_x, start_y,
-        horizontal_step, vertical_step, width, height);
-    if (rv == false) {
-      delete _texture;
-      return false;
-    }
-  } else {
-    bool rv = _texture->LoadTexture(source, transparent_color);
-    if (rv == false) {
-      delete _texture;
-      return false;
-    }
-  }
-
-  CHECK(_texture->GetTileCount() > 0);
+void Sprite::Initialize(TextureAtlas* texture,
+    const std::vector<int32_t>& tiles, int64_t timeout, bool cyclic) {
+  CHECK(_state == STATE_FINALIZED);
+  CHECK(texture != NULL);
 
   // TODO(xairy): support multiple modes.
 
-  settings.LookupInt64("sprite.mode.timeout", &_current_mode.timeout);
-  settings.LookupBool("sprite.mode.cyclic", &_current_mode.cyclic);
+  _texture = texture;
+  _current_mode.timeout = timeout;
+  _current_mode.cyclic = cyclic;
 
-  std::vector<int32_t> tiles;
-  bool tiles_specified = settings.LookupInt32List("sprite.mode.tiles", &tiles);
-  if (tiles_specified == true) {
+  if (!tiles.empty()) {
     for (size_t i = 0; i < tiles.size(); i++) {
       CHECK(tiles[i] >= 0);
       _current_mode.tiles.push_back(static_cast<size_t>(tiles[i]));
@@ -102,7 +65,6 @@ bool Sprite::Initialize(const std::string& path) {
   _last_frame_change = _timer.GetTime();
 
   _state = STATE_STOPPED;
-  return true;
 }
 
 Sprite::~Sprite() {
@@ -117,7 +79,6 @@ void Sprite::Finalize() {
       _frames[frame] = NULL;
     }
   }
-  delete _texture;
   _state = STATE_FINALIZED;
 }
 

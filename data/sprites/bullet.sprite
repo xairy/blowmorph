@@ -1,9 +1,0 @@
-sprite = {
-  source = "data/images/bullet.png";
-  transparent_color = 538241;
-
-  mode = {
-    timeout = 0;
-    cyclic = false;
-  };
-};

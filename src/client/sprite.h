@@ -20,9 +20,10 @@ class Sprite {
   Sprite();
   ~Sprite();
 
-  // Initializes 'Sprite'. 'path' is the path to a sprite description file.
+  // Initializes 'Sprite'.
   // Returns 'true' on success, returns 'false' on error.
-  bool Initialize(const std::string& path);
+  void Initialize(TextureAtlas* texture, const std::vector<int32_t>& tiles,
+      int64_t timeout, bool cyclic);
 
   // Cleans up. Automatically called in the destructor.
   void Finalize();

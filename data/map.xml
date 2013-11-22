@@ -36,7 +36,7 @@ X axis is pointing to the right, Y axis is pointing down.
   <chunk x="-2" y="-2" width="5" height="5" type="unbreakable"></chunk>
   
   <station x="166.0" y="166.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
-  <station x="166.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
-  <station x="-150.0" y="166.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
-  <station x="-150.0" y="-150.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
+  <station x="166.0" y="-150.0" type="blow" health_regeneration="0" blow_regeneration="100" morph_regeneration="0"></station>
+  <station x="-150.0" y="166.0" type="morph" health_regeneration="0" blow_regeneration="0" morph_regeneration="100"></station>
+  <station x="-150.0" y="-150.0" type="composite" health_regeneration="100" blow_regeneration="100" morph_regeneration="100"></station>
 </map>

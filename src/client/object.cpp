@@ -49,20 +49,16 @@ bm::ObjectState lerp(const bm::ObjectState& a,
 namespace bm {
 
 // TODO(alex): fix method names.
-// FIXME(xiary): make Object factory.
-Object::Object(const sf::Vector2f& position, int64_t time, uint32_t id,
-    uint32_t type, const std::string& path, int64_t time_offset)
+Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
+    const sf::Vector2f& position, int64_t time, int64_t time_offset)
       : id(id),
         type(type),
+        sprite(sprite),
         visible(false),
         name_visible(false),
+        name_offset(sf::Vector2f(-15.0f, -30.0f)),
         interpolation_enabled(false),
         interpolator(ObjectInterpolator(time_offset, 1)) {
-  bool rv = sprite.Initialize(path);
-  CHECK(rv == true);
-
-  name_offset = sf::Vector2f(-15.0f, -30.0f);
-
   ObjectState state;
   state.blowCharge = 0;
   state.health = 0;
@@ -122,8 +118,8 @@ void RenderObject(Object* object, int64_t time,
 
   if (object->visible) {
     sf::Vector2f object_pos(round(state.position.x), round(state.position.y));
-    object->sprite.SetPosition(object_pos);
-    object->sprite.Render(&render_window);
+    object->sprite->SetPosition(object_pos);
+    object->sprite->Render(&render_window);
   }
 
   if (object->name_visible) {
