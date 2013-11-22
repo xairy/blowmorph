@@ -1,4 +1,0 @@
-sprite = {
-  source = "data/images/player.png";
-  transparent_color = 0;
-};

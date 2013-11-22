@@ -10,8 +10,6 @@
 #include "base/error.h"
 #include "base/pstdint.h"
 
-// TODO(alex): better think of something like "ResourceManager"
-
 namespace bm {
 
 TextureAtlas::TextureAtlas() : state_(STATE_FINALIZED) { }
@@ -30,7 +28,7 @@ bool TextureAtlas::LoadTexture(
 
   sf::Image image;
   if (!image.loadFromFile(path)) {
-    THROW_ERROR("Unable to load texture.");
+    THROW_ERROR("Unable to load texture '%s'.", path.c_str());
     return false;
   }
 

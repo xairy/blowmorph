@@ -24,6 +24,7 @@
 #include "base/settings_manager.h"
 
 #include "client/object.h"
+#include "client/resource_manager.h"
 #include "client/sprite.h"
 
 #include "client/sys.h"
@@ -92,6 +93,7 @@ bool Application::Initialize() {
   player_size_ = 30;
 
   max_player_misposition_ = settings_.GetFloat("client.max_player_misposition");
+  interpolation_offset_ = settings_.GetInt64("client.interpolation_offset");
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -110,9 +112,10 @@ bool Application::Run() {
 
   // FIXME(xairy): move to a separate method.
   sf::Vector2f player_pos(client_options_->x, client_options_->y);
-  player_ = new Object(player_pos, 0, client_options_->id,
-      EntitySnapshot::ENTITY_TYPE_PLAYER, "data/sprites/mechos.sprite",
-      latency_);
+  Sprite* sprite = resource_manager_.CreateSprite("mechos");
+  CHECK(sprite != NULL);
+  player_ = new Object(client_options_->id, EntitySnapshot::ENTITY_TYPE_PLAYER,
+      sprite, player_pos, 0, interpolation_offset_);
   CHECK(player_ != NULL);
   // XXX(alex): maybe we should have a xml file for each object with
   //            texture paths, pivots, captions, etc
@@ -574,68 +577,78 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      size_t tile;
+      std::string sprite_id;
       if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-        tile = 3;
+        sprite_id = "ordinary_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-        tile = 2;
+        sprite_id = "unbreakable_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-        tile = 1;
+        sprite_id = "morphed_wall";
+      } else {
+        CHECK(false);  // Unreachable.
       }
-      walls_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/wall.sprite", latency_);
-      walls_[snapshot->id]->sprite.SetCurrentFrame(tile);
+      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
+      CHECK(sprite != NULL);
+      walls_[snapshot->id] = new Object(snapshot->id, snapshot->type,
+          sprite, position, time, interpolation_offset_);
       walls_[snapshot->id]->EnableInterpolation();
       walls_[snapshot->id]->visible = true;
       walls_[snapshot->id]->name_visible = false;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/bullet.sprite", latency_);
+      Sprite* sprite = resource_manager_.CreateSprite("bullet");
+      CHECK(sprite != NULL);
+      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
+          sprite, position, time, interpolation_offset_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = false;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/mechos.sprite", latency_);
+      Sprite* sprite = resource_manager_.CreateSprite("mechos");
+      CHECK(sprite != NULL);
+      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
+          sprite, position, time, interpolation_offset_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = true;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/dummy.sprite", latency_);
+      Sprite* sprite = resource_manager_.CreateSprite("dummy");
+      CHECK(sprite != NULL);
+      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
+          sprite, position, time, interpolation_offset_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = false;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
-      size_t tile;
+      std::string sprite_id;
       switch (snapshot->data[0]) {
         case EntitySnapshot::STATION_TYPE_HEALTH: {
-          tile = 0;
+          sprite_id = "health_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_BLOW: {
-          tile = 2;
+          sprite_id = "blow_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_MORPH: {
-          tile = 1;
+          sprite_id = "morph_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_COMPOSITE: {
-          tile = 3;
+          sprite_id = "composite_kit";
         } break;
         default: {
           CHECK(false);  // Unreachable.
         }
       }
-      objects_[snapshot->id] = new Object(position, time, snapshot->id,
-          snapshot->type, "data/sprites/station.sprite", latency_);
-      objects_[snapshot->id]->sprite.SetCurrentFrame(tile);
+      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
+      CHECK(sprite != NULL);
+      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
+          sprite, position, time, interpolation_offset_);
       objects_[snapshot->id]->EnableInterpolation();
       objects_[snapshot->id]->visible = true;
       objects_[snapshot->id]->name_visible = false;
@@ -704,10 +717,8 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
 
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
     // TODO(xairy): create explosion animation on explosion packet.
-    Sprite* explosion = new Sprite();
-    CHECK(explosion != NULL);
-    bool rv = explosion->Initialize("data/sprites/explosion.sprite");
-    if (rv == false) {
+    Sprite* explosion = resource_manager_.CreateSprite("explosion");
+    if (explosion == NULL) {
       // TODO(xairy): use auto_ptr.
       delete explosion;
       return false;
