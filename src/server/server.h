@@ -252,15 +252,14 @@ class Server {
 
   bool _PumpEvents() {
     do {
+      // TODO(xairy): timeout.
       if (_host->Service(_event, 0) == false) {
         return false;
       }
 
       switch (_event->GetType()) {
         case enet::Event::TYPE_CONNECT: {
-          if (!_OnConnect()) {
-            return false;
-          }
+          _OnConnect();
           break;
         }
 
@@ -286,72 +285,16 @@ class Server {
     return true;
   }
 
-  bool _OnConnect() {
+  void _OnConnect() {
     CHECK(_event->GetType() == enet::Event::TYPE_CONNECT);
 
-    printf("Client from %s:%u is trying to connect.\n",
+    uint32_t client_id = _id_manager.NewId();
+    _event->GetPeer()->SetData(reinterpret_cast<void*>(client_id));
+
+    printf("#%u: Client from %s:%u is trying to connect.\n", client_id,
       _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
 
-    std::auto_ptr<enet::Peer> peer(_event->GetPeer());
-    if (peer.get() == NULL) {
-      return false;
-    }
-
-    uint32_t client_id = _id_manager.NewId();
-    peer->SetData(reinterpret_cast<void*>(client_id));
-
-    Player* player = Player::Create(
-      &_world_manager,
-      client_id,
-      Vector2f(0.0f, 0.0f));
-    if (player == NULL) {
-      THROW_ERROR("Unable to create player!");
-      return false;
-    }
-    player->Respawn();
-
-    Client* client = new Client(peer.release(), player);
-    CHECK(client != NULL);
-
-    _client_manager.AddClient(client_id, client);
-    _world_manager.AddEntity(client_id, player);
-
-    printf("Client from %s:%u connected. Id #%u assigned.\n",
-      _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort(),
-      client_id);
-
-    if (!_SendClientOptions(client)) {
-      return false;
-    }
-
-    if (!_BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
-        client->entity)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  bool _SendClientOptions(Client* client) {
-    ClientOptions options;
-    options.id = client->entity->GetId();
-    options.speed = client->entity->GetSpeed();
-    options.x = client->entity->GetPosition().x;
-    options.y = client->entity->GetPosition().y;
-    options.max_health = client->entity->GetMaxHealth();
-    options.blow_capacity = client->entity->GetBlowCapacity();
-    options.morph_capacity = client->entity->GetMorphCapacity();
-
-    Packet::Type packet_type = Packet::TYPE_CLIENT_OPTIONS;
-
-    bool rv = _SendPacket(client->peer, packet_type, options, true);
-    if (rv == false) {
-      return false;
-    }
-
-    printf("#%u: Client options has been sent.\n", client->entity->GetId());
-
-    return true;
+    // Client should send 'TYPE_LOGIN' packet now.
   }
 
   bool _BroadcastEntityRelatedMessage(Packet::Type packet_type,
@@ -407,7 +350,6 @@ class Server {
     void* peer_data = _event->GetPeer()->GetData();
     // So complicated to make it work under x64.
     uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
-    Client* client = _client_manager.GetClient(id);
 
     std::vector<char> message;
     _event->GetData(&message);
@@ -415,10 +357,19 @@ class Server {
     Packet::Type packet_type;
     bool rv = _ExtractPacketType(message, &packet_type);
     if (rv == false) {
-      printf("#%u: Client dropped due to incorrect message format.0\n", id);
+      printf("#%u: Client dropped due to incorrect message format. [0]\n", id);
       _client_manager.DisconnectClient(id);
       return true;
     }
+
+    if (packet_type == Packet::TYPE_LOGIN) {
+      if (!_OnLogin(id)) {
+        printf("#%u: Login failed.\n", id);
+      }
+      return true;
+    }
+
+    Client* client = _client_manager.GetClient(id);
 
     if (packet_type == Packet::TYPE_KEYBOARD_EVENT) {
       if (message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
@@ -491,6 +442,87 @@ class Server {
       printf("#%u: Client dropped due to incorrect message format.7\n", id);
       _client_manager.DisconnectClient(id);
       return true;
+    }
+
+    return true;
+  }
+
+  bool _OnLogin(uint32_t client_id) {
+    enet::Peer* peer = _event->GetPeer();
+    CHECK(peer != NULL);
+
+    // Receive login data.
+
+    if (_event->GetType() != enet::Event::TYPE_RECEIVE) {
+      printf("#%u: Couldn't receive login packet.\n", client_id);
+      return false;
+    }
+
+    std::vector<char> message;
+    _event->GetData(&message);
+
+    LoginData login_data;
+    bool rv = _ExtractData(message, &login_data);
+    if (rv == false) {
+      printf("#%u: Incorrect message format.\n", client_id);
+      return false;
+    }
+
+    printf("#%u: Login data has been received.\n", client_id);
+
+    // Create player.
+
+    Player* player = Player::Create(
+      &_world_manager,
+      client_id,
+      Vector2f(0.0f, 0.0f));
+    if (player == NULL) {
+      THROW_ERROR("Unable to create player!");
+      return false;
+    }
+    player->Respawn();
+
+    Client* client = new Client(peer, player);
+    CHECK(client != NULL);
+
+    _client_manager.AddClient(client_id, client);
+    _world_manager.AddEntity(client_id, player);
+
+    if (!_SendClientOptions(client)) {
+      _client_manager.DisconnectClient(client_id);
+      return false;
+    }
+
+    printf("#%u: Client options has been sent.\n", client_id);
+
+    if (!_BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
+        client->entity)) {
+      _client_manager.DisconnectClient(client_id);
+      return false;
+    }
+
+    printf("#%u: Client from %s:%u connected.\n", client_id,
+      _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort(),
+      client_id);
+
+    return true;
+  }
+
+  bool _SendClientOptions(Client* client) {
+    ClientOptions options;
+    options.id = client->entity->GetId();
+    options.speed = client->entity->GetSpeed();
+    options.x = client->entity->GetPosition().x;
+    options.y = client->entity->GetPosition().y;
+    options.max_health = client->entity->GetMaxHealth();
+    options.blow_capacity = client->entity->GetBlowCapacity();
+    options.morph_capacity = client->entity->GetMorphCapacity();
+
+    Packet::Type packet_type = Packet::TYPE_CLIENT_OPTIONS;
+
+    bool rv = _SendPacket(client->peer, packet_type, options, true);
+    if (rv == false) {
+      return false;
     }
 
     return true;

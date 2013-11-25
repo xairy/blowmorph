@@ -13,6 +13,9 @@ class Packet {
   enum Type {
     TYPE_UNKNOWN = 0,
 
+    // C -> S. Followed by 'LoginData'.
+    TYPE_LOGIN,
+
     // S -> C. Followed by 'ClientOptions'.
     TYPE_CLIENT_OPTIONS,
 
@@ -36,6 +39,12 @@ class Packet {
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Packet);
+};
+
+struct LoginData {
+  static const size_t MAX_LOGIN_LENGTH = 31;
+
+  char login[MAX_LOGIN_LENGTH + 1];
 };
 
 struct ClientOptions {
