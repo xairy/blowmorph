@@ -88,6 +88,7 @@ class Application {
   std::map<uint32_t, Object*> walls_;
   std::list<Sprite*> explosions_;
 
+  // TODO(xairy): make it not pointer.
   ClientOptions* client_options_;
 
   float player_health_;
@@ -119,6 +120,7 @@ class Application {
     NETWORK_STATE_DISCONNECTED,
     NETWORK_STATE_INITIALIZED,
     NETWORK_STATE_CONNECTED,
+    // TODO(xairy): rename to _SYNCHRONIZED.
     NETWORK_STATE_LOGGED_IN
   };
   NetworkState network_state_;

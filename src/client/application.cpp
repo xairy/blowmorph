@@ -818,54 +818,74 @@ void Application::Render() {
   render_window_->display();
 }
 
-// FIXME(xairy): magic numbers.
-// TODO(xairy): prettier HUD.
+// TODO(xairy): load HUD layout parameters from some config file.
 void Application::RenderHUD() {
   CHECK(state_ == STATE_INITIALIZED);
 
-  // Sets origin to the left top corner.
-  sf::Transform hud_transform;
-  hud_transform.translate(view_.getCenter() - view_.getSize() / 2.0f);
+  // Initialize transforms for drawing in different corners of the screen.
+
+  sf::Vector2f size = view_.getSize();
+
+  sf::Transform top_left_transform;
+  top_left_transform.translate(view_.getCenter() - size / 2.0f);
+
+  size.x = -size.x;
+  sf::Transform top_right_transform;
+  top_right_transform.translate(view_.getCenter() - size / 2.0f);
+
+  size.y = -size.y;
+  sf::Transform bottom_right_transform;
+  bottom_right_transform.translate(view_.getCenter() - size / 2.0f);
+
+  size.x = -size.x;
+  sf::Transform bottom_left_transform;
+  bottom_left_transform.translate(view_.getCenter() - size / 2.0f);
+
+  // Draw health, blow and morph bars.
 
   int32_t max_health = client_options_->max_health;
-  float health_rect_width = 100.0f * player_health_ / max_health;
+  float health_rect_width = 200.0f * player_health_ / max_health;
   float health_rect_height = 10.0f;
   sf::Vector2f health_rect_size(health_rect_width, health_rect_height);
-
   sf::RectangleShape health_rect;
   health_rect.setSize(health_rect_size);
-  health_rect.setPosition(sf::Vector2f(50.0f, 510.0f));
+  health_rect.setPosition(sf::Vector2f(20.0f, -70.0f));
   health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
-  render_window_->draw(health_rect, hud_transform);
+  render_window_->draw(health_rect, bottom_left_transform);
 
   int32_t blow_capacity = client_options_->blow_capacity;
-  float blow_rect_width = 100.0f * player_blow_charge_ / blow_capacity;
+  float blow_rect_width = 200.0f * player_blow_charge_ / blow_capacity;
   float blow_rect_height = 10.0f;
   sf::Vector2f blow_rect_size(blow_rect_width, blow_rect_height);
-
   sf::RectangleShape blow_charge_rect;
   blow_charge_rect.setSize(blow_rect_size);
-  blow_charge_rect.setPosition(sf::Vector2f(50.0f, 530.0f));
+  blow_charge_rect.setPosition(sf::Vector2f(20.0f, -50.0f));
   blow_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
-  render_window_->draw(blow_charge_rect, hud_transform);
+  render_window_->draw(blow_charge_rect, bottom_left_transform);
 
   int32_t morph_capacity = client_options_->morph_capacity;
-  float morph_rect_width = 100.0f * player_morph_charge_ / morph_capacity;
+  float morph_rect_width = 200.0f * player_morph_charge_ / morph_capacity;
   float morph_rect_height = 10.0f;
   sf::Vector2f morph_rect_size(morph_rect_width, morph_rect_height);
-
   sf::RectangleShape morph_charge_rect;
   morph_charge_rect.setSize(morph_rect_size);
-  morph_charge_rect.setPosition(sf::Vector2f(50.0f, 550.0f));
+  morph_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
   morph_charge_rect.setFillColor(sf::Color(0xFF, 0xFF, 0x00, 0xBB));
-  render_window_->draw(morph_charge_rect, hud_transform);
+  render_window_->draw(morph_charge_rect, bottom_left_transform);
 
-  sf::CircleShape compass_border(60.0f);
-  compass_border.setPosition(20.0f, 20.0f);  // Left top corner, not center.
+  // Draw compass.
+
+  float compass_range = 400.0f;
+  float compass_radius = 60.0f;
+  sf::Vector2f compass_center(-80.0f, 80.0f);
+
+  sf::CircleShape compass_border(compass_radius);
+  compass_border.setPosition(compass_center.x - compass_radius,
+      compass_center.y - compass_radius);  // Left top corner, not center.
   compass_border.setOutlineColor(sf::Color(0xFF, 0xFF, 0xFF, 0xFF));
   compass_border.setOutlineThickness(1.0f);
   compass_border.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
-  render_window_->draw(compass_border, hud_transform);
+  render_window_->draw(compass_border, top_right_transform);
 
   int64_t render_time = GetServerTime();
 
@@ -876,13 +896,12 @@ void Application::RenderHUD() {
     sf::Vector2f obj_pos = obj->GetPosition(render_time);
     sf::Vector2f player_pos = player_->GetPosition(render_time);
     sf::Vector2f rel = obj_pos - player_pos;
-    if (Length(rel) < 400) {
-      rel = rel * (60.0f / 400.0f);
+    if (Length(rel) < compass_range) {
+      rel = rel * (compass_radius / compass_range);
       sf::CircleShape circle(1.0f);
-      sf::Vector2f compass_center(80.0f, 80.0f);
-      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
+      circle.setPosition(compass_center + rel);
       circle.setFillColor(sf::Color(0xFF, 0x00, 0x00, 0xFF));
-      render_window_->draw(circle, hud_transform);
+      render_window_->draw(circle, top_right_transform);
     }
   }
 
@@ -892,22 +911,19 @@ void Application::RenderHUD() {
     sf::Vector2f obj_pos = obj->GetPosition(render_time);
     sf::Vector2f player_pos = player_->GetPosition(render_time);
     sf::Vector2f rel = obj_pos - player_pos;
-    if (Length(rel) < 400) {
-      rel = rel * (60.0f / 400.0f);
+    if (Length(rel) < compass_range) {
+      rel = rel * (compass_radius / compass_range);
       sf::CircleShape circle(1.0f);
-      sf::Vector2f compass_center(80.0f, 80.0f);
-      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
+      circle.setPosition(compass_center + rel);
       circle.setFillColor(sf::Color(0x00, 0xFF, 0x00, 0xFF));
-      render_window_->draw(circle, hud_transform);
+      render_window_->draw(circle, top_right_transform);
     }
   }
 
-  // Draw client.
   sf::CircleShape circle(1.0f);
-  sf::Vector2f compass_center(80.0f, 80.0f);
   circle.setPosition(compass_center);
   circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
-  render_window_->draw(circle, hud_transform);
+  render_window_->draw(circle, top_right_transform);
 }
 
 }  // namespace bm
