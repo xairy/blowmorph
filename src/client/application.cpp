@@ -259,6 +259,28 @@ bool Application::Synchronize() {
   int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
   int64_t start_time = sys::Timestamp();
 
+  // Send login data.
+
+  std::string login = settings_.GetString("player.login");
+  CHECK(login.size() <= LoginData::MAX_LOGIN_LENGTH);
+
+  LoginData login_data;
+  std::copy(login.begin(), login.end(), &login_data.login[0]);
+  login_data.login[login.size()] = '\0';
+
+  std::vector<char> buffer;
+  net::AppendPacketToBuffer(buffer, &login_data,
+      Packet::TYPE_LOGIN);
+
+  bool rv = peer_->Send(&buffer[0], buffer.size(), true);
+  if (rv == false) {
+    return false;
+  }
+
+  printf("Login data sent, login: %s.\n", login_data.login);
+
+  // Receive client options.
+
   while (true) {
     int64_t time = sys::Timestamp();
     if (time - start_time > sync_timeout) {
@@ -289,18 +311,23 @@ bool Application::Synchronize() {
     break;
   }
 
+  printf("Client options received.\n");
+
   // Send a time synchronization request.
+
   TimeSyncData request_data;
   request_data.client_time = sys::Timestamp();
 
-  std::vector<char> buffer;
+  buffer.clear();
   net::AppendPacketToBuffer(buffer, &request_data,
       Packet::TYPE_SYNC_TIME_REQUEST);
 
-  bool rv = peer_->Send(&buffer[0], buffer.size(), true);
+  rv = peer_->Send(&buffer[0], buffer.size(), true);
   if (rv == false) {
     return false;
   }
+
+  // Receive a time synchronization response.
 
   while (true) {
     int64_t time = sys::Timestamp();
