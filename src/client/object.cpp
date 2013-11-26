@@ -50,15 +50,20 @@ namespace bm {
 
 // TODO(alex): fix method names.
 Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
-    const sf::Vector2f& position, int64_t time, int64_t time_offset)
-      : id(id),
+    const sf::Vector2f& position, int64_t time, int64_t time_offset,
+    const std::string& name, sf::Font* font)
+     : id(id),
         type(type),
-        sprite(sprite),
         visible(false),
+        sprite(sprite),
         name_visible(false),
-        name_offset(sf::Vector2f(-15.0f, -30.0f)),
+        name_text(sf::Text(name, *font, 12)),
         interpolation_enabled(false),
         interpolator(ObjectInterpolator(time_offset, 1)) {
+  sf::FloatRect rect = name_text.getLocalBounds();
+  sf::Vector2f origin(rect.left + rect.width / 2, rect.top  + rect.height / 2);
+  name_text.setOrigin(Round(origin));
+
   ObjectState state;
   state.blowCharge = 0;
   state.health = 0;
@@ -122,11 +127,11 @@ void RenderObject(Object* object, int64_t time,
     object->sprite->Render(&render_window);
   }
 
-  if (object->name_visible) {
-    sf::Vector2f name_pos = Round(state.position + object->name_offset);
-    sf::Text text("Player", *font, 12);
-    text.setPosition(name_pos.x, name_pos.y);
-    render_window.draw(text);
+  if (object->visible && object->name_visible) {
+    sf::Vector2f name_offset = sf::Vector2f(0.0f, -25.0f);
+    sf::Vector2f name_pos = Round(state.position + name_offset);
+    object->name_text.setPosition(name_pos.x, name_pos.y);
+    render_window.draw(object->name_text);
   }
 }
 
