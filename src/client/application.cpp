@@ -257,6 +257,8 @@ bool Application::Synchronize() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_CONNECTED);
 
+  printf("Synchronization started.\n");
+
   int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
   int64_t start_time = sys::Timestamp();
 
@@ -285,7 +287,7 @@ bool Application::Synchronize() {
   while (true) {
     int64_t time = sys::Timestamp();
     if (time - start_time > sync_timeout) {
-      THROW_ERROR("Could not synchronize with server.");
+      THROW_ERROR("Synchronization failed: time's out.");
       return false;
     }
 
@@ -333,7 +335,7 @@ bool Application::Synchronize() {
   while (true) {
     int64_t time = sys::Timestamp();
     if (time - start_time > sync_timeout) {
-      THROW_ERROR("Could not synchronize with server.");
+      THROW_ERROR("Synchronization failed: time's out.");
       return false;
     }
 
@@ -363,7 +365,23 @@ bool Application::Synchronize() {
     break;
   }
 
-  printf("Synchronized, latency: %ld ms.\n", latency_);
+  printf("Synchronized time, latency: %ld ms.\n", latency_);
+
+  // Notify the server that the client has synchronized.
+
+  ClientStatus client_status;
+  client_status.status = ClientStatus::STATUS_SYNCHRONIZED;
+
+  buffer.clear();
+  net::AppendPacketToBuffer(buffer, &client_status,
+      Packet::TYPE_CLIENT_STATUS);
+
+  rv = peer_->Send(&buffer[0], buffer.size(), true);
+  if (rv == false) {
+    return false;
+  }
+
+  printf("Synchronization completed.\n");
 
   network_state_ = NETWORK_STATE_LOGGED_IN;
   return true;

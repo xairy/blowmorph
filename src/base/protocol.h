@@ -19,6 +19,17 @@ class Packet {
     // S -> C. Followed by 'ClientOptions'.
     TYPE_CLIENT_OPTIONS,
 
+    // C -> S. Followed by 'ClientStatus'.
+    TYPE_CLIENT_STATUS,
+
+    // C -> S. Followed by 'TimeSyncData' filled with client time.
+    TYPE_SYNC_TIME_REQUEST,
+    // S -> C. Followed by 'TimeSyncData' filled with client and server time.
+    TYPE_SYNC_TIME_RESPONSE,
+
+    // S -> C. Followed by 'PlayerInfo'.
+    TYPE_PLAYER_INFO,
+
     // S -> C. Followed by 'EntitySnapshot' with the entity description.
     TYPE_ENTITY_APPEARED,
     TYPE_ENTITY_UPDATED,
@@ -28,11 +39,6 @@ class Packet {
     TYPE_KEYBOARD_EVENT,
     // C -> S. Followed by 'MouseEvent'.
     TYPE_MOUSE_EVENT,
-
-    // C -> S. Followed by 'TimeSyncData' filled with client time.
-    TYPE_SYNC_TIME_REQUEST,
-    // S -> C. Followed by 'TimeSyncData' filled with client and server time.
-    TYPE_SYNC_TIME_RESPONSE,
 
     TYPE_MAX_VALUE
   };
@@ -59,6 +65,19 @@ struct ClientOptions {
 struct TimeSyncData {
   int64_t client_time;
   int64_t server_time;
+};
+
+struct ClientStatus {
+  enum Status {
+    STATUS_SYNCHRONIZED
+  };
+
+  Status status;
+};
+
+struct PlayerInfo {
+  uint32_t id;
+  char login[LoginData::MAX_LOGIN_LENGTH + 1];
 };
 
 // type == EntitySnapshot::ENTITY_TYPE_PLAYER:

@@ -4,6 +4,7 @@
 #define SERVER_CLIENT_MANAGER_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include <enet-plus/enet.hpp>
@@ -15,11 +16,12 @@
 namespace bm {
 
 struct Client {
-  Client(enet::Peer* peer, Player* entity);
+  Client(enet::Peer* peer, Player* entity, const std::string& login);
   ~Client();
 
   enet::Peer* peer;
   Player* entity;
+  std::string login;
 };
 
 class ClientManager {
