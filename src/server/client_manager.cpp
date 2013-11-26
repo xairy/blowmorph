@@ -14,7 +14,8 @@
 
 namespace bm {
 
-Client::Client(enet::Peer* peer, Player* entity) : peer(peer), entity(entity) {
+Client::Client(enet::Peer* peer, Player* entity, const std::string& login)
+    : peer(peer), entity(entity), login(login) {
   CHECK(peer != NULL);
 }
 Client::~Client() { }

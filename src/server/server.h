@@ -168,7 +168,7 @@ class Server {
 
  private:
   bool _UpdateWorld() {
-    // XXX(xiary): Temporary.
+    // XXX(xairy): Temporary.
     static int counter = 0;
     if (counter == 300) {
       float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
@@ -344,6 +344,7 @@ class Server {
     return true;
   }
 
+  // FIXME(xairy): fix error messages.
   bool _OnReceive() {
     CHECK(_event->GetType() == enet::Event::TYPE_RECEIVE);
 
@@ -364,84 +365,94 @@ class Server {
 
     if (packet_type == Packet::TYPE_LOGIN) {
       if (!_OnLogin(id)) {
-        printf("#%u: Login failed.\n", id);
+        return false;
       }
       return true;
     }
 
     Client* client = _client_manager.GetClient(id);
 
-    if (packet_type == Packet::TYPE_KEYBOARD_EVENT) {
-      if (message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
-        printf("#%u: Client dropped due to incorrect message format.1\n", id);
+    switch (packet_type) {
+      case Packet::TYPE_SYNC_TIME_REQUEST: {
+        if (message.size() != sizeof(Packet::Type) + sizeof(TimeSyncData)) {
+          printf("#%u: Client dropped due to incorrect message format.5\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        TimeSyncData sync_data;
+        rv = _ExtractData(message, &sync_data);
+        if (rv == false) {
+          printf("#%u: Client dropped due to incorrect message format.6\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        sync_data.server_time = _timer.GetTime();
+        packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
+
+        rv = _SendPacket(client->peer, packet_type, sync_data, true);
+        if (rv == false) {
+          return false;
+        }
+
+        _host->Flush();
+
+        // XXX(xairy): hack?
+        if (!_BroadcastStaticEntities(true)) {
+          return false;
+        }
+      } break;
+
+      case Packet::TYPE_CLIENT_STATUS: {
+        if (!_OnClientStatus(id)) {
+          return false;
+        }
+      } break;
+
+      case Packet::TYPE_KEYBOARD_EVENT: {
+        if (message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
+          printf("#%u: Client dropped due to incorrect message format.1\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        KeyboardEvent keyboard_event;
+        rv = _ExtractData(message, &keyboard_event);
+        if (rv == false) {
+          printf("#%u: Client dropped due to incorrect message format.2\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        client->entity->OnKeyboardEvent(keyboard_event);
+      } break;
+
+      case Packet::TYPE_MOUSE_EVENT: {
+        if (message.size() != sizeof(Packet::Type) + sizeof(MouseEvent)) {
+          printf("#%u: Client dropped due to incorrect message format.3\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        MouseEvent mouse_event;
+        rv = _ExtractData(message, &mouse_event);
+        if (rv == false) {
+          printf("#%u: Client dropped due to incorrect message format.4\n", id);
+          _client_manager.DisconnectClient(id);
+          return true;
+        }
+
+        if (!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
+          return false;
+        }
+      } break;
+
+      default: {
+        printf("#%u: Client dropped due to incorrect message format.7\n", id);
         _client_manager.DisconnectClient(id);
         return true;
-      }
-
-      KeyboardEvent keyboard_event;
-      rv = _ExtractData(message, &keyboard_event);
-      if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.2\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
-      client->entity->OnKeyboardEvent(keyboard_event);
-    } else if (packet_type == Packet::TYPE_MOUSE_EVENT) {
-      if (message.size() != sizeof(Packet::Type) + sizeof(MouseEvent)) {
-        printf("#%u: Client dropped due to incorrect message format.3\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
-      MouseEvent mouse_event;
-      rv = _ExtractData(message, &mouse_event);
-      if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.4\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
-      if (!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
-        return false;
-      }
-    } else if (packet_type == Packet::TYPE_SYNC_TIME_REQUEST) {
-      if (message.size() != sizeof(Packet::Type) + sizeof(TimeSyncData)) {
-        printf("#%u: Client dropped due to incorrect message format.5\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
-      TimeSyncData sync_data;
-      rv = _ExtractData(message, &sync_data);
-      if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.6\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
-      sync_data.server_time = _timer.GetTime();
-      packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
-
-      rv = _SendPacket(client->peer, packet_type, sync_data, true);
-      if (rv == false) {
-        return false;
-      }
-
-      _host->Flush();
-
-      // XXX[xairy]: linux x64: uint64_t == long int == %ld != %lld.
-      // printf("#%u: Time syncronized: client: %lld, server: %lld.\n",
-      // client->entity->GetId(), sync_data.client_time, sync_data.server_time);
-
-      // XXX[14.08.2012 xairy]: hack?
-      if (!_BroadcastStaticEntities(true)) {
-        return false;
-      }
-    } else {
-      printf("#%u: Client dropped due to incorrect message format.7\n", id);
-      _client_manager.DisconnectClient(id);
-      return true;
+      } break;
     }
 
     return true;
@@ -453,19 +464,14 @@ class Server {
 
     // Receive login data.
 
-    if (_event->GetType() != enet::Event::TYPE_RECEIVE) {
-      printf("#%u: Couldn't receive login packet.\n", client_id);
-      return false;
-    }
-
     std::vector<char> message;
     _event->GetData(&message);
 
     LoginData login_data;
     bool rv = _ExtractData(message, &login_data);
     if (rv == false) {
-      printf("#%u: Incorrect message format.\n", client_id);
-      return false;
+      printf("#%u: Incorrect message format, client dropped.\n", client_id);
+      return true;
     }
 
     printf("#%u: Login data has been received.\n", client_id);
@@ -482,24 +488,40 @@ class Server {
     }
     player->Respawn();
 
-    Client* client = new Client(peer, player);
+    login_data.login[LoginData::MAX_LOGIN_LENGTH] = '\0';
+    std::string login(&login_data.login[0]);
+    Client* client = new Client(peer, player, login);
     CHECK(client != NULL);
 
     _client_manager.AddClient(client_id, client);
     _world_manager.AddEntity(client_id, player);
 
     if (!_SendClientOptions(client)) {
-      _client_manager.DisconnectClient(client_id);
       return false;
     }
 
     printf("#%u: Client options has been sent.\n", client_id);
 
+    // Broadcast the new player info.
+
+    // The new player may not receive these notifications, as it will be
+    // synchronizing time and ignoring everything else.
+
     if (!_BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
         client->entity)) {
-      _client_manager.DisconnectClient(client_id);
       return false;
     }
+
+    PlayerInfo player_info;
+    player_info.id = client_id;
+    std::copy(login.c_str(), login.c_str() + login.size() + 1,
+        &player_info.login[0]);
+    rv = _BroadcastPacket(Packet::TYPE_PLAYER_INFO, player_info, true);
+    if (rv == false) {
+      return false;
+    }
+
+    printf("#%u: New player info broadcasted.\n", client_id);
 
     printf("#%u: Client from %s:%u connected.\n", client_id,
       _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort(),
@@ -528,6 +550,33 @@ class Server {
     return true;
   }
 
+  bool _OnClientStatus(uint32_t client_id) {
+    // Send to the new player all players' info.
+
+    PlayerInfo player_info;
+    Client* client = _client_manager.GetClient(client_id);
+
+    std::map<uint32_t, Client*>* clients = _client_manager.GetClients();
+    std::map<uint32_t, Client*>::iterator i;
+
+    for (i = clients->begin(); i != clients->end(); i++) {
+      player_info.id = i->first;
+      std::string& login = i->second->login;
+      std::copy(login.c_str(), login.c_str() + login.size() + 1,
+          &player_info.login[0]);
+      bool rv = _SendPacket(client->peer, Packet::TYPE_PLAYER_INFO,
+          player_info, true);
+      if (rv == false) {
+        return false;
+      }
+    }
+
+    printf("#%u: Other players' info sent.\n", client_id);
+
+    return true;
+  }
+
+  // TODO(xairy): move it outside of 'Server' class.
   template<class T>
   bool _BroadcastPacket(Packet::Type packet_type,
       const T& data, bool reliable) {
@@ -539,6 +588,7 @@ class Server {
 
     bool rv = _host->Broadcast(&message[0], message.size(), reliable);
     if (rv == false) {
+      THROW_ERROR("Couldn't broadcast packet.");
       return false;
     }
     return true;
@@ -555,6 +605,7 @@ class Server {
 
     bool rv = peer->Send(&message[0], message.size(), reliable);
     if (rv == false) {
+      THROW_ERROR("Couldn't send packet.");
       return false;
     }
     return true;
