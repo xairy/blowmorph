@@ -30,7 +30,8 @@ typedef interpolator::LinearInterpolator<ObjectState, int64_t>
 // TODO(alex): fix method names.
 struct Object {
   Object(uint32_t id, uint32_t type, Sprite* sprite,
-      const sf::Vector2f& position, int64_t time, int64_t time_offset);
+    const sf::Vector2f& position, int64_t time, int64_t time_offset,
+    const std::string& name = "", sf::Font* font = NULL);
 
   void EnableInterpolation();
   void DisableInterpolation();
@@ -47,10 +48,13 @@ struct Object {
 
   uint32_t id;
   uint32_t type;
-  Sprite* sprite;
+
   bool visible;
+  Sprite* sprite;
+
   bool name_visible;
-  sf::Vector2f name_offset;
+  sf::Text name_text;
+
   bool interpolation_enabled;
   ObjectInterpolator interpolator;
 };

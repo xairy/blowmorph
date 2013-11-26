@@ -115,7 +115,8 @@ bool Application::Run() {
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
   player_ = new Object(client_options_->id, EntitySnapshot::ENTITY_TYPE_PLAYER,
-      sprite, player_pos, 0, interpolation_offset_);
+      sprite, player_pos, 0, interpolation_offset_,
+      settings_.GetString("player.login"), font_);
   CHECK(player_ != NULL);
   // XXX(alex): maybe we should have a xml file for each object with
   //            texture paths, pivots, captions, etc
