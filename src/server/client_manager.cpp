@@ -3,6 +3,7 @@
 #include "server/client_manager.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include <enet-plus/enet.hpp>

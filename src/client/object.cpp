@@ -38,8 +38,8 @@ bm::ObjectState lerp(const bm::ObjectState& a,
     const bm::ObjectState& b, double ratio) {
   bm::ObjectState result;
   result.position = lerp(a.position, b.position, ratio);
-  result.blowCharge = lerp(a.blowCharge, b.blowCharge, ratio);
-  result.morphCharge = lerp(a.morphCharge, b.morphCharge, ratio);
+  result.blow_charge = lerp(a.blow_charge, b.blow_charge, ratio);
+  result.morph_charge = lerp(a.morph_charge, b.morph_charge, ratio);
   result.health = lerp(a.health, b.health, ratio);
   return result;
 }
@@ -50,36 +50,36 @@ namespace bm {
 
 // TODO(alex): fix method names.
 Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
-    const sf::Vector2f& position, int64_t time, int64_t time_offset,
-    const std::string& name, sf::Font* font)
-     : id(id),
+    const sf::Vector2f& position, int64_t time)
+      : id(id),
         type(type),
-        visible(false),
+        visible(true),
         sprite(sprite),
-        name_visible(false),
-        name_text(sf::Text(name, *font, 12)),
+        caption_visible(false),
         interpolation_enabled(false),
-        interpolator(ObjectInterpolator(time_offset, 1)) {
-  sf::FloatRect rect = name_text.getLocalBounds();
-  sf::Vector2f origin(rect.left + rect.width / 2, rect.top  + rect.height / 2);
-  name_text.setOrigin(Round(origin));
-
+        interpolator(ObjectInterpolator(0, 1)) {
+  // XXX(xairy): call some method instead?
   ObjectState state;
-  state.blowCharge = 0;
-  state.health = 0;
-  state.morphCharge = 0;
   state.position = position;
+  state.blow_charge = 0;
+  state.morph_charge = 0;
+  state.health = 0;
   interpolator.Push(state, time);
 }
 
-void Object::EnableInterpolation() {
-  interpolation_enabled = true;
-  interpolator.SetFrameCount(2);
+void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
+  CHECK(caption_visible == false);
+  caption_text = sf::Text(caption, font, 12);
+  sf::FloatRect rect = caption_text.getLocalBounds();
+  sf::Vector2f origin(rect.left + rect.width / 2, rect.top  + rect.height / 2);
+  caption_text.setOrigin(Round(origin));
+  caption_visible = true;
 }
 
-void Object::DisableInterpolation() {
-  interpolation_enabled = false;
-  interpolator.SetFrameCount(1);
+void Object::EnableInterpolation(int64_t interpolation_offset) {
+  CHECK(interpolation_enabled == false);
+  interpolator = ObjectInterpolator(interpolation_offset, 2);
+  interpolation_enabled = true;
 }
 
 void Object::EnforceState(const ObjectState& state, int64_t time) {
@@ -87,7 +87,7 @@ void Object::EnforceState(const ObjectState& state, int64_t time) {
   interpolator.Push(state, time);
 }
 
-void Object::UpdateState(const ObjectState& state, int64_t time) {
+void Object::PushState(const ObjectState& state, int64_t time) {
   interpolator.Push(state, time);
 }
 
@@ -95,23 +95,16 @@ sf::Vector2f Object::GetPosition(int64_t time) {
   return interpolator.Interpolate(time).position;
 }
 
-sf::Vector2f Object::GetPosition() {
-  CHECK(!interpolation_enabled);
-  return GetPosition(0);
-}
-
-void Object::SetPosition(const sf::Vector2f& value) {
-  CHECK(!interpolation_enabled);
-  ObjectState state = interpolator.Interpolate(0);
+void Object::SetPosition(const sf::Vector2f& value, int64_t time) {
+  ObjectState state = interpolator.Interpolate(time);
   state.position = value;
-  EnforceState(state, 0);
+  EnforceState(state, time);
 }
 
-void Object::Move(const sf::Vector2f& value) {
-  CHECK(!interpolation_enabled);
-  ObjectState state = interpolator.Interpolate(0);
+void Object::Move(const sf::Vector2f& value, int64_t time) {
+  ObjectState state = interpolator.Interpolate(time);
   state.position = state.position + value;
-  EnforceState(state, 0);
+  EnforceState(state, time);
 }
 
 void RenderObject(Object* object, int64_t time,
@@ -127,11 +120,11 @@ void RenderObject(Object* object, int64_t time,
     object->sprite->Render(&render_window);
   }
 
-  if (object->visible && object->name_visible) {
-    sf::Vector2f name_offset = sf::Vector2f(0.0f, -25.0f);
-    sf::Vector2f name_pos = Round(state.position + name_offset);
-    object->name_text.setPosition(name_pos.x, name_pos.y);
-    render_window.draw(object->name_text);
+  if (object->visible && object->caption_visible) {
+    sf::Vector2f caption_offset = sf::Vector2f(0.0f, -25.0f);
+    sf::Vector2f caption_pos = Round(state.position + caption_offset);
+    object->caption_text.setPosition(caption_pos.x, caption_pos.y);
+    render_window.draw(object->caption_text);
   }
 }
 
