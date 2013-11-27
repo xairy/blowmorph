@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   bm::Server server;
 
   if (!server.Initialize()) {
-    return false;
+    return EXIT_FAILURE;
   }
 
   printf("Server started.\n");
