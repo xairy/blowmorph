@@ -19,8 +19,8 @@ namespace bm {
 
 struct ObjectState {
   sf::Vector2f position;
-  float blowCharge;
-  float morphCharge;
+  float blow_charge;
+  float morph_charge;
   float health;
 };
 
@@ -28,23 +28,22 @@ typedef interpolator::LinearInterpolator<ObjectState, int64_t>
   ObjectInterpolator;
 
 // TODO(alex): fix method names.
+// TODO(xairy): comments.
 struct Object {
   Object(uint32_t id, uint32_t type, Sprite* sprite,
-    const sf::Vector2f& position, int64_t time, int64_t time_offset,
-    const std::string& name = "", sf::Font* font = NULL);
+    const sf::Vector2f& position, int64_t time);
 
-  void EnableInterpolation();
-  void DisableInterpolation();
+  void ShowCaption(const std::string& caption, const sf::Font& font);
+
+  // Position will be reset after enabling interpolation.
+  void EnableInterpolation(int64_t interpolation_offset);
 
   void EnforceState(const ObjectState& state, int64_t time);
-  void UpdateState(const ObjectState& state, int64_t time);
+  void PushState(const ObjectState& state, int64_t time);
 
-  // TODO(xairy): comment the difference.
-  sf::Vector2f GetPosition(int64_t time);
-  sf::Vector2f GetPosition();
-
-  void SetPosition(const sf::Vector2f& value);
-  void Move(const sf::Vector2f& value);
+  sf::Vector2f GetPosition(int64_t time = 0);
+  void SetPosition(const sf::Vector2f& value, int64_t time = 0);
+  void Move(const sf::Vector2f& value, int64_t time = 0);
 
   uint32_t id;
   uint32_t type;
@@ -52,8 +51,8 @@ struct Object {
   bool visible;
   Sprite* sprite;
 
-  bool name_visible;
-  sf::Text name_text;
+  bool caption_visible;
+  sf::Text caption_text;
 
   bool interpolation_enabled;
   ObjectInterpolator interpolator;
@@ -66,3 +65,4 @@ void RenderObject(Object* object, int64_t time,
 }  // namespace bm
 
 #endif  // CLIENT_OBJECT_H_
+

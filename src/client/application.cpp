@@ -110,19 +110,17 @@ bool Application::Run() {
     return false;
   }
 
+  // XXX(alex): maybe we should have a xml file for each object with
+  //            texture paths, pivots, captions, etc
   // FIXME(xairy): move to a separate method.
   sf::Vector2f player_pos(client_options_->x, client_options_->y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
   player_ = new Object(client_options_->id, EntitySnapshot::ENTITY_TYPE_PLAYER,
-      sprite, player_pos, 0, interpolation_offset_,
-      settings_.GetString("player.login"), font_);
+      sprite, player_pos, 0);
   CHECK(player_ != NULL);
-  // XXX(alex): maybe we should have a xml file for each object with
-  //            texture paths, pivots, captions, etc
+  player_->ShowCaption(settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
-  player_->visible = true;
-  player_->name_visible = true;
 
   is_running_ = true;
 
@@ -581,23 +579,16 @@ bool Application::ProcessPacket(Packet::Type type,
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
 
-  bool isSnapshot = len == sizeof(EntitySnapshot) &&
-                    (type == Packet::TYPE_ENTITY_APPEARED ||
-                     type == Packet::TYPE_ENTITY_DISAPPEARED ||
-                     type == Packet::TYPE_ENTITY_UPDATED);
+  switch (type) {
+    case Packet::TYPE_ENTITY_APPEARED:
+    case Packet::TYPE_ENTITY_UPDATED: {
+      CHECK(len == sizeof(EntitySnapshot));
+      const EntitySnapshot* snapshot =
+          reinterpret_cast<const EntitySnapshot*>(data);
 
-  // FIXME(xairy): simplify.
-  if (isSnapshot) {
-    const EntitySnapshot* snapshot =
-        reinterpret_cast<const EntitySnapshot*>(data);
-    if (type == Packet::TYPE_ENTITY_DISAPPEARED) {
-      if (!OnEntityDisappearance(snapshot)) {
-        return false;
-      }
-    } else {
       if (snapshot->id == player_->id) {
         OnPlayerUpdate(snapshot);
-        return true;
+        break;
       }
 
       if (objects_.count(snapshot->id) > 0 ||
@@ -606,9 +597,27 @@ bool Application::ProcessPacket(Packet::Type type,
       } else {
         OnEntityAppearance(snapshot);
       }
-    }
-  } else {
-    THROW_WARNING("Received packet is not an entity snapshot.");
+    } break;
+
+    case Packet::TYPE_ENTITY_DISAPPEARED: {
+      CHECK(len == sizeof(EntitySnapshot));
+      const EntitySnapshot* snapshot =
+          reinterpret_cast<const EntitySnapshot*>(data);
+      if (!OnEntityDisappearance(snapshot)) {
+        return false;
+      }
+    } break;
+
+    case Packet::TYPE_PLAYER_INFO: {
+      CHECK(len == sizeof(PlayerInfo));
+      const PlayerInfo* player_info =
+          reinterpret_cast<const PlayerInfo*>(data);
+      std::string player_name(player_info->login);
+      player_names_[player_info->id] = player_name;
+      if (objects_.count(player_info->id) == 1) {
+        objects_[player_info->id]->ShowCaption(player_name, *font_);
+      }
+    } break;
   }
 
   return true;
@@ -619,6 +628,8 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   CHECK(snapshot != NULL);
 
   int64_t time = snapshot->time;
+  uint32_t id = snapshot->id;
+  EntitySnapshot::EntityType type = snapshot->type;
   sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
   switch (snapshot->type) {
@@ -635,41 +646,42 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
       Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
       CHECK(sprite != NULL);
-      walls_[snapshot->id] = new Object(snapshot->id, snapshot->type,
-          sprite, position, time, interpolation_offset_);
-      walls_[snapshot->id]->EnableInterpolation();
-      walls_[snapshot->id]->visible = true;
-      walls_[snapshot->id]->name_visible = false;
+      Object* wall = new Object(id, type, sprite, position, time);
+      CHECK(wall != NULL);
+      walls_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
       Sprite* sprite = resource_manager_.CreateSprite("bullet");
       CHECK(sprite != NULL);
-      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
-          sprite, position, time, interpolation_offset_);
-      objects_[snapshot->id]->EnableInterpolation();
-      objects_[snapshot->id]->visible = true;
-      objects_[snapshot->id]->name_visible = false;
+      Object* object = new Object(id, type, sprite, position, time);
+      CHECK(object != NULL);
+      object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      objects_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
       Sprite* sprite = resource_manager_.CreateSprite("mechos");
       CHECK(sprite != NULL);
-      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
-          sprite, position, time, interpolation_offset_);
-      objects_[snapshot->id]->EnableInterpolation();
-      objects_[snapshot->id]->visible = true;
-      objects_[snapshot->id]->name_visible = true;
+      Object* object = new Object(id, type, sprite, position, time);
+      CHECK(object != NULL);
+      object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      if (player_names_.count(id) == 1) {
+        object->ShowCaption(player_names_[id], *font_);
+      }
+      objects_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
       Sprite* sprite = resource_manager_.CreateSprite("dummy");
       CHECK(sprite != NULL);
-      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
-          sprite, position, time, interpolation_offset_);
-      objects_[snapshot->id]->EnableInterpolation();
-      objects_[snapshot->id]->visible = true;
-      objects_[snapshot->id]->name_visible = false;
+      Object* object = new Object(id, type, sprite, position, time);
+      CHECK(object != NULL);
+      object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      objects_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
@@ -693,11 +705,11 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
       Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
       CHECK(sprite != NULL);
-      objects_[snapshot->id] = new Object(snapshot->id, snapshot->type,
-          sprite, position, time, interpolation_offset_);
-      objects_[snapshot->id]->EnableInterpolation();
-      objects_[snapshot->id]->visible = true;
-      objects_[snapshot->id]->name_visible = false;
+      Object* object = new Object(id, type, sprite, position, time);
+      CHECK(object != NULL);
+      object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      objects_[id] = object;
     } break;
 
     default:
@@ -715,13 +727,13 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   ObjectState state;
   state.position = position;
   state.health = static_cast<float>(snapshot->data[0]);
-  state.blowCharge = static_cast<float>(snapshot->data[1]);
-  state.morphCharge = static_cast<float>(snapshot->data[2]);
+  state.blow_charge = static_cast<float>(snapshot->data[1]);
+  state.morph_charge = static_cast<float>(snapshot->data[2]);
 
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-    walls_[snapshot->id]->UpdateState(state, time);
+    walls_[snapshot->id]->PushState(state, time);
   } else {
-    objects_[snapshot->id]->UpdateState(state, time);
+    objects_[snapshot->id]->PushState(state, time);
   }
 }
 

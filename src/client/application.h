@@ -5,6 +5,7 @@
 
 #include <list>
 #include <map>
+#include <string>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
@@ -90,6 +91,8 @@ class Application {
 
   // TODO(xairy): make it not pointer.
   ClientOptions* client_options_;
+
+  std::map<uint32_t, std::string> player_names_;
 
   float player_health_;
   float player_blow_charge_;
