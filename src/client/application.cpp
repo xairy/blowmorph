@@ -15,7 +15,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <enet-plus/enet.hpp>
+#include <enet-plus/enet.h>
 
 #include "base/error.h"
 #include "base/macros.h"

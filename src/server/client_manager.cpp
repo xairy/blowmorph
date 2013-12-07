@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include <enet-plus/enet.hpp>
+#include <enet-plus/enet.h>
 
 #include "base/macros.h"
 #include "base/pstdint.h"
