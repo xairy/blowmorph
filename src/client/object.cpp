@@ -18,7 +18,7 @@ float Length(const sf::Vector2f& vector) {
 }
 
 sf::Vector2f Round(const sf::Vector2f& vector) {
-  return sf::Vector2f(round(vector.x), round(vector.y));
+  return sf::Vector2f(floor(vector.x), floor(vector.y));
 }
 
 }  // anonymous namespace
@@ -115,7 +115,7 @@ void RenderObject(Object* object, int64_t time,
   ObjectState state = object->interpolator.Interpolate(time);
 
   if (object->visible) {
-    sf::Vector2f object_pos(round(state.position.x), round(state.position.y));
+    sf::Vector2f object_pos(Round(state.position));
     object->sprite->SetPosition(object_pos);
     object->sprite->Render(&render_window);
   }

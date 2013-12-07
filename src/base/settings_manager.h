@@ -6,48 +6,50 @@
 #include <string>
 #include <vector>
 
-#include <libconfig.h>
-
+#include "base/base.h"
 #include "base/pstdint.h"
+
+struct config_t;
 
 namespace bm {
 
 class SettingsManager {
  public:
-  SettingsManager();
-  ~SettingsManager();
+  BM_BASE_DECL SettingsManager();
+  BM_BASE_DECL ~SettingsManager();
 
-  bool Open(const std::string& path);
-  void Close();
+  BM_BASE_DECL bool Open(const std::string& path);
+  BM_BASE_DECL void Close();
 
-  bool HasSetting(const std::string& key);
+  BM_BASE_DECL bool HasSetting(const std::string& key);
 
-  bool LookupInt16(const std::string& key, int16_t* output);
-  bool LookupUInt16(const std::string& key, uint16_t* output);
-  int16_t GetInt16(const std::string& key);
-  uint16_t GetUInt16(const std::string& key);
+  BM_BASE_DECL bool LookupInt16(const std::string& key, int16_t* output);
+  BM_BASE_DECL bool LookupUInt16(const std::string& key, uint16_t* output);
+  BM_BASE_DECL int16_t GetInt16(const std::string& key);
+  BM_BASE_DECL uint16_t GetUInt16(const std::string& key);
 
-  bool LookupInt32(const std::string& key, int32_t* output);
-  bool LookupUInt32(const std::string& key, uint32_t* output);
-  int32_t GetInt32(const std::string& key);
-  uint32_t GetUInt32(const std::string& key);
+  BM_BASE_DECL bool LookupInt32(const std::string& key, int32_t* output);
+  BM_BASE_DECL bool LookupUInt32(const std::string& key, uint32_t* output);
+  BM_BASE_DECL int32_t GetInt32(const std::string& key);
+  BM_BASE_DECL uint32_t GetUInt32(const std::string& key);
 
-  bool LookupInt64(const std::string& key, int64_t* output);
-  bool LookupUInt64(const std::string& key, uint64_t* output);
-  int64_t GetInt64(const std::string& key);
-  uint64_t GetUInt64(const std::string& key);
+  BM_BASE_DECL bool LookupInt64(const std::string& key, int64_t* output);
+  BM_BASE_DECL bool LookupUInt64(const std::string& key, uint64_t* output);
+  BM_BASE_DECL int64_t GetInt64(const std::string& key);
+  BM_BASE_DECL uint64_t GetUInt64(const std::string& key);
 
-  bool LookupFloat(const std::string& key, float* output);
-  bool LookupDouble(const std::string& key, double* output);
-  float GetFloat(const std::string& key);
-  double GetDouble(const std::string& key);
+  BM_BASE_DECL bool LookupFloat(const std::string& key, float* output);
+  BM_BASE_DECL bool LookupDouble(const std::string& key, double* output);
+  BM_BASE_DECL float GetFloat(const std::string& key);
+  BM_BASE_DECL double GetDouble(const std::string& key);
 
-  bool LookupBool(const std::string& key, bool* output);
-  bool LookupString(const std::string& key, std::string* output);
-  bool GetBool(const std::string& key);
-  std::string GetString(const std::string& key);
+  BM_BASE_DECL bool LookupBool(const std::string& key, bool* output);
+  BM_BASE_DECL bool LookupString(const std::string& key, std::string* output);
+  BM_BASE_DECL bool GetBool(const std::string& key);
+  BM_BASE_DECL std::string GetString(const std::string& key);
 
-  bool LookupInt32List(const std::string& key, std::vector<int32_t>* output);
+  BM_BASE_DECL bool LookupInt32List(const std::string& key,
+    std::vector<int32_t>* output);
 
  private:
   enum {
@@ -55,7 +57,7 @@ class SettingsManager {
     STATE_OPENED
   } state_;
 
-  config_t cfg_;
+  config_t* cfg_;
 };
 
 }  // namespace bm

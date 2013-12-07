@@ -8,18 +8,17 @@ namespace bm {
 
 #ifdef WIN32
 
-/*
 Timer::Timer() {
   _start = clock();
 }
 
-int32_t Timer::GetTime() const {
+int64_t Timer::GetTime() const {
   int64_t clock_diff = static_cast<int64_t>(clock() - _start);
-  int32_t result = static_cast<int32_t>(clock_diff * 1000 / CLOCKS_PER_SEC);
+  int64_t result = clock_diff * 1000 / CLOCKS_PER_SEC;
   return result;
 }
-*/
 
+/*
 Timer::Timer() {
 }
 
@@ -49,7 +48,7 @@ int64_t Timer::GetTime() const {
 
     return static_cast<int64_t>(dReturn * 1000);
 }
-
+*/
 #else
 
 Timer::Timer() {
