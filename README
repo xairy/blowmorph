@@ -2,9 +2,7 @@
 
 More infromation is available in the Wiki.
 
-How to build under Microsoft Windows, Visual Studio 2008:
-  1. Run "premake4.exe vs2008"
-  2. Build build\blowmorph.sln.
+A demo can be found in the Releases section.
 
 How to build under Ubuntu Linux:
   1. Install SFML-2.0
@@ -61,3 +59,8 @@ How to start server:
 How to start client:
   1. Set server's port and ip in blowmorph/data/client.cfg
   2. $ ./client.sh
+
+How to build under Microsoft Windows, Visual Studio 2008:
+  1. Install Python 2.7.6
+  1. Run "premake4.exe vs2008"
+  2. Build build\blowmorph.sln
