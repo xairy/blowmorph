@@ -188,7 +188,7 @@ solution "blowmorph"
   project "bm-base"
     kind "SharedLib"
     language "C++"
-	
+
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",
@@ -203,7 +203,7 @@ solution "blowmorph"
         links { "libconfig_d" }
       configuration { "windows", "release" }
         links { "libconfig" }
-    configuration { "linux", "debug", "release" }
+    configuration "linux"
       links { "config" }
 
   project "interpolator"
