@@ -43,16 +43,21 @@ function windows_libdir(basePath)
   restore_config()
 end
 
-function windows_binary(basePath, dllName)
+function windows_binary(basePath, debugDllName, releaseDllName)
+  if releaseDllName == nil then
+    releaseDllName = debugDllName
+  end
+
   save_config()
 
   for _,arch in pairs({"x32", "x64"}) do
-    for _,conf in pairs({"debug", "release"}) do
-      for _, plat in pairs({"vs2008"}) do
-        local confpath = plat .. "/" .. arch .. "/" .. conf
-        configuration { "windows", arch, conf, plat }
-          resource(path.join(path.join(basePath, confpath), dllName), dllName, true)
-      end
+    for _, plat in pairs({"vs2008"}) do
+      local confpath = plat .. "/" .. arch .. "/" .. "debug"
+      configuration { "windows", arch, "debug", plat }
+        resource(path.join(path.join(basePath, confpath), debugDllName), debugDllName, true)
+      local confpath = plat .. "/" .. arch .. "/" .. "release"
+      configuration { "windows", arch, "release", plat }
+        resource(path.join(path.join(basePath, confpath), releaseDllName), releaseDllName, true)
     end
   end
 
@@ -85,7 +90,7 @@ solution "blowmorph"
   configuration { "windows" }
     includedirs { "inc/win32" }
     defines { "WIN32", "_WIN32" }
-    defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE" }
+    defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS" }
 
   configuration { "debug" }
     defines { "DEBUG" }
@@ -111,21 +116,31 @@ solution "blowmorph"
 
     -- ENetPlus
     configuration "windows"
-      -- TODO
+      includedirs { "third-party/enet-plus/include" }
+      windows_libdir("third-party/enet-plus/bin")
+      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
+      links { "enet-plus" }
     configuration "linux"
       links { "enet-plus" }
 
-    -- XXX: is it required?
-    -- OpenGL
-    configuration "windows"
-      links { "opengl32" }
-      links { "glu32" }
-    configuration "linux"
-      links { "GL" }
-
     -- SFML
     configuration "windows"
-      -- TODO
+      includedirs { "third-party/SFML/include" }
+      windows_libdir("third-party/SFML/bin")
+      windows_binary("third-party/SFML/bin", "sfml-system-d-2.dll", "sfml-system-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-window-d-2.dll", "sfml-window-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-graphics-d-2.dll", "sfml-graphics-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-audio-d-2.dll", "sfml-audio-2.dll")
+      configuration { "windows", "debug" }
+        links { "sfml-system-d" }
+        links { "sfml-window-d" }
+        links { "sfml-graphics-d" }
+        links { "sfml-audio-d" }
+      configuration { "windows", "release" }
+        links { "sfml-system" }
+        links { "sfml-window" }
+        links { "sfml-graphics" }
+        links { "sfml-audio" }
     configuration "linux"
       links { "sfml-system" }
       links { "sfml-window" }
@@ -155,7 +170,10 @@ solution "blowmorph"
 
     -- ENetPlus
     configuration "windows"
-      -- TODO
+      includedirs { "third-party/enet-plus/include" }
+      windows_libdir("third-party/enet-plus/bin")
+      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
+      links { "enet-plus" }
     configuration "linux"
       links { "enet-plus" }
 
@@ -170,17 +188,23 @@ solution "blowmorph"
   project "bm-base"
     kind "SharedLib"
     language "C++"
-
-    -- libconfig
-    configuration "windows"
-      -- TODO
-    configuration "linux"
-      links { "config" }
-
+	
     defines { "BM_BASE_DLL" }
     includedirs { "src", "inc" }
     files { "src/base/**.cpp",
             "src/base/**.h" }
+
+    -- libconfig
+    configuration "windows"
+      includedirs { "third-party/libconfig/include" }
+      windows_libdir("third-party/libconfig/bin")
+      windows_binary("third-party/libconfig/bin", "libconfig_d.dll", "libconfig.dll")
+      configuration { "windows", "debug" }
+        links { "libconfig_d" }
+      configuration { "windows", "release" }
+        links { "libconfig" }
+    configuration { "linux", "debug", "release" }
+      links { "config" }
 
   project "interpolator"
     kind "StaticLib"

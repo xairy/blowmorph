@@ -37,7 +37,7 @@ float Length(const sf::Vector2f& vector) {
 }
 
 sf::Vector2f Round(const sf::Vector2f& vector) {
-  return sf::Vector2f(round(vector.x), round(vector.y));
+  return sf::Vector2f(floor(vector.x), floor(vector.y));
 }
 
 }  // anonymous namespace
@@ -186,7 +186,8 @@ bool Application::InitializeGraphics() {
   sf::VideoMode video_mode(width, height);
   render_window_ = new sf::RenderWindow(video_mode, "Blowmorph");
   CHECK(render_window_ != NULL);
-  view_.reset(sf::FloatRect(0, 0, width, height));
+  view_.reset(sf::FloatRect(0.0f, 0.0f,
+      static_cast<float>(width), static_cast<float>(height)));
   render_window_->setView(view_);
 
   font_ = new sf::Font();
@@ -289,7 +290,8 @@ bool Application::Synchronize() {
       return false;
     }
 
-    uint32_t service_timeout = (sync_timeout - (time - start_time));
+    uint32_t service_timeout =
+        static_cast<uint32_t>(sync_timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
       return false;
@@ -337,7 +339,8 @@ bool Application::Synchronize() {
       return false;
     }
 
-    uint32_t service_timeout = (sync_timeout - (time - start_time));
+    uint32_t service_timeout =
+        static_cast<uint32_t>(sync_timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
       return false;
@@ -536,7 +539,7 @@ bool Application::PumpPackets(uint32_t timeout) {
     }
 
     uint32_t service_timeout = (timeout == 0) ?
-        0 : (timeout - (time - start_time));
+        0 : static_cast<uint32_t>(timeout - (time - start_time));
     bool rv = client_->Service(event_, service_timeout);
     if (rv == false) {
       return false;

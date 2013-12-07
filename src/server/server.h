@@ -117,12 +117,12 @@ class Server {
   uint16_t _server_port;
 
   uint32_t _broadcast_rate;
-  uint32_t _broadcast_time;
-  uint32_t _last_broadcast;
+  int64_t _broadcast_time;
+  int64_t _last_broadcast;
 
   uint32_t _update_rate;
-  uint32_t _update_time;
-  uint32_t _last_update;
+  int64_t _update_time;
+  int64_t _last_update;
 
   uint32_t _latency_limit;
 

@@ -130,13 +130,14 @@ bool Server::Tick() {
     return false;
   }
 
-  uint32_t next_broadcast = _last_broadcast + _broadcast_time;
-  uint32_t next_update = _last_update + _update_time;
-  uint32_t sleep_until = std::min(next_broadcast, next_update);
-  uint32_t current_time = _timer.GetTime();
+  int64_t next_broadcast = _last_broadcast + _broadcast_time;
+  int64_t next_update = _last_update + _update_time;
+  int64_t sleep_until = std::min(next_broadcast, next_update);
+  int64_t current_time = _timer.GetTime();
 
   if (current_time <= sleep_until) {
-    bool rv = _host->Service(NULL, sleep_until - current_time);
+    uint32_t timeout = static_cast<uint32_t>(sleep_until - current_time);
+    bool rv = _host->Service(NULL, timeout);
     if (rv == false) {
       return false;
     }

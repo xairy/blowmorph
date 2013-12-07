@@ -59,7 +59,7 @@ bool DisconnectPeer(
 
   peer->Disconnect();
 
-  double start = sys::Timestamp();
+  int64_t start = sys::Timestamp();
 
   while (sys::Timestamp() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
