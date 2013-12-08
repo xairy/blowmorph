@@ -10,11 +10,10 @@ How to build under Ubuntu Linux:
      See the instructions below
 
   2. Install pugixml-1.2
-     https://code.google.com/p/pugixml/
-     See the instructions below
+     sudo apt-get install libpugixml-dev
 
   3. Install libconfig
-     $ sudo apt-get install libconfig
+     $ sudo apt-get install libconfig-dev
 
   4. Install ENetPlus.
      https://github.com/xairy/enet-plus
@@ -43,14 +42,6 @@ How to install SFML-2.0:
   5. $ cmake .
   6. $ make
   7. $ sudo make install
-
-How to install pugixml-1.2:
-  1. Download and extract pugixml-1.2.tar.gz
-     https://code.google.com/p/pugixml/
-  2. $ cd pugixml-1.2/scripts
-  3. $ cmake .
-  4. $ make
-  5. $ sudo make install
 
 How to start server:
   1. Set port in blowmorph/data/server.cfg
