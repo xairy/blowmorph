@@ -505,8 +505,7 @@ bool Server::_OnLogin(uint32_t client_id) {
   printf("#%u: New player info broadcasted.\n", client_id);
 
   printf("#%u: Client from %s:%u connected.\n", client_id,
-    _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort(),
-    client_id);
+    _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
 
   return true;
 }
