@@ -784,7 +784,7 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
       delete explosion;
       return false;
     }
-    explosion->SetPosition(sf::Vector2f(snapshot->x, snapshot->y));
+    explosion->SetPosition(Round(sf::Vector2f(snapshot->x, snapshot->y)));
     explosion->Play();
     explosions_.push_back(explosion);
   }
@@ -849,6 +849,7 @@ void Application::Render() {
     view_.setCenter(Round(player_pos));
     render_window_->setView(view_);
 
+    // FIXME(xairy): madness.
     std::list<Sprite*>::iterator it2;
     for (it2 = explosions_.begin(); it2 != explosions_.end();) {
       (*it2)->Render(render_window_);
