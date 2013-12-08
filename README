@@ -5,8 +5,8 @@ More infromation is available in the Wiki.
 A demo can be found in the Releases section.
 
 How to build under Ubuntu Linux:
-  1. Install SFML-2.0
-     http://www.sfml-dev.org/download/sfml/2.0/
+  1. Install SFML-2.1
+     http://www.sfml-dev.org/download/sfml/2.1/
      See the instructions below
 
   2. Install pugixml-1.2
@@ -28,17 +28,16 @@ How to build under Ubuntu Linux:
      On x64 system:
      $ make config=release64
 
-How to install SFML-2.0:
+How to install SFML-2.1:
   1. Install cmake
      $ sudo apt-get install cmake
   2. Install the required dependencies
-     http://www.sfml-dev.org/tutorials/2.0/compile-with-cmake.php
      $ sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev \
        libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev \
        libsndfile1-dev libopenal-dev
-  3. Download and extract SFML-2.0-sources.zip
-     http://www.sfml-dev.org/download/sfml/2.0/
-  4. $ cd SFML-2.0
+  3. Download and extract SFML-2.1-sources.zip
+     http://www.sfml-dev.org/download/sfml/2.1/
+  4. $ cd SFML-2.1
   5. $ cmake .
   6. $ make
   7. $ sudo make install
