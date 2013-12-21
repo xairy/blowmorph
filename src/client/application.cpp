@@ -621,6 +621,9 @@ bool Application::ProcessPacket(Packet::Type type,
         objects_[player_info->id]->ShowCaption(player_name, *font_);
       }
     } break;
+
+    default:
+      break;
   }
 
   return true;

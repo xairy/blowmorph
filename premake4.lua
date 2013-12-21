@@ -88,7 +88,7 @@ solution "blowmorph"
     flags { "NoExceptions" }
 
   configuration { "windows" }
-    includedirs { "inc/win32" }
+    includedirs { "src/windows" }
     defines { "WIN32", "_WIN32" }
     defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS" }
 
@@ -105,7 +105,7 @@ solution "blowmorph"
     language "C++"
     targetname "bm-client"
 
-    includedirs { "src", "inc" }
+    includedirs { "src" }
     files { "src/client/**.cpp",
             "src/client/**.h" }
 
@@ -160,7 +160,7 @@ solution "blowmorph"
     language "C++"
     targetname "bm-server"
 
-    includedirs { "src", "inc" }
+    includedirs { "src" }
     files { "src/server/**.cpp",
             "src/server/**.h" }
 
@@ -190,7 +190,7 @@ solution "blowmorph"
     language "C++"
 
     defines { "BM_BASE_DLL" }
-    includedirs { "src", "inc" }
+    includedirs { "src" }
     files { "src/base/**.cpp",
             "src/base/**.h" }
 
@@ -210,7 +210,7 @@ solution "blowmorph"
     kind "StaticLib"
     language "C++"
 
-    includedirs { "src", "inc" }
+    includedirs { "src" }
 
     files { "src/interpolator/**.cpp",
             "src/interpolator/**.h" }
