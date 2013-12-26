@@ -91,8 +91,7 @@ class Application {
   std::map<uint32_t, Object*> walls_;
   std::list<Sprite*> explosions_;
 
-  // TODO(xairy): make it not pointer.
-  ClientOptions* client_options_;
+  ClientOptions client_options_;
 
   std::map<uint32_t, std::string> player_names_;
 

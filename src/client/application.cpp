@@ -50,7 +50,6 @@ Application::Application()
     peer_(NULL),
     event_(NULL),
     player_(NULL),
-    client_options_(NULL),
     state_(STATE_FINALIZED),
     network_state_(NETWORK_STATE_DISCONNECTED) { }
 
@@ -112,10 +111,10 @@ bool Application::Run() {
   // XXX(alex): maybe we should have a xml file for each object with
   //            texture paths, pivots, captions, etc
   // FIXME(xairy): move to a separate method.
-  sf::Vector2f player_pos(client_options_->x, client_options_->y);
+  sf::Vector2f player_pos(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
-  player_ = new Object(client_options_->id, EntitySnapshot::ENTITY_TYPE_PLAYER,
+  player_ = new Object(client_options_.id, EntitySnapshot::ENTITY_TYPE_PLAYER,
       sprite, player_pos, 0);
   CHECK(player_ != NULL);
   player_->ShowCaption(settings_.GetString("player.login"), *font_);
@@ -147,8 +146,6 @@ bool Application::Run() {
 
 void Application::Finalize() {
   CHECK(state_ == STATE_INITIALIZED);
-
-  if (client_options_ != NULL) delete client_options_;
 
   std::list<Sprite*>::iterator it2;
   for (it2 = explosions_.begin(); it2 != explosions_.end(); ++it2) {
@@ -310,15 +307,11 @@ bool Application::Synchronize() {
       continue;
     }
 
-    ClientOptions client_options;
-    rv = ExtractPacketData(buffer, &client_options);
+    rv = ExtractPacketData(buffer, &client_options_);
     if (rv == false) {
       THROW_ERROR("Incorrect client options packet format.");
       return false;
     }
-
-    // FIXME(xairy): make client_options_ not a pointer.
-    client_options_ = new ClientOptions(client_options);
 
     break;
   }
@@ -784,8 +777,6 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
     // TODO(xairy): create explosion animation on explosion packet.
     Sprite* explosion = resource_manager_.CreateSprite("explosion");
     if (explosion == NULL) {
-      // TODO(xairy): use auto_ptr.
-      delete explosion;
       return false;
     }
     explosion->SetPosition(Round(sf::Vector2f(snapshot->x, snapshot->y)));
@@ -805,9 +796,9 @@ void Application::SimulatePhysics() {
     last_physics_simulation_ = current_time;
 
     float delta_x = (keyboard_state_.right - keyboard_state_.left) *
-      client_options_->speed * delta_time;
+      client_options_.speed * delta_time;
     float delta_y = (keyboard_state_.down - keyboard_state_.up) *
-      client_options_->speed * delta_time;
+      client_options_.speed * delta_time;
 
     bool intersection_x = false;
     bool intersection_y = false;
@@ -909,7 +900,7 @@ void Application::RenderHUD() {
 
   // Draw health, blow and morph bars.
 
-  int32_t max_health = client_options_->max_health;
+  int32_t max_health = client_options_.max_health;
   float health_rect_width = 200.0f * player_health_ / max_health;
   float health_rect_height = 10.0f;
   sf::Vector2f health_rect_size(health_rect_width, health_rect_height);
@@ -919,7 +910,7 @@ void Application::RenderHUD() {
   health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
   render_window_->draw(health_rect, bottom_left_transform);
 
-  int32_t blow_capacity = client_options_->blow_capacity;
+  int32_t blow_capacity = client_options_.blow_capacity;
   float blow_rect_width = 200.0f * player_blow_charge_ / blow_capacity;
   float blow_rect_height = 10.0f;
   sf::Vector2f blow_rect_size(blow_rect_width, blow_rect_height);
@@ -929,7 +920,7 @@ void Application::RenderHUD() {
   blow_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
   render_window_->draw(blow_charge_rect, bottom_left_transform);
 
-  int32_t morph_capacity = client_options_->morph_capacity;
+  int32_t morph_capacity = client_options_.morph_capacity;
   float morph_rect_width = 200.0f * player_morph_charge_ / morph_capacity;
   float morph_rect_height = 10.0f;
   sf::Vector2f morph_rect_size(morph_rect_width, morph_rect_height);
