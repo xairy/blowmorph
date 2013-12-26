@@ -2,8 +2,9 @@
 
 #include <vector>
 
+#include "base/time.h"
+
 #include "client/net.h"
-#include "client/sys.h"
 
 namespace bm {
 namespace net {
@@ -59,9 +60,9 @@ bool DisconnectPeer(
 
   peer->Disconnect();
 
-  int64_t start = sys::Timestamp();
+  int64_t start = Timestamp();
 
-  while (sys::Timestamp() - start <= timeout) {
+  while (Timestamp() - start <= timeout) {
     bool rv = host->Service(event, (uint32_t) timeout);
     if (rv == false) {
       return false;

@@ -22,12 +22,12 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
+#include "base/time.h"
 
 #include "client/object.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
 
-#include "client/sys.h"
 #include "client/net.h"
 
 namespace {
@@ -259,7 +259,7 @@ bool Application::Synchronize() {
   printf("Synchronization started.\n");
 
   int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
-  int64_t start_time = sys::Timestamp();
+  int64_t start_time = Timestamp();
 
   // Send login data.
 
@@ -284,7 +284,7 @@ bool Application::Synchronize() {
   // Receive client options.
 
   while (true) {
-    int64_t time = sys::Timestamp();
+    int64_t time = Timestamp();
     if (time - start_time > sync_timeout) {
       THROW_ERROR("Synchronization failed: time's out.");
       return false;
@@ -319,7 +319,7 @@ bool Application::Synchronize() {
   // Send a time synchronization request.
 
   TimeSyncData request_data;
-  request_data.client_time = sys::Timestamp();
+  request_data.client_time = Timestamp();
 
   buffer.clear();
   net::AppendPacketToBuffer(buffer, &request_data,
@@ -333,7 +333,7 @@ bool Application::Synchronize() {
   // Receive a time synchronization response.
 
   while (true) {
-    int64_t time = sys::Timestamp();
+    int64_t time = Timestamp();
     if (time - start_time > sync_timeout) {
       THROW_ERROR("Synchronization failed: time's out.");
       return false;
@@ -359,7 +359,7 @@ bool Application::Synchronize() {
         reinterpret_cast<const TimeSyncData*>(&message[0] + sizeof(*type));
 
     // Calculate the time correction.
-    int64_t client_time = sys::Timestamp();
+    int64_t client_time = Timestamp();
     latency_ = (client_time - response_data->client_time) / 2;
     time_correction_ = response_data->server_time + latency_ - client_time;
 
@@ -391,7 +391,7 @@ bool Application::Synchronize() {
 int64_t Application::GetServerTime() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
-  return sys::Timestamp() + time_correction_;
+  return Timestamp() + time_correction_;
 }
 
 bool Application::PumpEvents() {
@@ -527,9 +527,9 @@ bool Application::PumpPackets(uint32_t timeout) {
 
   std::vector<char> message;
 
-  int64_t start_time = sys::Timestamp();
+  int64_t start_time = Timestamp();
   do {
-    int64_t time = sys::Timestamp();
+    int64_t time = Timestamp();
     CHECK(time >= start_time);
 
     // If we have run out of time, break and return
