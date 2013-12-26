@@ -18,37 +18,6 @@ int64_t Timer::GetTime() const {
   return result;
 }
 
-/*
-Timer::Timer() {
-}
-
-// XXX(xairy): this code was not tested.
-int64_t Timer::GetTime() const {
-    static LARGE_INTEGER nFreq = {0}, nCount = {0};
-    static double dReturn = 0.0, dCheckTime = 5.0;
-
-    // Check for a new frequency once every 5 seconds.
-    // Note: this is in case ACPI, etc. alters it.
-    if (nFreq.QuadPart == 0 || dCheckTime < dReturn) {
-      dCheckTime = dReturn + 5.0;
-
-      // Avoid a division by zero by returning zero on error.
-      if (!QueryPerformanceFrequency(&nFreq)) {
-        struct timeb tp;
-        ftime(&tp);
-        return static_cast<double>(tp.time) +
-               0.001 * static_cast<double>(tp.millitm);
-      }
-    }
-
-    // Use the ratio of tick amount divided by frequency to find the hertz.
-    QueryPerformanceCounter(&nCount);
-    dReturn = static_cast<double>nCount.QuadPart /
-              static_cast<double>nFreq.QuadPart;
-
-    return static_cast<int64_t>(dReturn * 1000);
-}
-*/
 #else
 
 Timer::Timer() {

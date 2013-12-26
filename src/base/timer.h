@@ -3,8 +3,6 @@
 #ifndef BASE_TIMER_H_
 #define BASE_TIMER_H_
 
-// WARNING: Timer is NOT thread safe.
-
 #ifdef WIN32
 # include <time.h>
 #else
