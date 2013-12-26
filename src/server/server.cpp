@@ -15,6 +15,7 @@
 
 #include "base/error.h"
 #include "base/macros.h"
+#include "base/net.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
@@ -287,7 +288,7 @@ bool Server::_BroadcastEntityRelatedMessage(Packet::Type packet_type,
   EntitySnapshot snapshot;
   entity->GetSnapshot(_timer.GetTime(), &snapshot);
 
-  bool rv = _BroadcastPacket(packet_type, snapshot, true);
+  bool rv = BroadcastPacket(_host, packet_type, snapshot, true);
   if (rv == false) {
     return false;
   }
@@ -337,7 +338,7 @@ bool Server::_OnReceive() {
   _event->GetData(&message);
 
   Packet::Type packet_type;
-  bool rv = _ExtractPacketType(message, &packet_type);
+  bool rv = ExtractPacketType(message, &packet_type);
   if (rv == false) {
     printf("#%u: Client dropped due to incorrect message format. [0]\n", id);
     _client_manager.DisconnectClient(id);
@@ -355,14 +356,8 @@ bool Server::_OnReceive() {
 
   switch (packet_type) {
     case Packet::TYPE_SYNC_TIME_REQUEST: {
-      if (message.size() != sizeof(Packet::Type) + sizeof(TimeSyncData)) {
-        printf("#%u: Client dropped due to incorrect message format.5\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
       TimeSyncData sync_data;
-      rv = _ExtractData(message, &sync_data);
+      rv = ExtractPacketData(message, &sync_data);
       if (rv == false) {
         printf("#%u: Client dropped due to incorrect message format.6\n", id);
         _client_manager.DisconnectClient(id);
@@ -372,7 +367,7 @@ bool Server::_OnReceive() {
       sync_data.server_time = _timer.GetTime();
       packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
 
-      rv = _SendPacket(client->peer, packet_type, sync_data, true);
+      rv = SendPacket(client->peer, packet_type, sync_data, true);
       if (rv == false) {
         return false;
       }
@@ -392,14 +387,8 @@ bool Server::_OnReceive() {
     } break;
 
     case Packet::TYPE_KEYBOARD_EVENT: {
-      if (message.size() != sizeof(Packet::Type) + sizeof(KeyboardEvent)) {
-        printf("#%u: Client dropped due to incorrect message format.1\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
       KeyboardEvent keyboard_event;
-      rv = _ExtractData(message, &keyboard_event);
+      rv = ExtractPacketData(message, &keyboard_event);
       if (rv == false) {
         printf("#%u: Client dropped due to incorrect message format.2\n", id);
         _client_manager.DisconnectClient(id);
@@ -410,14 +399,8 @@ bool Server::_OnReceive() {
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      if (message.size() != sizeof(Packet::Type) + sizeof(MouseEvent)) {
-        printf("#%u: Client dropped due to incorrect message format.3\n", id);
-        _client_manager.DisconnectClient(id);
-        return true;
-      }
-
       MouseEvent mouse_event;
-      rv = _ExtractData(message, &mouse_event);
+      rv = ExtractPacketData(message, &mouse_event);
       if (rv == false) {
         printf("#%u: Client dropped due to incorrect message format.4\n", id);
         _client_manager.DisconnectClient(id);
@@ -449,7 +432,7 @@ bool Server::_OnLogin(uint32_t client_id) {
   _event->GetData(&message);
 
   LoginData login_data;
-  bool rv = _ExtractData(message, &login_data);
+  bool rv = ExtractPacketData(message, &login_data);
   if (rv == false) {
     printf("#%u: Incorrect message format, client dropped.\n", client_id);
     return true;
@@ -497,7 +480,7 @@ bool Server::_OnLogin(uint32_t client_id) {
   player_info.id = client_id;
   std::copy(login.c_str(), login.c_str() + login.size() + 1,
       &player_info.login[0]);
-  rv = _BroadcastPacket(Packet::TYPE_PLAYER_INFO, player_info, true);
+  rv = BroadcastPacket(_host, Packet::TYPE_PLAYER_INFO, player_info, true);
   if (rv == false) {
     return false;
   }
@@ -522,7 +505,7 @@ bool Server::_SendClientOptions(Client* client) {
 
   Packet::Type packet_type = Packet::TYPE_CLIENT_OPTIONS;
 
-  bool rv = _SendPacket(client->peer, packet_type, options, true);
+  bool rv = SendPacket(client->peer, packet_type, options, true);
   if (rv == false) {
     return false;
   }
@@ -544,7 +527,7 @@ bool Server::_OnClientStatus(uint32_t client_id) {
     std::string& login = i->second->login;
     std::copy(login.c_str(), login.c_str() + login.size() + 1,
         &player_info.login[0]);
-    bool rv = _SendPacket(client->peer, Packet::TYPE_PLAYER_INFO,
+    bool rv = SendPacket(client->peer, Packet::TYPE_PLAYER_INFO,
         player_info, true);
     if (rv == false) {
       return false;

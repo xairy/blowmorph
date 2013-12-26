@@ -49,8 +49,8 @@ class Application {
   bool OnMouseButtonEvent(const sf::Event& event);
   bool OnKeyEvent(const sf::Event& event);
 
-  bool PumpPackets(uint32_t timeout);
-  bool ProcessPacket(Packet::Type type, const void* data, size_t len);
+  bool PumpPackets();
+  bool ProcessPacket(const std::vector<char>& buffer);
 
   void OnEntityAppearance(const EntitySnapshot* snapshot);
   void OnEntityUpdate(const EntitySnapshot* snapshot);
@@ -61,6 +61,8 @@ class Application {
 
   void Render();
   void RenderHUD();
+
+  bool SendInputEvents();
 
   bool is_running_;
 
