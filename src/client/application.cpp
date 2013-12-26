@@ -19,6 +19,7 @@
 
 #include "base/error.h"
 #include "base/macros.h"
+#include "base/net.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
@@ -27,8 +28,6 @@
 #include "client/object.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
-
-#include "client/net.h"
 
 namespace {
 
@@ -128,7 +127,7 @@ bool Application::Run() {
     if (!PumpEvents()) {
       return false;
     }
-    if (!PumpPackets(0)) {
+    if (!PumpPackets()) {
       return false;
     }
     SimulatePhysics();
@@ -137,7 +136,9 @@ bool Application::Run() {
     int64_t current_time = GetServerTime();
     if (current_time - last_tick_ > 1000.0 / tick_rate_) {
       last_tick_ = current_time;
-      net::SendInputEvents(peer_, keyboard_events_, mouse_events_);
+      if (!SendInputEvents()) {
+        return false;
+      }
     }
   }
 
@@ -270,11 +271,7 @@ bool Application::Synchronize() {
   std::copy(login.begin(), login.end(), &login_data.login[0]);
   login_data.login[login.size()] = '\0';
 
-  std::vector<char> buffer;
-  net::AppendPacketToBuffer(buffer, &login_data,
-      Packet::TYPE_LOGIN);
-
-  bool rv = peer_->Send(&buffer[0], buffer.size(), true);
+  bool rv = SendPacket(peer_, Packet::TYPE_LOGIN, login_data, true);
   if (rv == false) {
     return false;
   }
@@ -300,16 +297,28 @@ bool Application::Synchronize() {
       continue;
     }
 
-    std::vector<char> message;
-    event_->GetData(&message);
-    const Packet::Type* type = reinterpret_cast<Packet::Type*>(&message[0]);
-    if (*type != Packet::TYPE_CLIENT_OPTIONS) {
+    std::vector<char> buffer;
+    event_->GetData(&buffer);
+
+    Packet::Type type;
+    rv = ExtractPacketType(buffer, &type);
+    if (rv == false) {
+      THROW_ERROR("Incorrect client options packet format.");
+      return false;
+    }
+    if (type != Packet::TYPE_CLIENT_OPTIONS) {
       continue;
     }
-    const ClientOptions* client_options =
-        reinterpret_cast<const ClientOptions*>(&message[0] + sizeof(*type));
 
-    client_options_ = new ClientOptions(*client_options);
+    ClientOptions client_options;
+    rv = ExtractPacketData(buffer, &client_options);
+    if (rv == false) {
+      THROW_ERROR("Incorrect client options packet format.");
+      return false;
+    }
+
+    // FIXME(xairy): make client_options_ not a pointer.
+    client_options_ = new ClientOptions(client_options);
 
     break;
   }
@@ -321,11 +330,7 @@ bool Application::Synchronize() {
   TimeSyncData request_data;
   request_data.client_time = Timestamp();
 
-  buffer.clear();
-  net::AppendPacketToBuffer(buffer, &request_data,
-      Packet::TYPE_SYNC_TIME_REQUEST);
-
-  rv = peer_->Send(&buffer[0], buffer.size(), true);
+  rv = SendPacket(peer_, Packet::TYPE_SYNC_TIME_REQUEST, request_data, true);
   if (rv == false) {
     return false;
   }
@@ -373,11 +378,7 @@ bool Application::Synchronize() {
   ClientStatus client_status;
   client_status.status = ClientStatus::STATUS_SYNCHRONIZED;
 
-  buffer.clear();
-  net::AppendPacketToBuffer(buffer, &client_status,
-      Packet::TYPE_CLIENT_STATUS);
-
-  rv = peer_->Send(&buffer[0], buffer.size(), true);
+  rv = SendPacket(peer_, Packet::TYPE_CLIENT_STATUS, client_status, true);
   if (rv == false) {
     return false;
   }
@@ -433,7 +434,7 @@ bool Application::OnQuitEvent() {
 
   uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
 
-  if (!net::DisconnectPeer(peer_, event_, client_, connect_timeout)) {
+  if (!DisconnectPeer(peer_, event_, client_, connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
     return false;
   } else {
@@ -521,42 +522,25 @@ bool Application::OnKeyEvent(const sf::Event& event) {
   return true;
 }
 
-bool Application::PumpPackets(uint32_t timeout) {
+bool Application::PumpPackets() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
 
-  std::vector<char> message;
+  std::vector<char> buffer;
 
-  int64_t start_time = Timestamp();
   do {
-    int64_t time = Timestamp();
-    CHECK(time >= start_time);
-
-    // If we have run out of time, break and return
-    // unless timeout is zero.
-    if (time - start_time > timeout && timeout != 0) {
-      break;
-    }
-
-    uint32_t service_timeout = (timeout == 0) ?
-        0 : static_cast<uint32_t>(timeout - (time - start_time));
-    bool rv = client_->Service(event_, service_timeout);
+    bool rv = client_->Service(event_, 0);
     if (rv == false) {
       return false;
     }
 
     switch (event_->GetType()) {
       case enet::Event::TYPE_RECEIVE: {
-        event_->GetData(&message);
-
-        const Packet::Type* type =
-            reinterpret_cast<Packet::Type*>(&message[0]);
-        const void* data =
-            reinterpret_cast<void*>(&message[0] + sizeof(Packet::Type));
-        size_t len = message.size() - sizeof(Packet::Type);
-
-        // FIXME(alex): will only process single packet at a time
-        ProcessPacket(*type, data, len);
+        event_->GetData(&buffer);
+        bool rv = ProcessPacket(buffer);
+        if (rv == false) {
+          return false;
+        }
       } break;
 
       case enet::Event::TYPE_CONNECT: {
@@ -577,48 +561,65 @@ bool Application::PumpPackets(uint32_t timeout) {
   return true;
 }
 
-bool Application::ProcessPacket(Packet::Type type,
-    const void* data, size_t len) {
+bool Application::ProcessPacket(const std::vector<char>& buffer) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_LOGGED_IN);
+
+  Packet::Type type;
+  bool rv = ExtractPacketType(buffer, &type);
+  if (rv == false) {
+    THROW_ERROR("Incorrect packet format!");
+    return false;
+  }
 
   switch (type) {
     case Packet::TYPE_ENTITY_APPEARED:
     case Packet::TYPE_ENTITY_UPDATED: {
-      CHECK(len == sizeof(EntitySnapshot));
-      const EntitySnapshot* snapshot =
-          reinterpret_cast<const EntitySnapshot*>(data);
+      EntitySnapshot snapshot;
+      bool rv = ExtractPacketData(buffer, &snapshot);
+      if (rv == false) {
+        THROW_ERROR("Incorrect entity packet format!");
+        return false;
+      }
 
-      if (snapshot->id == player_->id) {
-        OnPlayerUpdate(snapshot);
+      if (snapshot.id == player_->id) {
+        OnPlayerUpdate(&snapshot);
         break;
       }
 
-      if (objects_.count(snapshot->id) > 0 ||
-          walls_.count(snapshot->id) > 0) {
-        OnEntityUpdate(snapshot);
+      if (objects_.count(snapshot.id) > 0 ||
+          walls_.count(snapshot.id) > 0) {
+        OnEntityUpdate(&snapshot);
       } else {
-        OnEntityAppearance(snapshot);
+        OnEntityAppearance(&snapshot);
       }
     } break;
 
     case Packet::TYPE_ENTITY_DISAPPEARED: {
-      CHECK(len == sizeof(EntitySnapshot));
-      const EntitySnapshot* snapshot =
-          reinterpret_cast<const EntitySnapshot*>(data);
-      if (!OnEntityDisappearance(snapshot)) {
+      EntitySnapshot snapshot;
+      bool rv = ExtractPacketData(buffer, &snapshot);
+      if (rv == false) {
+        THROW_ERROR("Incorrect entity packet format!");
+        return false;
+      }
+
+      if (!OnEntityDisappearance(&snapshot)) {
         return false;
       }
     } break;
 
     case Packet::TYPE_PLAYER_INFO: {
-      CHECK(len == sizeof(PlayerInfo));
-      const PlayerInfo* player_info =
-          reinterpret_cast<const PlayerInfo*>(data);
-      std::string player_name(player_info->login);
-      player_names_[player_info->id] = player_name;
-      if (objects_.count(player_info->id) == 1) {
-        objects_[player_info->id]->ShowCaption(player_name, *font_);
+      PlayerInfo player_info;
+      bool rv = ExtractPacketData(buffer, &player_info);
+      if (rv == false) {
+        THROW_ERROR("Incorrect player info packet format!");
+        return false;
+      }
+
+      std::string player_name(player_info.login);
+      player_names_[player_info.id] = player_name;
+      if (objects_.count(player_info.id) == 1) {
+        objects_[player_info.id]->ShowCaption(player_name, *font_);
       }
     } break;
 
@@ -989,6 +990,30 @@ void Application::RenderHUD() {
   circle.setPosition(compass_center);
   circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
   render_window_->draw(circle, top_right_transform);
+}
+
+// Sends input events to the server and
+// clears the input event queues afterwards.
+bool Application::SendInputEvents() {
+  for (size_t i = 0; i < keyboard_events_.size(); i++) {
+    bool rv = SendPacket(peer_, Packet::TYPE_KEYBOARD_EVENT,
+        keyboard_events_[i]);
+    if (rv == false) {
+      return false;
+    }
+  }
+  keyboard_events_.clear();
+
+  for (size_t i = 0; i < mouse_events_.size(); i++) {
+    bool rv = SendPacket(peer_, Packet::TYPE_MOUSE_EVENT,
+        mouse_events_[i]);
+    if (rv == false) {
+      return false;
+    }
+  }
+  mouse_events_.clear();
+
+  return true;
 }
 
 }  // namespace bm

@@ -59,61 +59,6 @@ class Server {
 
   bool _OnClientStatus(uint32_t client_id);
 
-  // TODO(xairy): move it outside of 'Server' class.
-  template<class T>
-  bool _BroadcastPacket(Packet::Type packet_type,
-      const T& data, bool reliable) {
-    std::vector<char> message;
-    message.insert(message.end(), reinterpret_cast<const char*>(&packet_type),
-      reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
-    message.insert(message.end(), reinterpret_cast<const char*>(&data),
-      reinterpret_cast<const char*>(&data) + sizeof(T));
-
-    bool rv = _host->Broadcast(&message[0], message.size(), reliable);
-    if (rv == false) {
-      THROW_ERROR("Couldn't broadcast packet.");
-      return false;
-    }
-    return true;
-  }
-
-  template<class T>
-  bool _SendPacket(enet::Peer* peer, Packet::Type type,
-      const T& data, bool reliable) {
-    std::vector<char> message;
-    message.insert(message.end(), reinterpret_cast<const char*>(&type),
-      reinterpret_cast<const char*>(&type) + sizeof(type));
-    message.insert(message.end(), reinterpret_cast<const char*>(&data),
-      reinterpret_cast<const char*>(&data) + sizeof(T));
-
-    bool rv = peer->Send(&message[0], message.size(), reliable);
-    if (rv == false) {
-      THROW_ERROR("Couldn't send packet.");
-      return false;
-    }
-    return true;
-  }
-
-  // Returns 'false' when message format is incorrect.
-  bool _ExtractPacketType(const std::vector<char>& message,
-      Packet::Type* type) {
-    if (message.size() < sizeof(Packet::Type)) {
-      return false;
-    }
-    memcpy(type, &message[0], sizeof(Packet::Type));
-    return true;
-  }
-
-  // Returns 'false' when message format is incorrect.
-  template<class T>
-  bool _ExtractData(const std::vector<char>& message, T* data) {
-    if (message.size() != sizeof(Packet::Type) + sizeof(T)) {
-      return false;
-    }
-    memcpy(data, &message[0] + sizeof(Packet::Type), sizeof(T));
-    return true;
-  }
-
   uint16_t _server_port;
 
   uint32_t _broadcast_rate;

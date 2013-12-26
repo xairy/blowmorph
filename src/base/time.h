@@ -8,7 +8,6 @@
 namespace bm {
 
 // Returns time since some moment in ms.
-// Warning: not thread safe.
 int64_t Timestamp();
 
 }  // namespace bm
