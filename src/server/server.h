@@ -36,58 +36,46 @@ class Server {
   bool Tick();
 
  private:
-  bool _UpdateWorld();
+  bool BroadcastDynamicEntities();
+  bool BroadcastStaticEntities(bool force = false);
 
-  bool _DeleteDestroyedEntities();
+  bool UpdateWorld();
+  bool DeleteDestroyedEntities();
 
-  bool _BroadcastStaticEntities(bool force = false);
-  bool _BroadcastDynamicEntities();
+  bool PumpEvents();
 
-  bool _PumpEvents();
+  void OnConnect();
+  bool OnDisconnect();
 
-  void _OnConnect();
+  bool OnReceive();
 
-  bool _BroadcastEntityRelatedMessage(Packet::Type packet_type, Entity* entity);
+  bool OnLogin(uint32_t client_id);
+  bool SendClientOptions(Client* client);
 
-  bool _OnDisconnect();
+  bool OnClientStatus(uint32_t client_id);
 
-  bool _OnReceive();
+  bool BroadcastEntityRelatedMessage(Packet::Type packet_type, Entity* entity);
 
-  bool _OnLogin(uint32_t client_id);
+  int64_t broadcast_timeout_;
+  int64_t last_broadcast_;
 
-  bool _SendClientOptions(Client* client);
+  int64_t update_timeout_;
+  int64_t last_update_;
 
-  bool _OnClientStatus(uint32_t client_id);
+  enet::Enet enet_;
+  enet::ServerHost* host_;
+  enet::Event* event_;
 
-  uint16_t _server_port;
+  IdManager id_manager_;
+  WorldManager world_manager_;
+  ClientManager client_manager_;
 
-  uint32_t _broadcast_rate;
-  int64_t _broadcast_time;
-  int64_t _last_broadcast;
-
-  uint32_t _update_rate;
-  int64_t _update_time;
-  int64_t _last_update;
-
-  uint32_t _latency_limit;
-
-  std::string _map_file;
-
-  enet::Enet _enet;
-  enet::ServerHost* _host;
-  enet::Event* _event;
-
-  IdManager _id_manager;
-  WorldManager _world_manager;
-  ClientManager _client_manager;
-  Timer _timer;
-
-  SettingsManager _settings;
+  SettingsManager settings_;
 
   enum {
     STATE_FINALIZED,
     STATE_INITIALIZED
-  } _state;
+  } state_;
 
   DISALLOW_COPY_AND_ASSIGN(Server);
 };
