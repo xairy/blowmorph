@@ -188,6 +188,10 @@ bool Application::InitializeGraphics() {
       static_cast<float>(width), static_cast<float>(height)));
   render_window_->setView(view_);
 
+  // By default if a key is held, multiple 'KeyPressed' events
+  // will be generated. We disable such behaviour.
+  render_window_->setKeyRepeatEnabled(false);
+
   font_ = new sf::Font();
   CHECK(font_ != NULL);
   font_->loadFromFile("data/fonts/tahoma.ttf");
