@@ -32,6 +32,7 @@ typedef interpolator::LinearInterpolator<ObjectState, int64_t>
 struct Object {
   Object(uint32_t id, uint32_t type, Sprite* sprite,
     const sf::Vector2f& position, int64_t time);
+  ~Object();
 
   void ShowCaption(const std::string& caption, const sf::Font& font);
 

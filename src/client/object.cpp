@@ -67,6 +67,10 @@ Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
   interpolator.Push(state, time);
 }
 
+Object::~Object() {
+  if (sprite != NULL) delete sprite;
+}
+
 void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
   CHECK(caption_visible == false);
   caption_text = sf::Text(caption, font, 12);
