@@ -52,5 +52,5 @@ How to start client:
 
 How to build under Microsoft Windows, Visual Studio 2008:
   1. Install Python 2.7.6
-  1. Run "premake4.exe vs2008"
-  2. Build build\blowmorph.sln
+  2. Run "premake4.exe vs2008"
+  3. Build build\blowmorph.sln
