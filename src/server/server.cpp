@@ -19,7 +19,7 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
-#include "base/timer.h"
+#include "base/time.h"
 
 #include "server/client_manager.h"
 #include "server/entity.h"
@@ -36,194 +36,123 @@
 
 namespace bm {
 
-Server::Server() : _state(STATE_FINALIZED), _host(NULL), _event(NULL),
-  _world_manager(&_id_manager, &_settings) { }
+Server::Server() : state_(STATE_FINALIZED), host_(NULL), event_(NULL),
+  world_manager_(&id_manager_, &settings_) { }
 
 Server::~Server() {
-  if (_state == STATE_INITIALIZED) {
+  if (state_ == STATE_INITIALIZED) {
     Finalize();
   }
 }
 
 bool Server::Initialize() {
-  CHECK(_state == STATE_FINALIZED);
+  CHECK(state_ == STATE_FINALIZED);
 
-  if (!_settings.Open("data/server.cfg")) {
+  if (!settings_.Open("data/server.cfg")) {
     return false;
   }
 
-  _server_port = _settings.GetUInt16("server.port");
+  uint32_t broadcast_rate = settings_.GetUInt32("server.broadcast_rate");
+  broadcast_timeout_ = 1000 / broadcast_rate;
+  last_broadcast_ = 0;
 
-  _broadcast_rate = _settings.GetUInt32("server.broadcast_rate");
-  _broadcast_time = 1000 / _broadcast_rate;
-  _last_broadcast = 0;
+  uint32_t update_rate = settings_.GetUInt32("server.update_rate");
+  update_timeout_ = 1000 / update_rate;
+  last_update_ = 0;
 
-  _update_rate = _settings.GetUInt32("server.update_rate");
-  _update_time = 1000 / _update_rate;
-  _last_update = 0;
+  host_ = NULL;
+  event_ = NULL;
 
-  _latency_limit = _settings.GetUInt32("server.latency_limit");
-
-  _host = NULL;
-  _event = NULL;
-
-  _map_file = _settings.GetString("server.map");
-
-  if (!_world_manager.LoadMap(_map_file)) {
+  std::string map_file = settings_.GetString("server.map");
+  if (!world_manager_.LoadMap(map_file)) {
     return false;
   }
 
-  if (!_enet.Initialize()) {
+  if (!enet_.Initialize()) {
     return false;
   }
 
-  std::auto_ptr<enet::ServerHost> host(_enet.CreateServerHost(_server_port));
+  uint16_t server_port = settings_.GetUInt16("server.port");
+  std::auto_ptr<enet::ServerHost> host(enet_.CreateServerHost(server_port));
   if (host.get() == NULL) {
     return false;
   }
 
-  std::auto_ptr<enet::Event> event(_enet.CreateEvent());
+  std::auto_ptr<enet::Event> event(enet_.CreateEvent());
   if (event.get() == NULL) {
     return false;
   }
 
-  _host = host.release();
-  _event = event.release();
+  host_ = host.release();
+  event_ = event.release();
 
-  _state = STATE_INITIALIZED;
+  state_ = STATE_INITIALIZED;
   return true;
 }
 
 void Server::Finalize() {
-  CHECK(_state == STATE_INITIALIZED);
-  if (_event != NULL) {
-    delete _event;
-    _event = NULL;
+  CHECK(state_ == STATE_INITIALIZED);
+  if (event_ != NULL) {
+    delete event_;
+    event_ = NULL;
   }
-  if (_host != NULL) {
-    delete _host;
-    _host = NULL;
+  if (host_ != NULL) {
+    delete host_;
+    host_ = NULL;
   }
-  _state = STATE_FINALIZED;
+  state_ = STATE_FINALIZED;
 }
 
 bool Server::Tick() {
-  CHECK(_state == STATE_INITIALIZED);
+  CHECK(state_ == STATE_INITIALIZED);
 
-  if (_timer.GetTime() - _last_broadcast >= _broadcast_time) {
-    _last_broadcast = _timer.GetTime();
-    if (!_BroadcastDynamicEntities()) {
+  if (Timestamp() - last_broadcast_ >= broadcast_timeout_) {
+    last_broadcast_ = Timestamp();
+    if (!BroadcastDynamicEntities()) {
       return false;
     }
-    if (!_BroadcastStaticEntities()) {
-      return false;
-    }
-  }
-
-  if (_timer.GetTime() - _last_update >= _update_time) {
-    _last_update = _timer.GetTime();
-    if (!_UpdateWorld()) {
+    if (!BroadcastStaticEntities()) {
       return false;
     }
   }
 
-  if (!_PumpEvents()) {
+  if (Timestamp() - last_update_ >= update_timeout_) {
+    last_update_ = Timestamp();
+    if (!UpdateWorld()) {
+      return false;
+    }
+  }
+
+  if (!PumpEvents()) {
     return false;
   }
 
-  int64_t next_broadcast = _last_broadcast + _broadcast_time;
-  int64_t next_update = _last_update + _update_time;
+  int64_t next_broadcast = last_broadcast_ + broadcast_timeout_;
+  int64_t next_update = last_update_ + update_timeout_;
   int64_t sleep_until = std::min(next_broadcast, next_update);
-  int64_t current_time = _timer.GetTime();
+  int64_t current_time = Timestamp();
 
   if (current_time <= sleep_until) {
     uint32_t timeout = static_cast<uint32_t>(sleep_until - current_time);
-    bool rv = _host->Service(NULL, timeout);
+    bool rv = host_->Service(NULL, timeout);
     if (rv == false) {
       return false;
     }
   } else {
-    printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
+    // printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
   }
 
   return true;
 }
 
-bool Server::_UpdateWorld() {
-  // XXX(xairy): Temporary.
-  static int counter = 0;
-  if (counter == 300) {
-    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    _world_manager.CreateDummy(Vector2f(x, y), _timer.GetTime());
-    counter = 0;
-    // printf("Dummy spawned at (%.2f, %.2f)\n", x, y);
-  }
-  counter++;
-
-  _world_manager.UpdateEntities(_timer.GetTime());
-
-  _world_manager.CollideEntities();
-
-  _world_manager.DestroyOutlyingEntities();
-
-  if (!_DeleteDestroyedEntities()) {
-    return false;
-  }
-
-  return true;
-}
-
-bool Server::_DeleteDestroyedEntities() {
-  std::vector<uint32_t> destroyed_entities;
-  _world_manager.GetDestroyedEntities(&destroyed_entities);
-
-  size_t size = destroyed_entities.size();
-  for (size_t i = 0; i < size; i++) {
-    uint32_t id = destroyed_entities[i];
-    bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
-      _world_manager.GetEntity(id));
-    if (rv == false) {
-      return false;
-    }
-  }
-
-  _world_manager.DeleteEntities(destroyed_entities, true);
-
-  return true;
-}
-
-bool Server::_BroadcastStaticEntities(bool force) {
+bool Server::BroadcastDynamicEntities() {
   std::map<uint32_t, Entity*>* _entities =
-    _entities = _world_manager.GetStaticEntities();
+    _entities = world_manager_.GetDynamicEntities();
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _entities->end();
   for (itr = _entities->begin(); itr != end; ++itr) {
     Entity* entity = itr->second;
-    if (force || entity->IsUpdated()) {
-      bool rv = _BroadcastEntityRelatedMessage(
-          Packet::TYPE_ENTITY_UPDATED, entity);
-      if (rv == false) {
-        return false;
-      }
-      // XXX[18.08.2012 xairy]: hack.
-      if (entity->GetType() == "Wall") {
-        entity->SetUpdatedFlag(false);
-      }
-    }
-  }
-
-  return true;
-}
-
-bool Server::_BroadcastDynamicEntities() {
-  std::map<uint32_t, Entity*>* _entities =
-    _entities = _world_manager.GetDynamicEntities();
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _entities->end();
-  for (itr = _entities->begin(); itr != end; ++itr) {
-    Entity* entity = itr->second;
-    bool rv = _BroadcastEntityRelatedMessage(
+    bool rv = BroadcastEntityRelatedMessage(
         Packet::TYPE_ENTITY_UPDATED, entity);
     if (rv == false) {
       return false;
@@ -232,28 +161,91 @@ bool Server::_BroadcastDynamicEntities() {
   return true;
 }
 
-bool Server::_PumpEvents() {
+bool Server::BroadcastStaticEntities(bool force) {
+  std::map<uint32_t, Entity*>* _entities =
+    _entities = world_manager_.GetStaticEntities();
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _entities->end();
+  for (itr = _entities->begin(); itr != end; ++itr) {
+    Entity* entity = itr->second;
+    if (force || entity->IsUpdated()) {
+      bool rv = BroadcastEntityRelatedMessage(
+          Packet::TYPE_ENTITY_UPDATED, entity);
+      if (rv == false) {
+        return false;
+      }
+      entity->SetUpdatedFlag(false);
+    }
+  }
+
+  return true;
+}
+
+bool Server::UpdateWorld() {
+  // XXX(xairy): Temporary.
+  static int counter = 0;
+  if (counter == 300) {
+    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    world_manager_.CreateDummy(Vector2f(x, y), Timestamp());
+    counter = 0;
+  }
+  counter++;
+
+  world_manager_.UpdateEntities(Timestamp());
+
+  world_manager_.CollideEntities();
+
+  world_manager_.DestroyOutlyingEntities();
+
+  if (!DeleteDestroyedEntities()) {
+    return false;
+  }
+
+  return true;
+}
+
+bool Server::DeleteDestroyedEntities() {
+  std::vector<uint32_t> destroyed_entities;
+  world_manager_.GetDestroyedEntities(&destroyed_entities);
+
+  size_t size = destroyed_entities.size();
+  for (size_t i = 0; i < size; i++) {
+    uint32_t id = destroyed_entities[i];
+    bool rv = BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
+      world_manager_.GetEntity(id));
+    if (rv == false) {
+      return false;
+    }
+  }
+
+  world_manager_.DeleteEntities(destroyed_entities, true);
+
+  return true;
+}
+
+bool Server::PumpEvents() {
   do {
     // TODO(xairy): timeout.
-    if (_host->Service(_event, 0) == false) {
+    if (host_->Service(event_, 0) == false) {
       return false;
     }
 
-    switch (_event->GetType()) {
+    switch (event_->GetType()) {
       case enet::Event::TYPE_CONNECT: {
-        _OnConnect();
+        OnConnect();
         break;
       }
 
       case enet::Event::TYPE_RECEIVE: {
-        if (!_OnReceive()) {
+        if (!OnReceive()) {
           return false;
         }
         break;
       }
 
       case enet::Event::TYPE_DISCONNECT: {
-        if (!_OnDisconnect()) {
+        if (!OnDisconnect()) {
           return false;
         }
         break;
@@ -262,109 +254,84 @@ bool Server::_PumpEvents() {
       case enet::Event::TYPE_NONE:
         break;
     }
-  } while (_event->GetType() != enet::Event::TYPE_NONE);
+  } while (event_->GetType() != enet::Event::TYPE_NONE);
 
   return true;
 }
 
-void Server::_OnConnect() {
-  CHECK(_event->GetType() == enet::Event::TYPE_CONNECT);
+void Server::OnConnect() {
+  CHECK(event_->GetType() == enet::Event::TYPE_CONNECT);
 
-  uint32_t client_id = _id_manager.NewId();
-  _event->GetPeer()->SetData(reinterpret_cast<void*>(client_id));
+  uint32_t client_id = id_manager_.NewId();
+  event_->GetPeer()->SetData(reinterpret_cast<void*>(client_id));
 
   printf("#%u: Client from %s:%u is trying to connect.\n", client_id,
-    _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
+    event_->GetPeer()->GetIp().c_str(), event_->GetPeer()->GetPort());
 
   // Client should send 'TYPE_LOGIN' packet now.
 }
 
-bool Server::_BroadcastEntityRelatedMessage(Packet::Type packet_type,
-    Entity* entity) {
-  CHECK(packet_type == Packet::TYPE_ENTITY_APPEARED ||
-    packet_type == Packet::TYPE_ENTITY_DISAPPEARED ||
-    packet_type == Packet::TYPE_ENTITY_UPDATED);
+bool Server::OnDisconnect() {
+  CHECK(event_->GetType() == enet::Event::TYPE_DISCONNECT);
 
-  EntitySnapshot snapshot;
-  entity->GetSnapshot(_timer.GetTime(), &snapshot);
-
-  bool rv = BroadcastPacket(_host, packet_type, snapshot, true);
-  if (rv == false) {
-    return false;
-  }
-
-  // if (packet_type == TYPE_ENTITY_APPEARED) {
-  //   printf("Entity %u appeared.\n", entity->GetId());
-  // }
-  // if (packet_type == TYPE_ENTITY_DISAPPEARED) {
-  //   printf("Entity %u disappeared.\n", entity->GetId());
-  // }
-
-  return true;
-}
-
-bool Server::_OnDisconnect() {
-  CHECK(_event->GetType() == enet::Event::TYPE_DISCONNECT);
-
-  void* peer_data = _event->GetPeer()->GetData();
-  // So complicated to make it work under x64.
+  void* peer_data = event_->GetPeer()->GetData();
+  // So complicated to make it work under both x32 and x64.
   uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
-  Client* client = _client_manager.GetClient(id);
+  Client* client = client_manager_.GetClient(id);
 
-  bool rv = _BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
+  bool rv = BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
     client->entity);
   if (rv == false) {
     return false;
   }
 
   client->entity->Destroy();
-  _client_manager.DeleteClient(id, true);
+  client_manager_.DeleteClient(id, true);
 
-  printf("#%u from %s:%u disconnected.\n", id,
-    _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
+  printf("#%u: Client from %s:%u disconnected.\n", id,
+    event_->GetPeer()->GetIp().c_str(), event_->GetPeer()->GetPort());
 
   return true;
 }
 
-// FIXME(xairy): fix error messages.
-bool Server::_OnReceive() {
-  CHECK(_event->GetType() == enet::Event::TYPE_RECEIVE);
+bool Server::OnReceive() {
+  CHECK(event_->GetType() == enet::Event::TYPE_RECEIVE);
 
-  void* peer_data = _event->GetPeer()->GetData();
-  // So complicated to make it work under x64.
+  void* peer_data = event_->GetPeer()->GetData();
+  // So complicated to make it work under both x32 and x64.
   uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
 
   std::vector<char> message;
-  _event->GetData(&message);
+  event_->GetData(&message);
 
   Packet::Type packet_type;
   bool rv = ExtractPacketType(message, &packet_type);
   if (rv == false) {
-    printf("#%u: Client dropped due to incorrect message format. [0]\n", id);
-    _client_manager.DisconnectClient(id);
+    printf("#%u: Incorrect message format [5], client dropped.\n", id);
+    client_manager_.DisconnectClient(id);
     return true;
   }
 
   if (packet_type == Packet::TYPE_LOGIN) {
-    if (!_OnLogin(id)) {
+    if (!OnLogin(id)) {
       return false;
     }
     return true;
   }
 
-  Client* client = _client_manager.GetClient(id);
+  Client* client = client_manager_.GetClient(id);
 
   switch (packet_type) {
     case Packet::TYPE_SYNC_TIME_REQUEST: {
       TimeSyncData sync_data;
       rv = ExtractPacketData(message, &sync_data);
       if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.6\n", id);
-        _client_manager.DisconnectClient(id);
+        printf("#%u: Incorrect message format [0], client dropped.\n", id);
+        client_manager_.DisconnectClient(id);
         return true;
       }
 
-      sync_data.server_time = _timer.GetTime();
+      sync_data.server_time = Timestamp();
       packet_type = Packet::TYPE_SYNC_TIME_RESPONSE;
 
       rv = SendPacket(client->peer, packet_type, sync_data, true);
@@ -372,49 +339,46 @@ bool Server::_OnReceive() {
         return false;
       }
 
-      _host->Flush();
-
-      // XXX(xairy): hack?
-      if (!_BroadcastStaticEntities(true)) {
-        return false;
-      }
+      host_->Flush();
     } break;
 
     case Packet::TYPE_CLIENT_STATUS: {
-      if (!_OnClientStatus(id)) {
+      if (!OnClientStatus(id)) {
         return false;
       }
     } break;
 
     case Packet::TYPE_KEYBOARD_EVENT: {
-      KeyboardEvent keyboard_event;
-      rv = ExtractPacketData(message, &keyboard_event);
+      KeyboardEvent keyboardevent_;
+      rv = ExtractPacketData(message, &keyboardevent_);
       if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.2\n", id);
-        _client_manager.DisconnectClient(id);
+        printf("#%u: Incorrect message format [1], client dropped.\n", id);
+        client_manager_.DisconnectClient(id);
         return true;
       }
 
-      client->entity->OnKeyboardEvent(keyboard_event);
+      client->entity->OnKeyboardEvent(keyboardevent_);
+
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      MouseEvent mouse_event;
-      rv = ExtractPacketData(message, &mouse_event);
+      MouseEvent mouseevent_;
+      rv = ExtractPacketData(message, &mouseevent_);
       if (rv == false) {
-        printf("#%u: Client dropped due to incorrect message format.4\n", id);
-        _client_manager.DisconnectClient(id);
+        printf("#%u: Incorrect message format [2], client dropped.\n", id);
+        client_manager_.DisconnectClient(id);
         return true;
       }
 
-      if (!client->entity->OnMouseEvent(mouse_event, _timer.GetTime())) {
+      rv = client->entity->OnMouseEvent(mouseevent_, Timestamp());
+      if (rv == false) {
         return false;
       }
     } break;
 
     default: {
-      printf("#%u: Client dropped due to incorrect message format.7\n", id);
-      _client_manager.DisconnectClient(id);
+      printf("#%u: Incorrect message format [3], client dropped.\n", id);
+      client_manager_.DisconnectClient(id);
       return true;
     } break;
   }
@@ -422,19 +386,19 @@ bool Server::_OnReceive() {
   return true;
 }
 
-bool Server::_OnLogin(uint32_t client_id) {
-  enet::Peer* peer = _event->GetPeer();
+bool Server::OnLogin(uint32_t client_id) {
+  enet::Peer* peer = event_->GetPeer();
   CHECK(peer != NULL);
 
   // Receive login data.
 
   std::vector<char> message;
-  _event->GetData(&message);
+  event_->GetData(&message);
 
   LoginData login_data;
   bool rv = ExtractPacketData(message, &login_data);
   if (rv == false) {
-    printf("#%u: Incorrect message format, client dropped.\n", client_id);
+    printf("#%u: Incorrect message format [4], client dropped.\n", client_id);
     return true;
   }
 
@@ -443,7 +407,7 @@ bool Server::_OnLogin(uint32_t client_id) {
   // Create player.
 
   Player* player = Player::Create(
-    &_world_manager,
+    &world_manager_,
     client_id,
     Vector2f(0.0f, 0.0f));
   if (player == NULL) {
@@ -457,10 +421,10 @@ bool Server::_OnLogin(uint32_t client_id) {
   Client* client = new Client(peer, player, login);
   CHECK(client != NULL);
 
-  _client_manager.AddClient(client_id, client);
-  _world_manager.AddEntity(client_id, player);
+  client_manager_.AddClient(client_id, client);
+  world_manager_.AddEntity(client_id, player);
 
-  if (!_SendClientOptions(client)) {
+  if (!SendClientOptions(client)) {
     return false;
   }
 
@@ -468,10 +432,10 @@ bool Server::_OnLogin(uint32_t client_id) {
 
   // Broadcast the new player info.
 
-  // The new player may not receive these notifications, as it will be
+  // The new player may not receive this info, as he will be
   // synchronizing time and ignoring everything else.
 
-  if (!_BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
+  if (!BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_APPEARED,
       client->entity)) {
     return false;
   }
@@ -480,20 +444,18 @@ bool Server::_OnLogin(uint32_t client_id) {
   player_info.id = client_id;
   std::copy(login.c_str(), login.c_str() + login.size() + 1,
       &player_info.login[0]);
-  rv = BroadcastPacket(_host, Packet::TYPE_PLAYER_INFO, player_info, true);
+  rv = BroadcastPacket(host_, Packet::TYPE_PLAYER_INFO, player_info, true);
   if (rv == false) {
     return false;
   }
 
-  printf("#%u: New player info broadcasted.\n", client_id);
-
   printf("#%u: Client from %s:%u connected.\n", client_id,
-    _event->GetPeer()->GetIp().c_str(), _event->GetPeer()->GetPort());
+    event_->GetPeer()->GetIp().c_str(), event_->GetPeer()->GetPort());
 
   return true;
 }
 
-bool Server::_SendClientOptions(Client* client) {
+bool Server::SendClientOptions(Client* client) {
   ClientOptions options;
   options.id = client->entity->GetId();
   options.speed = client->entity->GetSpeed();
@@ -513,13 +475,13 @@ bool Server::_SendClientOptions(Client* client) {
   return true;
 }
 
-bool Server::_OnClientStatus(uint32_t client_id) {
+bool Server::OnClientStatus(uint32_t client_id) {
   // Send to the new player all players' info.
 
   PlayerInfo player_info;
-  Client* client = _client_manager.GetClient(client_id);
+  Client* client = client_manager_.GetClient(client_id);
 
-  std::map<uint32_t, Client*>* clients = _client_manager.GetClients();
+  std::map<uint32_t, Client*>* clients = client_manager_.GetClients();
   std::map<uint32_t, Client*>::iterator i;
 
   for (i = clients->begin(); i != clients->end(); i++) {
@@ -534,7 +496,28 @@ bool Server::_OnClientStatus(uint32_t client_id) {
     }
   }
 
-  printf("#%u: Other players' info sent.\n", client_id);
+  // And all the static entities.
+
+  if (!BroadcastStaticEntities(true)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool Server::BroadcastEntityRelatedMessage(Packet::Type packet_type,
+    Entity* entity) {
+  CHECK(packet_type == Packet::TYPE_ENTITY_APPEARED ||
+    packet_type == Packet::TYPE_ENTITY_DISAPPEARED ||
+    packet_type == Packet::TYPE_ENTITY_UPDATED);
+
+  EntitySnapshot snapshot;
+  entity->GetSnapshot(Timestamp(), &snapshot);
+
+  bool rv = BroadcastPacket(host_, packet_type, snapshot, true);
+  if (rv == false) {
+    return false;
+  }
 
   return true;
 }
