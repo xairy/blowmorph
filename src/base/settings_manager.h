@@ -13,6 +13,7 @@ struct config_t;
 
 namespace bm {
 
+// FIXME: make methods const.
 class SettingsManager {
  public:
   BM_BASE_DECL SettingsManager();

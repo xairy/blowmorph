@@ -10,6 +10,7 @@
 #include <pugixml.hpp>
 
 #include "base/pstdint.h"
+#include "base/settings_manager.h"
 
 #include "server/entity.h"
 #include "server/vector.h"
@@ -24,11 +25,10 @@ namespace bm {
 
 class Entity;
 class IdManager;
-class SettingsManager;
 
 class WorldManager {
  public:
-  WorldManager(IdManager* id_manager, SettingsManager* settings);
+  WorldManager(IdManager* id_manager);
   ~WorldManager();
 
   SettingsManager* GetSettings();
@@ -80,7 +80,7 @@ class WorldManager {
   Vector2f GetRandomSpawn() const;
 
   // XXX(xairy): in WorldManager?
-  Shape* LoadShape(const std::string& settings_prefix) const;
+  Shape* LoadShape(const std::string& settings_prefix);
 
  private:
   bool _LoadWall(const pugi::xml_node& node);
@@ -108,7 +108,7 @@ class WorldManager {
   float _bound;  // Entities with greater coordinates are destroyed.
 
   IdManager* _id_manager;
-  SettingsManager* _settings;
+  SettingsManager _settings;
 };
 
 }  // namespace bm
