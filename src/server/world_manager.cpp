@@ -50,8 +50,11 @@ size_t Random(size_t max) {
 
 namespace bm {
 
-WorldManager::WorldManager(IdManager* id_manager, SettingsManager* settings)
-  : _map_type(MAP_NONE), _id_manager(id_manager), _settings(settings) { }
+WorldManager::WorldManager(IdManager* id_manager)
+    : _map_type(MAP_NONE), _id_manager(id_manager) {
+  bool rv = _settings.Open("data/entities.cfg");
+  CHECK(rv == true); // FIXME.
+}
 
 WorldManager::~WorldManager() {
   std::map<uint32_t, Entity*>::iterator i, end;
@@ -66,7 +69,7 @@ WorldManager::~WorldManager() {
 }
 
 SettingsManager* WorldManager::GetSettings() {
-  return _settings;
+  return &_settings;
 }
 
 void WorldManager::AddEntity(uint32_t id, Entity* entity) {
@@ -492,8 +495,8 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
 }
 
 bool WorldManager::Blow(const Vector2f& location) {
-  float radius = _settings->GetFloat("player.blow.radius");
-  int damage = _settings->GetInt32("player.blow.damage");
+  float radius = _settings.GetFloat("player.blow.radius");
+  int damage = _settings.GetInt32("player.blow.damage");
 
   Circle explosion(location, radius);
 
@@ -517,7 +520,7 @@ bool WorldManager::Blow(const Vector2f& location) {
 }
 
 bool WorldManager::Morph(const Vector2f& location) {
-  int radius = _settings->GetInt32("player.morph.radius");
+  int radius = _settings.GetInt32("player.morph.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
   for (int x = -radius; x <= radius; x++) {
@@ -541,21 +544,22 @@ Vector2f WorldManager::GetRandomSpawn() const {
   return _spawn_positions[spawn];
 }
 
-Shape* WorldManager::LoadShape(const std::string& prefix) const {
-  std::string shape_type = _settings->GetString((prefix + ".type").c_str());
+Shape* WorldManager::LoadShape(const std::string& prefix) {
+  std::string shape_type = _settings.GetString(prefix + ".type");
   if (shape_type == "circle") {
-    float radius = _settings->GetFloat((prefix + ".radius").c_str());
+    float radius = _settings.GetFloat(prefix + ".radius");
     Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
     CHECK(shape != NULL);
     return shape;
   } else if (shape_type == "rectangle") {
-    float width = _settings->GetFloat((prefix + ".width").c_str());
-    float height = _settings->GetFloat((prefix + ".height").c_str());
+    float width = _settings.GetFloat(prefix + ".width");
+    float height = _settings.GetFloat(prefix + ".height");
     Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
     CHECK(shape != NULL);
     return shape;
   } else if (shape_type == "square") {
-    float side = _settings->GetFloat((prefix + ".side").c_str());
+
+    float side = _settings.GetFloat(prefix + ".side");
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     CHECK(shape != NULL);
     return shape;

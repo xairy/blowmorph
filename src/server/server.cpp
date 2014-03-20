@@ -37,7 +37,7 @@
 namespace bm {
 
 Server::Server() : state_(STATE_FINALIZED), host_(NULL), event_(NULL),
-  world_manager_(&id_manager_, &settings_) { }
+  world_manager_(&id_manager_) { }
 
 Server::~Server() {
   if (state_ == STATE_INITIALIZED) {
