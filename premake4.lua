@@ -103,13 +103,13 @@ solution "blowmorph"
   project "client"
     kind "ConsoleApp"
     language "C++"
-    targetname "bm-client"
+    targetname "client"
 
     includedirs { "src" }
     files { "src/client/**.cpp",
             "src/client/**.h" }
 
-    links { "bm-base" }
+    links { "base" }
     links { "interpolator" }
 
     resource("data", "data")
@@ -158,13 +158,13 @@ solution "blowmorph"
   project "server"
     kind "ConsoleApp"
     language "C++"
-    targetname "bm-server"
+    targetname "server"
 
     includedirs { "src" }
     files { "src/server/**.cpp",
             "src/server/**.h" }
 
-    links { "bm-base" }
+    links { "base" }
 
     resource("data", "data")
 
@@ -185,7 +185,7 @@ solution "blowmorph"
     configuration "linux"
       links { "pugixml" }
 
-  project "bm-base"
+  project "base"
     kind "SharedLib"
     language "C++"
 
