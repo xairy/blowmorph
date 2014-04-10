@@ -5,12 +5,13 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
@@ -21,7 +22,7 @@ class Dummy : public Entity {
   static Dummy* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position,
+    const b2Vec2& position,
     int64_t time);
   virtual ~Dummy();
 
@@ -35,8 +36,6 @@ class Dummy : public Entity {
   virtual void OnEntityDisappearance(Entity* entity);
 
   virtual void Damage(int damage);
-
-  virtual void SetPosition(const Vector2f& position);
 
   // Double dispatch. Collision detection.
 
@@ -53,8 +52,6 @@ class Dummy : public Entity {
 
   float _speed;
   Entity* _meat;
-  int64_t _last_update;
-  Vector2f _prev_position;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Dummy);

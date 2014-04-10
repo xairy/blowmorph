@@ -5,14 +5,14 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -21,30 +21,26 @@ Bullet* Bullet::Create(
   WorldManager* world_manager,
   uint32_t id,
   uint32_t owner_id,
-  const Vector2f& start,
-  const Vector2f& end,
+  const b2Vec2& start,
+  const b2Vec2& end,
   int64_t time
 ) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetFloat("bullet.speed");
 
-  std::auto_ptr<Bullet> bullet(new Bullet(world_manager, id));
-  CHECK(bullet.get() != NULL);
+  Bullet* bullet = new Bullet(world_manager, id);
+  CHECK(bullet != NULL);
 
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("bullet.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(start);
+  // !FIXME: load radius from cfg.
+  bullet->body_ = CreateCircle(world_manager->GetWorld(), start, 5.0, true);
+  b2Vec2 velocity = end - start;
+  velocity.Normalize();
+  velocity *= speed;
+  bullet->body_->SetLinearVelocity(velocity);
 
-  bullet->_shape = shape.release();
   bullet->_owner_id = owner_id;
-  bullet->_start = start;
-  bullet->_end = end;
-  bullet->_speed = speed;
-  bullet->_start_time = time;
 
-  return bullet.release();
+  return bullet;
 }
 
 Bullet::~Bullet() { }
@@ -56,22 +52,14 @@ bool Bullet::IsStatic() {
   return false;
 }
 
-void Bullet::Update(int64_t time) {
-  CHECK(time >= _start_time);
-  Vector2f direction = _end - _start;
-  float magnitude = Magnitude(direction);
-  if (magnitude != 0.0f) {
-    float dt = static_cast<float>(time - _start_time);
-    _shape->SetPosition(_start + direction / magnitude * dt * _speed);
-  }
-}
+void Bullet::Update(int64_t time) { }
 
 void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_BULLET;
   output->time = time;
   output->id = _id;
-  output->x = _shape->GetPosition().x;
-  output->y = _shape->GetPosition().y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
 }
 
 void Bullet::OnEntityAppearance(Entity* entity) {
@@ -85,7 +73,7 @@ void Bullet::Damage(int damage) {
 
 void Bullet::Explode() {
   if (!IsDestroyed()) {
-    bool rv = _world_manager->Blow(_shape->GetPosition());
+    bool rv = _world_manager->Blow(body_->GetPosition());
     // TODO(xairy): handle error.
     CHECK(rv == true);
     Destroy();

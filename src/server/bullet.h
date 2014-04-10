@@ -5,12 +5,13 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
@@ -22,8 +23,8 @@ class Bullet : public Entity {
     WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
-    const Vector2f& start,
-    const Vector2f& end,
+    const b2Vec2& start,
+    const b2Vec2& end,
     int64_t time);
   virtual ~Bullet();
 
@@ -54,15 +55,6 @@ class Bullet : public Entity {
   Bullet(WorldManager* world_manager, uint32_t id);
 
   uint32_t _owner_id;
-
-  // The start and the end of the bullet' trajectory.
-  Vector2f _start;
-  Vector2f _end;
-
-  int64_t _start_time;
-
-  // Actual speed in any direction.
-  float _speed;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Bullet);

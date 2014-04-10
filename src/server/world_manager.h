@@ -9,11 +9,12 @@
 
 #include <pugixml.hpp>
 
+#include <Box2D/Box2D.h>
+
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 #include "server/bullet.h"
 #include "server/dummy.h"
@@ -23,6 +24,30 @@
 
 namespace bm {
 
+/*
+b2Shape* LoadShape(SettingsManager* settings, const std::string& prefix) {
+  std::string shape_type = settings.GetString(prefix + ".type");
+  if (shape_type == "circle") {
+    float radius = settings.GetFloat(prefix + ".radius");
+    b2CircleShape* shape = new b2CircleShape();
+    CHECK(shape != NULL);
+    shape->m_radius = radius;
+    return shape;
+  } else if (shape_type == "square") {
+    float side = settings.GetFloat(prefix + ".side");
+    Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
+    CHECK(shape != NULL);
+    return shape;
+  }
+  THROW_ERROR("Unknown shape type.");
+  return NULL;
+}
+*/
+
+// !FIXME: move it.
+b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic);
+b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic);
+
 class Entity;
 class IdManager;
 
@@ -31,6 +56,7 @@ class WorldManager {
   WorldManager(IdManager* id_manager);
   ~WorldManager();
 
+  b2World* GetWorld();
   SettingsManager* GetSettings();
 
   bool LoadMap(const std::string& file);
@@ -45,25 +71,25 @@ class WorldManager {
   void GetDestroyedEntities(std::vector<uint32_t>* output);
 
   void UpdateEntities(int64_t time);
-  void CollideEntities();
+  void StepPhysics(int64_t time_delta);
   void DestroyOutlyingEntities();
 
   bool CreateBullet(
     uint32_t owner_id,
-    const Vector2f& start,
-    const Vector2f& end,
+    const b2Vec2& start,
+    const b2Vec2& end,
     int64_t time);
 
   bool CreateDummy(
-    const Vector2f& position,
+    const b2Vec2& position,
     int64_t time);
 
   bool CreateWall(
-    const Vector2f& position,
+    const b2Vec2& position,
     Wall::Type type);
 
   bool CreateStation(
-    const Vector2f& position,
+    const b2Vec2& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
@@ -73,14 +99,11 @@ class WorldManager {
   bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const Vector2f& location);
-  bool Morph(const Vector2f& location);
+  bool Blow(const b2Vec2& location);
+  bool Morph(const b2Vec2& location);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
-  Vector2f GetRandomSpawn() const;
-
-  // XXX(xairy): in WorldManager?
-  Shape* LoadShape(const std::string& settings_prefix);
+  b2Vec2 GetRandomSpawn() const;
 
  private:
   bool _LoadWall(const pugi::xml_node& node);
@@ -94,10 +117,12 @@ class WorldManager {
   // Works only with grid map.
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
 
+  b2World world_;
+
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 
-  std::vector<Vector2f> _spawn_positions;
+  std::vector<b2Vec2> _spawn_positions;
 
   enum {
     MAP_NONE,

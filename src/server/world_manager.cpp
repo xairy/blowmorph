@@ -11,6 +11,8 @@
 
 #include <pugixml.hpp>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -18,8 +20,6 @@
 
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/vector.h"
-#include "server/shape.h"
 
 #include "server/bullet.h"
 #include "server/dummy.h"
@@ -50,8 +50,52 @@ size_t Random(size_t max) {
 
 namespace bm {
 
+// !FIXME: move it.
+b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic) {
+  CHECK(world != NULL);
+
+  b2BodyDef body_def;
+  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
+  body_def.position.Set(position.x, position.y); // !FIXME: scale.
+  body_def.fixedRotation = true;
+  b2Body* body = world->CreateBody(&body_def);
+  CHECK(body != NULL);
+
+  b2PolygonShape shape;
+  shape.SetAsBox(extent.x, extent.y);
+  b2FixtureDef fixture_def;
+  fixture_def.shape = &shape;
+  fixture_def.density = 1.0f;
+  fixture_def.friction = 0.0f;
+  body->CreateFixture(&fixture_def);
+
+  return body;
+}
+
+// !FIXME: move it.
+b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic) {
+  CHECK(world != NULL);
+
+  b2BodyDef body_def;
+  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
+  body_def.position.Set(position.x, position.y); // !FIXME: scale.
+  body_def.fixedRotation = true;
+  b2Body* body = world->CreateBody(&body_def);
+  CHECK(body != NULL);
+
+  b2CircleShape shape;
+  shape.m_radius = radius;
+  b2FixtureDef fixture_def;
+  fixture_def.shape = &shape;
+  fixture_def.density = 1.0f;
+  fixture_def.friction = 0.0f;
+  body->CreateFixture(&fixture_def);
+
+  return body;
+}
+
 WorldManager::WorldManager(IdManager* id_manager)
-    : _map_type(MAP_NONE), _id_manager(id_manager) {
+    : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
   bool rv = _settings.Open("data/entities.cfg");
   CHECK(rv == true); // FIXME.
 }
@@ -66,6 +110,10 @@ WorldManager::~WorldManager() {
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     delete i->second;
   }
+}
+
+b2World* WorldManager::GetWorld() {
+  return &world_;
 }
 
 SettingsManager* WorldManager::GetSettings() {
@@ -179,20 +227,11 @@ void WorldManager::UpdateEntities(int64_t time) {
   }
 }
 
-void WorldManager::CollideEntities() {
-  std::map<uint32_t, Entity*>::iterator s, d, s_end, d_end;
-  d_end = _dynamic_entities.end();
-  s_end = _static_entities.end();
-  for (d = _dynamic_entities.begin(); d != d_end; ++d) {
-    s = d;
-    ++s;
-    for (; s != d_end; ++s) {
-      d->second->Collide(s->second);
-    }
-    for (s = _static_entities.begin(); s != s_end; ++s) {
-      d->second->Collide(s->second);
-    }
-  }
+void WorldManager::StepPhysics(int64_t time_delta) {
+  int32_t velocity_iterations = 6;
+  int32_t position_iterations = 2;
+  world_.Step(static_cast<float>(time_delta),
+      velocity_iterations, position_iterations);
 }
 
 void WorldManager::DestroyOutlyingEntities() {
@@ -200,7 +239,7 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _static_entities.end();
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2f position = entity->GetPosition();
+    b2Vec2 position = entity->GetPosition();
     if (abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
@@ -208,7 +247,7 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2f position = entity->GetPosition();
+    b2Vec2 position = entity->GetPosition();
     if (abs(position.x) > _bound || abs(position.y) > _bound) {
       if (entity->GetType() != "Player") {
         entity->Destroy();
@@ -219,8 +258,8 @@ void WorldManager::DestroyOutlyingEntities() {
 
 bool WorldManager::CreateBullet(
   uint32_t owner_id,
-  const Vector2f& start,
-  const Vector2f& end,
+  const b2Vec2& start,
+  const b2Vec2& end,
   int64_t time
 ) {
   CHECK(_static_entities.count(owner_id) +
@@ -235,7 +274,7 @@ bool WorldManager::CreateBullet(
 }
 
 bool WorldManager::CreateDummy(
-  const Vector2f& position,
+  const b2Vec2& position,
   int64_t time
 ) {
   uint32_t id = _id_manager->NewId();
@@ -248,7 +287,7 @@ bool WorldManager::CreateDummy(
 }
 
 bool WorldManager::CreateWall(
-  const Vector2f& position,
+  const b2Vec2& position,
   Wall::Type type
 ) {
   uint32_t id = _id_manager->NewId();
@@ -261,7 +300,7 @@ bool WorldManager::CreateWall(
 }
 
 bool WorldManager::CreateStation(
-  const Vector2f& position,
+  const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
@@ -289,7 +328,7 @@ bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
 bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
 
-  return CreateWall(Vector2f(x * _block_size, y * _block_size), type);
+  return CreateWall(b2Vec2(x * _block_size, y * _block_size), type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {
@@ -421,7 +460,7 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   } else {
     float x = x_attr.as_float();
     float y = y_attr.as_float();
-    _spawn_positions.push_back(Vector2f(x, y));
+    _spawn_positions.push_back(b2Vec2(x, y));
   }
 
   return true;
@@ -451,7 +490,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     if (rv == false) {
       return false;
     }
-    rv = CreateStation(Vector2f(x, y), hr, br, mr, type);
+    rv = CreateStation(b2Vec2(x, y), hr, br, mr, type);
     if (rv == false) {
       return false;
     }
@@ -494,7 +533,8 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::Blow(const Vector2f& location) {
+bool WorldManager::Blow(const b2Vec2& location) {
+/*
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
@@ -515,11 +555,12 @@ bool WorldManager::Blow(const Vector2f& location) {
       entity->Damage(damage);
     }
   }
-
+*/
+  // !FIXME: explosion.
   return true;
 }
 
-bool WorldManager::Morph(const Vector2f& location) {
+bool WorldManager::Morph(const b2Vec2& location) {
   int radius = _settings.GetInt32("player.morph.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
@@ -536,36 +577,12 @@ bool WorldManager::Morph(const Vector2f& location) {
   return true;
 }
 
-Vector2f WorldManager::GetRandomSpawn() const {
+b2Vec2 WorldManager::GetRandomSpawn() const {
   CHECK(_spawn_positions.size() > 0);
 
   size_t spawn_count = _spawn_positions.size();
   size_t spawn = Random(spawn_count);
   return _spawn_positions[spawn];
-}
-
-Shape* WorldManager::LoadShape(const std::string& prefix) {
-  std::string shape_type = _settings.GetString(prefix + ".type");
-  if (shape_type == "circle") {
-    float radius = _settings.GetFloat(prefix + ".radius");
-    Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
-    CHECK(shape != NULL);
-    return shape;
-  } else if (shape_type == "rectangle") {
-    float width = _settings.GetFloat(prefix + ".width");
-    float height = _settings.GetFloat(prefix + ".height");
-    Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
-    CHECK(shape != NULL);
-    return shape;
-  } else if (shape_type == "square") {
-
-    float side = _settings.GetFloat(prefix + ".side");
-    Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
-    CHECK(shape != NULL);
-    return shape;
-  }
-  THROW_ERROR("Unknown shape type.");
-  return NULL;
 }
 
 }  // namespace bm
