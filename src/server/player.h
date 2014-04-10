@@ -5,12 +5,13 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
@@ -33,11 +34,10 @@ class Player : public Entity {
   };
 
  public:
-  // XXX(xairy): create Shape in WorldManager? What to do with bullet creation?
   static Player* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position);
+    const b2Vec2& position);
   virtual ~Player();
 
   virtual std::string GetType();
@@ -50,8 +50,6 @@ class Player : public Entity {
   virtual void OnEntityDisappearance(Entity* entity);
 
   virtual void Damage(int damage);
-
-  virtual void SetPosition(const Vector2f& position);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
   bool OnMouseEvent(const MouseEvent& event, int64_t time);
@@ -101,8 +99,6 @@ class Player : public Entity {
 
  protected:
   Player(WorldManager* world_manager, uint32_t id);
-
-  Vector2f _prev_position;  // Before the last 'Update'.
 
   float _speed;  // In vertical and horizontal directions.
 

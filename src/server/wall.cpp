@@ -5,14 +5,14 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -20,22 +20,18 @@ namespace bm {
 Wall* Wall::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2f& position,
+  const b2Vec2& position,
   Type type
 ) {
-  std::auto_ptr<Wall> wall(new Wall(world_manager, id));
-  CHECK(wall.get() != NULL);
+  Wall* wall = new Wall(world_manager, id);
+  CHECK(wall != NULL);
 
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("wall.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
+  // !FIXME: cfg.
+  wall->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false);
 
-  wall->_shape = shape.release();
   wall->_type = type;
 
-  return wall.release();
+  return wall;
 }
 
 Wall::~Wall() { }
@@ -53,8 +49,8 @@ void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_WALL;
   output->time = time;
   output->id = _id;
-  output->x = _shape->GetPosition().x;
-  output->y = _shape->GetPosition().y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
   if (_type == TYPE_ORDINARY) {
     output->data[0] = EntitySnapshot::WALL_TYPE_ORDINARY;
   } else if (_type == TYPE_UNBREAKABLE) {
@@ -66,10 +62,8 @@ void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
   }
 }
 
-void Wall::OnEntityAppearance(Entity* entity) {
-}
-void Wall::OnEntityDisappearance(Entity* entity) {
-}
+void Wall::OnEntityAppearance(Entity* entity) { }
+void Wall::OnEntityDisappearance(Entity* entity) { }
 
 void Wall::Damage(int damage) {
   if (_type != TYPE_UNBREAKABLE) {

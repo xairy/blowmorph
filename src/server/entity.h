@@ -5,12 +5,11 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-
-#include "server/vector.h"
-#include "server/shape.h"
 
 namespace bm {
 
@@ -41,11 +40,8 @@ class Entity {
 
   virtual uint32_t GetId() const;
 
-  virtual Shape* GetShape();
-  virtual void SetShape(Shape* shape);
-
-  virtual Vector2f GetPosition() const;
-  virtual void SetPosition(const Vector2f& position);
+  virtual b2Vec2 GetPosition() const;
+  virtual void SetPosition(const b2Vec2& position);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;
@@ -87,7 +83,7 @@ class Entity {
   WorldManager* _world_manager;
 
   uint32_t _id;
-  Shape* _shape;
+  b2Body* body_;
 
   bool _is_destroyed;
   bool _is_updated;

@@ -24,8 +24,6 @@
 #include "server/client_manager.h"
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 #include "server/bullet.h"
@@ -187,14 +185,15 @@ bool Server::UpdateWorld() {
   if (counter == 300) {
     float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
     float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    world_manager_.CreateDummy(Vector2f(x, y), Timestamp());
+    world_manager_.CreateDummy(b2Vec2(x, y), Timestamp());
     counter = 0;
   }
   counter++;
 
   world_manager_.UpdateEntities(Timestamp());
 
-  world_manager_.CollideEntities();
+  // !FIXME: time delta.
+  world_manager_.StepPhysics(10);
 
   world_manager_.DestroyOutlyingEntities();
 
@@ -409,7 +408,7 @@ bool Server::OnLogin(uint32_t client_id) {
   Player* player = Player::Create(
     &world_manager_,
     client_id,
-    Vector2f(0.0f, 0.0f));
+    b2Vec2(0.0f, 0.0f));
   if (player == NULL) {
     THROW_ERROR("Unable to create player!");
     return false;

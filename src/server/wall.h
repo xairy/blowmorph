@@ -5,12 +5,13 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
@@ -27,7 +28,7 @@ class Wall : public Entity {
   static Wall* Create(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position,
+    const b2Vec2& position,
     Type type);
   virtual ~Wall();
 

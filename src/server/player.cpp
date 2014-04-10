@@ -5,14 +5,14 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -20,7 +20,7 @@ namespace bm {
 Player* Player::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2f& position
+  const b2Vec2& position
 ) {
   SettingsManager* _settings = world_manager->GetSettings();
 
@@ -37,17 +37,12 @@ Player* Player::Create(
   int morph_consumption = _settings->GetInt32("player.morph.consumption");
   int morph_regeneration = _settings->GetInt32("player.morph.regeneration");
 
-  std::auto_ptr<Player> player(new Player(world_manager, id));
-  CHECK(player.get() != NULL);
+  Player* player = new Player(world_manager, id);
+  CHECK(player != NULL);
 
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("player.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
+  // !FIXME: cfg.
+  player->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), true);
 
-  player->_shape = shape.release();
-  player->_prev_position = position;
   player->_speed = speed;
   player->_last_update_time = 0;
 
@@ -74,7 +69,7 @@ Player* Player::Create(
   player->_keyboard_update_time.right = 0;
   player->_keyboard_update_time.left = 0;
 
-  return player.release();
+  return player;
 }
 Player::~Player() { }
 
@@ -86,17 +81,15 @@ bool Player::IsStatic() {
 }
 
 void Player::Update(int64_t time) {
-  int64_t delta_time = time - _last_update_time;
-  _last_update_time = time;
-
-  _prev_position = _shape->GetPosition();
-  Vector2f velocity;
+  b2Vec2 velocity;
   velocity.x = _keyboard_state.left * (-_speed)
     + _keyboard_state.right * (_speed);
   velocity.y = _keyboard_state.up * (-_speed)
     + _keyboard_state.down * (_speed);
-  _shape->Move(velocity * static_cast<float>(delta_time));
+  body_->SetLinearVelocity(velocity);
 
+  // !FIXME: regeneration.
+  /*
   // FIXME(alex): casts to int?
   _health += static_cast<int>(delta_time * _health_regeneration);
   if (_health > _max_health) {
@@ -110,14 +103,15 @@ void Player::Update(int64_t time) {
   if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
+  */
 }
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;
   output->time = time;
   output->id = _id;
-  output->x = _prev_position.x;
-  output->y = _prev_position.y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
   output->data[0] = _health;
   output->data[1] = _blow_charge;
   output->data[2] = _morph_charge;
@@ -134,11 +128,6 @@ void Player::Damage(int damage) {
     _health = _max_health;
     Respawn();
   }
-}
-
-void Player::SetPosition(const Vector2f& position) {
-  _prev_position = position;
-  _shape->SetPosition(position);
 }
 
 void Player::OnKeyboardEvent(const KeyboardEvent& event) {
@@ -223,8 +212,8 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
     event.button_type == MouseEvent::BUTTON_LEFT) {
     if (_blow_charge >= _blow_consumption) {
       _blow_charge -= _blow_consumption;
-      Vector2f start = GetPosition();
-      Vector2f end(static_cast<float>(event.x), static_cast<float>(event.y));
+      b2Vec2 start = GetPosition();
+      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       if (_world_manager->CreateBullet(_id, start, end, time) == false) {
         return false;
       }
@@ -236,7 +225,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
       _morph_charge -= _morph_consumption;
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
-      if (_world_manager->Morph(Vector2f(x, y)) == false) {
+      if (_world_manager->Morph(b2Vec2(x, y)) == false) {
         return false;
       }
     }
@@ -245,7 +234,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
 }
 
 void Player::Respawn() {
-  Vector2f spawn_position = _world_manager->GetRandomSpawn();
+  b2Vec2 spawn_position = _world_manager->GetRandomSpawn();
   SetPosition(spawn_position);
 }
 

@@ -185,6 +185,12 @@ solution "blowmorph"
     configuration "linux"
       links { "pugixml" }
 
+    -- Box2D
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "Box2D" }
+
   project "base"
     kind "SharedLib"
     language "C++"

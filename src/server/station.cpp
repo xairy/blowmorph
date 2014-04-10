@@ -5,13 +5,13 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -19,28 +19,24 @@ namespace bm {
 Station* Station::Create(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2f& position,
+  const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
   Type type
 ) {
-  std::auto_ptr<Station> station(new Station(world_manager, id));
-  CHECK(station.get() != NULL);
+  Station* station = new Station(world_manager, id);
+  CHECK(station != NULL);
 
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("station.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
+  // !FIXME: cfg.
+  station->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false);
 
-  station->_shape = shape.release();
   station->_health_regeneration = health_regeneration;
   station->_blow_regeneration = blow_regeneration;
   station->_morph_regeneration = morph_regeneration;
   station->_type = type;
 
-  return station.release();
+  return station;
 }
 
 Station::~Station() { }
@@ -58,8 +54,8 @@ void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_STATION;
   output->time = time;
   output->id = _id;
-  output->x = _shape->GetPosition().x;
-  output->y = _shape->GetPosition().y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
   if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::STATION_TYPE_HEALTH;
   } else if (_type == TYPE_BLOW) {
@@ -73,10 +69,8 @@ void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   }
 }
 
-void Station::OnEntityAppearance(Entity* entity) {
-}
-void Station::OnEntityDisappearance(Entity* entity) {
-}
+void Station::OnEntityAppearance(Entity* entity) { }
+void Station::OnEntityDisappearance(Entity* entity) { }
 
 void Station::Damage(int damage) { }
 
