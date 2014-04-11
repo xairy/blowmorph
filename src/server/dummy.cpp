@@ -13,6 +13,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/box2d_utils.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -29,9 +30,12 @@ Dummy* Dummy::Create(
   Dummy* dummy = new Dummy(world_manager, id);
   CHECK(dummy != NULL);
 
-  // !FIXME: load from cfg.
-  dummy->body_ = CreateCircle(world_manager->GetWorld(), position, 5.0f, true, dummy);
+  b2World* world = world_manager->GetWorld();
+  b2Body* body = CreateBody(world, settings, "dummy.shape", true);
+  SetBodyPosition(body, position);
+  body->SetUserData(dummy);
 
+  dummy->body_ = body;
   dummy->_speed = speed;
   dummy->_meat = NULL;
 
