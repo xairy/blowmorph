@@ -29,7 +29,7 @@ Station* Station::Create(
   CHECK(station != NULL);
 
   // !FIXME: cfg.
-  station->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false);
+  station->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false, station);
 
   station->_health_regeneration = health_regeneration;
   station->_blow_regeneration = blow_regeneration;
@@ -76,24 +76,24 @@ void Station::Damage(int damage) { }
 
 // Double dispatch. Collision detection.
 
-bool Station::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Station::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Station::Collide(Player* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Player* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Dummy* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Dummy* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Wall* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Wall* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Station::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
 Station::Station(WorldManager* world_manager, uint32_t id)

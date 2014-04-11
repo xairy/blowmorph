@@ -51,33 +51,33 @@ class Entity {
 
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity) = 0;
+  virtual void Collide(Entity* entity) = 0;
 
-  virtual bool Collide(Player* other) = 0;
-  virtual bool Collide(Dummy* other) = 0;
-  virtual bool Collide(Bullet* other) = 0;
-  virtual bool Collide(Wall* other) = 0;
-  virtual bool Collide(Station* other) = 0;
+  virtual void Collide(Player* other) = 0;
+  virtual void Collide(Dummy* other) = 0;
+  virtual void Collide(Bullet* other) = 0;
+  virtual void Collide(Wall* other) = 0;
+  virtual void Collide(Station* other) = 0;
 
-  static bool Collide(Station* station1, Station* station2);
-  static bool Collide(Station* station, Wall* wall);
-  static bool Collide(Station* station, Player* player);
-  static bool Collide(Station* station, Dummy* dummy);
-  static bool Collide(Station* station, Bullet* bullet);
+  static void Collide(Station* station1, Station* station2);
+  static void Collide(Station* station, Wall* wall);
+  static void Collide(Station* station, Player* player);
+  static void Collide(Station* station, Dummy* dummy);
+  static void Collide(Station* station, Bullet* bullet);
 
-  static bool Collide(Wall* wall1, Wall* wall2);
-  static bool Collide(Wall* wall, Player* player);
-  static bool Collide(Wall* wall, Dummy* dummy);
-  static bool Collide(Wall* wall, Bullet* bullet);
+  static void Collide(Wall* wall1, Wall* wall2);
+  static void Collide(Wall* wall, Player* player);
+  static void Collide(Wall* wall, Dummy* dummy);
+  static void Collide(Wall* wall, Bullet* bullet);
 
-  static bool Collide(Player* player1, Player* player2);
-  static bool Collide(Player* player, Dummy* dummy);
-  static bool Collide(Player* player, Bullet* bullet);
+  static void Collide(Player* player1, Player* player2);
+  static void Collide(Player* player, Dummy* dummy);
+  static void Collide(Player* player, Bullet* bullet);
 
-  static bool Collide(Dummy* dummy1, Dummy* dummy2);
-  static bool Collide(Dummy* dummy, Bullet* bullet);
+  static void Collide(Dummy* dummy1, Dummy* dummy2);
+  static void Collide(Dummy* dummy, Bullet* bullet);
 
-  static bool Collide(Bullet* bullet1, Bullet* bullet2);
+  static void Collide(Bullet* bullet1, Bullet* bullet2);
 
  protected:
   WorldManager* _world_manager;

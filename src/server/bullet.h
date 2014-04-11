@@ -43,13 +43,13 @@ class Bullet : public Entity {
 
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity);
+  virtual void Collide(Entity* entity);
 
-  virtual bool Collide(Player* other);
-  virtual bool Collide(Dummy* other);
-  virtual bool Collide(Bullet* other);
-  virtual bool Collide(Wall* other);
-  virtual bool Collide(Station* other);
+  virtual void Collide(Player* other);
+  virtual void Collide(Dummy* other);
+  virtual void Collide(Bullet* other);
+  virtual void Collide(Wall* other);
+  virtual void Collide(Station* other);
 
  protected:
   Bullet(WorldManager* world_manager, uint32_t id);

@@ -30,7 +30,7 @@ Dummy* Dummy::Create(
   CHECK(dummy != NULL);
 
   // !FIXME: load from cfg.
-  dummy->body_ = CreateCircle(world_manager->GetWorld(), position, 5.0f, true);
+  dummy->body_ = CreateCircle(world_manager->GetWorld(), position, 5.0f, true, dummy);
 
   dummy->_speed = speed;
   dummy->_meat = NULL;
@@ -89,24 +89,24 @@ void Dummy::Damage(int damage) {
   Destroy();
 }
 
-bool Dummy::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Dummy::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Dummy::Collide(Player* other) {
-  return Entity::Collide(other, this);
+void Dummy::Collide(Player* other) {
+  Entity::Collide(other, this);
 }
-bool Dummy::Collide(Dummy* other) {
-  return Entity::Collide(other, this);
+void Dummy::Collide(Dummy* other) {
+  Entity::Collide(other, this);
 }
-bool Dummy::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Dummy::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Dummy::Collide(Wall* other) {
-  return Entity::Collide(other, this);
+void Dummy::Collide(Wall* other) {
+  Entity::Collide(other, this);
 }
-bool Dummy::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Dummy::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
 Dummy::Dummy(WorldManager* world_manager, uint32_t id)

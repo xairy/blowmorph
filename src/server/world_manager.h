@@ -14,6 +14,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/contact_listener.h"
 #include "server/entity.h"
 
 #include "server/bullet.h"
@@ -45,8 +46,8 @@ b2Shape* LoadShape(SettingsManager* settings, const std::string& prefix) {
 */
 
 // !FIXME: move it.
-b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic);
-b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic);
+b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic, void* user_data);
+b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic, void* user_data);
 
 class Entity;
 class IdManager;
@@ -99,8 +100,8 @@ class WorldManager {
   bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const b2Vec2& location);
-  bool Morph(const b2Vec2& location);
+  void Blow(const b2Vec2& location);
+  void Morph(const b2Vec2& location);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
   b2Vec2 GetRandomSpawn() const;
@@ -118,12 +119,14 @@ class WorldManager {
   bool _CreateAlignedWall(int x, int y, Wall::Type type);
 
   b2World world_;
+  ContactListener contact_listener_;
 
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 
   std::vector<b2Vec2> _spawn_positions;
 
+  // TODO(xairy): get rid of it.
   enum {
     MAP_NONE,
     MAP_GRID
