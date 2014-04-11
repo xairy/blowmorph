@@ -13,6 +13,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/box2d_utils.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -22,26 +23,30 @@ Player* Player::Create(
   uint32_t id,
   const b2Vec2& position
 ) {
-  SettingsManager* _settings = world_manager->GetSettings();
+  SettingsManager* settings = world_manager->GetSettings();
 
-  float speed = _settings->GetFloat("player.speed");
+  float speed = settings->GetFloat("player.speed");
 
-  int max_health = _settings->GetInt32("player.max_health");
-  int health_regeneration = _settings->GetInt32("player.health_regeneration");
+  int max_health = settings->GetInt32("player.max_health");
+  int health_regeneration = settings->GetInt32("player.health_regeneration");
 
-  int blow_capacity = _settings->GetInt32("player.blow.capacity");
-  int blow_consumption = _settings->GetInt32("player.blow.consumption");
-  int blow_regeneration = _settings->GetInt32("player.blow.regeneration");
+  int blow_capacity = settings->GetInt32("player.blow.capacity");
+  int blow_consumption = settings->GetInt32("player.blow.consumption");
+  int blow_regeneration = settings->GetInt32("player.blow.regeneration");
 
-  int morph_capacity = _settings->GetInt32("player.morph.capacity");
-  int morph_consumption = _settings->GetInt32("player.morph.consumption");
-  int morph_regeneration = _settings->GetInt32("player.morph.regeneration");
+  int morph_capacity = settings->GetInt32("player.morph.capacity");
+  int morph_consumption = settings->GetInt32("player.morph.consumption");
+  int morph_regeneration = settings->GetInt32("player.morph.regeneration");
 
   Player* player = new Player(world_manager, id);
   CHECK(player != NULL);
 
-  // !FIXME: cfg.
-  player->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), true, player);
+  b2World* world = world_manager->GetWorld();
+  b2Body* body = CreateBody(world, settings, "player.shape", true);
+  SetBodyPosition(body, position);
+  body->SetUserData(player);
+
+  player->body_ = body;
 
   player->_speed = speed;
   player->_last_update_time = 0;

@@ -12,6 +12,7 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
+#include "server/box2d_utils.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -25,12 +26,17 @@ Station* Station::Create(
   int morph_regeneration,
   Type type
 ) {
+  SettingsManager* settings = world_manager->GetSettings();
+
   Station* station = new Station(world_manager, id);
   CHECK(station != NULL);
 
-  // !FIXME: cfg.
-  station->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false, station);
+  b2World* world = world_manager->GetWorld();
+  b2Body* body = CreateBody(world, settings, "station.shape", false);
+  SetBodyPosition(body, position);
+  body->SetUserData(station);
 
+  station->body_ = body;
   station->_health_regeneration = health_regeneration;
   station->_blow_regeneration = blow_regeneration;
   station->_morph_regeneration = morph_regeneration;

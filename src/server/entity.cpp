@@ -15,6 +15,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/box2d_utils.h"
 #include "server/id_manager.h"
 #include "server/world_manager.h"
 
@@ -48,7 +49,7 @@ b2Vec2 Entity::GetPosition() const {
   return body_->GetPosition();
 }
 void Entity::SetPosition(const b2Vec2& position) {
-  body_->SetTransform(position, body_->GetAngle());
+  SetBodyPosition(body_, position);
 }
 
 void Entity::Destroy() {

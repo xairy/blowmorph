@@ -25,30 +25,6 @@
 
 namespace bm {
 
-/*
-b2Shape* LoadShape(SettingsManager* settings, const std::string& prefix) {
-  std::string shape_type = settings.GetString(prefix + ".type");
-  if (shape_type == "circle") {
-    float radius = settings.GetFloat(prefix + ".radius");
-    b2CircleShape* shape = new b2CircleShape();
-    CHECK(shape != NULL);
-    shape->m_radius = radius;
-    return shape;
-  } else if (shape_type == "square") {
-    float side = settings.GetFloat(prefix + ".side");
-    Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
-    CHECK(shape != NULL);
-    return shape;
-  }
-  THROW_ERROR("Unknown shape type.");
-  return NULL;
-}
-*/
-
-// !FIXME: move it.
-b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic, void* user_data);
-b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic, void* user_data);
-
 class Entity;
 class IdManager;
 

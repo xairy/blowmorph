@@ -13,6 +13,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/box2d_utils.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -31,13 +32,17 @@ Bullet* Bullet::Create(
   Bullet* bullet = new Bullet(world_manager, id);
   CHECK(bullet != NULL);
 
-  // !FIXME: load radius from cfg.
-  bullet->body_ = CreateCircle(world_manager->GetWorld(), start, 5.0, true, bullet);
+  b2World* world = world_manager->GetWorld();
+  b2Body* body = CreateBody(world, settings, "bullet.shape", true);
+  SetBodyPosition(body, start);
+  body->SetUserData(bullet);
+
   b2Vec2 velocity = end - start;
   velocity.Normalize();
   velocity *= speed;
-  bullet->body_->SetLinearVelocity(velocity);
+  body->SetLinearVelocity(velocity);
 
+  bullet->body_ = body;
   bullet->_owner_id = owner_id;
 
   return bullet;

@@ -13,6 +13,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/box2d_utils.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -23,12 +24,17 @@ Wall* Wall::Create(
   const b2Vec2& position,
   Type type
 ) {
+  SettingsManager* settings = world_manager->GetSettings();
+
   Wall* wall = new Wall(world_manager, id);
   CHECK(wall != NULL);
 
-  // !FIXME: cfg.
-  wall->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false, wall);
+  b2World* world = world_manager->GetWorld();
+  b2Body* body = CreateBody(world, settings, "wall.shape", false);
+  SetBodyPosition(body, position);
+  body->SetUserData(wall);
 
+  wall->body_ = body;
   wall->_type = type;
 
   return wall;

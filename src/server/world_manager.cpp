@@ -50,52 +50,6 @@ size_t Random(size_t max) {
 
 namespace bm {
 
-// !FIXME: move it.
-b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic, void* user_data) {
-  CHECK(world != NULL);
-
-  b2BodyDef body_def;
-  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
-  body_def.position.Set(position.x, position.y); // !FIXME: scale.
-  body_def.fixedRotation = true;
-  b2Body* body = world->CreateBody(&body_def);
-  CHECK(body != NULL);
-  body->SetUserData(user_data);
-
-  b2PolygonShape shape;
-  shape.SetAsBox(extent.x, extent.y);
-  b2FixtureDef fixture_def;
-  fixture_def.shape = &shape;
-  fixture_def.density = 1.0f;
-  fixture_def.friction = 0.0f;
-  body->CreateFixture(&fixture_def);
-
-  return body;
-}
-
-// !FIXME: move it.
-b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic, void* user_data) {
-  CHECK(world != NULL);
-
-  b2BodyDef body_def;
-  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
-  body_def.position.Set(position.x, position.y); // !FIXME: scale.
-  body_def.fixedRotation = true;
-  b2Body* body = world->CreateBody(&body_def);
-  CHECK(body != NULL);
-  body->SetUserData(user_data);
-
-  b2CircleShape shape;
-  shape.m_radius = radius;
-  b2FixtureDef fixture_def;
-  fixture_def.shape = &shape;
-  fixture_def.density = 1.0f;
-  fixture_def.friction = 0.0f;
-  body->CreateFixture(&fixture_def);
-
-  return body;
-}
-
 WorldManager::WorldManager(IdManager* id_manager)
     : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
   world_.SetContactListener(&contact_listener_);
