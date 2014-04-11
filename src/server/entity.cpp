@@ -67,70 +67,55 @@ bool Entity::IsUpdated() const {
 
 // Double dispatch.
 
-// !FIXME: rv's.
-bool Entity::Collide(Station* station1, Station* station2) {
-  return false;
-}
-bool Entity::Collide(Station* station, Wall* wall) {
-  return false;
-}
-bool Entity::Collide(Station* station, Player* player) {
+void Entity::Collide(Station* station1, Station* station2) { }
+void Entity::Collide(Station* station, Wall* wall) { }
+
+void Entity::Collide(Station* station, Player* player) {
   player->RestoreHealth(station->_health_regeneration);
   player->RestoreBlow(station->_blow_regeneration);
   player->RestoreMorph(station->_morph_regeneration);
   station->Destroy();
-  return true;
 }
-bool Entity::Collide(Station* station, Dummy* dummy) {
-  return false;
-}
-bool Entity::Collide(Station* station, Bullet* bullet) {
-  return false;
-}
-bool Entity::Collide(Wall* wall1, Wall* wall2) {
-  return false;
-}
-bool Entity::Collide(Wall* wall, Player* player) {
-  return false;
-}
-bool Entity::Collide(Wall* wall, Dummy* dummy) {
-  return false;
-}
-bool Entity::Collide(Wall* wall, Bullet* bullet) {
+
+void Entity::Collide(Station* station, Dummy* dummy) { }
+void Entity::Collide(Station* station, Bullet* bullet) { }
+
+void Entity::Collide(Wall* wall1, Wall* wall2) { }
+void Entity::Collide(Wall* wall, Player* player) { }
+void Entity::Collide(Wall* wall, Dummy* dummy) { }
+
+void Entity::Collide(Wall* wall, Bullet* bullet) {
   bullet->Explode();
   wall->Damage(0);
-  return true;
 }
-bool Entity::Collide(Player* player1, Player* player2) {
-  return false;
-}
-bool Entity::Collide(Player* player, Dummy* dummy) {
+
+void Entity::Collide(Player* player1, Player* player2) { }
+
+void Entity::Collide(Player* player, Dummy* dummy) {
   SettingsManager* settings = dummy->_world_manager->GetSettings();
   int damage = settings->GetInt32("dummy.damage");
   player->Damage(damage);
   dummy->Damage(0);
-  return true;
 }
-bool Entity::Collide(Player* player, Bullet* bullet) {
+
+void Entity::Collide(Player* player, Bullet* bullet) {
   if (bullet->_owner_id == player->GetId()) {
-    return false;
+    return;
   }
   player->Damage(0);
   bullet->Explode();
-  return true;
 }
-bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
-  return false;
-}
-bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
+
+void Entity::Collide(Dummy* dummy1, Dummy* dummy2) { }
+
+void Entity::Collide(Dummy* dummy, Bullet* bullet) {
   bullet->Explode();
   dummy->Damage(0);
-  return true;
 }
-bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
+
+void Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
   bullet1->Explode();
   bullet2->Explode();
-  return true;
 }
 
 }  // namespace bm

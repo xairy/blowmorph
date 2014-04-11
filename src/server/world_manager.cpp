@@ -51,7 +51,7 @@ size_t Random(size_t max) {
 namespace bm {
 
 // !FIXME: move it.
-b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic) {
+b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic, void* user_data) {
   CHECK(world != NULL);
 
   b2BodyDef body_def;
@@ -60,6 +60,7 @@ b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic) 
   body_def.fixedRotation = true;
   b2Body* body = world->CreateBody(&body_def);
   CHECK(body != NULL);
+  body->SetUserData(user_data);
 
   b2PolygonShape shape;
   shape.SetAsBox(extent.x, extent.y);
@@ -73,7 +74,7 @@ b2Body* CreateBox(b2World* world, b2Vec2 position, b2Vec2 extent, bool dynamic) 
 }
 
 // !FIXME: move it.
-b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic) {
+b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic, void* user_data) {
   CHECK(world != NULL);
 
   b2BodyDef body_def;
@@ -82,6 +83,7 @@ b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic
   body_def.fixedRotation = true;
   b2Body* body = world->CreateBody(&body_def);
   CHECK(body != NULL);
+  body->SetUserData(user_data);
 
   b2CircleShape shape;
   shape.m_radius = radius;
@@ -96,6 +98,7 @@ b2Body* CreateCircle(b2World* world, b2Vec2 position, float radius, bool dynamic
 
 WorldManager::WorldManager(IdManager* id_manager)
     : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
+  world_.SetContactListener(&contact_listener_);
   bool rv = _settings.Open("data/entities.cfg");
   CHECK(rv == true); // FIXME.
 }
@@ -533,7 +536,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::Blow(const b2Vec2& location) {
+void WorldManager::Blow(const b2Vec2& location) {
 /*
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
@@ -557,10 +560,9 @@ bool WorldManager::Blow(const b2Vec2& location) {
   }
 */
   // !FIXME: explosion.
-  return true;
 }
 
-bool WorldManager::Morph(const b2Vec2& location) {
+void WorldManager::Morph(const b2Vec2& location) {
   int radius = _settings.GetInt32("player.morph.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
@@ -568,13 +570,10 @@ bool WorldManager::Morph(const b2Vec2& location) {
     for (int y = -radius; y <= radius; y++) {
       if (x * x + y * y <= radius * radius) {
         bool rv = _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
-        if (rv == false) {
-          return false;
-        }
+        CHECK(rv == true); // !FIXME.
       }
     }
   }
-  return true;
 }
 
 b2Vec2 WorldManager::GetRandomSpawn() const {

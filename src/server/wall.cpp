@@ -27,7 +27,7 @@ Wall* Wall::Create(
   CHECK(wall != NULL);
 
   // !FIXME: cfg.
-  wall->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false);
+  wall->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), false, wall);
 
   wall->_type = type;
 
@@ -73,24 +73,24 @@ void Wall::Damage(int damage) {
 
 // Double dispatch. Collision detection.
 
-bool Wall::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Wall::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Wall::Collide(Player* other) {
-  return Entity::Collide(this, other);
+void Wall::Collide(Player* other) {
+  Entity::Collide(this, other);
 }
-bool Wall::Collide(Dummy* other) {
-  return Entity::Collide(this, other);
+void Wall::Collide(Dummy* other) {
+  Entity::Collide(this, other);
 }
-bool Wall::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Wall::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Wall::Collide(Wall* other) {
-  return Entity::Collide(other, this);
+void Wall::Collide(Wall* other) {
+  Entity::Collide(other, this);
 }
-bool Wall::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Wall::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
 Wall::Wall(WorldManager* world_manager, uint32_t id)

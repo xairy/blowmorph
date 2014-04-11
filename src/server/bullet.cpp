@@ -32,7 +32,7 @@ Bullet* Bullet::Create(
   CHECK(bullet != NULL);
 
   // !FIXME: load radius from cfg.
-  bullet->body_ = CreateCircle(world_manager->GetWorld(), start, 5.0, true);
+  bullet->body_ = CreateCircle(world_manager->GetWorld(), start, 5.0, true, bullet);
   b2Vec2 velocity = end - start;
   velocity.Normalize();
   velocity *= speed;
@@ -62,10 +62,8 @@ void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->y = body_->GetPosition().y;
 }
 
-void Bullet::OnEntityAppearance(Entity* entity) {
-}
-void Bullet::OnEntityDisappearance(Entity* entity) {
-}
+void Bullet::OnEntityAppearance(Entity* entity) { }
+void Bullet::OnEntityDisappearance(Entity* entity) { }
 
 void Bullet::Damage(int damage) {
   Destroy();
@@ -73,33 +71,31 @@ void Bullet::Damage(int damage) {
 
 void Bullet::Explode() {
   if (!IsDestroyed()) {
-    bool rv = _world_manager->Blow(body_->GetPosition());
-    // TODO(xairy): handle error.
-    CHECK(rv == true);
+    _world_manager->Blow(body_->GetPosition());
     Destroy();
   }
 }
 
 // Double dispatch. Collision detection.
 
-bool Bullet::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Bullet::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Bullet::Collide(Player* other) {
-  return Entity::Collide(other, this);
+void Bullet::Collide(Player* other) {
+  Entity::Collide(other, this);
 }
-bool Bullet::Collide(Dummy* other) {
-  return Entity::Collide(other, this);
+void Bullet::Collide(Dummy* other) {
+  Entity::Collide(other, this);
 }
-bool Bullet::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Bullet::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Bullet::Collide(Wall* other) {
-  return Entity::Collide(other, this);
+void Bullet::Collide(Wall* other) {
+  Entity::Collide(other, this);
 }
-bool Bullet::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Bullet::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
 Bullet::Bullet(WorldManager* world_manager, uint32_t id)

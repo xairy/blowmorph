@@ -41,7 +41,7 @@ Player* Player::Create(
   CHECK(player != NULL);
 
   // !FIXME: cfg.
-  player->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), true);
+  player->body_ = CreateBox(world_manager->GetWorld(), position, b2Vec2(15.0f, 15.0f), true, player);
 
   player->_speed = speed;
   player->_last_update_time = 0;
@@ -88,8 +88,9 @@ void Player::Update(int64_t time) {
     + _keyboard_state.down * (_speed);
   body_->SetLinearVelocity(velocity);
 
-  // !FIXME: regeneration.
-  /*
+  int64_t delta_time = time - _last_update_time;
+  _last_update_time = time;
+
   // FIXME(alex): casts to int?
   _health += static_cast<int>(delta_time * _health_regeneration);
   if (_health > _max_health) {
@@ -103,7 +104,6 @@ void Player::Update(int64_t time) {
   if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
-  */
 }
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
@@ -225,9 +225,7 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
       _morph_charge -= _morph_consumption;
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
-      if (_world_manager->Morph(b2Vec2(x, y)) == false) {
-        return false;
-      }
+      _world_manager->Morph(b2Vec2(x, y));
     }
   }
   return true;
@@ -326,24 +324,24 @@ void Player::RestoreMorph(int value) {
   }
 }
 
-bool Player::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Player::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Player::Collide(Player* other) {
-  return Entity::Collide(other, this);
+void Player::Collide(Player* other) {
+  Entity::Collide(other, this);
 }
-bool Player::Collide(Dummy* other) {
-  return Entity::Collide(this, other);
+void Player::Collide(Dummy* other) {
+  Entity::Collide(this, other);
 }
-bool Player::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Player::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Player::Collide(Wall* other) {
-  return Entity::Collide(other, this);
+void Player::Collide(Wall* other) {
+  Entity::Collide(other, this);
 }
-bool Player::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Player::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
 Player::Player(WorldManager* world_manager, uint32_t id)
