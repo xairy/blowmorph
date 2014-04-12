@@ -192,8 +192,7 @@ bool Server::UpdateWorld() {
 
   world_manager_.UpdateEntities(Timestamp());
 
-  // !FIXME: time delta.
-  world_manager_.StepPhysics(10);
+  world_manager_.StepPhysics(update_timeout_);
 
   world_manager_.DestroyOutlyingEntities();
 
@@ -357,9 +356,7 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
-
       client->entity->OnKeyboardEvent(keyboardevent_);
-
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
@@ -370,7 +367,6 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
-
       client->entity->OnMouseEvent(mouseevent_, Timestamp());
     } break;
 

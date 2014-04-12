@@ -39,8 +39,7 @@ Entity::Entity(
 ) : _world_manager(world_manager),
     _id(id),
     _is_destroyed(false),
-    _is_updated(true)
-{
+    _is_updated(true) {
   SettingsManager* settings = world_manager->GetSettings();
   b2World* world = world_manager->GetWorld();
   body_ = CreateBody(world, settings, prefix + ".shape", dynamic);

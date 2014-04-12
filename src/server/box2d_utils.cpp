@@ -2,6 +2,8 @@
 
 #include "server/box2d_utils.h"
 
+#include <string>
+
 #include <Box2D/Box2D.h>
 
 #include "base/macros.h"
@@ -58,4 +60,4 @@ void SetCollisionFilter(b2Body* body, int16_t category, int16_t mask) {
   fixture->SetFilterData(filter);
 }
 
-}
+}  // namespace bm
