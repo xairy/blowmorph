@@ -46,8 +46,8 @@ Dummy* Dummy::Create(
 
 Dummy::~Dummy() { }
 
-std::string Dummy::GetType() {
-  return "Dummy";
+Entity::Type Dummy::GetType() {
+  return Entity::TYPE_DUMMY;
 }
 
 bool Dummy::IsStatic() {
@@ -72,7 +72,7 @@ void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
 }
 
 void Dummy::OnEntityAppearance(Entity* entity) {
-  if (entity->GetType() == "Player") {
+  if (entity->GetType() == Entity::TYPE_PLAYER) {
     if (_meat == NULL) {
       _meat = entity;
     } else {

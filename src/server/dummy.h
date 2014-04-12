@@ -26,7 +26,7 @@ class Dummy : public Entity {
     int64_t time);
   virtual ~Dummy();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
   virtual void Update(int64_t time);

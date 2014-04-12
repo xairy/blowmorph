@@ -43,8 +43,8 @@ Wall* Wall::Create(
 
 Wall::~Wall() { }
 
-std::string Wall::GetType() {
-  return "Wall";
+Entity::Type Wall::GetType() {
+  return Entity::TYPE_WALL;
 }
 bool Wall::IsStatic() {
   return true;

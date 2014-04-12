@@ -49,8 +49,8 @@ Station* Station::Create(
 
 Station::~Station() { }
 
-std::string Station::GetType() {
-  return "Station";
+Entity::Type Station::GetType() {
+  return Entity::TYPE_KIT;
 }
 bool Station::IsStatic() {
   return false;

@@ -23,12 +23,31 @@ class Station;
 
 class Entity {
  public:
+  // XXX(xairy): count Dummy as a Bullet?
+  enum Type {
+    TYPE_PLAYER,
+    TYPE_BULLET,
+    TYPE_WALL,
+    TYPE_KIT,
+    TYPE_DUMMY
+  };
+
+  // Collision filters.
+
+  static const int16_t FILTER_PLAYER = 1 << 1;
+  static const int16_t FILTER_BULLET = 1 << 2;
+  static const int16_t FILTER_WALL   = 1 << 3;
+  static const int16_t FILTER_KIT    = 1 << 4;
+
+  static const int16_t FILTER_ALL    = -1;  // !FIXME: -1 to int16_t.
+  static const int16_t FILTER_NONE   = 0;
+
+ public:
   Entity(WorldManager* world_manager, uint32_t id);
   virtual ~Entity();
 
-  // XXX(xairy): rename it to GetEntityType?
-  virtual std::string GetType() = 0;
-  virtual bool IsStatic() = 0;
+  virtual Type GetType() = 0;
+  virtual bool IsStatic() = 0;  // !FIXME: do we need IsStatic?
 
   virtual void Update(int64_t time) = 0;
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
@@ -48,16 +67,6 @@ class Entity {
 
   virtual void SetUpdatedFlag(bool value);
   virtual bool IsUpdated() const;
-
-  // Collision filters.
-
-  static const int16_t FILTER_PLAYER = 1 << 1;
-  static const int16_t FILTER_BULLET = 1 << 2;
-  static const int16_t FILTER_WALL   = 1 << 3;
-  static const int16_t FILTER_KIT    = 1 << 4;
-
-  static const int16_t FILTER_ALL    = -1;  // !FIXME.
-  static const int16_t FILTER_NONE   = 0;
 
   // Double dispatch. Collision handling.
 

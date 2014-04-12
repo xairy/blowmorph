@@ -72,9 +72,9 @@ void Entity::Collide(Station* station1, Station* station2) { }
 void Entity::Collide(Station* station, Wall* wall) { }
 
 void Entity::Collide(Station* station, Player* player) {
-  player->RestoreHealth(station->_health_regeneration);
-  player->RestoreBlow(station->_blow_regeneration);
-  player->RestoreMorph(station->_morph_regeneration);
+  player->AddHealth(station->_health_regeneration);
+  player->AddBlow(station->_blow_regeneration);
+  player->AddMorph(station->_morph_regeneration);
   station->Destroy();
 }
 

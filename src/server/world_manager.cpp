@@ -206,7 +206,7 @@ void WorldManager::DestroyOutlyingEntities() {
     Entity* entity = i->second;
     b2Vec2 position = entity->GetPosition();
     if (abs(position.x) > _bound || abs(position.y) > _bound) {
-      if (entity->GetType() != "Player") {
+      if (entity->GetType() != Entity::TYPE_PLAYER) {
         entity->Destroy();
       }
     }
@@ -530,9 +530,27 @@ void WorldManager::Morph(const b2Vec2& location) {
   }
 }
 
+void WorldManager::RespawnDeadPlayers() {
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _dynamic_entities.end();
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
+    Entity* entity = i->second;
+    if (entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* player = static_cast<Player*>(entity);
+      if (player->GetHealth() <= 0) {
+        RespawnPlayer(player);
+      }
+    }
+  }
+}
+
+void WorldManager::RespawnPlayer(Player* player) {
+  player->SetPosition(GetRandomSpawn());
+  player->RestoreHealth();
+}
+
 b2Vec2 WorldManager::GetRandomSpawn() const {
   CHECK(_spawn_positions.size() > 0);
-
   size_t spawn_count = _spawn_positions.size();
   size_t spawn = Random(spawn_count);
   return _spawn_positions[spawn];

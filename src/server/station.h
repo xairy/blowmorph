@@ -36,7 +36,7 @@ class Station : public Entity {
     Type type);
   virtual ~Station();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
   virtual void Update(int64_t time);
