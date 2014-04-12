@@ -54,7 +54,7 @@ WorldManager::WorldManager(IdManager* id_manager)
     : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
   world_.SetContactListener(&contact_listener_);
   bool rv = _settings.Open("data/entities.cfg");
-  CHECK(rv == true); // FIXME.
+  CHECK(rv == true);  // FIXME(xairy).
 }
 
 WorldManager::~WorldManager() {

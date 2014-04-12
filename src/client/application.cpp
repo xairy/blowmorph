@@ -581,7 +581,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
 
       if (snapshot.id == player_->id) {
         OnPlayerUpdate(&snapshot);
-        // break;
+        break;
       }
 
       if (objects_.count(snapshot.id) > 0 ||

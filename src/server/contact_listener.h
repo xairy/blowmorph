@@ -19,7 +19,7 @@ class ContactListener : public b2ContactListener {
         contact->GetFixtureA()->GetBody()->GetUserData());
     Entity* b = static_cast<Entity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
-    if (a->GetType() == Entity::TYPE_PLAYER && 
+    if (a->GetType() == Entity::TYPE_PLAYER &&
         b->GetType() == Entity::TYPE_BULLET) {
       Player* player = static_cast<Player*>(a);
       Bullet* bullet = static_cast<Bullet*>(b);
@@ -40,6 +40,6 @@ class ContactListener : public b2ContactListener {
   virtual void EndContact(b2Contact* contact) { }
 };
 
-}
+}  // namespace bm
 
 #endif  // SERVER_CONTACT_LISTENER_H_
