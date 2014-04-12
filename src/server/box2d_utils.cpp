@@ -49,4 +49,13 @@ void SetBodyPosition(b2Body* body, const b2Vec2& position) {
   body->SetTransform(position, body->GetAngle());
 }
 
+// XXX(xairy): works with only one fixture per body.
+void SetCollisionFilter(b2Body* body, int16_t category, int16_t mask) {
+  b2Fixture* fixture = body->GetFixtureList();
+  b2Filter filter;
+  filter.categoryBits = category;
+  filter.maskBits = mask;
+  fixture->SetFilterData(filter);
+}
+
 }

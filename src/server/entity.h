@@ -49,7 +49,17 @@ class Entity {
   virtual void SetUpdatedFlag(bool value);
   virtual bool IsUpdated() const;
 
-  // Double dispatch. Collision detection.
+  // Collision filters.
+
+  static const int16_t FILTER_PLAYER = 1 << 1;
+  static const int16_t FILTER_BULLET = 1 << 2;
+  static const int16_t FILTER_WALL   = 1 << 3;
+  static const int16_t FILTER_KIT    = 1 << 4;
+
+  static const int16_t FILTER_ALL    = -1;  // !FIXME.
+  static const int16_t FILTER_NONE   = 0;
+
+  // Double dispatch. Collision handling.
 
   virtual void Collide(Entity* entity) = 0;
 

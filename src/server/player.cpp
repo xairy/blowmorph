@@ -41,10 +41,12 @@ Player* Player::Create(
   Player* player = new Player(world_manager, id);
   CHECK(player != NULL);
 
+  // !FIXME: move to entity?
   b2World* world = world_manager->GetWorld();
   b2Body* body = CreateBody(world, settings, "player.shape", true);
   SetBodyPosition(body, position);
   body->SetUserData(player);
+  SetCollisionFilter(body, Entity::FILTER_PLAYER, Entity::FILTER_ALL);
 
   player->body_ = body;
 

@@ -36,6 +36,8 @@ Bullet* Bullet::Create(
   b2Body* body = CreateBody(world, settings, "bullet.shape", true);
   SetBodyPosition(body, start);
   body->SetUserData(bullet);
+  SetCollisionFilter(body, Entity::FILTER_BULLET,
+      Entity::FILTER_ALL & ~Entity::FILTER_KIT);
 
   b2Vec2 velocity = end - start;
   velocity.Normalize();

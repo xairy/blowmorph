@@ -14,6 +14,8 @@ b2Body* CreateBody(b2World* world, SettingsManager* settings,
 
 void SetBodyPosition(b2Body* body, const b2Vec2& position);
 
+void SetCollisionFilter(b2Body* body, int16_t category, int16_t mask);
+
 }
 
 #endif  // SERVER_BO2D_UTILS_H_
