@@ -18,36 +18,24 @@
 
 namespace bm {
 
-Bullet* Bullet::Create(
+Bullet::Bullet(
   WorldManager* world_manager,
   uint32_t id,
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
   int64_t time
-) {
+) : Entity(world_manager, id, "bullet", start, true,
+           Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetFloat("bullet.speed");
-
-  Bullet* bullet = new Bullet(world_manager, id);
-  CHECK(bullet != NULL);
-
-  b2World* world = world_manager->GetWorld();
-  b2Body* body = CreateBody(world, settings, "bullet.shape", true);
-  SetBodyPosition(body, start);
-  body->SetUserData(bullet);
-  SetCollisionFilter(body, Entity::FILTER_BULLET,
-      Entity::FILTER_ALL & ~Entity::FILTER_KIT);
 
   b2Vec2 velocity = end - start;
   velocity.Normalize();
   velocity *= speed;
-  body->SetLinearVelocity(velocity);
+  body_->SetLinearVelocity(velocity);
 
-  bullet->body_ = body;
-  bullet->_owner_id = owner_id;
-
-  return bullet;
+  _owner_id = owner_id;
 }
 
 Bullet::~Bullet() { }
@@ -108,8 +96,5 @@ void Bullet::Collide(Wall* other) {
 void Bullet::Collide(Station* other) {
   Entity::Collide(other, this);
 }
-
-Bullet::Bullet(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
 
 }  // namespace bm

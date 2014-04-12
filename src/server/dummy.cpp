@@ -18,30 +18,16 @@
 
 namespace bm {
 
-Dummy* Dummy::Create(
+Dummy::Dummy(
   WorldManager* world_manager,
   uint32_t id,
   const b2Vec2& position,
   int64_t time
-) {
+) : Entity(world_manager, id, "dummy", position, true,
+           Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetFloat("dummy.speed");
-
-  Dummy* dummy = new Dummy(world_manager, id);
-  CHECK(dummy != NULL);
-
-  b2World* world = world_manager->GetWorld();
-  b2Body* body = CreateBody(world, settings, "dummy.shape", true);
-  SetBodyPosition(body, position);
-  body->SetUserData(dummy);
-  SetCollisionFilter(body, Entity::FILTER_BULLET,
-      Entity::FILTER_ALL & ~Entity::FILTER_KIT);
-
-  dummy->body_ = body;
-  dummy->_speed = speed;
-  dummy->_meat = NULL;
-
-  return dummy;
+  _speed = settings->GetFloat("dummy.speed");
+  _meat = NULL;
 }
 
 Dummy::~Dummy() { }
@@ -114,8 +100,5 @@ void Dummy::Collide(Wall* other) {
 void Dummy::Collide(Station* other) {
   Entity::Collide(other, this);
 }
-
-Dummy::Dummy(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
 
 }  // namespace bm

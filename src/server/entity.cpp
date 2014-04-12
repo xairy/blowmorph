@@ -27,13 +27,28 @@
 
 namespace bm {
 
-Entity::Entity(WorldManager* world_manager, uint32_t id)
-  : _world_manager(world_manager),
+// XXX(xairy): load dynamic, category and mask from cfg?
+Entity::Entity(
+  WorldManager* world_manager,
+  uint32_t id,
+  const std::string& prefix,
+  b2Vec2 position,
+  bool dynamic,
+  uint16_t collision_category,
+  uint16_t collision_mask
+) : _world_manager(world_manager),
     _id(id),
-    body_(NULL),
     _is_destroyed(false),
     _is_updated(true)
-{ }
+{
+  SettingsManager* settings = world_manager->GetSettings();
+  b2World* world = world_manager->GetWorld();
+  body_ = CreateBody(world, settings, prefix + ".shape", dynamic);
+  body_->SetUserData(this);
+  SetBodyPosition(body_, position);
+  SetCollisionFilter(body_, collision_category, collision_mask);
+}
+
 Entity::~Entity() {
   if (body_ != NULL) {
     body_->GetWorld()->DestroyBody(body_);

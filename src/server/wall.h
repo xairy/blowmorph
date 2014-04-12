@@ -25,7 +25,7 @@ class Wall : public Entity {
     TYPE_MORPHED
   };
 
-  static Wall* Create(
+  Wall(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position,
@@ -54,8 +54,6 @@ class Wall : public Entity {
   virtual void Collide(Station* other);
 
  protected:
-  Wall(WorldManager* world_manager, uint32_t id);
-
   Type _type;
 
  private:

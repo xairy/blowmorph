@@ -19,7 +19,7 @@ class Dummy : public Entity {
   friend class Entity;
 
  public:
-  static Dummy* Create(
+  Dummy(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position,
@@ -48,8 +48,6 @@ class Dummy : public Entity {
   virtual void Collide(Station* other);
 
  protected:
-  Dummy(WorldManager* world_manager, uint32_t id);
-
   float _speed;
   Entity* _meat;
 
