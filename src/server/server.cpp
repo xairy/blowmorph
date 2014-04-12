@@ -371,10 +371,7 @@ bool Server::OnReceive() {
         return true;
       }
 
-      rv = client->entity->OnMouseEvent(mouseevent_, Timestamp());
-      if (rv == false) {
-        return false;
-      }
+      client->entity->OnMouseEvent(mouseevent_, Timestamp());
     } break;
 
     default: {
@@ -407,14 +404,11 @@ bool Server::OnLogin(uint32_t client_id) {
 
   // Create player.
 
-  Player* player = Player::Create(
+  Player* player = new Player(
     &world_manager_,
     client_id,
     b2Vec2(0.0f, 0.0f));
-  if (player == NULL) {
-    THROW_ERROR("Unable to create player!");
-    return false;
-  }
+  CHECK(player != NULL);
   world_manager_.RespawnPlayer(player);
 
   login_data.login[LoginData::MAX_LOGIN_LENGTH] = '\0';

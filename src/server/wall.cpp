@@ -18,27 +18,14 @@
 
 namespace bm {
 
-Wall* Wall::Create(
+Wall::Wall(
   WorldManager* world_manager,
   uint32_t id,
   const b2Vec2& position,
   Type type
-) {
-  SettingsManager* settings = world_manager->GetSettings();
-
-  Wall* wall = new Wall(world_manager, id);
-  CHECK(wall != NULL);
-
-  b2World* world = world_manager->GetWorld();
-  b2Body* body = CreateBody(world, settings, "wall.shape", false);
-  SetBodyPosition(body, position);
-  body->SetUserData(wall);
-  SetCollisionFilter(body, Entity::FILTER_BULLET, Entity::FILTER_ALL);
-
-  wall->body_ = body;
-  wall->_type = type;
-
-  return wall;
+) : Entity(world_manager, id, "wall", position, false,
+           Entity::FILTER_WALL, Entity::FILTER_ALL) {
+  _type = type;
 }
 
 Wall::~Wall() { }
@@ -99,8 +86,5 @@ void Wall::Collide(Wall* other) {
 void Wall::Collide(Station* other) {
   Entity::Collide(other, this);
 }
-
-Wall::Wall(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
 
 }  // namespace bm

@@ -19,7 +19,7 @@ class Bullet : public Entity {
   friend class Entity;
 
  public:
-  static Bullet* Create(
+  Bullet(
     WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
@@ -54,8 +54,6 @@ class Bullet : public Entity {
   virtual void Collide(Station* other);
 
  protected:
-  Bullet(WorldManager* world_manager, uint32_t id);
-
   uint32_t _owner_id;
 
  private:

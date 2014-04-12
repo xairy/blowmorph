@@ -26,7 +26,7 @@ class Station : public Entity {
     TYPE_COMPOSITE
   };
 
-  static Station* Create(
+  Station(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position,
@@ -58,8 +58,6 @@ class Station : public Entity {
   virtual void Collide(Station* other);
 
  protected:
-  Station(WorldManager* world_manager, uint32_t id);
-
   int _health_regeneration;
   int _blow_regeneration;
   int _morph_regeneration;

@@ -213,7 +213,7 @@ void WorldManager::DestroyOutlyingEntities() {
   }
 }
 
-bool WorldManager::CreateBullet(
+void WorldManager::CreateBullet(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
@@ -222,41 +222,32 @@ bool WorldManager::CreateBullet(
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
-  Bullet* bullet = Bullet::Create(this, id, owner_id, start, end, time);
-  if (bullet == NULL) {
-    return false;
-  }
+  Bullet* bullet = new Bullet(this, id, owner_id, start, end, time);
+  CHECK(bullet != NULL);
   AddEntity(id, bullet);
-  return true;
 }
 
-bool WorldManager::CreateDummy(
+void WorldManager::CreateDummy(
   const b2Vec2& position,
   int64_t time
 ) {
   uint32_t id = _id_manager->NewId();
-  Dummy* dummy = Dummy::Create(this, id, position, time);
-  if (dummy == NULL) {
-    return false;
-  }
+  Dummy* dummy = new Dummy(this, id, position, time);
+  CHECK(dummy != NULL);
   AddEntity(id, dummy);
-  return true;
 }
 
-bool WorldManager::CreateWall(
+void WorldManager::CreateWall(
   const b2Vec2& position,
   Wall::Type type
 ) {
   uint32_t id = _id_manager->NewId();
-  Wall* wall = Wall::Create(this, id, position, type);
-  if (wall == NULL) {
-    return false;
-  }
+  Wall* wall = new Wall(this, id, position, type);
+  CHECK(wall != NULL);
   AddEntity(id, wall);
-  return true;
 }
 
-bool WorldManager::CreateStation(
+void WorldManager::CreateStation(
   const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
@@ -264,28 +255,22 @@ bool WorldManager::CreateStation(
   Station::Type type
 ) {
   uint32_t id = _id_manager->NewId();
-  Station* station = Station::Create(this, id, position, health_regeneration,
+  Station* station = new Station(this, id, position, health_regeneration,
     blow_regeneration, morph_regeneration, type);
-  if (station == NULL) {
-    return false;
-  }
+  CHECK(station != NULL);
   AddEntity(id, station);
-  return true;
 }
 
-bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
+void WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
-
   int xa = static_cast<int>(round(x / _block_size));
   int ya = static_cast<int>(round(y / _block_size));
-
-  return _CreateAlignedWall(xa, ya, type);
+  _CreateAlignedWall(xa, ya, type);
 }
 
-bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
+void WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
-
-  return CreateWall(b2Vec2(x * _block_size, y * _block_size), type);
+  CreateWall(b2Vec2(x * _block_size, y * _block_size), type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {
@@ -360,10 +345,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
     if (rv == false) {
       return false;
     }
-    rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
-    if (rv == false) {
-      return false;
-    }
+    _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
   }
 
   return true;
@@ -394,10 +376,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
     }
     for (int i = 0; i < wv; i++) {
       for (int j = 0; j < hv; j++) {
-        bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
-        if (rv == false) {
-          return false;
-        }
+        _CreateAlignedWall(xv + i, yv + j, type_value);
       }
     }
   }
@@ -447,10 +426,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     if (rv == false) {
       return false;
     }
-    rv = CreateStation(b2Vec2(x, y), hr, br, mr, type);
-    if (rv == false) {
-      return false;
-    }
+    CreateStation(b2Vec2(x, y), hr, br, mr, type);
   }
 
   return true;
@@ -520,8 +496,7 @@ void WorldManager::Morph(const b2Vec2& location) {
   for (int x = -radius; x <= radius; x++) {
     for (int y = -radius; y <= radius; y++) {
       if (x * x + y * y <= radius * radius) {
-        bool rv = _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
-        CHECK(rv == true); // !FIXME.
+        _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
       }
     }
   }

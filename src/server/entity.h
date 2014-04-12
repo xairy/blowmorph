@@ -33,21 +33,28 @@ class Entity {
   };
 
   // Collision filters.
-
-  static const int16_t FILTER_PLAYER = 1 << 1;
-  static const int16_t FILTER_BULLET = 1 << 2;
-  static const int16_t FILTER_WALL   = 1 << 3;
-  static const int16_t FILTER_KIT    = 1 << 4;
-
-  static const int16_t FILTER_ALL    = -1;  // !FIXME: -1 to int16_t.
-  static const int16_t FILTER_NONE   = 0;
+  enum FilterType {
+    FILTER_PLAYER = 0x0001,
+    FILTER_BULLET = 0x0002,
+    FILTER_WALL   = 0x0004,
+    FILTER_KIT    = 0x0008,
+    FILTER_ALL    = 0xffff,
+    FILTER_NONE   = 0x0000
+  };
 
  public:
-  Entity(WorldManager* world_manager, uint32_t id);
+  Entity(
+    WorldManager* world_manager,
+    uint32_t id,
+    const std::string& prefix,
+    b2Vec2 position,
+    bool dynamic,
+    uint16_t collision_category,
+    uint16_t collision_mask);
   virtual ~Entity();
 
   virtual Type GetType() = 0;
-  virtual bool IsStatic() = 0;  // !FIXME: do we need IsStatic?
+  virtual bool IsStatic() = 0;
 
   virtual void Update(int64_t time) = 0;
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
@@ -102,10 +109,11 @@ class Entity {
   WorldManager* _world_manager;
 
   uint32_t _id;
-  b2Body* body_;
 
   bool _is_destroyed;
   bool _is_updated;
+
+  b2Body* body_;
 };
 
 }  // namespace bm

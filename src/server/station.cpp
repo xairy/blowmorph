@@ -17,7 +17,7 @@
 
 namespace bm {
 
-Station* Station::Create(
+Station::Station(
   WorldManager* world_manager,
   uint32_t id,
   const b2Vec2& position,
@@ -25,26 +25,12 @@ Station* Station::Create(
   int blow_regeneration,
   int morph_regeneration,
   Type type
-) {
-  SettingsManager* settings = world_manager->GetSettings();
-
-  Station* station = new Station(world_manager, id);
-  CHECK(station != NULL);
-
-  b2World* world = world_manager->GetWorld();
-  b2Body* body = CreateBody(world, settings, "station.shape", false);
-  SetBodyPosition(body, position);
-  body->SetUserData(station);
-  SetCollisionFilter(body, Entity::FILTER_KIT,
-      Entity::FILTER_ALL & ~Entity::FILTER_BULLET);
-
-  station->body_ = body;
-  station->_health_regeneration = health_regeneration;
-  station->_blow_regeneration = blow_regeneration;
-  station->_morph_regeneration = morph_regeneration;
-  station->_type = type;
-
-  return station;
+) : Entity(world_manager, id, "kit", position, false,
+           Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
+  _health_regeneration = health_regeneration;
+  _blow_regeneration = blow_regeneration;
+  _morph_regeneration = morph_regeneration;
+  _type = type;
 }
 
 Station::~Station() { }
@@ -103,8 +89,5 @@ void Station::Collide(Wall* other) {
 void Station::Collide(Station* other) {
   Entity::Collide(other, this);
 }
-
-Station::Station(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
 
 }  // namespace bm

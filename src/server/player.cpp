@@ -18,71 +18,38 @@
 
 namespace bm {
 
-Player* Player::Create(
-  WorldManager* world_manager,
-  uint32_t id,
-  const b2Vec2& position
-) {
+Player::Player(
+    WorldManager* world_manager,
+    uint32_t id,
+    const b2Vec2& position
+) : Entity(world_manager, id, "player", position, true,
+           Entity::FILTER_PLAYER, Entity::FILTER_ALL) {
   SettingsManager* settings = world_manager->GetSettings();
+  _speed = settings->GetFloat("player.speed");
 
-  float speed = settings->GetFloat("player.speed");
+  _max_health = settings->GetInt32("player.max_health");
+  _health_regeneration = settings->GetInt32("player.health_regeneration");
+  _health = _max_health;
 
-  int max_health = settings->GetInt32("player.max_health");
-  int health_regeneration = settings->GetInt32("player.health_regeneration");
+  _blow_capacity = settings->GetInt32("player.blow.capacity");
+  _blow_consumption = settings->GetInt32("player.blow.consumption");
+  _blow_regeneration = settings->GetInt32("player.blow.regeneration");
+  _blow_charge = _blow_capacity;
 
-  int blow_capacity = settings->GetInt32("player.blow.capacity");
-  int blow_consumption = settings->GetInt32("player.blow.consumption");
-  int blow_regeneration = settings->GetInt32("player.blow.regeneration");
+  _morph_capacity = settings->GetInt32("player.morph.capacity");
+  _morph_consumption = settings->GetInt32("player.morph.consumption");
+  _morph_regeneration = settings->GetInt32("player.morph.regeneration");
+  _morph_charge = _morph_capacity;
 
-  int morph_capacity = settings->GetInt32("player.morph.capacity");
-  int morph_consumption = settings->GetInt32("player.morph.consumption");
-  int morph_regeneration = settings->GetInt32("player.morph.regeneration");
-
-  Player* player = new Player(world_manager, id);
-  CHECK(player != NULL);
-
-  // !FIXME: move to entity?
-  b2World* world = world_manager->GetWorld();
-  b2Body* body = CreateBody(world, settings, "player.shape", true);
-  SetBodyPosition(body, position);
-  body->SetUserData(player);
-  SetCollisionFilter(body, Entity::FILTER_PLAYER, Entity::FILTER_ALL);
-
-  player->body_ = body;
-
-  player->_speed = speed;
-  player->_last_update_time = 0;
-
-  player->_health = max_health;
-  player->_max_health = max_health;
-  player->_health_regeneration = health_regeneration;
-
-  player->_blow_charge = blow_capacity;
-  player->_blow_capacity = blow_capacity;
-  player->_blow_consumption = blow_consumption;
-  player->_blow_regeneration = blow_regeneration;
-
-  player->_morph_charge = morph_capacity;
-  player->_morph_capacity = morph_capacity;
-  player->_morph_consumption = morph_consumption;
-  player->_morph_regeneration = morph_regeneration;
-
-  player->_keyboard_state.up = false;
-  player->_keyboard_state.down = false;
-  player->_keyboard_state.left = false;
-  player->_keyboard_state.right = false;
-  player->_keyboard_update_time.up = 0;
-  player->_keyboard_update_time.down = 0;
-  player->_keyboard_update_time.right = 0;
-  player->_keyboard_update_time.left = 0;
-
-  return player;
+  _last_update_time = 0;
 }
+
 Player::~Player() { }
 
 Entity::Type Player::GetType() {
   return Entity::TYPE_PLAYER;
 }
+
 bool Player::IsStatic() {
   return false;
 }
@@ -124,10 +91,8 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->data[2] = _morph_charge;
 }
 
-void Player::OnEntityAppearance(Entity* entity) {
-}
-void Player::OnEntityDisappearance(Entity* entity) {
-}
+void Player::OnEntityAppearance(Entity* entity) { }
+void Player::OnEntityDisappearance(Entity* entity) { }
 
 void Player::Damage(int damage) {
   _health -= damage;
@@ -210,16 +175,14 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
   }
 }
 
-bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
+void Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
     if (_blow_charge >= _blow_consumption) {
       _blow_charge -= _blow_consumption;
       b2Vec2 start = GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      if (_world_manager->CreateBullet(_id, start, end, time) == false) {
-        return false;
-      }
+      _world_manager->CreateBullet(_id, start, end, time);
     }
   }
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
@@ -231,7 +194,6 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
       _world_manager->Morph(b2Vec2(x, y));
     }
   }
-  return true;
 }
 
 float Player::GetSpeed() const {
@@ -349,8 +311,5 @@ void Player::Collide(Wall* other) {
 void Player::Collide(Station* other) {
   Entity::Collide(other, this);
 }
-
-Player::Player(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
 
 }  // namespace bm

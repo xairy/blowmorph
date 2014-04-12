@@ -51,21 +51,21 @@ class WorldManager {
   void StepPhysics(int64_t time_delta);
   void DestroyOutlyingEntities();
 
-  bool CreateBullet(
+  void CreateBullet(
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
     int64_t time);
 
-  bool CreateDummy(
+  void CreateDummy(
     const b2Vec2& position,
     int64_t time);
 
-  bool CreateWall(
+  void CreateWall(
     const b2Vec2& position,
     Wall::Type type);
 
-  bool CreateStation(
+  void CreateStation(
     const b2Vec2& position,
     int health_regeneration,
     int blow_regeneration,
@@ -73,7 +73,7 @@ class WorldManager {
     Station::Type type);
 
   // Works only with grid map.
-  bool CreateAlignedWall(float x, float y, Wall::Type type);
+  void CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
   void Blow(const b2Vec2& location);
@@ -95,7 +95,7 @@ class WorldManager {
   bool _LoadStationType(const pugi::xml_attribute& attr, Station::Type* output);
 
   // Works only with grid map.
-  bool _CreateAlignedWall(int x, int y, Wall::Type type);
+  void _CreateAlignedWall(int x, int y, Wall::Type type);
 
   b2World world_;
   ContactListener contact_listener_;

@@ -19,6 +19,7 @@ class Player : public Entity {
   friend class Entity;
 
   struct KeyboardState {
+    KeyboardState() : up(false), down(false), right(false), left(false) { }
     bool up;
     bool down;
     bool right;
@@ -27,6 +28,7 @@ class Player : public Entity {
 
   // The time of the last update of each key.
   struct KeyboardUpdateTime {
+    KeyboardUpdateTime() : up(0), down(0), right(0), left(0) { }
     int64_t up;
     int64_t down;
     int64_t right;
@@ -34,10 +36,7 @@ class Player : public Entity {
   };
 
  public:
-  static Player* Create(
-    WorldManager* world_manager,
-    uint32_t id,
-    const b2Vec2& position);
+  Player(WorldManager* world_manager, uint32_t id, const b2Vec2& position);
   virtual ~Player();
 
   virtual Entity::Type GetType();
@@ -52,7 +51,7 @@ class Player : public Entity {
   virtual void Damage(int damage);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
-  bool OnMouseEvent(const MouseEvent& event, int64_t time);
+  void OnMouseEvent(const MouseEvent& event, int64_t time);
 
   float GetSpeed() const;
   void SetSpeed(float speed);
@@ -100,23 +99,21 @@ class Player : public Entity {
   virtual void Collide(Station* other);
 
  protected:
-  Player(WorldManager* world_manager, uint32_t id);
-
   float _speed;  // In vertical and horizontal directions.
 
-  int _health;
   int _max_health;
   int _health_regeneration;
+  int _health;
 
-  int _blow_charge;
   int _blow_capacity;
   int _blow_consumption;
   int _blow_regeneration;  // Points per ms.
+  int _blow_charge;
 
-  int _morph_charge;
   int _morph_capacity;
   int _morph_consumption;
   int _morph_regeneration;  // Points per ms.
+  int _morph_charge;
 
   int64_t _last_update_time;
   KeyboardState _keyboard_state;
