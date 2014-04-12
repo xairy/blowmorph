@@ -76,6 +76,10 @@ void Bullet::Damage(int damage) {
   Destroy();
 }
 
+uint32_t Bullet::GetOwnerId() {
+  return _owner_id;
+}
+
 void Bullet::Explode() {
   if (!IsDestroyed()) {
     _world_manager->Blow(body_->GetPosition());

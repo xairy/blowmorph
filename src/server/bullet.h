@@ -39,6 +39,8 @@ class Bullet : public Entity {
 
   virtual void Damage(int damage);
 
+  uint32_t GetOwnerId();
+
   void Explode();
 
   // Double dispatch. Collision detection.
