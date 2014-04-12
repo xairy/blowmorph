@@ -491,29 +491,26 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
 }
 
 void WorldManager::Blow(const b2Vec2& location) {
-/*
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
-
-  Circle explosion(location, radius);
 
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if (explosion.Collide(entity->GetShape())) {
+    float distance2 = (entity->GetPosition() - location).LengthSquared();
+    if (distance2 <= radius * radius) {
       entity->Damage(damage);
     }
   }
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if (explosion.Collide(entity->GetShape())) {
+    float distance2 = (entity->GetPosition() - location).LengthSquared();
+    if (distance2 <= radius * radius) {
       entity->Damage(damage);
     }
   }
-*/
-  // !FIXME: explosion.
 }
 
 void WorldManager::Morph(const b2Vec2& location) {
