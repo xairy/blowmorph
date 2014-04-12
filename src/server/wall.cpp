@@ -33,6 +33,7 @@ Wall* Wall::Create(
   b2Body* body = CreateBody(world, settings, "wall.shape", false);
   SetBodyPosition(body, position);
   body->SetUserData(wall);
+  SetCollisionFilter(body, Entity::FILTER_BULLET, Entity::FILTER_ALL);
 
   wall->body_ = body;
   wall->_type = type;

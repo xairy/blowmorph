@@ -35,6 +35,8 @@ Station* Station::Create(
   b2Body* body = CreateBody(world, settings, "station.shape", false);
   SetBodyPosition(body, position);
   body->SetUserData(station);
+  SetCollisionFilter(body, Entity::FILTER_KIT,
+      Entity::FILTER_ALL & ~Entity::FILTER_BULLET);
 
   station->body_ = body;
   station->_health_regeneration = health_regeneration;

@@ -34,6 +34,8 @@ Dummy* Dummy::Create(
   b2Body* body = CreateBody(world, settings, "dummy.shape", true);
   SetBodyPosition(body, position);
   body->SetUserData(dummy);
+  SetCollisionFilter(body, Entity::FILTER_BULLET,
+      Entity::FILTER_ALL & ~Entity::FILTER_KIT);
 
   dummy->body_ = body;
   dummy->_speed = speed;
