@@ -201,6 +201,8 @@ bool Server::UpdateWorld() {
     return false;
   }
 
+  world_manager_.RespawnDeadPlayers();
+
   return true;
 }
 
@@ -413,7 +415,7 @@ bool Server::OnLogin(uint32_t client_id) {
     THROW_ERROR("Unable to create player!");
     return false;
   }
-  player->Respawn();
+  world_manager_.RespawnPlayer(player);
 
   login_data.login[LoginData::MAX_LOGIN_LENGTH] = '\0';
   std::string login(&login_data.login[0]);

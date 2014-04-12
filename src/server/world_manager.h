@@ -79,6 +79,9 @@ class WorldManager {
   void Blow(const b2Vec2& location);
   void Morph(const b2Vec2& location);
 
+  void RespawnDeadPlayers();
+  void RespawnPlayer(Player* player);
+
   // Returns one of the spawn positions stored in '_spawn_positions'.
   b2Vec2 GetRandomSpawn() const;
 

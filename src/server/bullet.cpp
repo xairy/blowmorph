@@ -52,8 +52,8 @@ Bullet* Bullet::Create(
 
 Bullet::~Bullet() { }
 
-std::string Bullet::GetType() {
-  return "Bullet";
+Entity::Type Bullet::GetType() {
+  return Entity::TYPE_BULLET;
 }
 bool Bullet::IsStatic() {
   return false;

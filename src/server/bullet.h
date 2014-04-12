@@ -28,7 +28,7 @@ class Bullet : public Entity {
     int64_t time);
   virtual ~Bullet();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
   virtual void Update(int64_t time);

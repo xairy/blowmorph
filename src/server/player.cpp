@@ -80,8 +80,8 @@ Player* Player::Create(
 }
 Player::~Player() { }
 
-std::string Player::GetType() {
-  return "Player";
+Entity::Type Player::GetType() {
+  return Entity::TYPE_PLAYER;
 }
 bool Player::IsStatic() {
   return false;
@@ -131,10 +131,6 @@ void Player::OnEntityDisappearance(Entity* entity) {
 
 void Player::Damage(int damage) {
   _health -= damage;
-  if (_health <= 0) {
-    _health = _max_health;
-    Respawn();
-  }
 }
 
 void Player::OnKeyboardEvent(const KeyboardEvent& event) {
@@ -238,11 +234,6 @@ bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
   return true;
 }
 
-void Player::Respawn() {
-  b2Vec2 spawn_position = _world_manager->GetRandomSpawn();
-  SetPosition(spawn_position);
-}
-
 float Player::GetSpeed() const {
   return _speed;
 }
@@ -310,25 +301,33 @@ void Player::SetMorphRegeneration(int regeneration) {
   _morph_regeneration = regeneration;
 }
 
-void Player::RestoreHealth(int value) {
+void Player::AddHealth(int value) {
   _health += value;
   if (_health > _max_health) {
     _health = _max_health;
   }
 }
-
-void Player::RestoreBlow(int value) {
+void Player::AddBlow(int value) {
   _blow_charge += value;
   if (_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
   }
 }
-
-void Player::RestoreMorph(int value) {
+void Player::AddMorph(int value) {
   _morph_charge += value;
   if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
+}
+
+void Player::RestoreHealth() {
+  _health = _max_health;
+}
+void Player::RestoreBlow() {
+  _blow_charge = _blow_capacity;
+}
+void Player::RestoreMorph() {
+  _morph_charge = _morph_capacity;
 }
 
 void Player::Collide(Entity* entity) {

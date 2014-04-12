@@ -40,7 +40,7 @@ class Player : public Entity {
     const b2Vec2& position);
   virtual ~Player();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
   virtual void Update(int64_t time);
@@ -53,8 +53,6 @@ class Player : public Entity {
 
   void OnKeyboardEvent(const KeyboardEvent& event);
   bool OnMouseEvent(const MouseEvent& event, int64_t time);
-
-  void Respawn();
 
   float GetSpeed() const;
   void SetSpeed(float speed);
@@ -83,9 +81,13 @@ class Player : public Entity {
   void SetMorphCapacity(int capacity);
   void SetMorphRegeneration(int regeneration);
 
-  void RestoreHealth(int value);
-  void RestoreBlow(int value);
-  void RestoreMorph(int value);
+  void AddHealth(int value);
+  void AddBlow(int value);
+  void AddMorph(int value);
+
+  void RestoreHealth();
+  void RestoreBlow();
+  void RestoreMorph();
 
   // Double dispatch. Collision detection.
 
