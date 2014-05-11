@@ -49,7 +49,7 @@ class Player : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t owner_id);
 
   virtual void SetPosition(const Vector2f& position);
 
@@ -64,6 +64,7 @@ class Player : public Entity {
   int GetHealth() const;
   int GetMaxHealth() const;
   int GetHealthRegeneration() const;
+  void IncScore();
 
   void SetHealth(int health);
   void SetMaxHealth(int max_health);
@@ -109,6 +110,7 @@ class Player : public Entity {
   int _health;
   int _max_health;
   int _health_regeneration;
+  int _score;
 
   int _blow_charge;
   int _blow_capacity;

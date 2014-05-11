@@ -40,7 +40,7 @@ class Wall : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t id);
 
   // Double dispatch. Collision detection.
 

@@ -78,7 +78,7 @@ void Station::OnEntityAppearance(Entity* entity) {
 void Station::OnEntityDisappearance(Entity* entity) {
 }
 
-void Station::Damage(int damage) { }
+void Station::Damage(int damage, uint32_t owner_id) { }
 
 // Double dispatch. Collision detection.
 
