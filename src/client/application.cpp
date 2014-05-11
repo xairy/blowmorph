@@ -368,7 +368,7 @@ bool Application::Synchronize() {
     break;
   }
 
-  printf("Synchronized time, latency: %ld ms.\n", latency_);
+  //printf("Synchronized time, latency: %ld ms.\n", latency_);
 
   // Notify the server that the client has synchronized.
 
