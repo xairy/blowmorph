@@ -138,11 +138,14 @@ void Player::OnEntityDisappearance(Entity* entity) {
 
 void Player::Damage(int damage, uint32_t owner_id) {
   _health -= damage;
-   Player* bullet_owner = static_cast<Player*>(_world_manager->GetEntity(owner_id));
-   bullet_owner->IncScore();
   if (_health <= 0) {
     _health = _max_health;
     Respawn();
+    Entity* entity = _world_manager->GetEntity(owner_id);
+    if(entity->GetType() == "Player") {
+        Player* bullet_owner = static_cast<Player*>(_world_manager->GetEntity(owner_id));
+        bullet_owner->IncScore();
+    }
   }
 }
 
