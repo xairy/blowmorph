@@ -128,7 +128,7 @@ struct EntitySnapshot {
   EntityType type;
   float32_t x;
   float32_t y;
-  int32_t data[3];
+  int32_t data[4];
 };
 
 struct KeyboardEvent {

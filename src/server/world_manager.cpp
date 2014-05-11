@@ -494,7 +494,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::Blow(const Vector2f& location) {
+bool WorldManager::Blow(const Vector2f& location, uint32_t owner_id) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
@@ -505,14 +505,14 @@ bool WorldManager::Blow(const Vector2f& location) {
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if (explosion.Collide(entity->GetShape())) {
-      entity->Damage(damage);
+      entity->Damage(damage, owner_id);
     }
   }
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if (explosion.Collide(entity->GetShape())) {
-      entity->Damage(damage);
+      entity->Damage(damage, owner_id);
     }
   }
 

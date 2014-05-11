@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
@@ -54,6 +55,7 @@ Player* Player::Create(
   player->_health = max_health;
   player->_max_health = max_health;
   player->_health_regeneration = health_regeneration;
+  player->_score = 0;
 
   player->_blow_charge = blow_capacity;
   player->_blow_capacity = blow_capacity;
@@ -121,15 +123,23 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->data[0] = _health;
   output->data[1] = _blow_charge;
   output->data[2] = _morph_charge;
+  output->data[3] = _score;
 }
+
+void Player::IncScore() {
+    _score++;
+    printf("%d\n", _score); 
+    }
 
 void Player::OnEntityAppearance(Entity* entity) {
 }
 void Player::OnEntityDisappearance(Entity* entity) {
 }
 
-void Player::Damage(int damage) {
+void Player::Damage(int damage, uint32_t owner_id) {
   _health -= damage;
+   Player* bullet_owner = static_cast<Player*>(_world_manager->GetEntity(owner_id));
+   bullet_owner->IncScore();
   if (_health <= 0) {
     _health = _max_health;
     Respawn();
