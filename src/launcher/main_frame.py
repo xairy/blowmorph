@@ -36,16 +36,20 @@ class MainFrame(wx.Frame):
         parent_sizer = wx.BoxSizer(wx.VERTICAL)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         
-        list_label = "Avaliable servers"
+        list_label = "Available servers"
         staticbox = wx.StaticBox(self, wx.NewId(), label = list_label)
         list_sizer = wx.StaticBoxSizer(staticbox, wx.VERTICAL)
         
         self.CreateListCtrl()            
         list_sizer.Add(self.list_ctrl, proportion = 1, flag = wx.EXPAND)
         
+        self.button_connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.button_close = wx.Button(self, wx.ID_EXIT)
 
-        # button_sizer = |----------blank--------|(quit)|.
+        # button_sizer = |(connect)|----------blank--------|(quit)|.
+        
+        button_sizer.Add(self.button_connect, proportion = 0, flag = wx.ALL, 
+                         border = 2)
         button_sizer.Add(wx.Size(10, 10), proportion = 1, flag = wx.ALL, 
                          border = 2)
         button_sizer.Add(self.button_close, proportion = 0, flag = wx.ALL, 
@@ -56,6 +60,8 @@ class MainFrame(wx.Frame):
         parent_sizer.Add(button_sizer, flag = wx.EXPAND)
         self.SetSizer(parent_sizer)
         
+        self.Bind(wx.EVT_BUTTON, self.OnButtonConnectPressed, 
+                  self.button_connect)
         self.Bind(wx.EVT_BUTTON, self.OnButtonClosePressed, self.button_close)
         
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
@@ -86,6 +92,10 @@ class MainFrame(wx.Frame):
     def OnButtonClosePressed(self, event):
         print "OnButtonClosePressed"
         self.OnCloseWindow(wx.EVT_CLOSE)
+        
+    #-------------------------------------------------------------------------
+    def OnButtonConnectPressed(self, event):
+        print "OnButtonConnectPressed"
         
     #-------------------------------------------------------------------------
 ##############################################################################
