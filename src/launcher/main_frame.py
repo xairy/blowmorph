@@ -18,6 +18,12 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
         self.list_ctrl = wx.ListCtrl(self, wx.ID_ANY, style = wx.LC_REPORT)
+        
+        column_names = ["Name", "IP"]
+        
+        for i in xrange(len(column_names)):
+            self.list_ctrl.InsertColumn(i, column_names[i])
+        
         self.Bind(wx.EVT_LIST_ITEM_SELECTED,   self.OnItemSelected, 
                   self.list_ctrl)
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.OnItemDeselected, 
