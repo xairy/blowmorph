@@ -34,10 +34,13 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def DoLayout(self):
         parent_sizer = wx.BoxSizer(wx.VERTICAL)
-        list_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         
-        self.CreateListCtrl()
+        list_label = "Avaliable servers"
+        staticbox = wx.StaticBox(self, wx.NewId(), label = list_label)
+        list_sizer = wx.StaticBoxSizer(staticbox, wx.VERTICAL)
+        
+        self.CreateListCtrl()            
         list_sizer.Add(self.list_ctrl, proportion = 1, flag = wx.EXPAND)
         
         self.button_close = wx.Button(self, wx.ID_EXIT)
@@ -48,6 +51,7 @@ class MainFrame(wx.Frame):
         button_sizer.Add(self.button_close, proportion = 0, flag = wx.ALL, 
                          border = 2)
         
+        parent_sizer.Add(wx.Size(10, 10), proportion = 0, flag = wx.EXPAND)
         parent_sizer.Add(list_sizer, proportion = 1, flag = wx.EXPAND)
         parent_sizer.Add(button_sizer, flag = wx.EXPAND)
         self.SetSizer(parent_sizer)
