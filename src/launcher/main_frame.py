@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 
+import sys
 import wx
 
 
@@ -19,11 +20,25 @@ class MainFrame(wx.Frame):
     def CreateListCtrl(self):
         self.list_ctrl = wx.ListCtrl(self, wx.ID_ANY, style = wx.LC_REPORT)
         
+        # Create columns.
         column_names = ["Name", "IP"]
-        
         for i in xrange(len(column_names)):
             self.list_ctrl.InsertColumn(i, column_names[i])
+            
+        # Fill the table.
+        test_data = [["xairy's server", "198.168.0.1"], 
+                     ["rdkl's server", "198.168.0.2"]]
+        for item in test_data:
+            index = self.list_ctrl.InsertStringItem(sys.maxint, 
+                                                    str(item[0]))
+            for p in xrange(len(item) - 1):
+                self.list_ctrl.SetStringItem(index, p + 1, str(item[p + 1]))
         
+        # Resize columns width.
+        for i in xrange(len(column_names)):
+            self.list_ctrl.SetColumnWidth(i, wx.LIST_AUTOSIZE)
+        
+        # Bind functions.
         self.Bind(wx.EVT_LIST_ITEM_SELECTED,   self.OnItemSelected, 
                   self.list_ctrl)
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.OnItemDeselected, 
