@@ -516,12 +516,13 @@ bool Application::OnKeyEvent(const sf::Event& event) {
       break;
   }
   //Press Tab to show score table
-  if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Tab)) {
-    show_score_table_ = 1;
-  } else {
-    show_score_table_ = 0;
-  }
-  
+  if (event.key.code == sf::Keyboard::Tab) {
+    if (event.type == sf::Event::KeyPressed)
+      show_score_table_ = 1;
+    if (event.type == sf::Event::KeyReleased)
+      show_score_table_ = 0; 
+  } 
+    
   keyboard_events_.push_back(keyboard_event);
 
   return true;
@@ -598,7 +599,10 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       } else {
         OnEntityAppearance(&snapshot);
       }
-    } break;
+      if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER)
+        player_scores_[snapshot.id] = static_cast<int>(snapshot.data[3]);
+    }
+    break;
 
     case Packet::TYPE_ENTITY_DISAPPEARED: {
       EntitySnapshot snapshot;
@@ -761,8 +765,6 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   player_health_ = static_cast<float>(snapshot->data[0]);
   player_blow_charge_ = static_cast<float>(snapshot->data[1]);
   player_morph_charge_ = static_cast<float>(snapshot->data[2]);
-  
-  player_scores_[snapshot->id] = static_cast<int>(snapshot->data[3]);
 
   if (Length(distance) > max_player_misposition_) {
     player_->EnforceState(state, snapshot->time);
