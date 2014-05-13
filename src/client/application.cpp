@@ -86,6 +86,8 @@ bool Application::Initialize() {
   player_health_ = 0;
   player_blow_charge_ = 0;
   player_morph_charge_ = 0;
+  
+  show_score_table_ = 0;
 
   wall_size_ = 16;
   player_size_ = 30;
@@ -513,7 +515,13 @@ bool Application::OnKeyEvent(const sf::Event& event) {
     default:
       break;
   }
-
+  //Press Tab to show score table
+  if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Tab)) {
+    show_score_table_ = 1;
+  } else {
+    show_score_table_ = 0;
+  }
+  
   keyboard_events_.push_back(keyboard_event);
 
   return true;
@@ -753,6 +761,8 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   player_health_ = static_cast<float>(snapshot->data[0]);
   player_blow_charge_ = static_cast<float>(snapshot->data[1]);
   player_morph_charge_ = static_cast<float>(snapshot->data[2]);
+  
+  player_scores_[snapshot->id] = static_cast<int>(snapshot->data[3]);
 
   if (Length(distance) > max_player_misposition_) {
     player_->EnforceState(state, snapshot->time);
@@ -879,6 +889,23 @@ void Application::Render() {
   render_window_->display();
 }
 
+void Application::WriteText(const std::string& text, int x, int y) {
+// TODO (use render_window_ for rendering).
+  
+  sf::Text new_text;
+  new_text.setString(text);
+  new_text.setCharacterSize(50);
+  new_text.setColor(sf::Color::Red);
+  new_text.setStyle(sf::Text::Regular);  
+  new_text.setFont(*font_);
+  
+  sf::Vector2f size = view_.getSize();  
+  sf::Transform text_pos;
+  text_pos.translate(view_.getCenter() - size / 2.0f);
+  text_pos.translate(x, y);
+  render_window_->draw(new_text, text_pos);  
+}
+
 // TODO(xairy): load HUD layout parameters from some config file.
 void Application::RenderHUD() {
   CHECK(state_ == STATE_INITIALIZED);
@@ -985,6 +1012,21 @@ void Application::RenderHUD() {
   circle.setPosition(compass_center);
   circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
   render_window_->draw(circle, top_right_transform);
+  
+  // Draw scores
+  
+  if (show_score_table_) {
+  //std::string str = "TEST";
+  std::map<uint32_t, std::string>::iterator it;
+  int i = 0;
+  for (it = player_names_.begin(); it != player_names_.end(); ++it) {
+    WriteText(it->second, 0, 50 * i);
+    i++;
+  }
+  //for (int i = 0; i < 2; ++i) {
+  //      WriteText(str, 0, 50 * i);
+  //  }
+  }
 }
 
 // Sends input events to the server and
