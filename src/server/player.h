@@ -65,6 +65,7 @@ class Player : public Entity {
   int GetMaxHealth() const;
   int GetHealthRegeneration() const;
   void IncScore();
+  void DecScore();
 
   void SetHealth(int health);
   void SetMaxHealth(int max_health);

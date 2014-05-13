@@ -587,7 +587,9 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         THROW_ERROR("Incorrect entity packet format!");
         return false;
       }
-
+      if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
+        player_scores_[snapshot.id] = static_cast<int>(snapshot.data[3]); 
+      }
       if (snapshot.id == player_->id) {
         OnPlayerUpdate(&snapshot);
         break;
@@ -599,10 +601,8 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       } else {
         OnEntityAppearance(&snapshot);
       }
-      if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER)
-        player_scores_[snapshot.id] = static_cast<int>(snapshot.data[3]);
-    }
-    break;
+      }
+      break;
 
     case Packet::TYPE_ENTITY_DISAPPEARED: {
       EntitySnapshot snapshot;
