@@ -132,7 +132,7 @@ void Player::IncScore() {
 
 void Player::DecScore() {
     _score--;
-}    
+}
 
 void Player::OnEntityAppearance(Entity* entity) {
 }
@@ -144,13 +144,13 @@ void Player::Damage(int damage, uint32_t owner_id) {
   if (_health <= 0) {
     _health = _max_health;
     Respawn();
-    if (owner_id == _id) { 
+    if (owner_id == _id) {
       DecScore();
     } else {
     Entity* entity = _world_manager->GetEntity(owner_id);
-    if(entity->GetType() == "Player") {
-        Player* bullet_owner = static_cast<Player*>(_world_manager->GetEntity(owner_id));
-        bullet_owner->IncScore();
+    if (entity->GetType() == "Player") {
+      Player* bullet_owner = static_cast<Player*>(_world_manager->GetEntity(owner_id));
+      bullet_owner->IncScore();
     }
     }
   }
