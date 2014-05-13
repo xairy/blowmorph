@@ -356,6 +356,7 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
+
       client->entity->OnKeyboardEvent(keyboardevent_);
     } break;
 

@@ -49,7 +49,7 @@ class Dummy : public Entity {
   virtual bool Collide(Station* other);
 
  protected:
-  Dummy(WorldManager* world_manager, uint32_t id);
+  Dummy(WorldManager* world_manager, uint32_t source_id);
 
   float _speed;
   Entity* _meat;
