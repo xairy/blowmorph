@@ -79,11 +79,11 @@ class MainFrame(wx.Frame):
 
         # button_sizer = |(connect)|----------blank--------|(quit)|.
         
-        button_sizer.Add(self.button_connect, proportion = 0, flag = wx.ALL, 
+        button_sizer.Add(self.button_close, proportion = 0, flag = wx.ALL, 
                          border = 2)
         button_sizer.Add(wx.Size(10, 10), proportion = 1, flag = wx.ALL, 
                          border = 2)
-        button_sizer.Add(self.button_close, proportion = 0, flag = wx.ALL, 
+        button_sizer.Add(self.button_connect, proportion = 0, flag = wx.ALL, 
                          border = 2)
         
         parent_sizer.Add(wx.Size(10, 10), proportion = 0, flag = wx.EXPAND)
