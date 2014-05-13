@@ -11,7 +11,7 @@ class MainFrame(wx.Frame):
     """First (and main) frame class."""
 
     #-------------------------------------------------------------------------
-    def __init__(self, title = "Blowmorph launcher", size = (300, 400)):
+    def __init__(self, title = "Blowmorph launcher", size = (330, 400)):
         wx.Frame.__init__(self, None, title = title, size = size)
         self.list_ctrl = None
         self.DoLayout()
@@ -34,7 +34,7 @@ class MainFrame(wx.Frame):
         
         self.width_resolution = wx.TextCtrl(self.panel_resolution, 
                                               size=(45, -1),
-                                              pos = wx.Point(75, 0))
+                                              pos = wx.Point(77, 0))
         separator = wx.StaticText(self.panel_resolution, -1, 
                                   label="x",
                                   pos = wx.Point(125, 4))
@@ -76,7 +76,7 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def DoLayout(self):
         parent_sizer = wx.BoxSizer(wx.VERTICAL)
-        text_sizer = wx.BoxSizer(wx.VERTICAL)
+        text_sizer = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         
         self.CreateTextCtrls()
