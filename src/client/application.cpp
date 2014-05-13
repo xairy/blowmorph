@@ -611,7 +611,9 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         THROW_ERROR("Incorrect entity packet format!");
         return false;
       }
-
+      if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
+        player_scores_.erase(snapshot.id); 
+      }
       if (!OnEntityDisappearance(&snapshot)) {
         return false;
       }
