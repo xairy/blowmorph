@@ -31,7 +31,6 @@ class Application {
   bool Initialize();
   bool Run();
   void Finalize();
-  void WriteText(const std::string& text, int x, int y);
 
  private:
   bool InitializeGraphics();
@@ -62,6 +61,7 @@ class Application {
 
   void Render();
   void RenderHUD();
+  void WriteText(const std::string& str, const sf::Vector2f& pos);
 
   bool SendInputEvents();
 
@@ -96,12 +96,12 @@ class Application {
 
   std::map<uint32_t, std::string> player_names_;
 
+  bool show_score_table_;
+  std::map<uint32_t, int> player_scores_;
+
   float player_health_;
   float player_blow_charge_;
   float player_morph_charge_;
-
-  bool show_score_table_;
-  std::map<uint32_t, int> player_scores_;
 
   // TODO(xairy): load from somewhere.
   uint32_t wall_size_;

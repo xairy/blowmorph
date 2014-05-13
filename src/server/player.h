@@ -61,11 +61,12 @@ class Player : public Entity {
   float GetSpeed() const;
   void SetSpeed(float speed);
 
+  void IncScore();
+  void DecScore();
+
   int GetHealth() const;
   int GetMaxHealth() const;
   int GetHealthRegeneration() const;
-  void IncScore();
-  void DecScore();
 
   void SetHealth(int health);
   void SetMaxHealth(int max_health);
@@ -108,10 +109,11 @@ class Player : public Entity {
 
   float _speed;  // In vertical and horizontal directions.
 
+  int _score;
+
   int _health;
   int _max_health;
   int _health_regeneration;
-  int _score;
 
   int _blow_charge;
   int _blow_capacity;

@@ -28,7 +28,7 @@ class IdManager;
 
 class WorldManager {
  public:
-  WorldManager(IdManager* id_manager);
+  explicit WorldManager(IdManager* id_manager);
   ~WorldManager();
 
   SettingsManager* GetSettings();
