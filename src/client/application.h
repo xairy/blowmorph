@@ -62,7 +62,7 @@ class Application {
 
   void Render();
   void RenderHUD();
- 
+
   bool SendInputEvents();
 
   bool is_running_;
@@ -99,8 +99,8 @@ class Application {
   float player_health_;
   float player_blow_charge_;
   float player_morph_charge_;
-  
-  bool show_score_table_; // TODO: initialize as false.
+
+  bool show_score_table_;
   std::map<uint32_t, int> player_scores_;
 
   // TODO(xairy): load from somewhere.

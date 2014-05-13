@@ -53,7 +53,7 @@ namespace bm {
 WorldManager::WorldManager(IdManager* id_manager)
     : _map_type(MAP_NONE), _id_manager(id_manager) {
   bool rv = _settings.Open("data/entities.cfg");
-  CHECK(rv == true); // FIXME.
+  CHECK(rv == true);  // FIXME.
 }
 
 WorldManager::~WorldManager() {
@@ -558,7 +558,6 @@ Shape* WorldManager::LoadShape(const std::string& prefix) {
     CHECK(shape != NULL);
     return shape;
   } else if (shape_type == "square") {
-
     float side = _settings.GetFloat(prefix + ".side");
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     CHECK(shape != NULL);
