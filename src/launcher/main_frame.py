@@ -19,11 +19,28 @@ class MainFrame(wx.Frame):
 
     #-------------------------------------------------------------------------
     def CreateTextCtrls(self):
-        self.panel_nick_label = wx.Panel(self)
-        self.nick_label = wx.StaticText(self.panel_nick_label, label="Nick:",
-                                        pos = wx.Point(5, 4))
         self.panel_nickname = wx.Panel(self)
-        self.nickname   = wx.TextCtrl(self.panel_nickname, size=(100, -1))
+        nick_label = wx.StaticText(self.panel_nickname, label="Nick: ",
+                                   pos = wx.Point(5, 4))
+        
+        self.nickname = wx.TextCtrl(self.panel_nickname, size=(100, -1),
+                                    pos = wx.Point(45, 0), 
+                                    value = "xairy")
+        
+        self.panel_resolution = wx.Panel(self)
+        self.resolution_label = wx.StaticText(self.panel_resolution, -1,
+                                              label="Resolution: ",
+                                              pos = wx.Point(5, 4))
+        
+        self.width_resolution = wx.TextCtrl(self.panel_resolution, 
+                                              size=(45, -1),
+                                              pos = wx.Point(75, 0))
+        separator = wx.StaticText(self.panel_resolution, -1, 
+                                  label="x",
+                                  pos = wx.Point(125, 4))
+        self.heigth_resolution = wx.TextCtrl(self.panel_resolution,
+                                             pos = wx.Point(135, 0),
+                                             size=(45, -1))
         
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
@@ -59,13 +76,15 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def DoLayout(self):
         parent_sizer = wx.BoxSizer(wx.VERTICAL)
-        text_sizer   = wx.BoxSizer(wx.HORIZONTAL)
+        text_sizer = wx.BoxSizer(wx.VERTICAL)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
         
         self.CreateTextCtrls()
-        text_sizer.Add(self.panel_nick_label, proportion = 0, 
+        text_sizer.Add(self.panel_nickname, proportion = 0, 
                        flag = wx.EXPAND)
-        text_sizer.Add(self.panel_nickname, proportion = 0, flag = wx.EXPAND)
+        
+        text_sizer.Add(self.panel_resolution, proportion = 0, 
+                             flag = wx.EXPAND)
         
         list_label = "Available servers"
         staticbox = wx.StaticBox(self, wx.NewId(), label = list_label)
@@ -77,7 +96,7 @@ class MainFrame(wx.Frame):
         self.button_connect = wx.Button(self, wx.ID_ANY, "Connect")
         self.button_close = wx.Button(self, wx.ID_EXIT)
 
-        # button_sizer = |(connect)|----------blank--------|(quit)|.
+        # button_sizer = |(connect)|--------blank--------|(quit)|.
         
         button_sizer.Add(self.button_close, proportion = 0, flag = wx.ALL, 
                          border = 2)
