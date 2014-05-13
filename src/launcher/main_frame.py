@@ -16,6 +16,15 @@ class MainFrame(wx.Frame):
         self.list_ctrl = None
         self.DoLayout()
 
+
+    #-------------------------------------------------------------------------
+    def CreateTextCtrls(self):
+        self.panel_nick_label = wx.Panel(self)
+        self.nick_label = wx.StaticText(self.panel_nick_label, label="Nick:",
+                                        pos = wx.Point(5, 4))
+        self.panel_nickname = wx.Panel(self)
+        self.nickname   = wx.TextCtrl(self.panel_nickname, size=(100, -1))
+        
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
         self.list_ctrl = wx.ListCtrl(self, wx.ID_ANY, style = wx.LC_REPORT)
@@ -26,8 +35,9 @@ class MainFrame(wx.Frame):
             self.list_ctrl.InsertColumn(i, column_names[i])
             
         # Fill the table.
-        test_data = [["xairy's server", "198.168.0.1"], 
-                     ["rdkl's server", "198.168.0.2"]]
+        test_data = [["xairy's server",  "198.168.0.1"], 
+                     ["rdkl's server",   "198.168.0.2"],
+                     ["andreyknvl.com",  "198.168.0.3"]]
         for item in test_data:
             index = self.list_ctrl.InsertStringItem(sys.maxint, 
                                                     str(item[0]))
@@ -49,7 +59,13 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def DoLayout(self):
         parent_sizer = wx.BoxSizer(wx.VERTICAL)
+        text_sizer   = wx.BoxSizer(wx.HORIZONTAL)
         button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        
+        self.CreateTextCtrls()
+        text_sizer.Add(self.panel_nick_label, proportion = 0, 
+                       flag = wx.EXPAND)
+        text_sizer.Add(self.panel_nickname, proportion = 0, flag = wx.EXPAND)
         
         list_label = "Available servers"
         staticbox = wx.StaticBox(self, wx.NewId(), label = list_label)
@@ -71,8 +87,11 @@ class MainFrame(wx.Frame):
                          border = 2)
         
         parent_sizer.Add(wx.Size(10, 10), proportion = 0, flag = wx.EXPAND)
+        parent_sizer.Add(text_sizer, proportion = 0, flag = wx.EXPAND)
+        parent_sizer.Add(wx.Size(10, 10), proportion = 0, flag = wx.EXPAND)
         parent_sizer.Add(list_sizer, proportion = 1, flag = wx.EXPAND)
         parent_sizer.Add(button_sizer, flag = wx.EXPAND)
+        
         self.SetSizer(parent_sizer)
         
         self.Bind(wx.EVT_BUTTON, self.OnButtonConnectPressed, 
@@ -96,7 +115,7 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def OnItemActivated(self, event):
         file_name = self.list_ctrl.GetItem(event.GetIndex(), 1).GetText()
-        print file_name
+        print "Item activated:", file_name
         
     #-------------------------------------------------------------------------
     def OnCloseWindow(self, event):

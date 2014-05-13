@@ -2,6 +2,7 @@ bin/*
 build/*
 *.swp
 src/.metadata
+src/launcher/.metadata/*
 src/launcher/.project
 src/launcher/.settings
 src/launcher/.pydevproject
