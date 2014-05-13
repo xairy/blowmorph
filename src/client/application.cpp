@@ -83,10 +83,11 @@ bool Application::Initialize() {
   last_tick_ = 0;
   last_physics_simulation_ = 0;
 
+  show_score_table_ = false;
+
   player_health_ = 0;
   player_blow_charge_ = 0;
   player_morph_charge_ = 0;
-  show_score_table_ = 0;
 
   wall_size_ = 16;
   player_size_ = 30;
@@ -369,7 +370,7 @@ bool Application::Synchronize() {
     break;
   }
 
-  // printf("Synchronized time, latency: %ld ms.\n", latency_);
+  printf("Synchronized time, latency: %d ms.\n", static_cast<int>(latency_));
 
   // Notify the server that the client has synchronized.
 
@@ -514,14 +515,19 @@ bool Application::OnKeyEvent(const sf::Event& event) {
     default:
       break;
   }
-  // Press Tab to show score table
-  if (event.key.code == sf::Keyboard::Tab) {
+
+  // Check for sf::Keyboard::Unknown due to a bug in SFML which
+  // causes key.code to be Unknown when Shift+Tab is pressed.
+  if (event.key.code == sf::Keyboard::Tab ||
+      event.key.code == sf::Keyboard::Unknown) {
     if (event.type == sf::Event::KeyPressed)
-      show_score_table_ = 1;
+      show_score_table_ = true;
     if (event.type == sf::Event::KeyReleased)
-      show_score_table_ = 0;
+      show_score_table_ = false;
   }
+
   keyboard_events_.push_back(keyboard_event);
+
   return true;
 }
 
@@ -591,15 +597,13 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         OnPlayerUpdate(&snapshot);
         break;
       }
-
       if (objects_.count(snapshot.id) > 0 ||
           walls_.count(snapshot.id) > 0) {
         OnEntityUpdate(&snapshot);
       } else {
         OnEntityAppearance(&snapshot);
       }
-      }
-      break;
+    } break;
 
     case Packet::TYPE_ENTITY_DISAPPEARED: {
       EntitySnapshot snapshot;
@@ -890,21 +894,6 @@ void Application::Render() {
   render_window_->display();
 }
 
-void Application::WriteText(const std::string& text, int x, int y) {
-// TODO (use render_window_ for rendering).
-  sf::Text new_text;
-  new_text.setString(text);
-  new_text.setCharacterSize(50);
-  new_text.setColor(sf::Color::Red);
-  new_text.setStyle(sf::Text::Regular);
-  new_text.setFont(*font_);
-  sf::Vector2f size = view_.getSize();
-  sf::Transform text_pos;
-  text_pos.translate(view_.getCenter() - size / 2.0f);
-  text_pos.translate(x, y);
-  render_window_->draw(new_text, text_pos);
-}
-
 // TODO(xairy): load HUD layout parameters from some config file.
 void Application::RenderHUD() {
   CHECK(state_ == STATE_INITIALIZED);
@@ -1011,19 +1000,35 @@ void Application::RenderHUD() {
   circle.setPosition(compass_center);
   circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
   render_window_->draw(circle, top_right_transform);
-  // Draw scores
+
+  // Draw score table.
 
   if (show_score_table_) {
-  std::map<uint32_t, int>::iterator it;
-  int i = 0;
-  for (it = player_scores_.begin(); it != player_scores_.end(); ++it) {
-    std::stringstream type;
-    type << it->second;
-    std::string score = type.str();
-    WriteText(player_names_[it->first] + " " + score, 0, 50 * i);
-    i++;
+    int i = 0;
+    std::map<uint32_t, int>::iterator it;
+    for (it = player_scores_.begin(); it != player_scores_.end(); ++it) {
+      // TODO(xairy): add IntToStr function.
+      std::stringstream type;
+      type << it->second;
+      std::string score = type.str();
+      WriteText(player_names_[it->first] + " " + score, sf::Vector2f(0, 50 * i));
+      i++;
+    }
   }
-  }
+}
+
+void Application::WriteText(const std::string& str, const sf::Vector2f& pos) {
+  sf::Text text;
+  text.setString(str);
+  text.setCharacterSize(50);
+  text.setColor(sf::Color::Red);
+  text.setStyle(sf::Text::Regular);
+  text.setFont(*font_);
+  sf::Vector2f size = view_.getSize();
+  sf::Transform transform;
+  transform.translate(view_.getCenter() - size / 2.0f);
+  transform.translate(pos);
+  render_window_->draw(text, transform);
 }
 
 // Sends input events to the server and
