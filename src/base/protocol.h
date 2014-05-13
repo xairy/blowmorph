@@ -84,6 +84,7 @@ struct PlayerInfo {
 //   data[0] - health
 //   data[1] - blow charge
 //   data[2] - morph charge
+//   data[3] - score
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
 // type == EntitySnapshot::ENTITY_TYPE_STATION:
