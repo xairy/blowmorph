@@ -1016,16 +1016,15 @@ void Application::RenderHUD() {
   // Draw scores
   
   if (show_score_table_) {
-  //std::string str = "TEST";
-  std::map<uint32_t, std::string>::iterator it;
+  std::map<uint32_t, int>::iterator it;
   int i = 0;
-  for (it = player_names_.begin(); it != player_names_.end(); ++it) {
-    WriteText(it->second, 0, 50 * i);
+  for (it = player_scores_.begin(); it != player_scores_.end(); ++it) {
+    std::stringstream type;
+    type << it->second;
+	std::string score = type.str();
+    WriteText(player_names_[it->first] + " " + score, 0, 50 * i);
     i++;
   }
-  //for (int i = 0; i < 2; ++i) {
-  //      WriteText(str, 0, 50 * i);
-  //  }
   }
 }
 
