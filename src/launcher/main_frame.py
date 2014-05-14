@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 import sys
 import wx
 
-
 class MainFrame(wx.Frame):
     """First (and main) frame class."""
 
@@ -18,29 +17,31 @@ class MainFrame(wx.Frame):
 
 
     #-------------------------------------------------------------------------
+    # Current format of textctrls (tc):
+    # | nick_label | nick(tc) | resolution_label | w(tc) | separator | h(tc) |
     def CreateTextCtrls(self):
         self.panel_nickname = wx.Panel(self)
-        nick_label = wx.StaticText(self.panel_nickname, label="Nick: ",
-                                   pos = wx.Point(5, 4))
-        
+        _nick_label  = wx.StaticText(self.panel_nickname, label="Nick: ",
+                                    pos = wx.Point(5, 4))
         self.nickname = wx.TextCtrl(self.panel_nickname, size=(100, -1),
                                     pos = wx.Point(45, 0), 
                                     value = "xairy")
         
         self.panel_resolution = wx.Panel(self)
-        self.resolution_label = wx.StaticText(self.panel_resolution, -1,
+        _resolution_label = wx.StaticText(self.panel_resolution, -1,
                                               label="Resolution: ",
                                               pos = wx.Point(5, 4))
         
         self.width_resolution = wx.TextCtrl(self.panel_resolution, 
                                               size=(45, -1),
                                               pos = wx.Point(77, 0))
-        separator = wx.StaticText(self.panel_resolution, -1, 
-                                  label="x",
-                                  pos = wx.Point(125, 4))
         self.heigth_resolution = wx.TextCtrl(self.panel_resolution,
                                              pos = wx.Point(135, 0),
                                              size=(45, -1))
+
+        _separator = wx.StaticText(self.panel_resolution, -1, 
+                                  label="x",
+                                  pos = wx.Point(125, 4))
         
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
