@@ -37,6 +37,8 @@ class Dummy : public Entity {
 
   virtual void Damage(int damage);
 
+  void Explode();
+
   // Double dispatch. Collision detection.
 
   virtual void Collide(Entity* entity);

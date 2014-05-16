@@ -29,6 +29,8 @@
 
 namespace {
 
+// TODO(xairy): move to utils.
+
 // XXX(xairy): shouldn't it come from math.h?
 double round(double value) {
   return ::floor(value + 0.5);
@@ -469,6 +471,8 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
 void WorldManager::Blow(const b2Vec2& location) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
+
+  // FIXME(xairy): misses some walls.
 
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
