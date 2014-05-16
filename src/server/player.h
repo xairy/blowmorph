@@ -49,7 +49,7 @@ class Player : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t source_id);
 
   virtual void SetPosition(const Vector2f& position);
 
@@ -60,6 +60,9 @@ class Player : public Entity {
 
   float GetSpeed() const;
   void SetSpeed(float speed);
+
+  void IncScore();
+  void DecScore();
 
   int GetHealth() const;
   int GetMaxHealth() const;
@@ -105,6 +108,8 @@ class Player : public Entity {
   Vector2f _prev_position;  // Before the last 'Update'.
 
   float _speed;  // In vertical and horizontal directions.
+
+  int _score;
 
   int _health;
   int _max_health;

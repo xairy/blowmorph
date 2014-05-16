@@ -149,8 +149,7 @@ bool Entity::Collide(Wall* wall, Dummy* dummy) {
 }
 bool Entity::Collide(Wall* wall, Bullet* bullet) {
   if (wall->_shape->Collide(bullet->_shape)) {
-    bullet->Explode();
-    wall->Damage(0);
+    bullet->Explode(bullet->_owner_id);
     return true;
   }
   return false;
@@ -162,8 +161,8 @@ bool Entity::Collide(Player* player, Dummy* dummy) {
   if (player->_shape->Collide(dummy->_shape)) {
     SettingsManager* settings = dummy->_world_manager->GetSettings();
     int damage = settings->GetInt32("dummy.damage");
-    player->Damage(damage);
-    dummy->Damage(0);
+    player->Damage(damage, dummy->_id);
+    dummy->Damage(0, player->_id);
     return true;
   }
   return false;
@@ -173,8 +172,7 @@ bool Entity::Collide(Player* player, Bullet* bullet) {
     return false;
   }
   if (player->_shape->Collide(bullet->_shape)) {
-    player->Damage(0);
-    bullet->Explode();
+    bullet->Explode(bullet->_owner_id);
     return true;
   }
   return false;
@@ -184,16 +182,15 @@ bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
 }
 bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
   if (dummy->_shape->Collide(bullet->_shape)) {
-    bullet->Explode();
-    dummy->Damage(0);
+    bullet->Explode(bullet->_owner_id);
     return true;
   }
   return false;
 }
 bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
   if (bullet1->_shape->Collide(bullet2->_shape)) {
-    bullet1->Explode();
-    bullet2->Explode();
+    bullet1->Explode(bullet1->_owner_id);
+    bullet2->Explode(bullet1->_owner_id);
     return true;
   }
   return false;
