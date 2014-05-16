@@ -81,6 +81,13 @@ void Dummy::Damage(int damage) {
   Destroy();
 }
 
+void Dummy::Explode() {
+  if (!IsDestroyed()) {
+    _world_manager->Blow(body_->GetPosition());
+    Destroy();
+  }
+}
+
 void Dummy::Collide(Entity* entity) {
   entity->Collide(this);
 }
