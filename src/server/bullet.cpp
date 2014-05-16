@@ -79,13 +79,13 @@ void Bullet::OnEntityAppearance(Entity* entity) {
 void Bullet::OnEntityDisappearance(Entity* entity) {
 }
 
-void Bullet::Damage(int damage) {
+void Bullet::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
-void Bullet::Explode() {
+void Bullet::Explode(uint32_t source_id) {
   if (!IsDestroyed()) {
-    bool rv = _world_manager->Blow(_shape->GetPosition());
+    bool rv = _world_manager->Blow(_shape->GetPosition(), source_id);
     // TODO(xairy): handle error.
     CHECK(rv == true);
     Destroy();
