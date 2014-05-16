@@ -31,12 +31,21 @@
 
 namespace {
 
+// TODO(xairy): move to sfml_utils.
 float Length(const sf::Vector2f& vector) {
   return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
+// TODO(xairy): move to sfml_utils.
 sf::Vector2f Round(const sf::Vector2f& vector) {
   return sf::Vector2f(floor(vector.x), floor(vector.y));
+}
+
+// TODO(xairy): move to utils.
+std::string IntToStr(int value) {
+  std::stringstream ss;
+  ss << value;
+  return ss.str();
 }
 
 }  // anonymous namespace
@@ -449,12 +458,6 @@ bool Application::OnMouseButtonEvent(const sf::Event& event) {
   MouseEvent mouse_event;
   mouse_event.time = GetServerTime();
 
-  if (event.mouseButton.button == sf::Mouse::Left) {
-    mouse_event.button_type = MouseEvent::BUTTON_LEFT;
-  } else {
-    mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
-  }
-
   if (event.type == sf::Event::MouseButtonReleased) {
     mouse_event.event_type = MouseEvent::EVENT_KEYUP;
   } else if (event.type == sf::Event::MouseButtonPressed) {
@@ -463,12 +466,32 @@ bool Application::OnMouseButtonEvent(const sf::Event& event) {
     CHECK(false);
   }
 
-  int screenWidth = render_window_->getSize().x;
-  int screenHeight = render_window_->getSize().y;
-  mouse_event.x = (event.mouseButton.x - screenWidth / 2) +
+  switch (event.mouseButton.button) {
+    case sf::Mouse::Left:
+      mouse_event.button_type = MouseEvent::BUTTON_LEFT;
+      break;
+    case sf::Mouse::Right:
+      mouse_event.button_type = MouseEvent::BUTTON_RIGHT;
+      break;
+    case sf::Mouse::Middle:
+      if (event.type == sf::Event::MouseButtonPressed) {
+        show_score_table_ = true;
+      }
+      if (event.type == sf::Event::MouseButtonReleased) {
+        show_score_table_ = false;
+      }
+      return true;
+    default:
+      return true;
+  }
+
+  int screen_width = render_window_->getSize().x;
+  int screen_height = render_window_->getSize().y;
+  mouse_event.x = (event.mouseButton.x - screen_width / 2) +
     player_->GetPosition().x;
-  mouse_event.y = (event.mouseButton.y - screenHeight / 2) +
+  mouse_event.y = (event.mouseButton.y - screen_height / 2) +
     player_->GetPosition().y;
+
   mouse_events_.push_back(mouse_event);
 
   return true;
@@ -511,19 +534,20 @@ bool Application::OnKeyEvent(const sf::Event& event) {
       break;
     case sf::Keyboard::Escape:
       OnQuitEvent();
-      break;
+      return true;
+    case sf::Keyboard::Tab:
+    case sf::Keyboard::Unknown:
+      // Check for 'sf::Keyboard::Unknown' due to a bug in SFML which
+      // causes 'key.code' to be 'Unknown' when Shift+Tab is pressed.
+      if (event.type == sf::Event::KeyPressed) {
+        show_score_table_ = true;
+      }
+      if (event.type == sf::Event::KeyReleased) {
+        show_score_table_ = false;
+      }
+      return true;
     default:
-      break;
-  }
-
-  // Check for sf::Keyboard::Unknown due to a bug in SFML which
-  // causes key.code to be Unknown when Shift+Tab is pressed.
-  if (event.key.code == sf::Keyboard::Tab ||
-      event.key.code == sf::Keyboard::Unknown) {
-    if (event.type == sf::Event::KeyPressed)
-      show_score_table_ = true;
-    if (event.type == sf::Event::KeyReleased)
-      show_score_table_ = false;
+      return true;
   }
 
   keyboard_events_.push_back(keyboard_event);
@@ -1004,30 +1028,44 @@ void Application::RenderHUD() {
   // Draw score table.
 
   if (show_score_table_) {
+    // TODO(xairy): sort players by score.
+
+    sf::Vector2f view_size = view_.getSize();
+    size_t player_count = player_scores_.size();
+    sf::Vector2f score_rect_size(400.0f, player_count * 50.0f);
+    sf::Vector2f score_rect_position((view_size.x - score_rect_size.x) / 2,
+          (view_size.y - score_rect_size.y) / 2);
+    sf::RectangleShape score_rect;
+    score_rect.setSize(score_rect_size);
+    score_rect.setPosition(score_rect_position);
+    score_rect.setFillColor(sf::Color(0xAA, 0xAA, 0xAA, 0xBB));
+    render_window_->draw(score_rect, top_left_transform);
+
     int i = 0;
     std::map<uint32_t, int>::iterator it;
     for (it = player_scores_.begin(); it != player_scores_.end(); ++it) {
-      // TODO(xairy): add IntToStr function.
-      std::stringstream type;
-      type << it->second;
-      std::string score = type.str();
-      WriteText(player_names_[it->first] + " " + score, sf::Vector2f(0, 50 * i));
+      std::string score = IntToStr(it->second);
+      WriteText(player_names_[it->first], score_rect_position +
+          sf::Vector2f(20.0f, 50.0f * i), 40, sf::Color::Blue);
+      WriteText(score, score_rect_position +
+          sf::Vector2f(score_rect_size.x - 50.0f, 50.0f * i),
+          40, sf::Color::Magenta);
       i++;
     }
   }
 }
 
-void Application::WriteText(const std::string& str, const sf::Vector2f& pos) {
+void Application::WriteText(const std::string& str,
+    const sf::Vector2f& position, int size, sf::Color color) {
   sf::Text text;
   text.setString(str);
-  text.setCharacterSize(50);
-  text.setColor(sf::Color::Red);
+  text.setCharacterSize(size);
+  text.setColor(color);
   text.setStyle(sf::Text::Regular);
   text.setFont(*font_);
-  sf::Vector2f size = view_.getSize();
   sf::Transform transform;
-  transform.translate(view_.getCenter() - size / 2.0f);
-  transform.translate(pos);
+  transform.translate(view_.getCenter() - view_.getSize() / 2.0f);
+  transform.translate(position);
   render_window_->draw(text, transform);
 }
 

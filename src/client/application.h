@@ -61,7 +61,8 @@ class Application {
 
   void Render();
   void RenderHUD();
-  void WriteText(const std::string& str, const sf::Vector2f& pos);
+  void WriteText(const std::string& str, const sf::Vector2f& position,
+      int size, sf::Color color);
 
   bool SendInputEvents();
 
