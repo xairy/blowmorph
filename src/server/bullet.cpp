@@ -62,13 +62,6 @@ uint32_t Bullet::GetOwnerId() {
   return _owner_id;
 }
 
-void Bullet::Explode() {
-  if (!IsDestroyed()) {
-    _world_manager->Blow(body_->GetPosition(), _owner_id);
-    Destroy();
-  }
-}
-
 // Double dispatch. Collision detection.
 
 void Bullet::Collide(Entity* entity) {

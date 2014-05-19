@@ -37,8 +37,6 @@ class Dummy : public Entity {
   Entity* GetTarget() const;
   void SetTarget(Entity* target);
 
-  void Explode();
-
   // Double dispatch. Collision detection.
 
   virtual void Collide(Entity* entity);

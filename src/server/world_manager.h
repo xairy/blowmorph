@@ -29,6 +29,7 @@ namespace bm {
 class Entity;
 class IdManager;
 
+// FIXME(xairy): divide WorldManager into World and Controller.
 class WorldManager {
  public:
   explicit WorldManager(IdManager* id_manager);
@@ -91,6 +92,31 @@ class WorldManager {
 
   void OnKeyboardEvent(Player* player, const KeyboardEvent& event);
   void OnMouseEvent(Player* player, const MouseEvent& event);
+
+  void ExplodeBullet(Bullet* bullet);
+  void ExplodeDummy(Dummy* dummy);
+
+  // Collisions.
+
+  void OnCollision(Station* station1, Station* station2);
+  void OnCollision(Station* station, Wall* wall);
+  void OnCollision(Station* station, Player* player);
+  void OnCollision(Station* station, Dummy* dummy);
+  void OnCollision(Station* station, Bullet* bullet);
+
+  void OnCollision(Wall* wall1, Wall* wall2);
+  void OnCollision(Wall* wall, Player* player);
+  void OnCollision(Wall* wall, Dummy* dummy);
+  void OnCollision(Wall* wall, Bullet* bullet);
+
+  void OnCollision(Player* player1, Player* player2);
+  void OnCollision(Player* player, Dummy* dummy);
+  void OnCollision(Player* player, Bullet* bullet);
+
+  void OnCollision(Dummy* dummy1, Dummy* dummy2);
+  void OnCollision(Dummy* dummy, Bullet* bullet);
+
+  void OnCollision(Bullet* bullet1, Bullet* bullet2);
 
  private:
   bool _LoadWall(const pugi::xml_node& node);
