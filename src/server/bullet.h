@@ -37,11 +37,11 @@ class Bullet : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t source_id);
 
   uint32_t GetOwnerId();
 
-  void Explode();
+  void Explode(uint32_t source_id);
 
   // Double dispatch. Collision detection.
 

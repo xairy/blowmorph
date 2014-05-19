@@ -77,13 +77,13 @@ void Dummy::OnEntityDisappearance(Entity* entity) {
   }
 }
 
-void Dummy::Damage(int damage) {
+void Dummy::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
 void Dummy::Explode() {
   if (!IsDestroyed()) {
-    _world_manager->Blow(body_->GetPosition());
+    _world_manager->Blow(body_->GetPosition(), _id);
     Destroy();
   }
 }

@@ -468,7 +468,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-void WorldManager::Blow(const b2Vec2& location) {
+void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
@@ -480,7 +480,7 @@ void WorldManager::Blow(const b2Vec2& location) {
     Entity* entity = i->second;
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {
-      entity->Damage(damage);
+      entity->Damage(damage, source_id);
     }
   }
   end = _dynamic_entities.end();
@@ -488,7 +488,7 @@ void WorldManager::Blow(const b2Vec2& location) {
     Entity* entity = i->second;
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {
-      entity->Damage(damage);
+      entity->Damage(damage, source_id);
     }
   }
 }
