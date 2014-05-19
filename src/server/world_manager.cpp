@@ -171,6 +171,23 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
+void WorldManager::Update(int64_t time, int64_t delta_time) {
+  // XXX(xairy): Temporary.
+  static int counter = 0;
+  if (counter == 300) {
+    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    CreateDummy(b2Vec2(x, y), time);
+    counter = 0;
+  }
+  counter++;
+
+  UpdateEntities(time);
+  StepPhysics(delta_time);
+  DestroyOutlyingEntities();
+  RespawnDeadPlayers();
+}
+
 void WorldManager::UpdateEntities(int64_t time) {
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
@@ -528,7 +545,6 @@ void WorldManager::RespawnPlayer(Player* player) {
 
 void WorldManager::UpdateScore(Player* player) {
   uint32_t killer_id = player->GetKillerId();
-  printf("!%u\n", killer_id);
   if (killer_id == player->GetId()) {
     player->DecScore();
   } else {

@@ -47,6 +47,7 @@ class WorldManager {
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
 
+  void Update(int64_t time, int64_t delta_time);
   void UpdateEntities(int64_t time);
   void StepPhysics(int64_t time_delta);
   void DestroyOutlyingEntities();
