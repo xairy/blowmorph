@@ -23,8 +23,7 @@ Bullet::Bullet(
   uint32_t id,
   uint32_t owner_id,
   const b2Vec2& start,
-  const b2Vec2& end,
-  int64_t time
+  const b2Vec2& end
 ) : Entity(world_manager, id, "bullet", start, true,
            Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
@@ -46,8 +45,6 @@ Entity::Type Bullet::GetType() {
 bool Bullet::IsStatic() {
   return false;
 }
-
-void Bullet::Update(int64_t time) { }
 
 void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_BULLET;

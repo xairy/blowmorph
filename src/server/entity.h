@@ -60,9 +60,6 @@ class Entity {
   virtual Type GetType() = 0;
   virtual bool IsStatic() = 0;
 
-  // FIXME(xairy): get rid of it.
-  virtual void Update(int64_t time) = 0;
-
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
 
   virtual void Damage(int damage, uint32_t source_id) = 0;
@@ -71,6 +68,8 @@ class Entity {
 
   virtual b2Vec2 GetPosition() const;
   virtual void SetPosition(const b2Vec2& position);
+
+  virtual void SetVelocity(const b2Vec2& velocity);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;

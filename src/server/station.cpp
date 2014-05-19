@@ -42,8 +42,6 @@ bool Station::IsStatic() {
   return false;
 }
 
-void Station::Update(int64_t time) { }
-
 void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_STATION;
   output->time = time;

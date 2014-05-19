@@ -43,8 +43,6 @@ Player::Player(
   _morph_consumption = settings->GetInt32("player.morph.consumption");
   _morph_regeneration = settings->GetInt32("player.morph.regeneration");
   _morph_charge = _morph_capacity;
-
-  _last_update_time = 0;
 }
 
 Player::~Player() { }
@@ -55,32 +53,6 @@ Entity::Type Player::GetType() {
 
 bool Player::IsStatic() {
   return false;
-}
-
-void Player::Update(int64_t time) {
-  b2Vec2 velocity;
-  velocity.x = _keyboard_state.left * (-_speed)
-    + _keyboard_state.right * (_speed);
-  velocity.y = _keyboard_state.up * (-_speed)
-    + _keyboard_state.down * (_speed);
-  body_->SetLinearVelocity(velocity);
-
-  int64_t delta_time = time - _last_update_time;
-  _last_update_time = time;
-
-  // FIXME(alex): casts to int?
-  _health += static_cast<int>(delta_time * _health_regeneration);
-  if (_health > _max_health) {
-    _health = _max_health;
-  }
-  _blow_charge += static_cast<int>(delta_time * _blow_regeneration);
-  if (_blow_charge > _blow_capacity) {
-    _blow_charge = _blow_capacity;
-  }
-  _morph_charge += static_cast<int>(delta_time * _morph_regeneration);
-  if (_morph_charge > _morph_capacity) {
-    _morph_charge = _morph_capacity;
-  }
 }
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
@@ -186,7 +158,7 @@ void Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
       _blow_charge -= _blow_consumption;
       b2Vec2 start = GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      _world_manager->CreateBullet(_id, start, end, time);
+      _world_manager->CreateBullet(_id, start, end);
     }
   }
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
@@ -216,6 +188,25 @@ void Player::DecScore() {
 
 uint32_t Player::GetKillerId() const {
   return _killer_id;
+}
+
+Player::KeyboardState* Player::GetKeyboardState() {
+  return &_keyboard_state;
+}
+
+void Player::Regenerate(int64_t delta_time) {
+  _health += delta_time * _health_regeneration;
+  if (_health > _max_health) {
+    _health = _max_health;
+  }
+  _blow_charge += delta_time * _blow_regeneration;
+  if (_blow_charge > _blow_capacity) {
+    _blow_charge = _blow_capacity;
+  }
+  _morph_charge += delta_time * _morph_regeneration;
+  if (_morph_charge > _morph_capacity) {
+    _morph_charge = _morph_capacity;
+  }
 }
 
 int Player::GetHealth() const {
