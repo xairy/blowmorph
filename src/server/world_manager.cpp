@@ -471,7 +471,8 @@ void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
-  // FIXME(xairy): misses some walls.
+  // FIXME(xairy): can miss huge entities.
+  radius += 13.0f;
 
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
@@ -527,12 +528,12 @@ void WorldManager::RespawnPlayer(Player* player) {
 
 void WorldManager::UpdateScore(Player* player) {
   uint32_t killer_id = player->GetKillerId();
+  printf("!%u\n", killer_id);
   if (killer_id == player->GetId()) {
     player->DecScore();
   } else {
     Entity* entity = GetEntity(killer_id);
-    CHECK(entity != NULL);
-    if (entity->GetType() == Entity::TYPE_PLAYER) {
+    if (entity != NULL && entity->GetType() == Entity::TYPE_PLAYER) {
       Player* killer = static_cast<Player*>(entity);
       killer->IncScore();
     }
