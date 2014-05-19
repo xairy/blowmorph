@@ -3,11 +3,17 @@
 #ifndef SERVER_ID_MANAGER_H_
 #define SERVER_ID_MANAGER_H_
 
+#include <limits.h>
+
 #include <base/pstdint.h>
 
 namespace bm {
 
 class IdManager {
+ public:
+  // TODO(xairy): think of something better (signed ids?).
+  static const uint32_t BAD_ID = UINT_MAX;
+
  public:
   IdManager();
   ~IdManager();

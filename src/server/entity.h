@@ -11,6 +11,8 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
+#include "server/id_manager.h"
+
 namespace bm {
 
 class WorldManager;
@@ -23,6 +25,8 @@ class Station;
 
 class Entity {
  public:
+  static const uint32_t BAD_ID = IdManager::BAD_ID;
+
   // XXX(xairy): count Dummy as a Bullet?
   enum Type {
     TYPE_PLAYER,

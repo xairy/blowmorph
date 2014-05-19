@@ -59,6 +59,8 @@ class Player : public Entity {
   void IncScore();
   void DecScore();
 
+  uint32_t GetKillerId() const;
+
   int GetHealth() const;
   int GetMaxHealth() const;
   int GetHealthRegeneration() const;
@@ -105,6 +107,7 @@ class Player : public Entity {
   float _speed;  // In vertical and horizontal directions.
 
   int _score;
+  uint32_t _killer_id;
 
   int _max_health;
   int _health_regeneration;

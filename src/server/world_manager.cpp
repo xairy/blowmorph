@@ -136,7 +136,6 @@ void WorldManager::DeleteEntities(const std::vector<uint32_t>& input,
 }
 
 Entity* WorldManager::GetEntity(uint32_t id) {
-  CHECK(_static_entities.count(id) + _dynamic_entities.count(id) == 1);
   if (_static_entities.count(id) == 1) {
     return _static_entities[id];
   } else if (_dynamic_entities.count(id) == 1) {
@@ -515,6 +514,17 @@ void WorldManager::RespawnDeadPlayers() {
       Player* player = static_cast<Player*>(entity);
       if (player->GetHealth() <= 0) {
         RespawnPlayer(player);
+        uint32_t killer_id = player->GetKillerId();
+        if (killer_id == player->GetId()) {
+          player->DecScore();
+        } else {
+          Entity* entity = GetEntity(killer_id);
+          CHECK(entity != NULL);
+          if (entity->GetType() == Entity::TYPE_PLAYER) {
+            Player* killer = static_cast<Player*>(entity);
+            killer->IncScore();
+          }
+        }
       }
     }
   }

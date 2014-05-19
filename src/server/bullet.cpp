@@ -68,9 +68,9 @@ uint32_t Bullet::GetOwnerId() {
   return _owner_id;
 }
 
-void Bullet::Explode(uint32_t source_id) {
+void Bullet::Explode() {
   if (!IsDestroyed()) {
-    _world_manager->Blow(body_->GetPosition(), source_id);
+    _world_manager->Blow(body_->GetPosition(), _owner_id);
     Destroy();
   }
 }

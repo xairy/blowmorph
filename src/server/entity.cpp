@@ -102,14 +102,12 @@ void Entity::Collide(Wall* wall, Dummy* dummy) {
 }
 
 void Entity::Collide(Wall* wall, Bullet* bullet) {
-  bullet->Explode(bullet->_owner_id);
+  bullet->Explode();
 }
 
 void Entity::Collide(Player* player1, Player* player2) { }
 
 void Entity::Collide(Player* player, Dummy* dummy) {
-  SettingsManager* settings = dummy->_world_manager->GetSettings();
-  int damage = settings->GetInt32("dummy.damage");
   dummy->Explode();
 }
 
@@ -117,19 +115,19 @@ void Entity::Collide(Player* player, Bullet* bullet) {
   if (bullet->_owner_id == player->GetId()) {
     return;
   }
-  bullet->Explode(bullet->_owner_id);
+  bullet->Explode();
 }
 
 void Entity::Collide(Dummy* dummy1, Dummy* dummy2) { }
 
 void Entity::Collide(Dummy* dummy, Bullet* bullet) {
-  bullet->Explode(bullet->_owner_id);
+  bullet->Explode();
   dummy->Explode();
 }
 
 void Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
-  bullet1->Explode(bullet1->_owner_id);
-  bullet2->Explode(bullet2->_owner_id);
+  bullet1->Explode();
+  bullet2->Explode();
 }
 
 }  // namespace bm

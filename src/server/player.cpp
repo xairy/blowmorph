@@ -27,6 +27,9 @@ Player::Player(
   SettingsManager* settings = world_manager->GetSettings();
   _speed = settings->GetFloat("player.speed");
 
+  _score = 0;
+  _killer_id = Entity::BAD_ID;
+
   _max_health = settings->GetInt32("player.max_health");
   _health_regeneration = settings->GetInt32("player.health_regeneration");
   _health = _max_health;
@@ -97,6 +100,9 @@ void Player::OnEntityDisappearance(Entity* entity) { }
 
 void Player::Damage(int damage, uint32_t source_id) {
   _health -= damage;
+  if (_health <= 0) {
+    _killer_id = source_id;
+  }
 }
 
 void Player::OnKeyboardEvent(const KeyboardEvent& event) {
@@ -209,6 +215,10 @@ void Player::IncScore() {
 }
 void Player::DecScore() {
     _score--;
+}
+
+uint32_t Player::GetKillerId() const {
+  return _killer_id;
 }
 
 int Player::GetHealth() const {
