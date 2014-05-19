@@ -86,18 +86,7 @@ void WorldManager::AddEntity(uint32_t id, Entity* entity) {
   } else {
     _dynamic_entities[id] = entity;
   }
-
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _static_entities.end();
-  for (itr = _static_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityAppearance(entity);
-    entity->OnEntityAppearance(itr->second);
-  }
-  end = _dynamic_entities.end();
-  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityAppearance(entity);
-    entity->OnEntityAppearance(itr->second);
-  }
+  OnEntityAppearance(entity);
 }
 
 void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
@@ -112,18 +101,66 @@ void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
   }
   CHECK(entity != NULL);
 
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _static_entities.end();
-  for (itr = _static_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityDisappearance(entity);
-  }
-  end = _dynamic_entities.end();
-  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityDisappearance(entity);
-  }
+  OnEntityDisappearance(entity);
 
   if (deallocate) {
     delete entity;
+  }
+}
+
+void WorldManager::OnEntityAppearance(Entity* entity) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _dynamic_entities.end();
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
+    Entity::Type itr_type = itr->second->GetType();
+    Entity::Type ent_type = entity->GetType();
+    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
+      Dummy* dummy = NULL;
+      Player* player = NULL;
+      if (itr_type == Entity::TYPE_DUMMY) {
+        dummy = static_cast<Dummy*>(itr->second);
+        player = static_cast<Player*>(entity);
+      } else {
+        dummy = static_cast<Dummy*>(entity);
+        player = static_cast<Player*>(itr->second);
+      }
+      if (dummy->GetTarget() == NULL) {
+         dummy->SetTarget(player);
+      } else {
+        float current_distance = (dummy->GetTarget()->GetPosition() -
+            dummy->GetPosition()).Length();
+        float new_distance = (player->GetPosition() -
+            dummy->GetPosition()).Length();
+        if (new_distance < current_distance) {
+          dummy->SetTarget(player);
+        }
+      }
+    }
+  }
+}
+
+void WorldManager::OnEntityDisappearance(Entity* entity) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _dynamic_entities.end();
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
+    Entity::Type itr_type = itr->second->GetType();
+    Entity::Type ent_type = entity->GetType();
+    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
+      Dummy* dummy = NULL;
+      Player* player = NULL;
+      if (itr_type == Entity::TYPE_DUMMY) {
+        dummy = static_cast<Dummy*>(itr->second);
+        player = static_cast<Player*>(entity);
+      } else {
+        dummy = static_cast<Dummy*>(entity);
+        player = static_cast<Player*>(itr->second);
+      }
+      if (dummy->GetTarget() == player) {
+         dummy->SetTarget(NULL);
+      }
+    }
   }
 }
 

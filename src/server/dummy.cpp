@@ -27,7 +27,7 @@ Dummy::Dummy(
            Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
   _speed = settings->GetFloat("dummy.speed");
-  _meat = NULL;
+  _target = NULL;
 }
 
 Dummy::~Dummy() { }
@@ -41,8 +41,8 @@ bool Dummy::IsStatic() {
 }
 
 void Dummy::Update(int64_t time) {
-  if (_meat != NULL) {
-    b2Vec2 velocity = _meat->GetPosition() - GetPosition();
+  if (_target != NULL) {
+    b2Vec2 velocity = _target->GetPosition() - GetPosition();
     velocity.Normalize();
     velocity *= _speed;
     body_->SetLinearVelocity(velocity);
@@ -57,28 +57,16 @@ void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->y = body_->GetPosition().y;
 }
 
-void Dummy::OnEntityAppearance(Entity* entity) {
-  if (entity->GetType() == Entity::TYPE_PLAYER) {
-    if (_meat == NULL) {
-      _meat = entity;
-    } else {
-      float current_distance = (_meat->GetPosition() - GetPosition()).Length();
-      float new_distance = (entity->GetPosition() - GetPosition()).Length();
-      if (new_distance < current_distance) {
-        _meat = entity;
-      }
-    }
-  }
-}
-
-void Dummy::OnEntityDisappearance(Entity* entity) {
-  if (_meat == entity) {
-    _meat = NULL;
-  }
-}
-
 void Dummy::Damage(int damage, uint32_t source_id) {
   Destroy();
+}
+
+Entity* Dummy::GetTarget() const {
+  return _target;
+}
+
+void Dummy::SetTarget(Entity* target) {
+  _target = target;
 }
 
 void Dummy::Explode() {

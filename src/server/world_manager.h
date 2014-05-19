@@ -42,6 +42,9 @@ class WorldManager {
   void DeleteEntity(uint32_t id, bool deallocate);
   void DeleteEntities(const std::vector<uint32_t>& input, bool deallocate);
 
+  void OnEntityAppearance(Entity* entity);
+  void OnEntityDisappearance(Entity* entity);
+
   Entity* GetEntity(uint32_t id);
   std::map<uint32_t, Entity*>* GetStaticEntities();
   std::map<uint32_t, Entity*>* GetDynamicEntities();

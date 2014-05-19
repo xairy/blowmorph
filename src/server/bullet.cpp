@@ -57,9 +57,6 @@ void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->y = body_->GetPosition().y;
 }
 
-void Bullet::OnEntityAppearance(Entity* entity) { }
-void Bullet::OnEntityDisappearance(Entity* entity) { }
-
 void Bullet::Damage(int damage, uint32_t source_id) {
   Destroy();
 }

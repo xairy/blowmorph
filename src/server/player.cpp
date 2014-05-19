@@ -95,9 +95,6 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->data[3] = _score;
 }
 
-void Player::OnEntityAppearance(Entity* entity) { }
-void Player::OnEntityDisappearance(Entity* entity) { }
-
 void Player::Damage(int damage, uint32_t source_id) {
   _health -= damage;
   if (_health <= 0) {

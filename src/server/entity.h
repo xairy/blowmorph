@@ -60,12 +60,10 @@ class Entity {
   virtual Type GetType() = 0;
   virtual bool IsStatic() = 0;
 
+  // FIXME(xairy): get rid of it.
   virtual void Update(int64_t time) = 0;
-  virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
 
-  // TODO(xairy): Get rid of it.
-  virtual void OnEntityAppearance(Entity* entity) = 0;
-  virtual void OnEntityDisappearance(Entity* entity) = 0;
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
 
   virtual void Damage(int damage, uint32_t source_id) = 0;
 
