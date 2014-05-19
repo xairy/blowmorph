@@ -42,9 +42,6 @@ class Station : public Entity {
   virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
-  virtual void OnEntityAppearance(Entity* entity);
-  virtual void OnEntityDisappearance(Entity* entity);
-
   virtual void Damage(int damage, uint32_t source_id);
 
   // Double dispatch. Collision detection.

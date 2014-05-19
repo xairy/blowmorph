@@ -32,10 +32,10 @@ class Dummy : public Entity {
   virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
-  virtual void OnEntityAppearance(Entity* entity);
-  virtual void OnEntityDisappearance(Entity* entity);
-
   virtual void Damage(int damage, uint32_t id);
+
+  Entity* GetTarget() const;
+  void SetTarget(Entity* target);
 
   void Explode();
 
@@ -51,7 +51,7 @@ class Dummy : public Entity {
 
  protected:
   float _speed;
-  Entity* _meat;
+  Entity* _target;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Dummy);

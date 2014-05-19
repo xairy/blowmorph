@@ -63,9 +63,6 @@ void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   }
 }
 
-void Station::OnEntityAppearance(Entity* entity) { }
-void Station::OnEntityDisappearance(Entity* entity) { }
-
 void Station::Damage(int damage, uint32_t source_id) { }
 
 // Double dispatch. Collision detection.
