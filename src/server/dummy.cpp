@@ -21,8 +21,7 @@ namespace bm {
 Dummy::Dummy(
   WorldManager* world_manager,
   uint32_t id,
-  const b2Vec2& position,
-  int64_t time
+  const b2Vec2& position
 ) : Entity(world_manager, id, "dummy", position, true,
            Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
@@ -40,15 +39,6 @@ bool Dummy::IsStatic() {
   return false;
 }
 
-void Dummy::Update(int64_t time) {
-  if (_target != NULL) {
-    b2Vec2 velocity = _target->GetPosition() - GetPosition();
-    velocity.Normalize();
-    velocity *= _speed;
-    body_->SetLinearVelocity(velocity);
-  }
-}
-
 void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_DUMMY;
   output->time = time;
@@ -59,6 +49,10 @@ void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
 
 void Dummy::Damage(int damage, uint32_t source_id) {
   Destroy();
+}
+
+float Dummy::GetSpeed() const {
+  return _speed;
 }
 
 Entity* Dummy::GetTarget() const {

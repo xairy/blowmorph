@@ -208,34 +208,49 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
-void WorldManager::Update(int64_t time, int64_t delta_time) {
+void WorldManager::Update(int64_t time_delta) {
   // XXX(xairy): Temporary.
   static int counter = 0;
   if (counter == 300) {
     float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
     float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    CreateDummy(b2Vec2(x, y), time);
+    CreateDummy(b2Vec2(x, y));
     counter = 0;
   }
   counter++;
 
-  UpdateEntities(time);
-  StepPhysics(delta_time);
+  UpdateEntities(time_delta);
+  StepPhysics(time_delta);
   DestroyOutlyingEntities();
   RespawnDeadPlayers();
 }
 
-void WorldManager::UpdateEntities(int64_t time) {
+void WorldManager::UpdateEntities(int64_t time_delta) {
   std::map<uint32_t, Entity*>::iterator i, end;
-  end = _static_entities.end();
-  for (i = _static_entities.begin(); i != end; ++i) {
-    Entity* entity = i->second;
-    entity->Update(time);
-  }
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    entity->Update(time);
+    if (entity->GetType() == Entity::TYPE_DUMMY) {
+      Dummy* dummy = static_cast<Dummy*>(entity);
+      Entity* target = dummy->GetTarget();
+      if (target != NULL) {
+        b2Vec2 velocity = target->GetPosition() - dummy->GetPosition();
+        velocity.Normalize();
+        velocity *= dummy->GetSpeed();
+        dummy->SetVelocity(velocity);
+      }
+    } else if (entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* player = static_cast<Player*>(entity);
+      Player::KeyboardState* keyboard_state = player->GetKeyboardState();
+      float speed = player->GetSpeed();
+      b2Vec2 velocity;
+      velocity.x = keyboard_state->left * (-speed)
+        + keyboard_state->right * (speed);
+      velocity.y = keyboard_state->up * (-speed)
+        + keyboard_state->down * (speed);
+      player->SetVelocity(velocity);
+      player->Regenerate(time_delta);
+    }
   }
 }
 
@@ -271,23 +286,21 @@ void WorldManager::DestroyOutlyingEntities() {
 void WorldManager::CreateBullet(
   uint32_t owner_id,
   const b2Vec2& start,
-  const b2Vec2& end,
-  int64_t time
+  const b2Vec2& end
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
-  Bullet* bullet = new Bullet(this, id, owner_id, start, end, time);
+  Bullet* bullet = new Bullet(this, id, owner_id, start, end);
   CHECK(bullet != NULL);
   AddEntity(id, bullet);
 }
 
 void WorldManager::CreateDummy(
-  const b2Vec2& position,
-  int64_t time
+  const b2Vec2& position
 ) {
   uint32_t id = _id_manager->NewId();
-  Dummy* dummy = new Dummy(this, id, position, time);
+  Dummy* dummy = new Dummy(this, id, position);
   CHECK(dummy != NULL);
   AddEntity(id, dummy);
 }

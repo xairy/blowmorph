@@ -18,6 +18,7 @@ namespace bm {
 class Player : public Entity {
   friend class Entity;
 
+ public:
   struct KeyboardState {
     KeyboardState() : up(false), down(false), right(false), left(false) { }
     bool up;
@@ -42,11 +43,11 @@ class Player : public Entity {
   virtual Entity::Type GetType();
   virtual bool IsStatic();
 
-  virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void Damage(int damage, uint32_t source_id);
 
+  // FIXME(xairy): move outside Player.
   void OnKeyboardEvent(const KeyboardEvent& event);
   void OnMouseEvent(const MouseEvent& event, int64_t time);
 
@@ -57,6 +58,10 @@ class Player : public Entity {
   void DecScore();
 
   uint32_t GetKillerId() const;
+
+  KeyboardState* GetKeyboardState();
+
+  void Regenerate(int64_t delta_time);
 
   int GetHealth() const;
   int GetMaxHealth() const;
@@ -106,6 +111,9 @@ class Player : public Entity {
   int _score;
   uint32_t _killer_id;
 
+  KeyboardState _keyboard_state;
+  KeyboardUpdateTime _keyboard_update_time;
+
   int _max_health;
   int _health_regeneration;
   int _health;
@@ -119,10 +127,6 @@ class Player : public Entity {
   int _morph_consumption;
   int _morph_regeneration;  // Points per ms.
   int _morph_charge;
-
-  int64_t _last_update_time;
-  KeyboardState _keyboard_state;
-  KeyboardUpdateTime _keyboard_update_time;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Player);

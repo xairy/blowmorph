@@ -180,7 +180,7 @@ bool Server::BroadcastStaticEntities(bool force) {
 }
 
 bool Server::UpdateWorld() {
-  world_manager_.Update(Timestamp(), update_timeout_);
+  world_manager_.Update(update_timeout_);
   if (!DeleteDestroyedEntities()) {
     return false;
   }

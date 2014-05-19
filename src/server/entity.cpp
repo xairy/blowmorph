@@ -66,6 +66,10 @@ void Entity::SetPosition(const b2Vec2& position) {
   SetBodyPosition(body_, position);
 }
 
+void Entity::SetVelocity(const b2Vec2& velocity) {
+  body_->SetLinearVelocity(velocity);
+}
+
 void Entity::Destroy() {
   _is_destroyed = true;
 }

@@ -22,17 +22,17 @@ class Dummy : public Entity {
   Dummy(
     WorldManager* world_manager,
     uint32_t id,
-    const b2Vec2& position,
-    int64_t time);
+    const b2Vec2& position);
   virtual ~Dummy();
 
   virtual Entity::Type GetType();
   virtual bool IsStatic();
 
-  virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void Damage(int damage, uint32_t id);
+
+  float GetSpeed() const;
 
   Entity* GetTarget() const;
   void SetTarget(Entity* target);
