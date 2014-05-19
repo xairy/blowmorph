@@ -641,5 +641,71 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
   }
 }
 
+void WorldManager::ExplodeBullet(Bullet* bullet) {
+  // We do not want 'bullet' to explode multiple times.
+  if (!bullet->IsDestroyed()) {
+    Blow(bullet->GetPosition(), bullet->GetOwnerId());
+    bullet->Destroy();
+  }
+}
+
+void WorldManager::ExplodeDummy(Dummy* dummy) {
+  // We do not want 'dummy' to explode multiple times.
+  if (!dummy->IsDestroyed()) {
+    Blow(dummy->GetPosition(), dummy->GetId());
+    dummy->Destroy();
+  }
+}
+
+// Collisions.
+
+void WorldManager::OnCollision(Station* station1, Station* station2) { }
+void WorldManager::OnCollision(Station* station, Wall* wall) { }
+
+void WorldManager::OnCollision(Station* station, Player* player) {
+  player->AddHealth(station->GetHealthRegeneration());
+  player->AddBlow(station->GetBlowRegeneration());
+  player->AddMorph(station->GetMorphRegeneration());
+  station->Destroy();
+}
+
+void WorldManager::OnCollision(Station* station, Dummy* dummy) { }
+void WorldManager::OnCollision(Station* station, Bullet* bullet) { }
+
+void WorldManager::OnCollision(Wall* wall1, Wall* wall2) { }
+void WorldManager::OnCollision(Wall* wall, Player* player) { }
+
+void WorldManager::OnCollision(Wall* wall, Dummy* dummy) {
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Wall* wall, Bullet* bullet) {
+  ExplodeBullet(bullet);
+}
+
+void WorldManager::OnCollision(Player* player1, Player* player2) { }
+
+void WorldManager::OnCollision(Player* player, Dummy* dummy) {
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Player* player, Bullet* bullet) {
+  if (bullet->GetOwnerId() == player->GetId()) {
+    return;
+  }
+  ExplodeBullet(bullet);
+}
+
+void WorldManager::OnCollision(Dummy* dummy1, Dummy* dummy2) { }
+
+void WorldManager::OnCollision(Dummy* dummy, Bullet* bullet) {
+  ExplodeBullet(bullet);
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Bullet* bullet1, Bullet* bullet2) {
+  ExplodeBullet(bullet1);
+  ExplodeBullet(bullet2);
+}
 
 }  // namespace bm

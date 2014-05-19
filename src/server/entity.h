@@ -57,6 +57,8 @@ class Entity {
     uint16_t collision_mask);
   virtual ~Entity();
 
+  WorldManager* GetWorldManager();
+
   virtual Type GetType() = 0;
   virtual bool IsStatic() = 0;
 
@@ -74,6 +76,7 @@ class Entity {
   virtual void Destroy();
   virtual bool IsDestroyed() const;
 
+  // FIXME(xairy): get rid of it.
   virtual void SetUpdatedFlag(bool value);
   virtual bool IsUpdated() const;
 

@@ -55,6 +55,10 @@ Entity::~Entity() {
   }
 }
 
+WorldManager* Entity::GetWorldManager() {
+  return _world_manager;
+}
+
 uint32_t Entity::GetId() const {
   return _id;
 }
@@ -86,52 +90,54 @@ bool Entity::IsUpdated() const {
 
 // Double dispatch.
 
-void Entity::Collide(Station* station1, Station* station2) { }
-void Entity::Collide(Station* station, Wall* wall) { }
-
-void Entity::Collide(Station* station, Player* player) {
-  player->AddHealth(station->_health_regeneration);
-  player->AddBlow(station->_blow_regeneration);
-  player->AddMorph(station->_morph_regeneration);
-  station->Destroy();
+void Entity::Collide(Station* first, Station* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Station* first, Wall* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Station* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Station* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Station* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
-void Entity::Collide(Station* station, Dummy* dummy) { }
-void Entity::Collide(Station* station, Bullet* bullet) { }
-
-void Entity::Collide(Wall* wall1, Wall* wall2) { }
-void Entity::Collide(Wall* wall, Player* player) { }
-void Entity::Collide(Wall* wall, Dummy* dummy) {
-  dummy->Explode();
+void Entity::Collide(Wall* first, Wall* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Wall* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Wall* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Wall* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
-void Entity::Collide(Wall* wall, Bullet* bullet) {
-  bullet->Explode();
+void Entity::Collide(Player* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Player* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Player* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
-void Entity::Collide(Player* player1, Player* player2) { }
-
-void Entity::Collide(Player* player, Dummy* dummy) {
-  dummy->Explode();
+void Entity::Collide(Dummy* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Dummy* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
-void Entity::Collide(Player* player, Bullet* bullet) {
-  if (bullet->_owner_id == player->GetId()) {
-    return;
-  }
-  bullet->Explode();
-}
-
-void Entity::Collide(Dummy* dummy1, Dummy* dummy2) { }
-
-void Entity::Collide(Dummy* dummy, Bullet* bullet) {
-  bullet->Explode();
-  dummy->Explode();
-}
-
-void Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
-  bullet1->Explode();
-  bullet2->Explode();
+void Entity::Collide(Bullet* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
 }  // namespace bm

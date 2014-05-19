@@ -15,6 +15,7 @@
 
 namespace bm {
 
+// FIXME(xairy): rename to Kit.
 class Station : public Entity {
   friend class Entity;
 
@@ -42,6 +43,10 @@ class Station : public Entity {
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
 
   virtual void Damage(int damage, uint32_t source_id);
+
+  int GetHealthRegeneration() const;
+  int GetBlowRegeneration() const;
+  int GetMorphRegeneration() const;
 
   // Double dispatch. Collision detection.
 

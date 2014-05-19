@@ -63,6 +63,16 @@ void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
 
 void Station::Damage(int damage, uint32_t source_id) { }
 
+int Station::GetHealthRegeneration() const {
+  return _health_regeneration;
+}
+int Station::GetBlowRegeneration() const {
+  return _blow_regeneration;
+}
+int Station::GetMorphRegeneration() const {
+  return _morph_regeneration;
+}
+
 // Double dispatch. Collision detection.
 
 void Station::Collide(Entity* entity) {

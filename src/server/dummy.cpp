@@ -63,13 +63,6 @@ void Dummy::SetTarget(Entity* target) {
   _target = target;
 }
 
-void Dummy::Explode() {
-  if (!IsDestroyed()) {
-    _world_manager->Blow(body_->GetPosition(), _id);
-    Destroy();
-  }
-}
-
 void Dummy::Collide(Entity* entity) {
   entity->Collide(this);
 }
