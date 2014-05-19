@@ -41,7 +41,7 @@ class Bullet : public Entity {
 
   uint32_t GetOwnerId();
 
-  void Explode(uint32_t source_id);
+  void Explode();
 
   // Double dispatch. Collision detection.
 
