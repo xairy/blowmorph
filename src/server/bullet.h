@@ -15,6 +15,7 @@
 
 namespace bm {
 
+// FIXME(xairy): bullet's speed seems to be limited.
 class Bullet : public Entity {
   friend class Entity;
 

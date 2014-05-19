@@ -613,4 +613,33 @@ b2Vec2 WorldManager::GetRandomSpawn() const {
   return _spawn_positions[spawn];
 }
 
+void WorldManager::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
+  player->OnKeyboardEvent(event);
+}
+
+void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
+  int blow_consumption = _settings.GetInt32("player.blow.consumption");
+  int morph_consumption = _settings.GetInt32("player.morph.consumption");
+
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
+    event.button_type == MouseEvent::BUTTON_LEFT) {
+    if (player->GetBlowCharge() >= blow_consumption) {
+      player->AddBlow(-blow_consumption);
+      b2Vec2 start = player->GetPosition();
+      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
+      CreateBullet(player->GetId(), start, end);
+    }
+  }
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
+    event.button_type == MouseEvent::BUTTON_RIGHT) {
+    if (player->GetMorphCharge() >= morph_consumption) {
+      player->AddMorph(-morph_consumption);
+      float x = static_cast<float>(event.x);
+      float y = static_cast<float>(event.y);
+      Morph(b2Vec2(x, y));
+    }
+  }
+}
+
+
 }  // namespace bm

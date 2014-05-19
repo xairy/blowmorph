@@ -35,12 +35,10 @@ Player::Player(
   _health = _max_health;
 
   _blow_capacity = settings->GetInt32("player.blow.capacity");
-  _blow_consumption = settings->GetInt32("player.blow.consumption");
   _blow_regeneration = settings->GetInt32("player.blow.regeneration");
   _blow_charge = _blow_capacity;
 
   _morph_capacity = settings->GetInt32("player.morph.capacity");
-  _morph_consumption = settings->GetInt32("player.morph.consumption");
   _morph_regeneration = settings->GetInt32("player.morph.regeneration");
   _morph_charge = _morph_capacity;
 }
@@ -147,27 +145,6 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
           return;
         }
       }
-    }
-  }
-}
-
-void Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_LEFT) {
-    if (_blow_charge >= _blow_consumption) {
-      _blow_charge -= _blow_consumption;
-      b2Vec2 start = GetPosition();
-      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      _world_manager->CreateBullet(_id, start, end);
-    }
-  }
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_RIGHT) {
-    if (_morph_charge >= _morph_consumption) {
-      _morph_charge -= _morph_consumption;
-      float x = static_cast<float>(event.x);
-      float y = static_cast<float>(event.y);
-      _world_manager->Morph(b2Vec2(x, y));
     }
   }
 }
