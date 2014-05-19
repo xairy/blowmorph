@@ -514,17 +514,7 @@ void WorldManager::RespawnDeadPlayers() {
       Player* player = static_cast<Player*>(entity);
       if (player->GetHealth() <= 0) {
         RespawnPlayer(player);
-        uint32_t killer_id = player->GetKillerId();
-        if (killer_id == player->GetId()) {
-          player->DecScore();
-        } else {
-          Entity* entity = GetEntity(killer_id);
-          CHECK(entity != NULL);
-          if (entity->GetType() == Entity::TYPE_PLAYER) {
-            Player* killer = static_cast<Player*>(entity);
-            killer->IncScore();
-          }
-        }
+        UpdateScore(player);
       }
     }
   }
@@ -533,6 +523,20 @@ void WorldManager::RespawnDeadPlayers() {
 void WorldManager::RespawnPlayer(Player* player) {
   player->SetPosition(GetRandomSpawn());
   player->RestoreHealth();
+}
+
+void WorldManager::UpdateScore(Player* player) {
+  uint32_t killer_id = player->GetKillerId();
+  if (killer_id == player->GetId()) {
+    player->DecScore();
+  } else {
+    Entity* entity = GetEntity(killer_id);
+    CHECK(entity != NULL);
+    if (entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* killer = static_cast<Player*>(entity);
+      killer->IncScore();
+    }
+  }
 }
 
 b2Vec2 WorldManager::GetRandomSpawn() const {
