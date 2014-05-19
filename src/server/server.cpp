@@ -180,28 +180,10 @@ bool Server::BroadcastStaticEntities(bool force) {
 }
 
 bool Server::UpdateWorld() {
-  // XXX(xairy): Temporary.
-  static int counter = 0;
-  if (counter == 300) {
-    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    world_manager_.CreateDummy(b2Vec2(x, y), Timestamp());
-    counter = 0;
-  }
-  counter++;
-
-  world_manager_.UpdateEntities(Timestamp());
-
-  world_manager_.StepPhysics(update_timeout_);
-
-  world_manager_.DestroyOutlyingEntities();
-
+  world_manager_.Update(Timestamp(), update_timeout_);
   if (!DeleteDestroyedEntities()) {
     return false;
   }
-
-  world_manager_.RespawnDeadPlayers();
-
   return true;
 }
 
@@ -400,6 +382,7 @@ bool Server::OnLogin(uint32_t client_id) {
 
   // Create player.
 
+  // XXX(xairy): move player creation to WorldManager?
   Player* player = new Player(
     &world_manager_,
     client_id,
