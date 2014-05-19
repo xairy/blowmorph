@@ -47,9 +47,7 @@ class Player : public Entity {
 
   virtual void Damage(int damage, uint32_t source_id);
 
-  // FIXME(xairy): move outside Player.
   void OnKeyboardEvent(const KeyboardEvent& event);
-  void OnMouseEvent(const MouseEvent& event, int64_t time);
 
   float GetSpeed() const;
   void SetSpeed(float speed);
@@ -119,12 +117,10 @@ class Player : public Entity {
   int _health;
 
   int _blow_capacity;
-  int _blow_consumption;
   int _blow_regeneration;  // Points per ms.
   int _blow_charge;
 
   int _morph_capacity;
-  int _morph_consumption;
   int _morph_regeneration;  // Points per ms.
   int _morph_charge;
 

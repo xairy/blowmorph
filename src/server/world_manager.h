@@ -11,6 +11,7 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
@@ -87,6 +88,9 @@ class WorldManager {
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
   b2Vec2 GetRandomSpawn() const;
+
+  void OnKeyboardEvent(Player* player, const KeyboardEvent& event);
+  void OnMouseEvent(Player* player, const MouseEvent& event);
 
  private:
   bool _LoadWall(const pugi::xml_node& node);

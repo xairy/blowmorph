@@ -331,25 +331,25 @@ bool Server::OnReceive() {
     } break;
 
     case Packet::TYPE_KEYBOARD_EVENT: {
-      KeyboardEvent keyboardevent_;
-      rv = ExtractPacketData(message, &keyboardevent_);
+      KeyboardEvent keyboard_event_;
+      rv = ExtractPacketData(message, &keyboard_event_);
       if (rv == false) {
         printf("#%u: Incorrect message format [1], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-      client->entity->OnKeyboardEvent(keyboardevent_);
+      world_manager_.OnKeyboardEvent(client->entity, keyboard_event_);
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      MouseEvent mouseevent_;
-      rv = ExtractPacketData(message, &mouseevent_);
+      MouseEvent mouse_event_;
+      rv = ExtractPacketData(message, &mouse_event_);
       if (rv == false) {
         printf("#%u: Incorrect message format [2], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-      client->entity->OnMouseEvent(mouseevent_, Timestamp());
+      world_manager_.OnMouseEvent(client->entity, mouse_event_);
     } break;
 
     default: {
