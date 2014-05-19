@@ -816,7 +816,8 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
     walls_.erase(it);
   }
 
-  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
+  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_DUMMY) {
     // TODO(xairy): create explosion animation on explosion packet.
     Sprite* explosion = resource_manager_.CreateSprite("explosion");
     if (explosion == NULL) {

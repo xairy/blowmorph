@@ -137,7 +137,7 @@ bool Server::Tick() {
       return false;
     }
   } else {
-    // printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
+    printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
   }
 
   return true;
