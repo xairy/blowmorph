@@ -81,6 +81,7 @@ class WorldManager {
 
   void RespawnDeadPlayers();
   void RespawnPlayer(Player* player);
+  void UpdateScore(Player* player);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
   b2Vec2 GetRandomSpawn() const;
