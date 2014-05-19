@@ -61,6 +61,8 @@ class Application {
 
   void Render();
   void RenderHUD();
+  void WriteText(const std::string& str, const sf::Vector2f& position,
+      int size, sf::Color color);
 
   bool SendInputEvents();
 
@@ -94,6 +96,9 @@ class Application {
   ClientOptions client_options_;
 
   std::map<uint32_t, std::string> player_names_;
+
+  bool show_score_table_;
+  std::map<uint32_t, int> player_scores_;
 
   float player_health_;
   float player_blow_charge_;

@@ -89,12 +89,13 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->data[0] = _health;
   output->data[1] = _blow_charge;
   output->data[2] = _morph_charge;
+  output->data[3] = _score;
 }
 
 void Player::OnEntityAppearance(Entity* entity) { }
 void Player::OnEntityDisappearance(Entity* entity) { }
 
-void Player::Damage(int damage) {
+void Player::Damage(int damage, uint32_t source_id) {
   _health -= damage;
 }
 
@@ -201,6 +202,13 @@ float Player::GetSpeed() const {
 }
 void Player::SetSpeed(float speed) {
   _speed = speed;
+}
+
+void Player::IncScore() {
+    _score++;
+}
+void Player::DecScore() {
+    _score--;
 }
 
 int Player::GetHealth() const {

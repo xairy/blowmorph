@@ -60,7 +60,7 @@ void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
 void Bullet::OnEntityAppearance(Entity* entity) { }
 void Bullet::OnEntityDisappearance(Entity* entity) { }
 
-void Bullet::Damage(int damage) {
+void Bullet::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
@@ -68,9 +68,9 @@ uint32_t Bullet::GetOwnerId() {
   return _owner_id;
 }
 
-void Bullet::Explode() {
+void Bullet::Explode(uint32_t source_id) {
   if (!IsDestroyed()) {
-    _world_manager->Blow(body_->GetPosition());
+    _world_manager->Blow(body_->GetPosition(), source_id);
     Destroy();
   }
 }

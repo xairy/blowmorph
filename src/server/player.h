@@ -48,13 +48,16 @@ class Player : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t source_id);
 
   void OnKeyboardEvent(const KeyboardEvent& event);
   void OnMouseEvent(const MouseEvent& event, int64_t time);
 
   float GetSpeed() const;
   void SetSpeed(float speed);
+
+  void IncScore();
+  void DecScore();
 
   int GetHealth() const;
   int GetMaxHealth() const;
@@ -100,6 +103,8 @@ class Player : public Entity {
 
  protected:
   float _speed;  // In vertical and horizontal directions.
+
+  int _score;
 
   int _max_health;
   int _health_regeneration;

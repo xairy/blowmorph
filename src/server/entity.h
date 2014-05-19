@@ -62,7 +62,7 @@ class Entity {
   virtual void OnEntityAppearance(Entity* entity) = 0;
   virtual void OnEntityDisappearance(Entity* entity) = 0;
 
-  virtual void Damage(int damage) = 0;
+  virtual void Damage(int damage, uint32_t source_id) = 0;
 
   virtual uint32_t GetId() const;
 

@@ -76,7 +76,7 @@ class WorldManager {
   void CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  void Blow(const b2Vec2& location);
+  void Blow(const b2Vec2& location, uint32_t source_id);
   void Morph(const b2Vec2& location);
 
   void RespawnDeadPlayers();
