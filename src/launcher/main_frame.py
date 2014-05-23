@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 
+import subprocess
 import sys
 import wx
 
@@ -150,6 +151,13 @@ class MainFrame(wx.Frame):
     #-------------------------------------------------------------------------
     def OnButtonConnectPressed(self, event):
         print "OnButtonConnectPressed"
+        bash_command = "../.././client.sh"
+        process = subprocess.Popen(bash_command.split(), shell=True,
+                                   stdout=subprocess.PIPE)
         
+        # TODO: close when connection established.
+        output = process.communicate()[0]
+        print output
+         
     #-------------------------------------------------------------------------
 ##############################################################################
