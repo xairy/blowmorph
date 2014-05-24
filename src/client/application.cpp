@@ -254,7 +254,8 @@ bool Application::Connect() {
     return false;
   }
   if (event_->GetType() != enet::Event::TYPE_CONNECT) {
-    THROW_ERROR("Could not connect to server.");
+    THROW_ERROR("Could not connect to server %s:%d.",
+        host.c_str(), static_cast<int>(port));
     return false;
   }
 
