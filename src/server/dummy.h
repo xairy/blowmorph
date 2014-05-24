@@ -34,7 +34,7 @@ class Dummy : public Entity {
   virtual void OnEntityAppearance(Entity* entity);
   virtual void OnEntityDisappearance(Entity* entity);
 
-  virtual void Damage(int damage);
+  virtual void Damage(int damage, uint32_t id);
 
   virtual void SetPosition(const Vector2f& position);
 
@@ -49,7 +49,7 @@ class Dummy : public Entity {
   virtual bool Collide(Station* other);
 
  protected:
-  Dummy(WorldManager* world_manager, uint32_t id);
+  Dummy(WorldManager* world_manager, uint32_t source_id);
 
   float _speed;
   Entity* _meat;
