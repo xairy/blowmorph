@@ -6,7 +6,7 @@
 import requests
 import socket
 
-f = open("../../data/client.cfg")
+f = open("../../data/mclient.cfg")
 lines = f.readlines()
 f.close()
 
