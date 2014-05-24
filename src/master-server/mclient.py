@@ -17,5 +17,9 @@ for line in lines:
         port = line[9:-2]
 
 address = "http://" + host + ":" + port
-r = requests.post(address, params = {"name" : socket.gethostname()})
-print "Message to master-server was sent."
+try:
+    r = requests.post(address, params = {"name" : socket.gethostname()})
+except requests.exceptions.ConnectionError:
+    print "Could not send info to the master server: ", address
+else:
+    print "Message to master-server was sent."
