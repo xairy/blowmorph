@@ -55,10 +55,6 @@ class MainFrame(wx.Frame):
         file = open("../../data/client.cfg")
         lines = file.readlines()
         for line in lines:
-            if len(line) >= 9 and line[0:9] == "  host = ":
-                host = line[10:-3]
-            if len(line) >= 9 and line[0:9] == "  port = ":
-                port = line[9:-2]
             if len(line) >= 10 and line[0:10] == "  width = ":
                 self.cfg_width = line[10:-2]
             if len(line) >= 11 and line[0:11] == "  height = ":
@@ -66,7 +62,17 @@ class MainFrame(wx.Frame):
             if len(line) >= 10 and line[0:10] == "  login = ":
                 self.cfg_login = line[11:-3]
         
-        host = "localhost"        
+        file.close()
+        
+        file = open("../../data/mclient.cfg")
+        lines = file.readlines()
+        for line in lines:
+            if len(line) >= 9 and line[0:9] == "  host = ":
+                host = line[10:-3]
+            if len(line) >= 9 and line[0:9] == "  port = ":
+                port = line[9:-2]
+        file.close()
+        
         address = "http://"+ host + ":" + port
         r = requests.get(address)
         self.servers_dict = ast.literal_eval(r.text)
