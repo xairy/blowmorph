@@ -3,10 +3,16 @@
 
 from __future__ import unicode_literals
 
+import ast
+import requests
 import subprocess
 import sys
 import wx
 
+
+
+
+##############################################################################
 class MainFrame(wx.Frame):
     """First (and main) frame class."""
 
@@ -14,8 +20,8 @@ class MainFrame(wx.Frame):
     def __init__(self, title = "Blowmorph launcher", size = (330, 400)):
         wx.Frame.__init__(self, None, title = title, size = size)
         self.list_ctrl = None
+        self.load_data()
         self.DoLayout()
-
 
     #-------------------------------------------------------------------------
     # Current format of textctrls (tc):
@@ -26,24 +32,46 @@ class MainFrame(wx.Frame):
                                     pos = wx.Point(5, 4))
         self.nickname = wx.TextCtrl(self.panel_nickname, size=(100, -1),
                                     pos = wx.Point(45, 0), 
-                                    value = "xairy")
+                                    value = self.cfg_login)
         
         self.panel_resolution = wx.Panel(self)
         _resolution_label = wx.StaticText(self.panel_resolution, -1,
                                               label="Resolution: ",
                                               pos = wx.Point(5, 4))
         
-        self.width_resolution = wx.TextCtrl(self.panel_resolution, 
-                                              size=(45, -1),
-                                              pos = wx.Point(77, 0))
+        self.cfg_width_resolution = wx.TextCtrl(self.panel_resolution, 
+                                            size=(45, -1),
+                                            pos = wx.Point(77, 0),
+                                            value = self.cfg_width)
         self.heigth_resolution = wx.TextCtrl(self.panel_resolution,
                                              pos = wx.Point(135, 0),
-                                             size=(45, -1))
+                                             size=(45, -1),
+                                             value = self.cfg_height)
 
         _separator = wx.StaticText(self.panel_resolution, -1, 
                                   label="x",
                                   pos = wx.Point(125, 4))
-        
+    #-----------------------------------------------------------------------------
+    def load_data(self):
+        # Fix it with python-libconfig.
+        file = open("../../data/client.cfg")
+        lines = file.readlines()
+        for line in lines:
+            if len(line) >= 9 and line[0:9] == "  host = ":
+                host = line[10:-3]
+            if len(line) >= 9 and line[0:9] == "  port = ":
+                port = line[9:-2]
+            if len(line) >= 10 and line[0:10] == "  width = ":
+                self.cfg_width = line[10:-2]
+            if len(line) >= 11 and line[0:11] == "  height = ":
+                self.cfg_height = line[11:-2]
+            if len(line) >= 10 and line[0:10] == "  login = ":
+                self.cfg_login = line[11:-3]
+                
+        address = "http://"+ host + ":" + port
+        r = requests.get(address)
+        self.servers_dict = ast.literal_eval(r.text)
+                
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
         self.list_ctrl = wx.ListCtrl(self, wx.ID_ANY, style = wx.LC_REPORT)
@@ -54,10 +82,15 @@ class MainFrame(wx.Frame):
             self.list_ctrl.InsertColumn(i, column_names[i])
             
         # Fill the table.
-        test_data = [["xairy's server",  "198.168.0.1"], 
-                     ["rdkl's server",   "198.168.0.2"],
-                     ["andreyknvl.com",  "198.168.0.3"]]
-        for item in test_data:
+        #test_data = [["xairy's server",  "198.168.0.1"], 
+        #             ["rdkl's server",   "198.168.0.2"],
+        #             ["andreyknvl.com",  "198.168.0.3"]]
+        
+        
+        servers_data = [[name, self.servers_dict[name]] 
+                        for name in self.servers_dict]
+        
+        for item in servers_data:
             index = self.list_ctrl.InsertStringItem(sys.maxint, 
                                                     str(item[0]))
             for p in xrange(len(item) - 1):
