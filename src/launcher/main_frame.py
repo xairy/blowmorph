@@ -65,7 +65,8 @@ class MainFrame(wx.Frame):
                 self.cfg_height = line[11:-2]
             if len(line) >= 10 and line[0:10] == "  login = ":
                 self.cfg_login = line[11:-3]
-                
+        
+        host = "localhost"        
         address = "http://"+ host + ":" + port
         r = requests.get(address)
         self.servers_dict = ast.literal_eval(r.text)
@@ -212,7 +213,8 @@ class MainFrame(wx.Frame):
                 line = "  height = " + height + ";\n"
             if len(line) >= 10 and line[0:10] == "  login = ":
                 line = "  login = \"" + login + "\";\n"
-            print >>f, line
+            if len(line) > 1:
+                print >>f, line[:-1]
             
         f.close()
         
