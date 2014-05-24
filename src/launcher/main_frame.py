@@ -74,8 +74,17 @@ class MainFrame(wx.Frame):
         file.close()
         
         address = "http://"+ host + ":" + port
-        r = requests.get(address)
-        self.servers_dict = ast.literal_eval(r.text)
+
+        try:
+            r = requests.get(address)
+            self.servers_dict = ast.literal_eval(r.text)
+            
+        except requests.exceptions.ConnectionError:
+            print "Could not get info from master server: ", address
+            self.servers_dict = {}
+            return
+            
+        
                 
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
