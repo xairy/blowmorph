@@ -28,7 +28,7 @@ class IdManager;
 
 class WorldManager {
  public:
-  WorldManager(IdManager* id_manager);
+  explicit WorldManager(IdManager* id_manager);
   ~WorldManager();
 
   SettingsManager* GetSettings();
@@ -73,7 +73,7 @@ class WorldManager {
   bool CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const Vector2f& location);
+  bool Blow(const Vector2f& location, uint32_t source_id);
   bool Morph(const Vector2f& location);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.

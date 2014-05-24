@@ -360,7 +360,6 @@ bool Server::OnReceive() {
       }
 
       client->entity->OnKeyboardEvent(keyboardevent_);
-
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {

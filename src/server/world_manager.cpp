@@ -53,7 +53,7 @@ namespace bm {
 WorldManager::WorldManager(IdManager* id_manager)
     : _map_type(MAP_NONE), _id_manager(id_manager) {
   bool rv = _settings.Open("data/entities.cfg");
-  CHECK(rv == true); // FIXME.
+  CHECK(rv == true);  // FIXME.
 }
 
 WorldManager::~WorldManager() {
@@ -494,7 +494,7 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::Blow(const Vector2f& location) {
+bool WorldManager::Blow(const Vector2f& location, uint32_t source_id) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
@@ -505,14 +505,14 @@ bool WorldManager::Blow(const Vector2f& location) {
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if (explosion.Collide(entity->GetShape())) {
-      entity->Damage(damage);
+      entity->Damage(damage, source_id);
     }
   }
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
     if (explosion.Collide(entity->GetShape())) {
-      entity->Damage(damage);
+      entity->Damage(damage, source_id);
     }
   }
 
@@ -558,7 +558,6 @@ Shape* WorldManager::LoadShape(const std::string& prefix) {
     CHECK(shape != NULL);
     return shape;
   } else if (shape_type == "square") {
-
     float side = _settings.GetFloat(prefix + ".side");
     Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
     CHECK(shape != NULL);
