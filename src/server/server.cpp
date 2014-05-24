@@ -2,6 +2,8 @@
 
 #include "server/server.h"
 
+#include <unistd.h>
+
 #include <cstdio>
 #include <cstring>
 
@@ -85,6 +87,8 @@ bool Server::Initialize() {
 
   host_ = host.release();
   event_ = event.release();
+
+  execl("/usr/bin/sh", "python", "../src/master-server/mclient.py", NULL);
 
   state_ = STATE_INITIALIZED;
   return true;
