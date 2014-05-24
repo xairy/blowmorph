@@ -9,9 +9,6 @@ import subprocess
 import sys
 import wx
 
-
-
-
 ##############################################################################
 class MainFrame(wx.Frame):
     """First (and main) frame class."""
@@ -20,7 +17,8 @@ class MainFrame(wx.Frame):
     def __init__(self, title = "Blowmorph launcher", size = (330, 400)):
         wx.Frame.__init__(self, None, title = title, size = size)
         self.list_ctrl = None
-        self.load_data()
+        self.selected_address = None
+        self.load_cfg()
         self.DoLayout()
 
     #-------------------------------------------------------------------------
@@ -39,11 +37,11 @@ class MainFrame(wx.Frame):
                                               label="Resolution: ",
                                               pos = wx.Point(5, 4))
         
-        self.cfg_width_resolution = wx.TextCtrl(self.panel_resolution, 
+        self.width_resolution = wx.TextCtrl(self.panel_resolution, 
                                             size=(45, -1),
                                             pos = wx.Point(77, 0),
                                             value = self.cfg_width)
-        self.heigth_resolution = wx.TextCtrl(self.panel_resolution,
+        self.height_resolution = wx.TextCtrl(self.panel_resolution,
                                              pos = wx.Point(135, 0),
                                              size=(45, -1),
                                              value = self.cfg_height)
@@ -52,7 +50,7 @@ class MainFrame(wx.Frame):
                                   label="x",
                                   pos = wx.Point(125, 4))
     #-----------------------------------------------------------------------------
-    def load_data(self):
+    def load_cfg(self):
         # Fix it with python-libconfig.
         file = open("../../data/client.cfg")
         lines = file.readlines()
@@ -85,7 +83,6 @@ class MainFrame(wx.Frame):
         #test_data = [["xairy's server",  "198.168.0.1"], 
         #             ["rdkl's server",   "198.168.0.2"],
         #             ["andreyknvl.com",  "198.168.0.3"]]
-        
         
         servers_data = [[name, self.servers_dict[name]] 
                         for name in self.servers_dict]
@@ -158,18 +155,19 @@ class MainFrame(wx.Frame):
     
     #-------------------------------------------------------------------------
     def OnItemSelected(self, event):
-        item = event.GetItem()
-        print "Item selected:", item.GetText()
-
+        self.selected_address = self.list_ctrl.GetItem(event.GetIndex(), 1)\
+                                    .GetText()
+        
     #-------------------------------------------------------------------------
     def OnItemDeselected(self, event):
-        item = event.GetItem()
-        print "Item deselected:", item.GetText()
-
+        #item = event.GetItem()
+        pass
+        
     #-------------------------------------------------------------------------
     def OnItemActivated(self, event):
-        file_name = self.list_ctrl.GetItem(event.GetIndex(), 1).GetText()
-        print "Item activated:", file_name
+        self.selected_address = self.list_ctrl.GetItem(event.GetIndex(), 1)\
+                                    .GetText()
+        self.OnButtonConnectPressed(event = None)
         
     #-------------------------------------------------------------------------
     def OnCloseWindow(self, event):
@@ -183,7 +181,13 @@ class MainFrame(wx.Frame):
         
     #-------------------------------------------------------------------------
     def OnButtonConnectPressed(self, event):
-        print "OnButtonConnectPressed"
+        if self.selected_address == None:
+            return
+        
+        self.write_cfg(address = self.selected_address,
+                       width   = self.width_resolution.GetValue(),
+                       height  = self.height_resolution.GetValue(), 
+                       login   = self.nickname.GetValue())
         bash_command = "../.././client.sh"
         process = subprocess.Popen(bash_command.split(), shell=True,
                                    stdout=subprocess.PIPE)
@@ -192,5 +196,23 @@ class MainFrame(wx.Frame):
         output = process.communicate()[0]
         print output
          
+    #-------------------------------------------------------------------------
+    def write_cfg(self, address, width, height, login):
+        f = open("../../data/client.cfg", "r")
+        lines = f.readlines()
+        f.close()
+        f = open("../../data/client.cfg", "w+")
+        
+        for line in lines:
+            if len(line) >= 9 and line[0:9] == "  host = ":
+                line = "  host = \"" + address + "\";\n"
+            if len(line) >= 10 and line[0:10] == "  width = ":
+                line = "  width = " + width + ";\n"
+            if len(line) >= 11 and line[0:11] == "  height = ":
+                line = "  height = " + height + ";\n"
+            if len(line) >= 10 and line[0:10] == "  login = ":
+                line = "  login = \"" + login + "\";\n"
+            print >>f, line
+        
     #-------------------------------------------------------------------------
 ##############################################################################
