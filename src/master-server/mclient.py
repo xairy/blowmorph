@@ -18,4 +18,4 @@ for line in lines:
 
 address = "http://" + host + ":" + port
 r = requests.post(address, params = {"name" : socket.gethostname()})
-print "test"
+print "Message to master-server was sent."
