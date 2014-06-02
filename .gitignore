@@ -1,10 +1,9 @@
 bin/*
 build/*
 *.swp
-src/.metadata
-src/launcher/.metadata/*
-src/launcher/.project
-src/launcher/.settings
-src/launcher/.pydevproject
-src/launcher/*.pyc
+*.pyc
 
+*/.metadata/*
+*/.project
+*/.settings
+*/.pydevproject

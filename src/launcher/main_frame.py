@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 
+from pylibconfig import Config
 import ast
 import requests
 import subprocess
@@ -40,68 +41,54 @@ class MainFrame(wx.Frame):
         self.width_resolution = wx.TextCtrl(self.panel_resolution, 
                                             size=(45, -1),
                                             pos = wx.Point(77, 0),
-                                            value = self.cfg_width)
+                                            value = str(self.cfg_width))
         self.height_resolution = wx.TextCtrl(self.panel_resolution,
                                              pos = wx.Point(135, 0),
                                              size=(45, -1),
-                                             value = self.cfg_height)
+                                             value = str(self.cfg_height))
 
         _separator = wx.StaticText(self.panel_resolution, -1, 
                                   label="x",
                                   pos = wx.Point(125, 4))
     #-----------------------------------------------------------------------------
     def load_cfg(self):
-        # Fix it with python-libconfig.
-        file = open("../../data/client.cfg")
-        lines = file.readlines()
-        for line in lines:
-            if len(line) >= 10 and line[0:10] == "  width = ":
-                self.cfg_width = line[10:-2]
-            if len(line) >= 11 and line[0:11] == "  height = ":
-                self.cfg_height = line[11:-2]
-            if len(line) >= 10 and line[0:10] == "  login = ":
-                self.cfg_login = line[11:-3]
-        
-        file.close()
-        
-        file = open("../../data/mclient.cfg")
-        lines = file.readlines()
-        for line in lines:
-            if len(line) >= 9 and line[0:9] == "  host = ":
-                host = line[10:-3]
-            if len(line) >= 9 and line[0:9] == "  port = ":
-                port = line[9:-2]
-        file.close()
-        
-        address = "http://"+ host + ":" + port
+        self.config = Config()
+        self.config.readFile("data/client.cfg".encode("utf8"))
+
+        width = self.config.value("resolution.width".encode("utf8"))
+        height = self.config.value("resolution.height".encode("utf8"))
+        assert (width[1] == True) and (height[1] == True)
+        self.cfg_width, self.cfg_height = width[0], height[0]
+
+        login = self.config.value("player.login".encode("utf8"))
+        assert login[1] == True
+        self.cfg_login = login[0]
+
+        host = self.config.value("master-server.host".encode("utf8"))
+        port = self.config.value("master-server.port".encode("utf8"))
+        assert (host[1] == True) and (port[1] == True)
+        host, port = host[0], port[0]
+
+        address = "http://"+ host + ":" + str(port)
 
         try:
             r = requests.get(address)
             self.servers_dict = ast.literal_eval(r.text)
-            
         except requests.exceptions.ConnectionError:
             print "Could not get info from master server: ", address
             self.servers_dict = {}
-            return
-            
-        
                 
     #-------------------------------------------------------------------------
     def CreateListCtrl(self):
         self.list_ctrl = wx.ListCtrl(self, wx.ID_ANY, style = wx.LC_REPORT)
         
         # Create columns.
-        column_names = ["Name", "IP"]
+        column_names = ["Name", "Address"]
         for i in xrange(len(column_names)):
             self.list_ctrl.InsertColumn(i, column_names[i])
             
-        # Fill the table.
-        #test_data = [["xairy's server",  "198.168.0.1"], 
-        #             ["rdkl's server",   "198.168.0.2"],
-        #             ["andreyknvl.com",  "198.168.0.3"]]
-        
-        servers_data = [[name, self.servers_dict[name]] 
-                        for name in self.servers_dict]
+        servers_data = [[self.servers_dict[key][0], key] 
+                        for key in self.servers_dict]
         
         for item in servers_data:
             index = self.list_ctrl.InsertStringItem(sys.maxint, 
@@ -200,11 +187,12 @@ class MainFrame(wx.Frame):
         if self.selected_address == None:
             return
         
-        self.write_cfg(address = self.selected_address,
-                       width   = self.width_resolution.GetValue(),
-                       height  = self.height_resolution.GetValue(), 
-                       login   = self.nickname.GetValue())
-        bash_command = "../.././client.sh"
+        self.write_cfg(host   = self.selected_address.split(":")[0],
+                       port   = int(self.selected_address.split(":")[1]),
+                       width  = int(self.width_resolution.GetValue()),
+                       height = int(self.height_resolution.GetValue()), 
+                       login  = self.nickname.GetValue())
+        bash_command = "./client.sh"
         process = subprocess.Popen(bash_command.split(), shell=True,
                                    stdout=subprocess.PIPE)
         
@@ -213,25 +201,12 @@ class MainFrame(wx.Frame):
         print output
          
     #-------------------------------------------------------------------------
-    def write_cfg(self, address, width, height, login):
-        f = open("../../data/client.cfg", "r")
-        lines = f.readlines()
-        f.close()
-        f = open("../../data/client.cfg", "w+")
-        
-        for line in lines:
-            if len(line) >= 9 and line[0:9] == "  host = ":
-                line = "  host = \"" + address + "\";\n"
-            if len(line) >= 10 and line[0:10] == "  width = ":
-                line = "  width = " + width + ";\n"
-            if len(line) >= 11 and line[0:11] == "  height = ":
-                line = "  height = " + height + ";\n"
-            if len(line) >= 10 and line[0:10] == "  login = ":
-                line = "  login = \"" + login + "\";\n"
-            if len(line) > 1:
-                print >>f, line[:-1]
-            
-        f.close()
-        
+    def write_cfg(self, host, port, width, height, login):
+        self.config.setValue("server.host".encode("utf8"), host.encode("utf8"))
+        self.config.setValue("server.port".encode("utf8"), port)
+        self.config.setValue("resolution.width".encode("utf8"), width);
+        self.config.setValue("resolution.height".encode("utf8"), height);
+        self.config.setValue("player.login".encode("utf8"), login.encode("utf8"));
+        self.config.writeFile("data/client.cfg".encode("utf8"))
     #-------------------------------------------------------------------------
 ##############################################################################
