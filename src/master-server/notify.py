@@ -5,7 +5,14 @@
 
 import requests
 import socket
+import sys
 from pylibconfig import Config
+
+if len(sys.argv) != 2:
+    print "Usage: %s <active>" % (sys.argv[0],)
+    exit(0)
+
+active = (sys.argv[1] == "true")
 
 config = Config()
 config.readFile("data/server.cfg")
@@ -22,7 +29,7 @@ gs_name, gs_port = gs_name[0], gs_port[0]
 
 address = "http://" + ms_host + ":" + str(ms_port)
 try:
-    r = requests.post(address, params = {"name" : gs_name, "port": gs_port})
+    r = requests.post(address, params = {"name" : gs_name, "port": gs_port, "active": active})
 except requests.exceptions.ConnectionError:
     print "Could not connect to master server %s:%d!" % (ms_host, ms_port)
 else:

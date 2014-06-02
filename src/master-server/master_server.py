@@ -17,15 +17,21 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):
         args = self.path.decode().split("/?")
         args = args[1].split("&")
-        args = map(lambda x: x.split("="), args)
-        if args[0][0] != "name" or args[1][0] != "port":
+        args = map(lambda x: tuple(x.split("=")), args)
+        args = dict(args)
+        if not("name" in args.keys()) or not("port" in args.keys()) or not("active" in args.keys()):
             print "Error: wrong POST data"
             return
         else:
-            server_name = args[0][1]
-            server_port = args[1][1]
+            active = args["active"]
+            server_name = args["name"]
+            server_port = args["port"]
             server_host = self.client_address[0]
-            game_servers[server_host + ":" + server_port] = (server_name, server_host, server_port)
+            key = server_host + ":" + server_port
+            if active == "True":
+                game_servers[key] = (server_name, server_host, server_port)
+            elif key in game_servers.keys():
+                game_servers.pop(key, None)
             print game_servers
             
         self.send_response(200)
