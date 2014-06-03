@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 # Copyright (c) 2014 Blowmorph Team
 
+from __future__ import unicode_literals
 import time
 import BaseHTTPServer
 from pylibconfig import Config
@@ -20,11 +21,20 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             gs_active = args["active"]
             gs_name = args["name"]
-            gs_port = args["port"]
-            gs_host = self.client_address[0]
-            key = gs_host + ":" + gs_port
+            try:
+                gs_port = int(args["port"])
+            except:
+                print "[%s] Error: wrong POST data from %s!" % \
+                  (str(time.asctime()), self.client_address[0])
+                return
+            gs_host = unicode(self.client_address[0])
+            key = "%s:%d" % (gs_host, gs_port)
             if gs_active == "True":
-                game_servers[key] = (gs_name, gs_host, gs_port)
+                game_servers[key] = {
+                  "name": gs_name,
+                  "host": gs_host,
+                  "port": gs_port
+                }
             elif key in game_servers.keys():
                 game_servers.pop(key, None)
             print game_servers
@@ -35,8 +45,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         
 if __name__ == '__main__':
     config = Config()
-    config.readFile("data/master-server.cfg")
-    port = config.value("master-server.port")
+    config.readFile("data/master-server.cfg".encode("utf8"))
+    port = config.value("master-server.port".encode("utf8"))
     assert port[1] == True
     port = port[0]
 

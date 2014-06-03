@@ -72,21 +72,39 @@ class LauncherFrameBase ( wx.Frame ):
 		self.advanced_panel = wx.Panel( self.settings_notebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		advanced_sizer = wx.BoxSizer( wx.VERTICAL )
 		
+		maxter_server_sizer = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.master_server_label = wx.StaticText( self.advanced_panel, wx.ID_ANY, u"Master server address:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.master_server_label.Wrap( -1 )
+		maxter_server_sizer.Add( self.master_server_label, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		
+		self.master_server_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		maxter_server_sizer.Add( self.master_server_text, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
+		
+		self.refresh_button = wx.Button( self.advanced_panel, wx.ID_ANY, u"Refresh", wx.DefaultPosition, wx.DefaultSize, 0 )
+		maxter_server_sizer.Add( self.refresh_button, 0, wx.ALL, 5 )
+		
+		
+		advanced_sizer.Add( maxter_server_sizer, 0, wx.EXPAND, 5 )
+		
+		self.m_staticline1 = wx.StaticLine( self.advanced_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_HORIZONTAL )
+		advanced_sizer.Add( self.m_staticline1, 0, wx.EXPAND |wx.ALL, 5 )
+		
 		timeouts_sizer = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.connection_timeout_label = wx.StaticText( self.advanced_panel, wx.ID_ANY, u"Connection timeout:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.connection_timeout_label.Wrap( -1 )
 		timeouts_sizer.Add( self.connection_timeout_label, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.connection_timeout_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		timeouts_sizer.Add( self.connection_timeout_text, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		self.connection_timeout_spin = wx.SpinCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 80,-1 ), wx.SP_ARROW_KEYS, 1, 5000, 0 )
+		timeouts_sizer.Add( self.connection_timeout_spin, 0, wx.ALL, 5 )
 		
 		self.sync_timeout_label = wx.StaticText( self.advanced_panel, wx.ID_ANY, u"Sync timeout:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.sync_timeout_label.Wrap( -1 )
 		timeouts_sizer.Add( self.sync_timeout_label, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.sync_timeout_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		timeouts_sizer.Add( self.sync_timeout_text, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		self.sync_timeout_spin = wx.SpinCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 80,-1 ), wx.SP_ARROW_KEYS, 1, 5000, 0 )
+		timeouts_sizer.Add( self.sync_timeout_spin, 0, wx.ALL, 5 )
 		
 		
 		advanced_sizer.Add( timeouts_sizer, 0, wx.EXPAND, 5 )
@@ -97,15 +115,15 @@ class LauncherFrameBase ( wx.Frame ):
 		self.max_misposition_label.Wrap( -1 )
 		position_sizer.Add( self.max_misposition_label, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.max_misposition_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		position_sizer.Add( self.max_misposition_text, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		self.max_misposition_spin = wx.SpinCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 80,-1 ), wx.SP_ARROW_KEYS, 1, 5000, 0 )
+		position_sizer.Add( self.max_misposition_spin, 0, wx.ALL, 5 )
 		
 		self.interpolation_offset_label = wx.StaticText( self.advanced_panel, wx.ID_ANY, u"Interpolation offset:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.interpolation_offset_label.Wrap( -1 )
 		position_sizer.Add( self.interpolation_offset_label, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.interpolation_offset_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		position_sizer.Add( self.interpolation_offset_text, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		self.interpolation_offset_spin = wx.SpinCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 80,-1 ), wx.SP_ARROW_KEYS, 1, 5000, 0 )
+		position_sizer.Add( self.interpolation_offset_spin, 0, wx.ALL, 5 )
 		
 		
 		advanced_sizer.Add( position_sizer, 0, wx.EXPAND, 5 )
@@ -118,8 +136,8 @@ class LauncherFrameBase ( wx.Frame ):
 		self.tick_rate_label.Wrap( -1 )
 		bSizer13.Add( self.tick_rate_label, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.tick_rate_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer13.Add( self.tick_rate_text, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+		self.tick_rate_spin = wx.SpinCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 80,-1 ), wx.SP_ARROW_KEYS, 1, 100, 0 )
+		bSizer13.Add( self.tick_rate_spin, 0, wx.ALL, 5 )
 		
 		
 		tickrate_sizer.Add( bSizer13, 1, wx.EXPAND, 5 )
@@ -145,6 +163,9 @@ class LauncherFrameBase ( wx.Frame ):
 		
 		
 		control_sizer.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.save_button = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.DefaultSize, 0 )
+		control_sizer.Add( self.save_button, 0, wx.ALL, 5 )
 		
 		self.connect_button = wx.Button( self, wx.ID_ANY, u"Connect", wx.DefaultPosition, wx.DefaultSize, 0 )
 		control_sizer.Add( self.connect_button, 0, wx.ALL, 5 )
