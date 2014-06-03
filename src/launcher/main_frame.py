@@ -151,7 +151,8 @@ class MainFrame(wx.Frame):
             r = requests.get(address)
             self.servers_dict = ast.literal_eval(r.text)
         except requests.exceptions.ConnectionError:
-            print "Could connect to master server: %s:%d!" % (host, port)
+            print "Could connect to master server: %s:%d!" % \
+              (self.cfg_host, self.cfg_port)
             self.servers_dict = {}
 
     #-----------------------------------------------------------------------------
