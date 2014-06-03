@@ -2,9 +2,8 @@
 # Copyright (c) 2014 Blowmorph Team
 
 from __future__ import unicode_literals
-
 import wx
-from main_frame import MainFrame
+from launcher_frame import LauncherFrame
 
 ##############################################################################
 class Launcher(wx.App):
@@ -14,7 +13,7 @@ class Launcher(wx.App):
 
     #-------------------------------------------------------------------------
     def OnInit(self):
-        self.frame = MainFrame()
+        self.frame = LauncherFrame()
         self.frame.Center()
         self.frame.Show()
         self.SetTopWindow(self.frame)

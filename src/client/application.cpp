@@ -189,11 +189,13 @@ void Application::Finalize() {
 bool Application::InitializeGraphics() {
   CHECK(state_ == STATE_FINALIZED);
 
-  uint32_t width = settings_.GetUInt32("resolution.width");
-  uint32_t height = settings_.GetUInt32("resolution.height");
+  uint32_t width = settings_.GetUInt32("graphics.width");
+  uint32_t height = settings_.GetUInt32("graphics.height");
+  bool fullscreen = settings_.GetBool("graphics.fullscreen");
 
   sf::VideoMode video_mode(width, height);
-  render_window_ = new sf::RenderWindow(video_mode, "Blowmorph");
+  sf::Uint32 style = fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
+  render_window_ = new sf::RenderWindow(video_mode, "Blowmorph", style);
   CHECK(render_window_ != NULL);
   view_.reset(sf::FloatRect(0.0f, 0.0f,
       static_cast<float>(width), static_cast<float>(height)));
