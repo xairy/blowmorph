@@ -13,7 +13,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/box2d_utils.h"
+#include "server/body.h"
 #include "server/world_manager.h"
 
 namespace bm {
@@ -32,7 +32,7 @@ Bullet::Bullet(
   b2Vec2 velocity = end - start;
   velocity.Normalize();
   velocity *= speed;
-  body_->SetLinearVelocity(velocity);
+  body_->SetVelocity(velocity);
 
   _owner_id = owner_id;
 }

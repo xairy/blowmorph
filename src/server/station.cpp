@@ -12,7 +12,7 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "server/box2d_utils.h"
+#include "body.h"
 #include "server/world_manager.h"
 
 namespace bm {

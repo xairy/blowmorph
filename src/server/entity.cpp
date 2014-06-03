@@ -15,7 +15,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/box2d_utils.h"
+#include "server/body.h"
 #include "server/id_manager.h"
 #include "server/world_manager.h"
 
@@ -42,15 +42,17 @@ Entity::Entity(
     _is_updated(true) {
   SettingsManager* settings = world_manager->GetSettings();
   b2World* world = world_manager->GetWorld();
-  body_ = CreateBody(world, settings, prefix + ".shape", dynamic);
+  body_ = new Body();
+  CHECK(body_ != NULL);
+  body_->Create(world, settings, prefix + ".shape", dynamic);
   body_->SetUserData(this);
-  SetBodyPosition(body_, position);
-  SetCollisionFilter(body_, collision_category, collision_mask);
+  body_->SetPosition(position);
+  body_->SetCollisionFilter(collision_category, collision_mask);
 }
 
 Entity::~Entity() {
   if (body_ != NULL) {
-    body_->GetWorld()->DestroyBody(body_);
+    delete body_;
     body_ = NULL;
   }
 }
@@ -67,11 +69,15 @@ b2Vec2 Entity::GetPosition() const {
   return body_->GetPosition();
 }
 void Entity::SetPosition(const b2Vec2& position) {
-  SetBodyPosition(body_, position);
+  body_->SetPosition(position);
+}
+
+b2Vec2 Entity::GetVelocity() const {
+  return body_->GetVelocity();
 }
 
 void Entity::SetVelocity(const b2Vec2& velocity) {
-  body_->SetLinearVelocity(velocity);
+  body_->SetVelocity(velocity);
 }
 
 void Entity::Destroy() {

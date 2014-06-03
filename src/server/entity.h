@@ -11,6 +11,7 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
+#include "server/body.h"
 #include "server/id_manager.h"
 
 namespace bm {
@@ -71,6 +72,7 @@ class Entity {
   virtual b2Vec2 GetPosition() const;
   virtual void SetPosition(const b2Vec2& position);
 
+  virtual b2Vec2 GetVelocity() const;
   virtual void SetVelocity(const b2Vec2& velocity);
 
   virtual void Destroy();
@@ -118,7 +120,7 @@ class Entity {
   bool _is_destroyed;
   bool _is_updated;
 
-  b2Body* body_;
+  Body* body_;
 };
 
 }  // namespace bm
