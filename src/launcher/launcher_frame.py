@@ -150,6 +150,7 @@ class LauncherFrame(LauncherFrameBase):
         except requests.exceptions.ConnectionError:
             print "Could connect to master server: %s:%d!" % \
               (self.cfg_ms_host, self.cfg_ms_port)
+            return
 
         self.server_list.DeleteAllItems()
 

@@ -81,9 +81,6 @@ class LauncherFrameBase ( wx.Frame ):
 		self.master_server_text = wx.TextCtrl( self.advanced_panel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		maxter_server_sizer.Add( self.master_server_text, 1, wx.ALIGN_CENTER|wx.ALL, 5 )
 		
-		self.refresh_button = wx.Button( self.advanced_panel, wx.ID_ANY, u"Refresh", wx.DefaultPosition, wx.DefaultSize, 0 )
-		maxter_server_sizer.Add( self.refresh_button, 0, wx.ALL, 5 )
-		
 		
 		advanced_sizer.Add( maxter_server_sizer, 0, wx.EXPAND, 5 )
 		
@@ -163,6 +160,9 @@ class LauncherFrameBase ( wx.Frame ):
 		
 		
 		control_sizer.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )
+		
+		self.refresh_button = wx.Button( self, wx.ID_ANY, u"Refresh", wx.DefaultPosition, wx.DefaultSize, 0 )
+		control_sizer.Add( self.refresh_button, 0, wx.ALL, 5 )
 		
 		self.save_button = wx.Button( self, wx.ID_ANY, u"Save", wx.DefaultPosition, wx.DefaultSize, 0 )
 		control_sizer.Add( self.save_button, 0, wx.ALL, 5 )
