@@ -4,27 +4,42 @@ More infromation is available in the Wiki.
 
 A demo can be found in the Releases section.
 
+How to run client:
+  1. $ ./launcher.sh
+
+How to run server:
+  1. Set up blowmorph/data/server.cfg
+  2. $ ./server.sh
+
+How to run master server:
+  1. Set up blowmorph/data/master-server.cfg
+  2. $ ./master-server.sh
+
 How to build under Ubuntu Linux:
   1. Install SFML-2.1
      http://www.sfml-dev.org/download/sfml/2.1/
      See the instructions below
 
-  2. Install pugixml-1.2
+  2. Install ENetPlus.
+     https://github.com/xairy/enet-plus
+
+  3. Install pugixml-1.2
      sudo apt-get install libpugixml-dev
      If the packet is not available, see the instructions below
 
-  3. Install libconfig
-     $ sudo apt-get install libconfig-dev
+  4. Install wxWidgets for Python:
+     sudo apt-get install python-wxtools
 
-  4. Install ENetPlus.
-     https://github.com/xairy/enet-plus
+  5. Install libconfig
+     $ sudo apt-get install libconfig-dev libconfig++-dev libboost-python1.54-dev
+     $ sudo pip install git+https://github.com/cnangel/python-libconfig.git
 
-  5. Generate project files
+  6. Generate project files
      $ ./premake4 gmake
 
-  6. $ cd build
+  7. $ cd build
 
-  7. On x32 system:
+  8. On x32 system:
      $ make config=release32
      On x64 system:
      $ make config=release64
@@ -51,13 +66,17 @@ How to install pugixml-1.2:
   4. $ make
   5. $ sudo make install
 
-How to start server:
-  1. Set port in blowmorph/data/server.cfg
-  2. $ ./server.sh
-
-How to start client:
-  1. Set server's port and ip in blowmorph/data/client.cfg
-  2. $ ./client.sh
+How to install wxFormBuilder:
+  1. Add PPA for wxWidgets v3.0
+     $ sudo add-apt-repository -y ppa:wxformbuilder/wxwidgets
+     $ sudo apt-get update
+  2. Install prerequisites
+     $ sudo apt-get install libwxgtk3.0-0 libwxgtk-media3.0-0
+  3. Add PPA for wxFormBuilder
+     $ sudo add-apt-repository -y ppa:wxformbuilder/release
+     $ sudo apt-get update
+  4. Install wxFormBuilder
+     $ sudo apt-get install wxformbuilder
 
 How to build under Microsoft Windows, Visual Studio 2008:
   1. Install Python 2.7.6
