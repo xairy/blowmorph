@@ -3,10 +3,17 @@
 
 # This script sends notifies the master server of a new game server run.
 
-import requests
-import socket
-import sys
+from __future__ import unicode_literals
+import requests, socket, sys
 from pylibconfig import Config
+
+def load_config(config, name):
+    value = config.value(name.encode("utf8"))
+    assert value[1] == True
+    value = value[0]
+    if type(value) == str:
+        value = value.decode("utf8")
+    return value
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -15,19 +22,14 @@ if __name__ == '__main__':
     active = (sys.argv[1] == "true")
 
     config = Config()
-    config.readFile("data/server.cfg")
+    config.readFile("data/server.cfg".encode("utf8"))
 
-    ms_host = config.value("master-server.host")
-    ms_port = config.value("master-server.port")
-    assert (ms_host[1] == True) and (ms_port[1] == True)
-    ms_host, ms_port = ms_host[0], ms_port[0]
+    ms_host = load_config(config, "master-server.host")
+    ms_port = load_config(config, "master-server.port")
+    gs_name = load_config(config, "server.name")
+    gs_port = load_config(config, "server.port")
 
-    gs_name = config.value("server.name")
-    gs_port = config.value("server.port")
-    assert (gs_name[1] == True) and (gs_port[1] == True)
-    gs_name, gs_port = gs_name[0], gs_port[0]
-
-    address = "http://" + ms_host + ":" + str(ms_port)
+    address = "http://%s:%d" % (ms_host, ms_port)
     try:
         r = requests.post(address, params = {"name" : gs_name, "port": gs_port, "active": active})
     except requests.exceptions.ConnectionError:

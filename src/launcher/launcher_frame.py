@@ -2,9 +2,8 @@
 # Copyright (c) 2014 Blowmorph Team
 
 from __future__ import unicode_literals
+import ast, requests, subprocess, sys, wx
 from pylibconfig import Config
-import ast, requests, subprocess, sys
-import wx
 from launcher_frame_base import LauncherFrameBase
 
 def load_config(config, name):
@@ -23,7 +22,7 @@ def save_config(config, name, value):
 ##############################################################################
 class LauncherFrame(LauncherFrameBase):
     #-------------------------------------------------------------------------
-    def __init__(self, title="Blowmorph Launcher", size=(330, 400)):
+    def __init__(self):
         LauncherFrameBase.__init__(self, None)
         self.selected_address = None
         self.SetupLayout()
