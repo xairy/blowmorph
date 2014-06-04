@@ -4,6 +4,17 @@ More infromation is available in the Wiki.
 
 A demo can be found in the Releases section.
 
+How to run client:
+  1. $ ./launcher.sh
+
+How to run server:
+  1. Set up blowmorph/data/server.cfg
+  2. $ ./server.sh
+
+How to run master server:
+  1. Set up blowmorph/data/master-server.cfg
+  2. $ ./master-server.sh
+
 How to build under Ubuntu Linux:
   1. Install SFML-2.1
      http://www.sfml-dev.org/download/sfml/2.1/
@@ -55,21 +66,6 @@ How to install pugixml-1.2:
   4. $ make
   5. $ sudo make install
 
-How to start client:
-  1. Set server's port and ip in blowmorph/data/client.cfg
-  2. $ ./client.sh
-
-How to start server:
-  1. Set port in blowmorph/data/server.cfg
-  2. $ ./server.sh
-
-TODO: ./launcher.sh ./master-server.sh
-
-How to build under Microsoft Windows, Visual Studio 2008:
-  1. Install Python 2.7.6
-  2. Run "premake4.exe vs2008"
-  3. Build build\blowmorph.sln
-
 How to install wxFormBuilder:
   1. Add PPA for wxWidgets v3.0
      $ sudo add-apt-repository -y ppa:wxformbuilder/wxwidgets
@@ -81,3 +77,8 @@ How to install wxFormBuilder:
      $ sudo apt-get update
   4. Install wxFormBuilder
      $ sudo apt-get install wxformbuilder
+
+How to build under Microsoft Windows, Visual Studio 2008:
+  1. Install Python 2.7.6
+  2. Run "premake4.exe vs2008"
+  3. Build build\blowmorph.sln
