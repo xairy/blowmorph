@@ -168,20 +168,29 @@ class LauncherFrame(LauncherFrameBase):
         if self.selected_address != None:
             address = self.selected_address.split(":")
             host, port = address[0], int(address[1])
-        else:
-            host, port = "0.0.0.0", 0
+
+            save_config(self.config, "server.host", host)
+            save_config(self.config, "server.port", port)
 
         selection = self.resolution_choice.GetSelection() 
         resolution = self.resolution_choice.GetString(selection)
         resolution = resolution.split('(')[0].split('x')
         width, height = int(resolution[0]), int(resolution[1])
-
         fullscreen = self.fullscreen_checkbox.GetValue()
+
+        save_config(self.config, "graphics.width", width)
+        save_config(self.config, "graphics.height", height)
+        save_config(self.config, "graphics.fullscreen", fullscreen)
 
         nickname = self.nickname_text.GetValue()
 
+        save_config(self.config, "player.login", nickname)
+
         ms_addr = self.master_server_text.GetValue().split(':')
         ms_host, ms_port = ms_addr[0], int(ms_addr[1])
+
+        save_config(self.config, "master-server.host", ms_host)
+        save_config(self.config, "master-server.port", ms_port)
 
         connection_timeout = self.connection_timeout_spin.GetValue()
         sync_timeout = self.sync_timeout_spin.GetValue()
@@ -189,12 +198,6 @@ class LauncherFrame(LauncherFrameBase):
         inter_offset = self.interpolation_offset_spin.GetValue()
         tick_rate = self.tick_rate_spin.GetValue()
 
-        save_config(self.config, "server.host", host)
-        save_config(self.config, "server.port", port)
-        save_config(self.config, "graphics.width", width)
-        save_config(self.config, "graphics.height", height)
-        save_config(self.config, "graphics.fullscreen", fullscreen)
-        save_config(self.config, "player.login", nickname)
         save_config(self.config, "client.connect_timeout", connection_timeout)
         save_config(self.config, "client.sync_timeout", sync_timeout)
         save_config(self.config, "client.max_player_misposition", max_misp)
