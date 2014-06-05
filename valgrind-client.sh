@@ -1,5 +1,3 @@
-#!/bin/sh
-cd bin
-export LD_LIBRARY_PATH=`pwd`
-cd ..
+#!/bin/bash
+export LD_LIBRARY_PATH="`pwd`/bin"
 valgrind --leak-check=full ./bin/client
