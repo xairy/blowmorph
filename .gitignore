@@ -1,3 +1,9 @@
 bin/*
 build/*
 *.swp
+*.pyc
+
+*/.metadata/*
+*/.project
+*/.settings
+*/.pydevproject
