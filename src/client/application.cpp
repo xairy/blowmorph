@@ -125,8 +125,7 @@ bool Application::Run() {
   sf::Vector2f player_pos(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
-  player_ = new Object(client_options_.id, EntitySnapshot::ENTITY_TYPE_PLAYER,
-      sprite, player_pos, 0);
+  player_ = new Object(client_options_.id, sprite, player_pos, 0);
   CHECK(player_ != NULL);
   player_->ShowCaption(settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
@@ -692,7 +691,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
       Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
       CHECK(sprite != NULL);
-      Object* wall = new Object(id, type, sprite, position, time);
+      Object* wall = new Object(id, sprite, position, time);
       CHECK(wall != NULL);
       walls_[id] = wall;
     } break;
@@ -700,7 +699,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
       Sprite* sprite = resource_manager_.CreateSprite("bullet");
       CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
+      Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
@@ -710,7 +709,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
       Sprite* sprite = resource_manager_.CreateSprite("mechos");
       CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
+      Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
@@ -723,7 +722,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
       Sprite* sprite = resource_manager_.CreateSprite("dummy");
       CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
+      Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
@@ -751,7 +750,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
       Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
       CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
+      Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);

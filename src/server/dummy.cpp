@@ -22,8 +22,8 @@ Dummy::Dummy(
   WorldManager* world_manager,
   uint32_t id,
   const b2Vec2& position
-) : Entity(world_manager, id, "dummy", position, true,
-           Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
+) : Entity(world_manager, id, "dummy", position, Entity::FILTER_BULLET,
+           Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
   _speed = settings->GetFloat("dummy.speed");
   _target = NULL;

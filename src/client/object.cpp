@@ -49,10 +49,9 @@ bm::ObjectState lerp(const bm::ObjectState& a,
 namespace bm {
 
 // TODO(alex): fix method names.
-Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
+Object::Object(uint32_t id, Sprite* sprite,
     const sf::Vector2f& position, int64_t time)
       : id(id),
-        type(type),
         visible(true),
         sprite(sprite),
         caption_visible(false),

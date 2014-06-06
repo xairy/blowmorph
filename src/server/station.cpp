@@ -25,8 +25,8 @@ Station::Station(
   int blow_regeneration,
   int morph_regeneration,
   Type type
-) : Entity(world_manager, id, "kit", position, false,
-           Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
+) : Entity(world_manager, id, "kit", position, Entity::FILTER_KIT,
+           Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
   _health_regeneration = health_regeneration;
   _blow_regeneration = blow_regeneration;
   _morph_regeneration = morph_regeneration;

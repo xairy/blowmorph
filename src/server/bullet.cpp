@@ -24,8 +24,8 @@ Bullet::Bullet(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end
-) : Entity(world_manager, id, "bullet", start, true,
-           Entity::FILTER_BULLET, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
+) : Entity(world_manager, id, "bullet", start, Entity::FILTER_BULLET,
+           Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
   float speed = settings->GetFloat("bullet.speed");
 

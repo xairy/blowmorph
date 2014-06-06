@@ -30,7 +30,7 @@ typedef interpolator::LinearInterpolator<ObjectState, int64_t>
 // TODO(alex): fix method names.
 // TODO(xairy): comments.
 struct Object {
-  Object(uint32_t id, uint32_t type, Sprite* sprite,
+  Object(uint32_t id, Sprite* sprite,
     const sf::Vector2f& position, int64_t time);
   ~Object();
 
@@ -47,10 +47,10 @@ struct Object {
   void Move(const sf::Vector2f& value, int64_t time = 0);
 
   uint32_t id;
-  uint32_t type;
 
   bool visible;
   Sprite* sprite;
+  //Body* body;
 
   bool caption_visible;
   sf::Text caption_text;
