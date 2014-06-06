@@ -114,15 +114,6 @@ solution "blowmorph"
 
     resource("data", "data")
 
-    -- ENetPlus
-    configuration "windows"
-      includedirs { "third-party/enet-plus/include" }
-      windows_libdir("third-party/enet-plus/bin")
-      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
-      links { "enet-plus" }
-    configuration "linux"
-      links { "enet-plus" }
-
     -- SFML
     configuration "windows"
       includedirs { "third-party/SFML/include" }
@@ -155,6 +146,21 @@ solution "blowmorph"
     configuration "linux"
       links { "pugixml" }
 
+    -- ENetPlus
+    configuration "windows"
+      includedirs { "third-party/enet-plus/include" }
+      windows_libdir("third-party/enet-plus/bin")
+      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
+      links { "enet-plus" }
+    configuration "linux"
+      links { "enet-plus" }
+
+    -- Box2D
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "Box2D" }
+
   project "server"
     kind "ConsoleApp"
     language "C++"
@@ -168,6 +174,14 @@ solution "blowmorph"
 
     resource("data", "data")
 
+    -- PugiXML
+    configuration "windows"
+      includedirs { "third-party/pugixml/include" }
+      windows_libdir("third-party/pugixml/bin")
+      links { "pugixml" }
+    configuration "linux"
+      links { "pugixml" }
+
     -- ENetPlus
     configuration "windows"
       includedirs { "third-party/enet-plus/include" }
@@ -176,14 +190,6 @@ solution "blowmorph"
       links { "enet-plus" }
     configuration "linux"
       links { "enet-plus" }
-
-    -- PugiXML
-    configuration "windows"
-      includedirs { "third-party/pugixml/include" }
-      windows_libdir("third-party/pugixml/bin")
-      links { "pugixml" }
-    configuration "linux"
-      links { "pugixml" }
 
     -- Box2D
     configuration "windows"
@@ -211,6 +217,21 @@ solution "blowmorph"
         links { "libconfig" }
     configuration "linux"
       links { "config" }
+
+    -- ENetPlus
+    configuration "windows"
+      includedirs { "third-party/enet-plus/include" }
+      windows_libdir("third-party/enet-plus/bin")
+      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
+      links { "enet-plus" }
+    configuration "linux"
+      links { "enet-plus" }
+
+    -- Box2D
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "Box2D" }
 
   project "interpolator"
     kind "StaticLib"

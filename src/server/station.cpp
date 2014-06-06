@@ -7,12 +7,12 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "body.h"
 #include "server/world_manager.h"
 
 namespace bm {
