@@ -7,11 +7,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/body.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "server/body.h"
 #include "server/id_manager.h"
 
 namespace bm {

@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#ifndef SERVER_BODY_H_
-#define SERVER_BODY_H_
+#ifndef BASE_BODY_H_
+#define BASE_BODY_H_
 
 #include <string>
 
@@ -49,4 +49,4 @@ class Body {
 
 }  // namespace bm
 
-#endif  // SERVER_BODY_H_
+#endif  // BASE_BODY_H_

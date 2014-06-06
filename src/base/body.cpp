@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Blowmorph Team
 
-#include "server/body.h"
+#include "base/body.h"
 
 #include <string>
 
