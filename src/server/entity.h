@@ -53,7 +53,6 @@ class Entity {
     uint32_t id,
     const std::string& prefix,
     b2Vec2 position,
-    bool dynamic,
     uint16_t collision_category,
     uint16_t collision_mask);
   virtual ~Entity();

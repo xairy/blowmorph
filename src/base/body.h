@@ -21,7 +21,7 @@ class Body {
   virtual ~Body();
 
   void Create(b2World* world, SettingsManager* settings,
-      const std::string& prefix, bool dynamic);
+      const std::string& config_name);
   void Destroy();
 
   b2Body* GetBody();
@@ -34,6 +34,7 @@ class Body {
 
   void SetUserData(void* data);
   void SetCollisionFilter(int16_t category, int16_t mask);
+  void SetType(b2BodyType type);
 
  private:
   b2World* world_;

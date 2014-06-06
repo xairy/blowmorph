@@ -33,7 +33,6 @@ Entity::Entity(
   uint32_t id,
   const std::string& prefix,
   b2Vec2 position,
-  bool dynamic,
   uint16_t collision_category,
   uint16_t collision_mask
 ) : _world_manager(world_manager),
@@ -44,7 +43,7 @@ Entity::Entity(
   b2World* world = world_manager->GetWorld();
   body_ = new Body();
   CHECK(body_ != NULL);
-  body_->Create(world, settings, prefix + ".shape", dynamic);
+  body_->Create(world, settings, prefix + ".shape");
   body_->SetUserData(this);
   body_->SetPosition(position);
   body_->SetCollisionFilter(collision_category, collision_mask);

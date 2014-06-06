@@ -22,7 +22,7 @@ Player::Player(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position
-) : Entity(world_manager, id, "player", position, true,
+) : Entity(world_manager, id, "player", position,
            Entity::FILTER_PLAYER, Entity::FILTER_ALL) {
   SettingsManager* settings = world_manager->GetSettings();
   _speed = settings->GetFloat("player.speed");

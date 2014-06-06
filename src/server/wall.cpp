@@ -23,7 +23,7 @@ Wall::Wall(
   uint32_t id,
   const b2Vec2& position,
   Type type
-) : Entity(world_manager, id, "wall", position, false,
+) : Entity(world_manager, id, "wall", position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
   _type = type;
 }
