@@ -1,0 +1,57 @@
+{
+	"build_systems":
+	[
+		{
+			"name": "Release",
+			"shell_cmd": "cd build;make config=release64;cd .."
+		},
+		{
+			"name": "Debug",
+			"shell_cmd": "cd build;make config=debug64;cd .."
+		}
+	],
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "src"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "data"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 2,
+		"trim_trailing_white_space_on_save": true,
+		"rulers":
+		[
+			80
+		],
+	},
+	"SublimeLinter":
+	{
+		"linters": {
+      "annotations": {
+        "@disable": false,
+        "args": [],
+        "errors": [
+        ],
+        "excludes": [],
+        "warnings": [
+          "TODO",
+          "README",
+          "FIXME",
+          "XXX"
+        ]
+      },
+      "cpplint": {
+        "@disable": false,
+        "args": [],
+        "excludes": [],
+        "filter": "-readability/check,-build/include_order"
+      }
+    }
+  }
+}
