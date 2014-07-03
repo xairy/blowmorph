@@ -1,7 +1,10 @@
 bin/*
 build/*
-*.swp
 *.pyc
+
+*.swp
+
+*.sublime-workspace
 
 */.metadata/*
 */.project
