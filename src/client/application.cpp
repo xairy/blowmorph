@@ -74,7 +74,11 @@ bool Application::Initialize() {
 
   is_running_ = false;
 
-  if (!settings_.Open("data/client.cfg")) {
+  if (!client_settings_.Open("data/client.cfg")) {
+    return false;
+  }
+
+  if (!entities_settings_.Open("data/entities.cfg")) {
     return false;
   }
 
@@ -86,7 +90,7 @@ bool Application::Initialize() {
     return false;
   }
 
-  tick_rate_ = settings_.GetInt32("client.tick_rate");
+  tick_rate_ = client_settings_.GetInt32("client.tick_rate");
 
   time_correction_ = 0;
   last_tick_ = 0;
@@ -101,8 +105,8 @@ bool Application::Initialize() {
   wall_size_ = 16;
   player_size_ = 30;
 
-  max_player_misposition_ = settings_.GetFloat("client.max_player_misposition");
-  interpolation_offset_ = settings_.GetInt64("client.interpolation_offset");
+  max_player_misposition_ = client_settings_.GetFloat("client.max_player_misposition");
+  interpolation_offset_ = client_settings_.GetInt64("client.interpolation_offset");
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -127,7 +131,7 @@ bool Application::Run() {
   CHECK(sprite != NULL);
   player_ = new Object(client_options_.id, sprite, player_pos, 0);
   CHECK(player_ != NULL);
-  player_->ShowCaption(settings_.GetString("player.login"), *font_);
+  player_->ShowCaption(client_settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
 
   is_running_ = true;
@@ -188,9 +192,9 @@ void Application::Finalize() {
 bool Application::InitializeGraphics() {
   CHECK(state_ == STATE_FINALIZED);
 
-  uint32_t width = settings_.GetUInt32("graphics.width");
-  uint32_t height = settings_.GetUInt32("graphics.height");
-  bool fullscreen = settings_.GetBool("graphics.fullscreen");
+  uint32_t width = client_settings_.GetUInt32("graphics.width");
+  uint32_t height = client_settings_.GetUInt32("graphics.height");
+  bool fullscreen = client_settings_.GetBool("graphics.fullscreen");
 
   sf::VideoMode video_mode(width, height);
   sf::Uint32 style = fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
@@ -240,15 +244,15 @@ bool Application::Connect() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_INITIALIZED);
 
-  std::string host = settings_.GetString("server.host");
-  uint16_t port = settings_.GetUInt16("server.port");
+  std::string host = client_settings_.GetString("server.host");
+  uint16_t port = client_settings_.GetUInt16("server.port");
 
   peer_ = client_->Connect(host, port);
   if (peer_ == NULL) {
     return false;
   }
 
-  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
 
   bool rv = client_->Service(event_, connect_timeout);
   if (rv == false) {
@@ -273,12 +277,12 @@ bool Application::Synchronize() {
 
   printf("Synchronization started.\n");
 
-  int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
+  int64_t sync_timeout = client_settings_.GetInt64("client.sync_timeout");
   int64_t start_time = Timestamp();
 
   // Send login data.
 
-  std::string login = settings_.GetString("player.login");
+  std::string login = client_settings_.GetString("player.login");
   CHECK(login.size() <= LoginData::MAX_LOGIN_LENGTH);
 
   LoginData login_data;
@@ -442,7 +446,7 @@ bool Application::OnQuitEvent() {
 
   is_running_ = false;
 
-  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
 
   if (!DisconnectPeer(peer_, event_, client_, connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
@@ -677,28 +681,71 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   EntitySnapshot::EntityType type = snapshot->type;
   sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
+  std::string entity_config;
+
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      std::string sprite_id;
       if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-        sprite_id = "ordinary_wall";
+        entity_config = "ordinary_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-        sprite_id = "unbreakable_wall";
+        entity_config = "unbreakable_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-        sprite_id = "morphed_wall";
+        entity_config = "morphed_wall";
       } else {
         CHECK(false);  // Unreachable.
       }
-      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
-      CHECK(sprite != NULL);
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_BULLET: {
+      entity_config = "bullet";
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_PLAYER: {
+      entity_config = "player";
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_DUMMY: {
+      entity_config = "dummy";
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_STATION: {
+      switch (snapshot->data[0]) {
+        case EntitySnapshot::STATION_TYPE_HEALTH: {
+          entity_config = "health_kit";
+        } break;
+        case EntitySnapshot::STATION_TYPE_BLOW: {
+          entity_config = "blow_kit";
+        } break;
+        case EntitySnapshot::STATION_TYPE_MORPH: {
+          entity_config = "morph_kit";
+        } break;
+        case EntitySnapshot::STATION_TYPE_COMPOSITE: {
+          entity_config = "composite_kit";
+        } break;
+        default: {
+          CHECK(false);  // Unreachable.
+        }
+      }
+    } break;
+
+    default:
+      CHECK(false);  // Unreachable.
+  }
+
+  std::string sprite_config =
+      entities_settings_.GetString(entity_config + ".sprite");
+
+  Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
+  CHECK(sprite != NULL);
+
+  switch (snapshot->type) {
+    case EntitySnapshot::ENTITY_TYPE_WALL: {
       Object* wall = new Object(id, sprite, position, time);
       CHECK(wall != NULL);
       walls_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      Sprite* sprite = resource_manager_.CreateSprite("bullet");
-      CHECK(sprite != NULL);
       Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
@@ -707,8 +754,6 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Sprite* sprite = resource_manager_.CreateSprite("mechos");
-      CHECK(sprite != NULL);
       Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
@@ -720,8 +765,6 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      Sprite* sprite = resource_manager_.CreateSprite("dummy");
-      CHECK(sprite != NULL);
       Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);
@@ -730,26 +773,6 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
-      std::string sprite_id;
-      switch (snapshot->data[0]) {
-        case EntitySnapshot::STATION_TYPE_HEALTH: {
-          sprite_id = "health_kit";
-        } break;
-        case EntitySnapshot::STATION_TYPE_BLOW: {
-          sprite_id = "blow_kit";
-        } break;
-        case EntitySnapshot::STATION_TYPE_MORPH: {
-          sprite_id = "morph_kit";
-        } break;
-        case EntitySnapshot::STATION_TYPE_COMPOSITE: {
-          sprite_id = "composite_kit";
-        } break;
-        default: {
-          CHECK(false);  // Unreachable.
-        }
-      }
-      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
-      CHECK(sprite != NULL);
       Object* object = new Object(id, sprite, position, time);
       CHECK(object != NULL);
       object->EnableInterpolation(interpolation_offset_);

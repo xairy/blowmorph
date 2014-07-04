@@ -19,16 +19,16 @@ Body::~Body() {
   }
 }
 
-void Body::Create(b2World* world, SettingsManager* settings,
-    const std::string& config_name) {
+void Body::Create(b2World* world, SettingsManager* body_settings,
+    const std::string& body_config) {
   CHECK(state_ == STATE_DESTROYED);
 
   CHECK(world != NULL);
-  CHECK(settings != NULL);
+  CHECK(body_settings != NULL);
 
   world_ = world;
 
-  bool dynamic = settings->GetBool(config_name + ".dynamic");
+  bool dynamic = body_settings->GetBool(body_config + ".dynamic");
   b2BodyDef body_def;
   body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
   body_def.fixedRotation = true;
@@ -39,16 +39,16 @@ void Body::Create(b2World* world, SettingsManager* settings,
   fixture_def.density = 1.0f;
   fixture_def.friction = 0.0f;
 
-  std::string type = settings->GetString(config_name + ".type");
+  std::string type = body_settings->GetString(body_config + ".shape.type");
   if (type == "box") {
-    float width = settings->GetFloat(config_name + ".width");
-    float height = settings->GetFloat(config_name + ".height");
+    float width = body_settings->GetFloat(body_config + ".shape.width");
+    float height = body_settings->GetFloat(body_config + ".shape.height");
     b2PolygonShape shape;
     shape.SetAsBox(width / 2 / BOX2D_SCALE, height / 2 / BOX2D_SCALE);
     fixture_def.shape = &shape;
     body_->CreateFixture(&fixture_def);
   } else if (type == "circle") {
-    float radius = settings->GetFloat(config_name + ".radius");
+    float radius = body_settings->GetFloat(body_config + ".shape.radius");
     b2CircleShape shape;
     shape.m_radius = radius / BOX2D_SCALE;
     fixture_def.shape = &shape;

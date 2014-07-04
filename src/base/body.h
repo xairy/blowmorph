@@ -20,8 +20,8 @@ class Body {
   Body();
   virtual ~Body();
 
-  void Create(b2World* world, SettingsManager* settings,
-      const std::string& config_name);
+  void Create(b2World* world, SettingsManager* body_settings,
+      const std::string& body_config);
   void Destroy();
 
   b2Body* GetBody();

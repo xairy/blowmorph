@@ -23,7 +23,7 @@ Wall::Wall(
   uint32_t id,
   const b2Vec2& position,
   Type type
-) : Entity(world_manager, id, "wall", position,
+) : Entity(world_manager, id, TypeToEntityName(type), position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
   _type = type;
 }
@@ -80,6 +80,19 @@ void Wall::Collide(Wall* other) {
 }
 void Wall::Collide(Station* other) {
   Entity::Collide(other, this);
+}
+
+std::string Wall::TypeToEntityName(Wall::Type type) {
+  switch (type) {
+    case Wall::TYPE_ORDINARY:
+      return "ordinary_wall";
+    case Wall::TYPE_UNBREAKABLE:
+      return "unbreakable_wall";
+    case Wall::TYPE_MORPHED:
+      return "morphed_wall";
+    default:
+      CHECK(false);
+  }
 }
 
 }  // namespace bm

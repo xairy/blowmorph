@@ -68,7 +68,8 @@ class Application {
 
   bool is_running_;
 
-  SettingsManager settings_;
+  SettingsManager client_settings_;
+  SettingsManager entities_settings_;
   ResourceManager resource_manager_;
 
   sf::RenderWindow* render_window_;
