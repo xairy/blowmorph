@@ -53,6 +53,8 @@ class Wall : public Entity {
   Type _type;
 
  private:
+  std::string TypeToEntityName(Type type);
+
   DISALLOW_COPY_AND_ASSIGN(Wall);
 };
 

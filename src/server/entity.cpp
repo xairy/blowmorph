@@ -31,7 +31,7 @@ namespace bm {
 Entity::Entity(
   WorldManager* world_manager,
   uint32_t id,
-  const std::string& prefix,
+  const std::string& entity_config,
   b2Vec2 position,
   uint16_t collision_category,
   uint16_t collision_mask
@@ -39,11 +39,18 @@ Entity::Entity(
     _id(id),
     _is_destroyed(false),
     _is_updated(true) {
-  SettingsManager* settings = world_manager->GetSettings();
+  SettingsManager* entity_settings = world_manager->GetSettings();
+  std::string body_config = entity_settings->GetString(entity_config + ".body");
+
+  // XXX(xairy): some kind of body manager?
+  SettingsManager body_settings;
+  bool rv = body_settings.Open("data/bodies.cfg");
+  CHECK(rv == true);
+
   b2World* world = world_manager->GetWorld();
   body_ = new Body();
   CHECK(body_ != NULL);
-  body_->Create(world, settings, prefix + ".shape");
+  body_->Create(world, &body_settings, body_config);
   body_->SetUserData(this);
   body_->SetPosition(position);
   body_->SetCollisionFilter(collision_category, collision_mask);

@@ -25,8 +25,8 @@ Station::Station(
   int blow_regeneration,
   int morph_regeneration,
   Type type
-) : Entity(world_manager, id, "kit", position, Entity::FILTER_KIT,
-           Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
+) : Entity(world_manager, id, TypeToEntityName(type), position,
+           Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
   _health_regeneration = health_regeneration;
   _blow_regeneration = blow_regeneration;
   _morph_regeneration = morph_regeneration;
@@ -93,6 +93,21 @@ void Station::Collide(Wall* other) {
 }
 void Station::Collide(Station* other) {
   Entity::Collide(other, this);
+}
+
+std::string Station::TypeToEntityName(Station::Type type) {
+  switch (type) {
+    case Station::TYPE_HEALTH:
+      return "health_kit";
+    case Station::TYPE_BLOW:
+      return "blow_kit";
+    case Station::TYPE_MORPH:
+      return "morph_kit";
+    case Station::TYPE_COMPOSITE:
+      return "composite_kit";
+    default:
+      CHECK(false);
+  }
 }
 
 }  // namespace bm
