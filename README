@@ -59,7 +59,7 @@ How to install Box2D-2.3.0:
   1. Install cmake
      $ sudo apt-get install cmake
   2. Install the required dependencies
-     $ sudo apt-get install freeglut3-dev
+     $ sudo apt-get install freeglut3-dev libxi-dev
   3. Download Box2D-2.3.0 source
      https://box2d.googlecode.com/files/Box2D_v2.3.0.7z
   4. $ cd Box2D/Build
@@ -69,7 +69,7 @@ How to install Box2D-2.3.0:
 
 How to install pugixml-1.2:
   1. Download and extract pugixml-1.2.tar.gz
-     https://code.google.com/p/pugixml/
+     https://github.com/zeux/pugixml/releases
   2. $ cd pugixml-1.2/scripts
   3. $ cmake .
   4. $ make
