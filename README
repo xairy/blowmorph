@@ -16,7 +16,7 @@ How to run master server:
   2. $ ./master-server.sh
 
 How to build under Ubuntu Linux:
-  1. Install SFML-2.1
+  1. Install SFML-2.2
      http://www.sfml-dev.org/
      See the instructions below
   2. Install Box2D-2.3.0
@@ -41,16 +41,16 @@ How to build under Ubuntu Linux:
      On x64 system:
      $ make config=release64
 
-How to install SFML-2.1:
+How to install SFML-2.2:
   1. Install cmake
      $ sudo apt-get install cmake
   2. Install the required dependencies
      $ sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev \
        libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev \
-       libsndfile1-dev libopenal-dev
-  3. Download and extract SFML-2.1-sources.zip
-     http://www.sfml-dev.org/download/sfml/2.1/
-  4. $ cd SFML-2.1
+       libsndfile1-dev libopenal-dev libudev-dev
+  3. Download and extract SFML-2.2-sources.zip
+     http://www.sfml-dev.org/download/sfml/2.2/
+  4. $ cd SFML-2.2
   5. $ cmake .
   6. $ make
   7. $ sudo make install
@@ -62,7 +62,7 @@ How to install Box2D-2.3.0:
      $ sudo apt-get install freeglut3-dev libxi-dev
   3. Download Box2D-2.3.0 source
      https://box2d.googlecode.com/files/Box2D_v2.3.0.7z
-  4. $ cd Box2D/Build
+  4. $ cd Box2D/
   5. $ cmake -DBOX2D_INSTALL=ON -DBOX2D_BUILD_SHARED=ON .
   6. $ make
   7. $ sudo make install
