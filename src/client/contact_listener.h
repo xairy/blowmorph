@@ -26,13 +26,13 @@ class ContactListener : public b2ContactListener {
     Object* b = static_cast<Object*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
     if (player_id_set_ && a->id != player_id_ && b->id != player_id_) {
-      // Nothing except player collides.
+      // Nothing except our player collides.
       contact->SetEnabled(false);
       return;
     }
-    if (a->GetType() == Object::TYPE_PLAYER &&
-        b->GetType() == Object::TYPE_BULLET) {
-      // TODO(xairy): check that bullet belongs to player.
+    if (a->GetType() != Object::TYPE_PLAYER ||
+        b->GetType() != Object::TYPE_WALL) {
+      // Our player collides only with walls.
       contact->SetEnabled(false);
     }
   }
