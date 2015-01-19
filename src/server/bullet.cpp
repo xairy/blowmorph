@@ -32,7 +32,7 @@ Bullet::Bullet(
   b2Vec2 velocity = end - start;
   velocity.Normalize();
   velocity *= speed;
-  body_->SetVelocity(velocity);
+  body_->ApplyImpulse(body_->GetMass() * velocity);
 
   _owner_id = owner_id;
 }

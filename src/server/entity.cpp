@@ -86,6 +86,14 @@ void Entity::SetVelocity(const b2Vec2& velocity) {
   body_->SetVelocity(velocity);
 }
 
+float Entity::GetMass() const {
+  return body_->GetMass();
+}
+
+void Entity::ApplyImpulse(const b2Vec2& impulse) {
+  body_->ApplyImpulse(impulse);
+}
+
 void Entity::Destroy() {
   _is_destroyed = true;
 }

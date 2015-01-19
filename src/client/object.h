@@ -44,10 +44,15 @@ struct Object {
 
   Type GetType() const;
 
-  void ShowCaption(const std::string& caption, const sf::Font& font);
+  void EnableCaption(const std::string& caption, const sf::Font& font);
 
-  sf::Vector2f GetPosition(int64_t time = 0);
-  void SetPosition(const sf::Vector2f& value, int64_t time = 0);
+  sf::Vector2f GetPosition();
+  void SetPosition(const sf::Vector2f& position);
+
+  // Makes object move towards 'position' to be there when
+  // current time - 'interpolation_offset' == 'time'.
+  void SetInterpolationPosition(const sf::Vector2f& position,
+      int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time);
 
   void Render(sf::RenderWindow& render_window, int64_t time);
 

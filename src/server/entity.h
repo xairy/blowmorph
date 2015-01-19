@@ -74,6 +74,9 @@ class Entity {
   virtual b2Vec2 GetVelocity() const;
   virtual void SetVelocity(const b2Vec2& velocity);
 
+  virtual float GetMass() const;
+  virtual void ApplyImpulse(const b2Vec2& impulse);
+
   virtual void Destroy();
   virtual bool IsDestroyed() const;
 

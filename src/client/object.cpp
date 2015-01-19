@@ -11,6 +11,7 @@
 #include "base/body.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
+#include "base/time.h"
 
 namespace {
 
@@ -97,7 +98,7 @@ Object::Type Object::GetType() const {
   return type;
 }
 
-void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
+void Object::EnableCaption(const std::string& caption, const sf::Font& font) {
   CHECK(caption_visible == false);
   caption_text = sf::Text(caption, font, 12);
   sf::FloatRect rect = caption_text.getLocalBounds();
@@ -106,14 +107,29 @@ void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
   caption_visible = true;
 }
 
-sf::Vector2f Object::GetPosition(int64_t time) {
+sf::Vector2f Object::GetPosition() {
   b2Vec2 b2p = body.GetPosition();
   return sf::Vector2f(b2p.x, b2p.y);
 }
 
-void Object::SetPosition(const sf::Vector2f& value, int64_t time) {
-  // TODO(xairy): set velocity + interpolation lag.
-  body.SetPosition(b2Vec2(value.x, value.y));
+void Object::SetPosition(const sf::Vector2f& position) {
+  body.SetPosition(b2Vec2(position.x, position.y));
+}
+
+// TODO(xairy): use ApplyImpulse instead of SetVelocity everywhere.
+void Object::SetInterpolationPosition(const sf::Vector2f& position,
+    int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time) {
+  // Impulse to compensate the current velocity.
+  b2Vec2 velocity = body.GetVelocity();
+  float mass = body.GetMass();
+  b2Vec2 velocity_impulse = -mass * velocity;
+
+  CHECK(server_time - interpolation_offset < snapshot_time);
+  b2Vec2 interpolation_impulse = mass /
+      (snapshot_time - (server_time - interpolation_offset)) * 1000 *
+      (b2Vec2(position.x, position.y) - body.GetPosition());
+
+  body.ApplyImpulse(velocity_impulse + interpolation_impulse);
 }
 
 void Object::Render(sf::RenderWindow& render_window, int64_t time) {
