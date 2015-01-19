@@ -19,7 +19,7 @@
 #include "base/settings_manager.h"
 
 #include "client/contact_listener.h"
-#include "client/object.h"
+#include "client/entity.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
 
@@ -72,7 +72,8 @@ class Application {
   bool is_running_;
 
   SettingsManager client_settings_;
-  SettingsManager entities_settings_;
+  SettingsManager entity_settings_;
+  SettingsManager body_settings_;
   ResourceManager resource_manager_;
 
   sf::RenderWindow* render_window_;
@@ -92,9 +93,9 @@ class Application {
   int64_t last_tick_;
   int64_t last_physics_simulation_;
 
-  Object* player_;
-  std::map<uint32_t, Object*> objects_;
-  std::map<uint32_t, Object*> walls_;
+  Entity* player_;
+  std::map<uint32_t, Entity*> dynamic_entities_;
+  std::map<uint32_t, Entity*> static_entities_;
   std::list<Sprite*> explosions_;
 
   b2World* world_;

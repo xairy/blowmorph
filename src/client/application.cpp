@@ -26,14 +26,14 @@
 #include "base/time.h"
 
 #include "client/contact_listener.h"
-#include "client/object.h"
+#include "client/entity.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
 
 namespace {
 
-// TODO(xairy): move to sfml_utils.
-float Length(const sf::Vector2f& vector) {
+// TODO(xairy): move to utils.
+float Length(const b2Vec2& vector) {
   return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
@@ -80,7 +80,11 @@ bool Application::Initialize() {
     return false;
   }
 
-  if (!entities_settings_.Open("data/entities.cfg")) {
+  if (!entity_settings_.Open("data/entities.cfg")) {
+    return false;
+  }
+
+  if (!body_settings_.Open("data/bodies.cfg")) {
     return false;
   }
 
@@ -129,14 +133,14 @@ bool Application::Run() {
   // XXX(alex): maybe we should have a xml file for each object with
   //            texture paths, pivots, captions, etc
   // FIXME(xairy): move to a separate method.
-  sf::Vector2f player_pos(client_options_.x, client_options_.y);
+  b2Vec2 position(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
-  player_ = new Object(client_options_.id, Object::TYPE_PLAYER,
-      world_, sprite, player_pos, 0);
+  player_ = new Entity(&body_settings_, &entity_settings_, client_options_.id,
+    Entity::TYPE_PLAYER, world_, sprite, position, 0);
   CHECK(player_ != NULL);
   player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
-  player_->SetPosition(player_pos);
+  player_->GetBody()->SetPosition(position);
 
   contact_listener_.SetPlayerId(client_options_.id);
 
@@ -174,16 +178,16 @@ void Application::Finalize() {
   }
   explosions_.clear();
 
-  std::map<uint32_t, Object*>::iterator it;
-  for (it = walls_.begin(); it != walls_.end(); ++it) {
+  std::map<uint32_t, Entity*>::iterator it;
+  for (it = static_entities_.begin(); it != static_entities_.end(); ++it) {
     delete it->second;
   }
-  walls_.clear();
+  static_entities_.clear();
 
-  for (it = objects_.begin(); it != objects_.end(); ++it) {
+  for (it = dynamic_entities_.begin(); it != dynamic_entities_.end(); ++it) {
     delete it->second;
   }
-  objects_.clear();
+  dynamic_entities_.clear();
 
   if (player_ != NULL) delete player_;
 
@@ -513,9 +517,9 @@ bool Application::OnMouseButtonEvent(const sf::Event& event) {
   int screen_width = render_window_->getSize().x;
   int screen_height = render_window_->getSize().y;
   mouse_event.x = (event.mouseButton.x - screen_width / 2) +
-    player_->GetPosition().x;
+    player_->GetBody()->GetPosition().x;
   mouse_event.y = (event.mouseButton.y - screen_height / 2) +
-    player_->GetPosition().y;
+    player_->GetBody()->GetPosition().y;
 
   mouse_events_.push_back(mouse_event);
 
@@ -642,12 +646,12 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
         player_scores_[snapshot.id] = static_cast<int>(snapshot.data[3]);
       }
-      if (snapshot.id == player_->id) {
+      if (snapshot.id == player_->GetId()) {
         OnPlayerUpdate(&snapshot);
         break;
       }
-      if (objects_.count(snapshot.id) > 0 ||
-          walls_.count(snapshot.id) > 0) {
+      if (dynamic_entities_.count(snapshot.id) > 0 ||
+          static_entities_.count(snapshot.id) > 0) {
         OnEntityUpdate(&snapshot);
       } else {
         OnEntityAppearance(&snapshot);
@@ -679,8 +683,8 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
 
       std::string player_name(player_info.login);
       player_names_[player_info.id] = player_name;
-      if (objects_.count(player_info.id) == 1) {
-        objects_[player_info.id]->EnableCaption(player_name, *font_);
+      if (dynamic_entities_.count(player_info.id) == 1) {
+        dynamic_entities_[player_info.id]->EnableCaption(player_name, *font_);
       }
     } break;
 
@@ -698,7 +702,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   int64_t time = snapshot->time;
   uint32_t id = snapshot->id;
   EntitySnapshot::EntityType type = snapshot->type;
-  sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
+  b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
   std::string entity_config;
 
@@ -735,7 +739,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         case EntitySnapshot::STATION_TYPE_BLOW: {
           entity_config = "blow_kit";
         } break;
-        case EntitySnapshot::STATION_TYPE_MORPH: {
+      case EntitySnapshot::STATION_TYPE_MORPH: {
           entity_config = "morph_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_COMPOSITE: {
@@ -752,56 +756,48 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   }
 
   std::string sprite_config =
-      entities_settings_.GetString(entity_config + ".sprite");
+      entity_settings_.GetString(entity_config + ".sprite");
 
   Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
   CHECK(sprite != NULL);
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      Object* wall = new Object(id, Object::TYPE_WALL,
-          world_, sprite, position, time);
+      Entity* wall = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_WALL, world_, sprite, position, time);
       CHECK(wall != NULL);
-      walls_[id] = wall;
+      static_entities_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      Object* object = new Object(id, Object::TYPE_BULLET,
-          world_, sprite, position, time);
+      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_BULLET, world_, sprite, position, time);
       CHECK(object != NULL);
-      //object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      objects_[id] = object;
+      dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Object* object = new Object(id, Object::TYPE_PLAYER,
-          world_, sprite, position, time);
+      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_PLAYER, world_, sprite, position, time);
       CHECK(object != NULL);
-      //object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
       if (player_names_.count(id) == 1) {
         object->EnableCaption(player_names_[id], *font_);
       }
-      objects_[id] = object;
+      dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      Object* object = new Object(id, Object::TYPE_DUMMY,
-          world_, sprite, position, time);
+      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_DUMMY, world_, sprite, position, time);
       CHECK(object != NULL);
-      //object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      objects_[id] = object;
+      dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
-      Object* object = new Object(id, Object::TYPE_KIT,
-          world_, sprite, position, time);
+      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_KIT, world_, sprite, position, time);
       CHECK(object != NULL);
-      //object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      objects_[id] = object;
+      dynamic_entities_[id] = object;
     } break;
 
     default:
@@ -813,17 +809,17 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
+  b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-    walls_[snapshot->id]->SetPosition(position);
+    static_entities_[snapshot->id]->GetBody()->SetPosition(position);
   } else {
     int64_t server_time = GetServerTime();
     if (server_time - interpolation_offset_ >= snapshot->time) {
       // Ignore snapshots that are too old.
       return;
     }
-    objects_[snapshot->id]->SetInterpolationPosition(position,
+    dynamic_entities_[snapshot->id]->SetInterpolationPosition(position,
         snapshot->time, interpolation_offset_, server_time);
   }
 }
@@ -832,20 +828,11 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
-  sf::Vector2f distance = player_->GetPosition() - position;
-
-  ObjectState state;
-  state.position = position;
-  player_health_ = static_cast<float>(snapshot->data[0]);
-  player_blow_charge_ = static_cast<float>(snapshot->data[1]);
-  player_morph_charge_ = static_cast<float>(snapshot->data[2]);
+  b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
+  b2Vec2 distance = player_->GetBody()->GetPosition() - position;
 
   if (Length(distance) > max_player_misposition_) {
-    //player_->EnforceState(state, snapshot->time);
-    player_->SetPosition(position);
-  } else {
-    // player_->UpdateCurrentState(state, snapshot->time);
+    player_->GetBody()->SetPosition(position);
   }
 }
 
@@ -853,16 +840,16 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  typedef std::map<uint32_t, Object*>::iterator It;
-  It it = objects_.find(snapshot->id);
-  if (it != objects_.end()) {
+  typedef std::map<uint32_t, Entity*>::iterator It;
+  It it = dynamic_entities_.find(snapshot->id);
+  if (it != dynamic_entities_.end()) {
     delete it->second;
-    objects_.erase(it);
+    dynamic_entities_.erase(it);
   }
-  it = walls_.find(snapshot->id);
-  if (it != walls_.end()) {
+  it = static_entities_.find(snapshot->id);
+  if (it != static_entities_.end()) {
     delete it->second;
-    walls_.erase(it);
+    static_entities_.erase(it);
   }
 
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET ||
@@ -893,7 +880,7 @@ void Application::SimulatePhysics() {
       + keyboard_state_.right * (client_options_.speed);
     velocity.y = keyboard_state_.up * (-client_options_.speed)
       + keyboard_state_.down * (client_options_.speed);
-    player_->body.SetImpulse(player_->body.GetMass() * velocity);
+    player_->GetBody()->SetImpulse(player_->GetBody()->GetMass() * velocity);
 
     int32_t velocity_iterations = 6;
     int32_t position_iterations = 2;
@@ -909,9 +896,9 @@ void Application::Render() {
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
     int64_t render_time = GetServerTime();
-    sf::Vector2f player_pos = player_->GetPosition();
+    b2Vec2 position = player_->GetBody()->GetPosition();
 
-    view_.setCenter(Round(player_pos));
+    view_.setCenter(Round(sf::Vector2f(position.x, position.y)));
     render_window_->setView(view_);
 
     // FIXME(xairy): madness.
@@ -929,11 +916,11 @@ void Application::Render() {
       }
     }
 
-    std::map<uint32_t, Object*>::iterator it;
-    for (it = walls_.begin() ; it != walls_.end(); ++it) {
+    std::map<uint32_t, Entity*>::iterator it;
+    for (it = static_entities_.begin() ; it != static_entities_.end(); ++it) {
       it->second->Render(*render_window_, render_time);
     }
-    for (it = objects_.begin() ; it != objects_.end(); ++it) {
+    for (it = dynamic_entities_.begin() ; it != dynamic_entities_.end(); ++it) {
       it->second->Render(*render_window_, render_time);
     }
 
@@ -1016,32 +1003,32 @@ void Application::RenderHUD() {
 
   int64_t render_time = GetServerTime();
 
-  std::map<uint32_t, Object*>::const_iterator it;
-  for (it = objects_.begin(); it != objects_.end(); ++it) {
-    Object* obj = it->second;
+  std::map<uint32_t, Entity*>::const_iterator it;
+  for (it = dynamic_entities_.begin(); it != dynamic_entities_.end(); ++it) {
+    Entity* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition();
-    sf::Vector2f player_pos = player_->GetPosition();
-    sf::Vector2f rel = obj_pos - player_pos;
+    b2Vec2 obj_pos = obj->GetBody()->GetPosition();
+    b2Vec2 player_pos = player_->GetBody()->GetPosition();
+    b2Vec2 rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
-      rel = rel * (compass_radius / compass_range);
+      rel = (compass_radius / compass_range) * rel;
       sf::CircleShape circle(1.0f);
-      circle.setPosition(compass_center + rel);
+      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
       circle.setFillColor(sf::Color(0xFF, 0x00, 0x00, 0xFF));
       render_window_->draw(circle, top_right_transform);
     }
   }
 
-  for (it = walls_.begin(); it != walls_.end(); ++it) {
-    Object* obj = it->second;
+  for (it = static_entities_.begin(); it != static_entities_.end(); ++it) {
+    Entity* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition();
-    sf::Vector2f player_pos = player_->GetPosition();
-    sf::Vector2f rel = obj_pos - player_pos;
+    b2Vec2 obj_pos = obj->GetBody()->GetPosition();
+    b2Vec2 player_pos = player_->GetBody()->GetPosition();
+    b2Vec2 rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
-      rel = rel * (compass_radius / compass_range);
+      rel = (compass_radius / compass_range) * rel;
       sf::CircleShape circle(1.0f);
-      circle.setPosition(compass_center + rel);
+      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
       circle.setFillColor(sf::Color(0x00, 0xFF, 0x00, 0xFF));
       render_window_->draw(circle, top_right_transform);
     }

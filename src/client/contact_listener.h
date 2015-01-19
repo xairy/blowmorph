@@ -7,7 +7,7 @@
 
 #include "base/pstdint.h"
 
-#include "client/object.h"
+#include "client/entity.h"
 
 namespace bm {
 
@@ -21,17 +21,24 @@ class ContactListener : public b2ContactListener {
   }
 
   virtual void PreSolve(b2Contact* contact, const b2Manifold* old_manifold) {
-    Object* a = static_cast<Object*>(
+    if (!player_id_set_) {
+      contact->SetEnabled(false);
+      return;
+    }
+
+    Entity* a = static_cast<Entity*>(
         contact->GetFixtureA()->GetBody()->GetUserData());
-    Object* b = static_cast<Object*>(
+    Entity* b = static_cast<Entity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
-    if (player_id_set_ && a->id != player_id_ && b->id != player_id_) {
+
+    if (player_id_set_ && a->GetId() != player_id_ && b->GetId() != player_id_) {
       // Nothing except our player collides.
       contact->SetEnabled(false);
       return;
     }
-    if (a->GetType() != Object::TYPE_PLAYER ||
-        b->GetType() != Object::TYPE_WALL) {
+
+    if (a->GetType() != Entity::TYPE_PLAYER ||
+        b->GetType() != Entity::TYPE_WALL) {
       // Our player collides only with walls.
       contact->SetEnabled(false);
     }
