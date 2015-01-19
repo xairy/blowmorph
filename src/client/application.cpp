@@ -893,7 +893,7 @@ void Application::SimulatePhysics() {
       + keyboard_state_.right * (client_options_.speed);
     velocity.y = keyboard_state_.up * (-client_options_.speed)
       + keyboard_state_.down * (client_options_.speed);
-    player_->body.SetVelocity(velocity);
+    player_->body.SetImpulse(player_->body.GetMass() * velocity);
 
     int32_t velocity_iterations = 6;
     int32_t position_iterations = 2;

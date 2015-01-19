@@ -94,6 +94,10 @@ void Entity::ApplyImpulse(const b2Vec2& impulse) {
   body_->ApplyImpulse(impulse);
 }
 
+void Entity::SetImpulse(const b2Vec2& impulse) {
+  body_->SetImpulse(impulse);
+}
+
 void Entity::Destroy() {
   _is_destroyed = true;
 }

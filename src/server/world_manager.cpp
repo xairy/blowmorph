@@ -237,7 +237,7 @@ void WorldManager::UpdateEntities(int64_t time_delta) {
         b2Vec2 velocity = target->GetPosition() - dummy->GetPosition();
         velocity.Normalize();
         velocity *= dummy->GetSpeed();
-        dummy->SetVelocity(velocity);
+        dummy->SetImpulse(dummy->GetMass() * velocity);
       }
     } else if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);
@@ -248,7 +248,7 @@ void WorldManager::UpdateEntities(int64_t time_delta) {
         + keyboard_state->right * (speed);
       velocity.y = keyboard_state->up * (-speed)
         + keyboard_state->down * (speed);
-      player->SetVelocity(velocity);
+      player->SetImpulse(player->GetMass() * velocity);
       player->Regenerate(time_delta);
     }
   }
