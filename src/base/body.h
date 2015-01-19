@@ -34,6 +34,7 @@ class Body {
 
   float GetMass() const;
   void ApplyImpulse(const b2Vec2& impulse);
+  void SetImpulse(const b2Vec2& impulse);
 
   void SetUserData(void* data);
   void SetCollisionFilter(int16_t category, int16_t mask);

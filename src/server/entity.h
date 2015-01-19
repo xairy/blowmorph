@@ -76,6 +76,7 @@ class Entity {
 
   virtual float GetMass() const;
   virtual void ApplyImpulse(const b2Vec2& impulse);
+  virtual void SetImpulse(const b2Vec2& impulse);
 
   virtual void Destroy();
   virtual bool IsDestroyed() const;

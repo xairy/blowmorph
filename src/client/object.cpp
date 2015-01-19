@@ -6,8 +6,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "interpolator/interpolator.h"
-
 #include "base/body.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -24,29 +22,6 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 }
 
 }  // anonymous namespace
-
-namespace interpolator {
-
-template<>
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, double ratio) {
-  sf::Vector2f result;
-  result.x = lerp(a.x, b.x, ratio);
-  result.y = lerp(a.y, b.y, ratio);
-  return result;
-}
-
-template<>
-bm::ObjectState lerp(const bm::ObjectState& a,
-    const bm::ObjectState& b, double ratio) {
-  bm::ObjectState result;
-  result.position = lerp(a.position, b.position, ratio);
-  result.blow_charge = lerp(a.blow_charge, b.blow_charge, ratio);
-  result.morph_charge = lerp(a.morph_charge, b.morph_charge, ratio);
-  result.health = lerp(a.health, b.health, ratio);
-  return result;
-}
-
-}  // namespace interpolator
 
 namespace bm {
 
@@ -116,20 +91,13 @@ void Object::SetPosition(const sf::Vector2f& position) {
   body.SetPosition(b2Vec2(position.x, position.y));
 }
 
-// TODO(xairy): use ApplyImpulse instead of SetVelocity everywhere.
 void Object::SetInterpolationPosition(const sf::Vector2f& position,
     int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time) {
-  // Impulse to compensate the current velocity.
-  b2Vec2 velocity = body.GetVelocity();
-  float mass = body.GetMass();
-  b2Vec2 velocity_impulse = -mass * velocity;
-
   CHECK(server_time - interpolation_offset < snapshot_time);
-  b2Vec2 interpolation_impulse = mass /
+  b2Vec2 impulse = body.GetMass() /
       (snapshot_time - (server_time - interpolation_offset)) * 1000 *
       (b2Vec2(position.x, position.y) - body.GetPosition());
-
-  body.ApplyImpulse(velocity_impulse + interpolation_impulse);
+  body.SetImpulse(impulse);
 }
 
 void Object::Render(sf::RenderWindow& render_window, int64_t time) {
