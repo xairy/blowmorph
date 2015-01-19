@@ -25,6 +25,7 @@
 #include "base/settings_manager.h"
 #include "base/time.h"
 
+#include "client/contact_listener.h"
 #include "client/object.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
@@ -59,6 +60,7 @@ Application::Application()
     peer_(NULL),
     event_(NULL),
     player_(NULL),
+    world_(NULL),
     state_(STATE_FINALIZED),
     network_state_(NETWORK_STATE_DISCONNECTED) { }
 
@@ -86,6 +88,10 @@ bool Application::Initialize() {
     return false;
   }
 
+  if (!InitializePhysics()) {
+    return false;
+  }
+
   if (!InitializeNetwork()) {
     return false;
   }
@@ -101,9 +107,6 @@ bool Application::Initialize() {
   player_health_ = 0;
   player_blow_charge_ = 0;
   player_morph_charge_ = 0;
-
-  wall_size_ = 16;
-  player_size_ = 30;
 
   max_player_misposition_ = client_settings_.GetFloat("client.max_player_misposition");
   interpolation_offset_ = client_settings_.GetInt64("client.interpolation_offset");
@@ -129,7 +132,8 @@ bool Application::Run() {
   sf::Vector2f player_pos(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
-  player_ = new Object(client_options_.id, sprite, player_pos, 0);
+  player_ = new Object(client_options_.id, Object::TYPE_PLAYER,
+      world_, sprite, player_pos, 0);
   CHECK(player_ != NULL);
   player_->ShowCaption(client_settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
@@ -144,6 +148,7 @@ bool Application::Run() {
       return false;
     }
     SimulatePhysics();
+
     Render();
 
     int64_t current_time = GetServerTime();
@@ -186,6 +191,8 @@ void Application::Finalize() {
   if (font_ != NULL) delete font_;
   if (render_window_ != NULL) delete render_window_;
 
+  if (world_ != NULL) delete world_;
+
   state_ = STATE_FINALIZED;
 }
 
@@ -211,6 +218,16 @@ bool Application::InitializeGraphics() {
   font_ = new sf::Font();
   CHECK(font_ != NULL);
   font_->loadFromFile("data/fonts/tahoma.ttf");
+
+  return true;
+}
+
+bool Application::InitializePhysics() {
+  CHECK(state_ == STATE_FINALIZED);
+
+  world_ = new b2World(b2Vec2(0.0f, 0.0f));
+  CHECK(world_ != NULL);
+  world_->SetContactListener(&contact_listener_);
 
   return true;
 }
@@ -740,23 +757,26 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      Object* wall = new Object(id, sprite, position, time);
+      Object* wall = new Object(id, Object::TYPE_WALL,
+          world_, sprite, position, time);
       CHECK(wall != NULL);
       walls_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      Object* object = new Object(id, sprite, position, time);
+      Object* object = new Object(id, Object::TYPE_BULLET,
+          world_, sprite, position, time);
       CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
+      //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       objects_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Object* object = new Object(id, sprite, position, time);
+      Object* object = new Object(id, Object::TYPE_PLAYER,
+          world_, sprite, position, time);
       CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
+      //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       if (player_names_.count(id) == 1) {
         object->ShowCaption(player_names_[id], *font_);
@@ -765,17 +785,19 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      Object* object = new Object(id, sprite, position, time);
+      Object* object = new Object(id, Object::TYPE_DUMMY,
+          world_, sprite, position, time);
       CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
+      //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       objects_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
-      Object* object = new Object(id, sprite, position, time);
+      Object* object = new Object(id, Object::TYPE_KIT,
+          world_, sprite, position, time);
       CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
+      //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       objects_[id] = object;
     } break;
@@ -799,9 +821,11 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   state.morph_charge = static_cast<float>(snapshot->data[2]);
 
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-    walls_[snapshot->id]->PushState(state, time);
+    //walls_[snapshot->id]->PushState(state, time);
+    walls_[snapshot->id]->SetPosition(position);
   } else {
-    objects_[snapshot->id]->PushState(state, time);
+    //objects_[snapshot->id]->PushState(state, time);
+    objects_[snapshot->id]->SetPosition(position);
   }
 }
 
@@ -819,7 +843,8 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   player_morph_charge_ = static_cast<float>(snapshot->data[2]);
 
   if (Length(distance) > max_player_misposition_) {
-    player_->EnforceState(state, snapshot->time);
+    //player_->EnforceState(state, snapshot->time);
+    player_->SetPosition(position);
   } else {
     // player_->UpdateCurrentState(state, snapshot->time);
   }
@@ -860,44 +885,21 @@ void Application::SimulatePhysics() {
   CHECK(state_ == STATE_INITIALIZED);
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
-    int64_t current_time = GetServerTime();
+    int64_t current_time = Timestamp();
     int64_t delta_time = current_time - last_physics_simulation_;
     last_physics_simulation_ = current_time;
 
-    float delta_x = (keyboard_state_.right - keyboard_state_.left) *
-      client_options_.speed * delta_time;
-    float delta_y = (keyboard_state_.down - keyboard_state_.up) *
-      client_options_.speed * delta_time;
+    b2Vec2 velocity(0.0f, 0.0f);
+    velocity.x = keyboard_state_.left * (-client_options_.speed)
+      + keyboard_state_.right * (client_options_.speed);
+    velocity.y = keyboard_state_.up * (-client_options_.speed)
+      + keyboard_state_.down * (client_options_.speed);
+    player_->body.SetVelocity(velocity);
 
-    bool intersection_x = false;
-    bool intersection_y = false;
-
-    std::map<uint32_t, Object*>::iterator it;
-    sf::Vector2f player_pos = player_->GetPosition(current_time);
-
-    for (it = walls_.begin() ; it != walls_.end(); it++) {
-      sf::Vector2f wall_pos = it->second->GetPosition(current_time);
-      float player_to_wall_x = abs(wall_pos.x - (player_pos.x + delta_x));
-      float player_to_wall_y = abs(wall_pos.y - player_pos.y);
-      if (player_to_wall_x < (player_size_ + wall_size_) / 2 &&
-          player_to_wall_y < (player_size_ + wall_size_) / 2) {
-        intersection_x = true;
-        break;
-      }
-    }
-    for (it = walls_.begin() ; it != walls_.end(); it++) {
-      sf::Vector2f wall_pos = it->second->GetPosition(current_time);
-      float player_to_wall_x = abs(wall_pos.x - player_pos.x);
-      float player_to_wall_y = abs(wall_pos.y - (player_pos.y + delta_y));
-      if (player_to_wall_x < (player_size_ + wall_size_) / 2 &&
-          player_to_wall_y < (player_size_ + wall_size_) / 2) {
-        intersection_y = true;
-        break;
-      }
-    }
-
-    if (!intersection_x) player_->Move(sf::Vector2f(delta_x, 0.0f));
-    if (!intersection_y) player_->Move(sf::Vector2f(0.0f, delta_y));
+    int32_t velocity_iterations = 6;
+    int32_t position_iterations = 2;
+    world_->Step(static_cast<float>(delta_time),
+      velocity_iterations, position_iterations);
   }
 }
 
@@ -930,13 +932,13 @@ void Application::Render() {
 
     std::map<uint32_t, Object*>::iterator it;
     for (it = walls_.begin() ; it != walls_.end(); ++it) {
-      RenderObject(it->second, render_time, font_, *render_window_);
+      it->second->Render(*render_window_, render_time);
     }
     for (it = objects_.begin() ; it != objects_.end(); ++it) {
-      RenderObject(it->second, render_time, font_, *render_window_);
+      it->second->Render(*render_window_, render_time);
     }
 
-    RenderObject(player_, render_time, font_, *render_window_);
+    player_->Render(*render_window_, render_time);
 
     RenderHUD();
   }
