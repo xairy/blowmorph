@@ -101,6 +101,18 @@ void Body::SetVelocity(const b2Vec2& velocity) {
   body_->SetLinearVelocity(scaled_velocity);
 }
 
+float Body::GetMass() const {
+  CHECK(state_ == STATE_CREATED);
+  return body_->GetMass();
+}
+
+void Body::ApplyImpulse(const b2Vec2& impulse) {
+  CHECK(state_ == STATE_CREATED);
+  b2Vec2 scaled_impulse = impulse;
+  scaled_impulse *= 1.0f / BOX2D_SCALE;
+  body_->ApplyLinearImpulse(scaled_impulse, body_->GetWorldCenter(), true);
+}
+
 void Body::SetUserData(void* data) {
   CHECK(state_ == STATE_CREATED);
   body_->SetUserData(data);

@@ -32,6 +32,9 @@ class Body {
   b2Vec2 GetVelocity() const;
   void SetVelocity(const b2Vec2& velocity);
 
+  float GetMass() const;
+  void ApplyImpulse(const b2Vec2& impulse);
+
   void SetUserData(void* data);
   void SetCollisionFilter(int16_t category, int16_t mask);
   void SetType(b2BodyType type);

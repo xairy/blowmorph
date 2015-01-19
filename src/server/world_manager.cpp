@@ -257,7 +257,7 @@ void WorldManager::UpdateEntities(int64_t time_delta) {
 void WorldManager::StepPhysics(int64_t time_delta) {
   int32_t velocity_iterations = 6;
   int32_t position_iterations = 2;
-  world_.Step(static_cast<float>(time_delta),
+  world_.Step(static_cast<float>(time_delta) / 1000,
       velocity_iterations, position_iterations);
 }
 

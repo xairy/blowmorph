@@ -135,8 +135,10 @@ bool Application::Run() {
   player_ = new Object(client_options_.id, Object::TYPE_PLAYER,
       world_, sprite, player_pos, 0);
   CHECK(player_ != NULL);
-  player_->ShowCaption(client_settings_.GetString("player.login"), *font_);
+  player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
+
+  contact_listener_.SetPlayerId(client_options_.id);
 
   is_running_ = true;
 
@@ -147,8 +149,8 @@ bool Application::Run() {
     if (!PumpPackets()) {
       return false;
     }
-    SimulatePhysics();
 
+    SimulatePhysics();
     Render();
 
     int64_t current_time = GetServerTime();
@@ -678,7 +680,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       std::string player_name(player_info.login);
       player_names_[player_info.id] = player_name;
       if (objects_.count(player_info.id) == 1) {
-        objects_[player_info.id]->ShowCaption(player_name, *font_);
+        objects_[player_info.id]->EnableCaption(player_name, *font_);
       }
     } break;
 
@@ -779,7 +781,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       if (player_names_.count(id) == 1) {
-        object->ShowCaption(player_names_[id], *font_);
+        object->EnableCaption(player_names_[id], *font_);
       }
       objects_[id] = object;
     } break;
@@ -811,21 +813,18 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  int64_t time = snapshot->time;
   sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
-  ObjectState state;
-  state.position = position;
-  state.health = static_cast<float>(snapshot->data[0]);
-  state.blow_charge = static_cast<float>(snapshot->data[1]);
-  state.morph_charge = static_cast<float>(snapshot->data[2]);
-
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-    //walls_[snapshot->id]->PushState(state, time);
     walls_[snapshot->id]->SetPosition(position);
   } else {
-    //objects_[snapshot->id]->PushState(state, time);
-    objects_[snapshot->id]->SetPosition(position);
+    int64_t server_time = GetServerTime();
+    if (server_time - interpolation_offset_ >= snapshot->time) {
+      // Ignore snapshots that are too old.
+      return;
+    }
+    objects_[snapshot->id]->SetInterpolationPosition(position,
+        snapshot->time, interpolation_offset_, server_time);
   }
 }
 
@@ -898,7 +897,7 @@ void Application::SimulatePhysics() {
 
     int32_t velocity_iterations = 6;
     int32_t position_iterations = 2;
-    world_->Step(static_cast<float>(delta_time),
+    world_->Step(static_cast<float>(delta_time) / 1000,
       velocity_iterations, position_iterations);
   }
 }
@@ -910,7 +909,7 @@ void Application::Render() {
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
     int64_t render_time = GetServerTime();
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f player_pos = player_->GetPosition();
 
     view_.setCenter(Round(player_pos));
     render_window_->setView(view_);
@@ -1021,8 +1020,8 @@ void Application::RenderHUD() {
   for (it = objects_.begin(); it != objects_.end(); ++it) {
     Object* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition(render_time);
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f obj_pos = obj->GetPosition();
+    sf::Vector2f player_pos = player_->GetPosition();
     sf::Vector2f rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = rel * (compass_radius / compass_range);
@@ -1036,8 +1035,8 @@ void Application::RenderHUD() {
   for (it = walls_.begin(); it != walls_.end(); ++it) {
     Object* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition(render_time);
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f obj_pos = obj->GetPosition();
+    sf::Vector2f player_pos = player_->GetPosition();
     sf::Vector2f rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = rel * (compass_radius / compass_range);
