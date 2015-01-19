@@ -1,6 +1,6 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#include "server/station.h"
+#include "server/kit.h"
 
 #include <memory>
 #include <string>
@@ -17,7 +17,7 @@
 
 namespace bm {
 
-Station::Station(
+Kit::Kit(
   WorldManager* world_manager,
   uint32_t id,
   const b2Vec2& position,
@@ -33,77 +33,77 @@ Station::Station(
   _type = type;
 }
 
-Station::~Station() { }
+Kit::~Kit() { }
 
-Entity::Type Station::GetType() {
+Entity::Type Kit::GetType() {
   return Entity::TYPE_KIT;
 }
-bool Station::IsStatic() {
+bool Kit::IsStatic() {
   return false;
 }
 
-void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
-  output->type = EntitySnapshot::ENTITY_TYPE_STATION;
+void Kit::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  output->type = EntitySnapshot::ENTITY_TYPE_KIT;
   output->time = time;
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
   if (_type == TYPE_HEALTH) {
-    output->data[0] = EntitySnapshot::STATION_TYPE_HEALTH;
+    output->data[0] = EntitySnapshot::KIT_TYPE_HEALTH;
   } else if (_type == TYPE_BLOW) {
-    output->data[0] = EntitySnapshot::STATION_TYPE_BLOW;
+    output->data[0] = EntitySnapshot::KIT_TYPE_BLOW;
   } else if (_type == TYPE_MORPH) {
-    output->data[0] = EntitySnapshot::STATION_TYPE_MORPH;
+    output->data[0] = EntitySnapshot::KIT_TYPE_MORPH;
   } else if (_type == TYPE_COMPOSITE) {
-    output->data[0] = EntitySnapshot::STATION_TYPE_COMPOSITE;
+    output->data[0] = EntitySnapshot::KIT_TYPE_COMPOSITE;
   } else {
     CHECK(false);
   }
 }
 
-void Station::Damage(int damage, uint32_t source_id) { }
+void Kit::Damage(int damage, uint32_t source_id) { }
 
-int Station::GetHealthRegeneration() const {
+int Kit::GetHealthRegeneration() const {
   return _health_regeneration;
 }
-int Station::GetBlowRegeneration() const {
+int Kit::GetBlowRegeneration() const {
   return _blow_regeneration;
 }
-int Station::GetMorphRegeneration() const {
+int Kit::GetMorphRegeneration() const {
   return _morph_regeneration;
 }
 
 // Double dispatch. Collision detection.
 
-void Station::Collide(Entity* entity) {
+void Kit::Collide(Entity* entity) {
   entity->Collide(this);
 }
 
-void Station::Collide(Player* other) {
+void Kit::Collide(Player* other) {
   Entity::Collide(this, other);
 }
-void Station::Collide(Dummy* other) {
+void Kit::Collide(Dummy* other) {
   Entity::Collide(this, other);
 }
-void Station::Collide(Bullet* other) {
+void Kit::Collide(Bullet* other) {
   Entity::Collide(this, other);
 }
-void Station::Collide(Wall* other) {
+void Kit::Collide(Wall* other) {
   Entity::Collide(this, other);
 }
-void Station::Collide(Station* other) {
+void Kit::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
 
-std::string Station::TypeToEntityName(Station::Type type) {
+std::string Kit::TypeToEntityName(Kit::Type type) {
   switch (type) {
-    case Station::TYPE_HEALTH:
+    case Kit::TYPE_HEALTH:
       return "health_kit";
-    case Station::TYPE_BLOW:
+    case Kit::TYPE_BLOW:
       return "blow_kit";
-    case Station::TYPE_MORPH:
+    case Kit::TYPE_MORPH:
       return "morph_kit";
-    case Station::TYPE_COMPOSITE:
+    case Kit::TYPE_COMPOSITE:
       return "composite_kit";
     default:
       CHECK(false);

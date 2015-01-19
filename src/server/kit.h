@@ -1,7 +1,7 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#ifndef SERVER_STATION_H_
-#define SERVER_STATION_H_
+#ifndef SERVER_KIT_H_
+#define SERVER_KIT_H_
 
 #include <string>
 
@@ -15,8 +15,7 @@
 
 namespace bm {
 
-// FIXME(xairy): rename to Kit.
-class Station : public Entity {
+class Kit : public Entity {
   friend class Entity;
 
  public:
@@ -27,7 +26,7 @@ class Station : public Entity {
     TYPE_COMPOSITE
   };
 
-  Station(
+  Kit(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position,
@@ -35,7 +34,7 @@ class Station : public Entity {
     int blow_regeneration,
     int morph_regeneration,
     Type type);
-  virtual ~Station();
+  virtual ~Kit();
 
   virtual Entity::Type GetType();
   virtual bool IsStatic();
@@ -56,7 +55,7 @@ class Station : public Entity {
   virtual void Collide(Dummy* other);
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
-  virtual void Collide(Station* other);
+  virtual void Collide(Kit* other);
 
  protected:
   int _health_regeneration;
@@ -68,9 +67,9 @@ class Station : public Entity {
  private:
   std::string TypeToEntityName(Type type);
 
-  DISALLOW_COPY_AND_ASSIGN(Station);
+  DISALLOW_COPY_AND_ASSIGN(Kit);
 };
 
 }  // namespace bm
 
-#endif  // SERVER_STATION_H_
+#endif  // SERVER_KIT_H_

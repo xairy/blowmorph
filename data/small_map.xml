@@ -14,8 +14,8 @@
   <chunk x="-4" y="-4" width="9" height="9" type="ordinary"></chunk>
   <chunk x="-1" y="-1" width="3" height="3" type="unbreakable"></chunk>
 
-  <station x="-100.0" y="-100.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></station>
-  <station x="-100.0" y="100.0" type="blow" health_regeneration="0" blow_regeneration="10000" morph_regeneration="0"></station>
-  <station x="100.0" y="-100.0" type="morph" health_regeneration="0" blow_regeneration="0" morph_regeneration="10000"></station>
-  <station x="100.0" y="100.0" type="composite" health_regeneration="100" blow_regeneration="10000" morph_regeneration="10000"></station>
+  <kit x="-100.0" y="-100.0" type="health" health_regeneration="100" blow_regeneration="0" morph_regeneration="0"></kit>
+  <kit x="-100.0" y="100.0" type="blow" health_regeneration="0" blow_regeneration="10000" morph_regeneration="0"></kit>
+  <kit x="100.0" y="-100.0" type="morph" health_regeneration="0" blow_regeneration="0" morph_regeneration="10000"></kit>
+  <kit x="100.0" y="100.0" type="composite" health_regeneration="100" blow_regeneration="10000" morph_regeneration="10000"></kit>
 </map>

@@ -87,8 +87,8 @@ struct PlayerInfo {
 //   data[3] - score
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
-// type == EntitySnapshot::ENTITY_TYPE_STATION:
-//    data[0] - station type
+// type == EntitySnapshot::ENTITY_TYPE_KIT:
+//    data[0] - kit type
 struct EntitySnapshot {
   enum EntityType {
     ENTITY_TYPE_UNKNOWN = 0,
@@ -97,7 +97,7 @@ struct EntitySnapshot {
     ENTITY_TYPE_BULLET,
     ENTITY_TYPE_WALL,
     ENTITY_TYPE_DUMMY,
-    ENTITY_TYPE_STATION,
+    ENTITY_TYPE_KIT,
     ENTITY_TYPE_EXPLOSION,
 
     ENTITY_TYPE_MAX_VALUE
@@ -113,15 +113,15 @@ struct EntitySnapshot {
     WALL_TYPE_MAX_VALUE
   };
 
-  enum StationType {
-    STATION_TYPE_UNKNOWN,
+  enum KitType {
+    KIT_TYPE_UNKNOWN,
 
-    STATION_TYPE_HEALTH,
-    STATION_TYPE_BLOW,
-    STATION_TYPE_MORPH,
-    STATION_TYPE_COMPOSITE,
+    KIT_TYPE_HEALTH,
+    KIT_TYPE_BLOW,
+    KIT_TYPE_MORPH,
+    KIT_TYPE_COMPOSITE,
 
-    STATION_TYPE_MAX_VALUE
+    KIT_TYPE_MAX_VALUE
   };
 
   int64_t time;

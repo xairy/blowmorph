@@ -291,7 +291,7 @@ void Player::Collide(Bullet* other) {
 void Player::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
-void Player::Collide(Station* other) {
+void Player::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
 

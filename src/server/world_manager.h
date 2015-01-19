@@ -20,9 +20,9 @@
 
 #include "server/bullet.h"
 #include "server/dummy.h"
+#include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
-#include "server/station.h"
 
 namespace bm {
 
@@ -69,12 +69,12 @@ class WorldManager {
     const b2Vec2& position,
     Wall::Type type);
 
-  void CreateStation(
+  void CreateKit(
     const b2Vec2& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
-    Station::Type type);
+    Kit::Type type);
 
   // Works only with grid map.
   void CreateAlignedWall(float x, float y, Wall::Type type);
@@ -98,11 +98,11 @@ class WorldManager {
 
   // Collisions.
 
-  void OnCollision(Station* station1, Station* station2);
-  void OnCollision(Station* station, Wall* wall);
-  void OnCollision(Station* station, Player* player);
-  void OnCollision(Station* station, Dummy* dummy);
-  void OnCollision(Station* station, Bullet* bullet);
+  void OnCollision(Kit* kit1, Kit* kit2);
+  void OnCollision(Kit* kit, Wall* wall);
+  void OnCollision(Kit* kit, Player* player);
+  void OnCollision(Kit* kit, Dummy* dummy);
+  void OnCollision(Kit* kit, Bullet* bullet);
 
   void OnCollision(Wall* wall1, Wall* wall2);
   void OnCollision(Wall* wall, Player* player);
@@ -122,10 +122,10 @@ class WorldManager {
   bool _LoadWall(const pugi::xml_node& node);
   bool _LoadChunk(const pugi::xml_node& node);
   bool _LoadSpawn(const pugi::xml_node& node);
-  bool _LoadStation(const pugi::xml_node& node);
+  bool _LoadKit(const pugi::xml_node& node);
 
   bool _LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output);
-  bool _LoadStationType(const pugi::xml_attribute& attr, Station::Type* output);
+  bool _LoadKitType(const pugi::xml_attribute& attr, Kit::Type* output);
 
   // Works only with grid map.
   void _CreateAlignedWall(int x, int y, Wall::Type type);

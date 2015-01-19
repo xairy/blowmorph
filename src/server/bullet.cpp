@@ -80,7 +80,7 @@ void Bullet::Collide(Bullet* other) {
 void Bullet::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Station* other) {
+void Bullet::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
 

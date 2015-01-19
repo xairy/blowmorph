@@ -23,9 +23,9 @@
 
 #include "server/bullet.h"
 #include "server/dummy.h"
+#include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
-#include "server/station.h"
 
 namespace {
 
@@ -315,18 +315,18 @@ void WorldManager::CreateWall(
   AddEntity(id, wall);
 }
 
-void WorldManager::CreateStation(
+void WorldManager::CreateKit(
   const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
-  Station::Type type
+  Kit::Type type
 ) {
   uint32_t id = _id_manager->NewId();
-  Station* station = new Station(this, id, position, health_regeneration,
+  Kit* kit = new Kit(this, id, position, health_regeneration,
     blow_regeneration, morph_regeneration, type);
-  CHECK(station != NULL);
-  AddEntity(id, station);
+  CHECK(kit != NULL);
+  AddEntity(id, kit);
 }
 
 void WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
@@ -386,8 +386,8 @@ bool WorldManager::LoadMap(const std::string& file) {
       if (!_LoadSpawn(node)) {
         return false;
       }
-    } else if (std::string(node.name()) == "station") {
-      if (!_LoadStation(node)) {
+    } else if (std::string(node.name()) == "kit") {
+      if (!_LoadKit(node)) {
         return false;
       }
     }
@@ -470,9 +470,9 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   return true;
 }
 
-bool WorldManager::_LoadStation(const pugi::xml_node& node) {
+bool WorldManager::_LoadKit(const pugi::xml_node& node) {
   CHECK(_map_type == MAP_GRID);
-  CHECK(std::string(node.name()) == "station");
+  CHECK(std::string(node.name()) == "kit");
 
   pugi::xml_attribute x_attr = node.attribute("x");
   pugi::xml_attribute y_attr = node.attribute("y");
@@ -481,7 +481,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
   pugi::xml_attribute mr_attr = node.attribute("morph_regeneration");
   pugi::xml_attribute type_attr = node.attribute("type");
   if (!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
-    THROW_ERROR("Incorrect format of 'station' in map file!\n");
+    THROW_ERROR("Incorrect format of 'kit' in map file!\n");
     return false;
   } else {
     float x = x_attr.as_float();
@@ -489,12 +489,12 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     int hr = hr_attr.as_int();
     int br = br_attr.as_int();
     int mr = mr_attr.as_int();
-    Station::Type type;
-    bool rv = _LoadStationType(type_attr, &type);
+    Kit::Type type;
+    bool rv = _LoadKitType(type_attr, &type);
     if (rv == false) {
       return false;
     }
-    CreateStation(b2Vec2(x, y), hr, br, mr, type);
+    CreateKit(b2Vec2(x, y), hr, br, mr, type);
   }
 
   return true;
@@ -516,19 +516,19 @@ bool WorldManager::_LoadWallType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
-    Station::Type* output) {
+bool WorldManager::_LoadKitType(const pugi::xml_attribute& attribute,
+    Kit::Type* output) {
   CHECK(std::string(attribute.name()) == "type");
   if (std::string(attribute.value()) == "health") {
-    *output = Station::TYPE_HEALTH;
+    *output = Kit::TYPE_HEALTH;
   } else if (std::string(attribute.value()) == "blow") {
-    *output = Station::TYPE_BLOW;
+    *output = Kit::TYPE_BLOW;
   } else if (std::string(attribute.value()) == "morph") {
-    *output = Station::TYPE_MORPH;
+    *output = Kit::TYPE_MORPH;
   } else if (std::string(attribute.value()) == "composite") {
-    *output = Station::TYPE_COMPOSITE;
+    *output = Kit::TYPE_COMPOSITE;
   } else {
-    THROW_ERROR("Incorrect station type in map file!\n");
+    THROW_ERROR("Incorrect kit type in map file!\n");
     return false;
   }
   return true;
@@ -659,18 +659,18 @@ void WorldManager::ExplodeDummy(Dummy* dummy) {
 
 // Collisions.
 
-void WorldManager::OnCollision(Station* station1, Station* station2) { }
-void WorldManager::OnCollision(Station* station, Wall* wall) { }
+void WorldManager::OnCollision(Kit* kit1, Kit* kit2) { }
+void WorldManager::OnCollision(Kit* kit, Wall* wall) { }
 
-void WorldManager::OnCollision(Station* station, Player* player) {
-  player->AddHealth(station->GetHealthRegeneration());
-  player->AddBlow(station->GetBlowRegeneration());
-  player->AddMorph(station->GetMorphRegeneration());
-  station->Destroy();
+void WorldManager::OnCollision(Kit* kit, Player* player) {
+  player->AddHealth(kit->GetHealthRegeneration());
+  player->AddBlow(kit->GetBlowRegeneration());
+  player->AddMorph(kit->GetMorphRegeneration());
+  kit->Destroy();
 }
 
-void WorldManager::OnCollision(Station* station, Dummy* dummy) { }
-void WorldManager::OnCollision(Station* station, Bullet* bullet) { }
+void WorldManager::OnCollision(Kit* kit, Dummy* dummy) { }
+void WorldManager::OnCollision(Kit* kit, Bullet* bullet) { }
 
 void WorldManager::OnCollision(Wall* wall1, Wall* wall2) { }
 void WorldManager::OnCollision(Wall* wall, Player* player) { }

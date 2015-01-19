@@ -78,7 +78,7 @@ void Wall::Collide(Bullet* other) {
 void Wall::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
-void Wall::Collide(Station* other) {
+void Wall::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
 

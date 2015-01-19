@@ -30,9 +30,9 @@
 
 #include "server/bullet.h"
 #include "server/dummy.h"
+#include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
-#include "server/station.h"
 
 namespace bm {
 

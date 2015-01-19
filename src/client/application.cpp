@@ -731,18 +731,18 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       entity_config = "dummy";
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_STATION: {
+    case EntitySnapshot::ENTITY_TYPE_KIT: {
       switch (snapshot->data[0]) {
-        case EntitySnapshot::STATION_TYPE_HEALTH: {
+        case EntitySnapshot::KIT_TYPE_HEALTH: {
           entity_config = "health_kit";
         } break;
-        case EntitySnapshot::STATION_TYPE_BLOW: {
+        case EntitySnapshot::KIT_TYPE_BLOW: {
           entity_config = "blow_kit";
         } break;
-      case EntitySnapshot::STATION_TYPE_MORPH: {
+      case EntitySnapshot::KIT_TYPE_MORPH: {
           entity_config = "morph_kit";
         } break;
-        case EntitySnapshot::STATION_TYPE_COMPOSITE: {
+        case EntitySnapshot::KIT_TYPE_COMPOSITE: {
           entity_config = "composite_kit";
         } break;
         default: {
@@ -793,7 +793,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       dynamic_entities_[id] = object;
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_STATION: {
+    case EntitySnapshot::ENTITY_TYPE_KIT: {
       Entity* object = new Entity(&body_settings_, &entity_settings_, id,
         Entity::TYPE_KIT, world_, sprite, position, time);
       CHECK(object != NULL);

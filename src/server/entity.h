@@ -22,7 +22,7 @@ class Player;
 class Dummy;
 class Bullet;
 class Wall;
-class Station;
+class Kit;
 
 class Entity {
  public:
@@ -93,13 +93,13 @@ class Entity {
   virtual void Collide(Dummy* other) = 0;
   virtual void Collide(Bullet* other) = 0;
   virtual void Collide(Wall* other) = 0;
-  virtual void Collide(Station* other) = 0;
+  virtual void Collide(Kit* other) = 0;
 
-  static void Collide(Station* station1, Station* station2);
-  static void Collide(Station* station, Wall* wall);
-  static void Collide(Station* station, Player* player);
-  static void Collide(Station* station, Dummy* dummy);
-  static void Collide(Station* station, Bullet* bullet);
+  static void Collide(Kit* kit1, Kit* kit2);
+  static void Collide(Kit* kit, Wall* wall);
+  static void Collide(Kit* kit, Player* player);
+  static void Collide(Kit* kit, Dummy* dummy);
+  static void Collide(Kit* kit, Bullet* bullet);
 
   static void Collide(Wall* wall1, Wall* wall2);
   static void Collide(Wall* wall, Player* player);

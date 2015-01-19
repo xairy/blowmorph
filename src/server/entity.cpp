@@ -21,9 +21,9 @@
 
 #include "server/bullet.h"
 #include "server/dummy.h"
+#include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
-#include "server/station.h"
 
 namespace bm {
 
@@ -114,19 +114,19 @@ bool Entity::IsUpdated() const {
 
 // Double dispatch.
 
-void Entity::Collide(Station* first, Station* second) {
+void Entity::Collide(Kit* first, Kit* second) {
   first->GetWorldManager()->OnCollision(first, second);
 }
-void Entity::Collide(Station* first, Wall* second) {
+void Entity::Collide(Kit* first, Wall* second) {
   first->GetWorldManager()->OnCollision(first, second);
 }
-void Entity::Collide(Station* first, Player* second) {
+void Entity::Collide(Kit* first, Player* second) {
   first->GetWorldManager()->OnCollision(first, second);
 }
-void Entity::Collide(Station* first, Dummy* second) {
+void Entity::Collide(Kit* first, Dummy* second) {
   first->GetWorldManager()->OnCollision(first, second);
 }
-void Entity::Collide(Station* first, Bullet* second) {
+void Entity::Collide(Kit* first, Bullet* second) {
   first->GetWorldManager()->OnCollision(first, second);
 }
 
