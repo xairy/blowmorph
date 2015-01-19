@@ -8,6 +8,7 @@
 
 #include "interpolator/interpolator.h"
 
+#include "base/body.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 
@@ -49,25 +50,51 @@ bm::ObjectState lerp(const bm::ObjectState& a,
 namespace bm {
 
 // TODO(alex): fix method names.
-Object::Object(uint32_t id, Sprite* sprite,
+Object::Object(uint32_t id, Type type, b2World* world, Sprite* sprite,
     const sf::Vector2f& position, int64_t time)
       : id(id),
+        type(type),
         visible(true),
         sprite(sprite),
-        caption_visible(false),
-        interpolation_enabled(false),
-        interpolator(ObjectInterpolator(0, 1)) {
-  // XXX(xairy): call some method instead?
-  ObjectState state;
-  state.position = position;
-  state.blow_charge = 0;
-  state.morph_charge = 0;
-  state.health = 0;
-  interpolator.Push(state, time);
+        caption_visible(false) {
+  // TODO(xairy): initialize sprite here.
+
+  SettingsManager body_settings;
+  bool rv = body_settings.Open("data/bodies.cfg");
+  CHECK(rv == true);
+
+  std::string body_config;
+  switch (type) {
+    case TYPE_BULLET:
+      body_config = "bullet";
+      break;
+    case TYPE_PLAYER:
+      body_config = "mechos";
+      break;
+    case TYPE_WALL:
+      body_config = "wall";
+      break;
+    case TYPE_KIT:
+      body_config = "kit";
+      break;
+    case TYPE_DUMMY:
+      body_config = "dummy";
+      break;
+    default:
+      CHECK(false);  // Unreachable.
+  }
+
+  body.Create(world, &body_settings, body_config);
+  body.SetUserData(this);
+  body.SetPosition(b2Vec2(position.x, position.y));
 }
 
 Object::~Object() {
   if (sprite != NULL) delete sprite;
+}
+
+Object::Type Object::GetType() const {
+  return type;
 }
 
 void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
@@ -79,55 +106,30 @@ void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
   caption_visible = true;
 }
 
-void Object::EnableInterpolation(int64_t interpolation_offset) {
-  CHECK(interpolation_enabled == false);
-  interpolator = ObjectInterpolator(interpolation_offset, 2);
-  interpolation_enabled = true;
-}
-
-void Object::EnforceState(const ObjectState& state, int64_t time) {
-  interpolator.Clear();
-  interpolator.Push(state, time);
-}
-
-void Object::PushState(const ObjectState& state, int64_t time) {
-  interpolator.Push(state, time);
-}
-
 sf::Vector2f Object::GetPosition(int64_t time) {
-  return interpolator.Interpolate(time).position;
+  b2Vec2 b2p = body.GetPosition();
+  return sf::Vector2f(b2p.x, b2p.y);
 }
 
 void Object::SetPosition(const sf::Vector2f& value, int64_t time) {
-  ObjectState state = interpolator.Interpolate(time);
-  state.position = value;
-  EnforceState(state, time);
+  // TODO(xairy): set velocity + interpolation lag.
+  body.SetPosition(b2Vec2(value.x, value.y));
 }
 
-void Object::Move(const sf::Vector2f& value, int64_t time) {
-  ObjectState state = interpolator.Interpolate(time);
-  state.position = state.position + value;
-  EnforceState(state, time);
-}
+void Object::Render(sf::RenderWindow& render_window, int64_t time) {
+  b2Vec2 b2p = body.GetPosition();
+  sf::Vector2f position = Round(sf::Vector2f(b2p.x, b2p.y));
 
-void RenderObject(Object* object, int64_t time,
-    sf::Font* font, sf::RenderWindow& render_window) {
-  CHECK(object != NULL);
-  CHECK(font != NULL);
-
-  ObjectState state = object->interpolator.Interpolate(time);
-
-  if (object->visible) {
-    sf::Vector2f object_pos(Round(state.position));
-    object->sprite->SetPosition(object_pos);
-    object->sprite->Render(&render_window);
+  if (visible) {
+    sprite->SetPosition(position);
+    sprite->Render(&render_window);
   }
 
-  if (object->visible && object->caption_visible) {
+  if (visible && caption_visible) {
     sf::Vector2f caption_offset = sf::Vector2f(0.0f, -25.0f);
-    sf::Vector2f caption_pos = Round(state.position + caption_offset);
-    object->caption_text.setPosition(caption_pos.x, caption_pos.y);
-    render_window.draw(object->caption_text);
+    sf::Vector2f caption_pos = position + caption_offset;
+    caption_text.setPosition(caption_pos.x, caption_pos.y);
+    render_window.draw(caption_text);
   }
 }
 
