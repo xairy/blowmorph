@@ -828,6 +828,10 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
+  player_health_ = snapshot->data[0];
+  player_blow_charge_ = snapshot->data[1];
+  player_morph_charge_ = snapshot->data[2];
+
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
   b2Vec2 distance = player_->GetBody()->GetPosition() - position;
 
