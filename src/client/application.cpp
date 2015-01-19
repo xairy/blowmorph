@@ -25,6 +25,7 @@
 #include "base/settings_manager.h"
 #include "base/time.h"
 
+#include "client/contact_listener.h"
 #include "client/object.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
@@ -59,6 +60,7 @@ Application::Application()
     peer_(NULL),
     event_(NULL),
     player_(NULL),
+    world_(NULL),
     state_(STATE_FINALIZED),
     network_state_(NETWORK_STATE_DISCONNECTED) { }
 
@@ -74,7 +76,11 @@ bool Application::Initialize() {
 
   is_running_ = false;
 
-  if (!settings_.Open("data/client.cfg")) {
+  if (!client_settings_.Open("data/client.cfg")) {
+    return false;
+  }
+
+  if (!entities_settings_.Open("data/entities.cfg")) {
     return false;
   }
 
@@ -82,11 +88,15 @@ bool Application::Initialize() {
     return false;
   }
 
+  if (!InitializePhysics()) {
+    return false;
+  }
+
   if (!InitializeNetwork()) {
     return false;
   }
 
-  tick_rate_ = settings_.GetInt32("client.tick_rate");
+  tick_rate_ = client_settings_.GetInt32("client.tick_rate");
 
   time_correction_ = 0;
   last_tick_ = 0;
@@ -98,11 +108,8 @@ bool Application::Initialize() {
   player_blow_charge_ = 0;
   player_morph_charge_ = 0;
 
-  wall_size_ = 16;
-  player_size_ = 30;
-
-  max_player_misposition_ = settings_.GetFloat("client.max_player_misposition");
-  interpolation_offset_ = settings_.GetInt64("client.interpolation_offset");
+  max_player_misposition_ = client_settings_.GetFloat("client.max_player_misposition");
+  interpolation_offset_ = client_settings_.GetInt64("client.interpolation_offset");
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -125,11 +132,13 @@ bool Application::Run() {
   sf::Vector2f player_pos(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("mechos");
   CHECK(sprite != NULL);
-  player_ = new Object(client_options_.id, EntitySnapshot::ENTITY_TYPE_PLAYER,
-      sprite, player_pos, 0);
+  player_ = new Object(client_options_.id, Object::TYPE_PLAYER,
+      world_, sprite, player_pos, 0);
   CHECK(player_ != NULL);
-  player_->ShowCaption(settings_.GetString("player.login"), *font_);
+  player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
   player_->SetPosition(player_pos);
+
+  contact_listener_.SetPlayerId(client_options_.id);
 
   is_running_ = true;
 
@@ -140,6 +149,7 @@ bool Application::Run() {
     if (!PumpPackets()) {
       return false;
     }
+
     SimulatePhysics();
     Render();
 
@@ -183,15 +193,17 @@ void Application::Finalize() {
   if (font_ != NULL) delete font_;
   if (render_window_ != NULL) delete render_window_;
 
+  if (world_ != NULL) delete world_;
+
   state_ = STATE_FINALIZED;
 }
 
 bool Application::InitializeGraphics() {
   CHECK(state_ == STATE_FINALIZED);
 
-  uint32_t width = settings_.GetUInt32("graphics.width");
-  uint32_t height = settings_.GetUInt32("graphics.height");
-  bool fullscreen = settings_.GetBool("graphics.fullscreen");
+  uint32_t width = client_settings_.GetUInt32("graphics.width");
+  uint32_t height = client_settings_.GetUInt32("graphics.height");
+  bool fullscreen = client_settings_.GetBool("graphics.fullscreen");
 
   sf::VideoMode video_mode(width, height);
   sf::Uint32 style = fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
@@ -208,6 +220,16 @@ bool Application::InitializeGraphics() {
   font_ = new sf::Font();
   CHECK(font_ != NULL);
   font_->loadFromFile("data/fonts/tahoma.ttf");
+
+  return true;
+}
+
+bool Application::InitializePhysics() {
+  CHECK(state_ == STATE_FINALIZED);
+
+  world_ = new b2World(b2Vec2(0.0f, 0.0f));
+  CHECK(world_ != NULL);
+  world_->SetContactListener(&contact_listener_);
 
   return true;
 }
@@ -241,15 +263,15 @@ bool Application::Connect() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_INITIALIZED);
 
-  std::string host = settings_.GetString("server.host");
-  uint16_t port = settings_.GetUInt16("server.port");
+  std::string host = client_settings_.GetString("server.host");
+  uint16_t port = client_settings_.GetUInt16("server.port");
 
   peer_ = client_->Connect(host, port);
   if (peer_ == NULL) {
     return false;
   }
 
-  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
 
   bool rv = client_->Service(event_, connect_timeout);
   if (rv == false) {
@@ -274,12 +296,12 @@ bool Application::Synchronize() {
 
   printf("Synchronization started.\n");
 
-  int64_t sync_timeout = settings_.GetInt64("client.sync_timeout");
+  int64_t sync_timeout = client_settings_.GetInt64("client.sync_timeout");
   int64_t start_time = Timestamp();
 
   // Send login data.
 
-  std::string login = settings_.GetString("player.login");
+  std::string login = client_settings_.GetString("player.login");
   CHECK(login.size() <= LoginData::MAX_LOGIN_LENGTH);
 
   LoginData login_data;
@@ -443,7 +465,7 @@ bool Application::OnQuitEvent() {
 
   is_running_ = false;
 
-  uint32_t connect_timeout = settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
 
   if (!DisconnectPeer(peer_, event_, client_, connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
@@ -658,7 +680,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       std::string player_name(player_info.login);
       player_names_[player_info.id] = player_name;
       if (objects_.count(player_info.id) == 1) {
-        objects_[player_info.id]->ShowCaption(player_name, *font_);
+        objects_[player_info.id]->EnableCaption(player_name, *font_);
       }
     } break;
 
@@ -678,82 +700,106 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   EntitySnapshot::EntityType type = snapshot->type;
   sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
+  std::string entity_config;
+
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      std::string sprite_id;
       if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-        sprite_id = "ordinary_wall";
+        entity_config = "ordinary_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-        sprite_id = "unbreakable_wall";
+        entity_config = "unbreakable_wall";
       } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-        sprite_id = "morphed_wall";
+        entity_config = "morphed_wall";
       } else {
         CHECK(false);  // Unreachable.
       }
-      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
-      CHECK(sprite != NULL);
-      Object* wall = new Object(id, type, sprite, position, time);
-      CHECK(wall != NULL);
-      walls_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      Sprite* sprite = resource_manager_.CreateSprite("bullet");
-      CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
-      CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      objects_[id] = object;
+      entity_config = "bullet";
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Sprite* sprite = resource_manager_.CreateSprite("mechos");
-      CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
-      CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      if (player_names_.count(id) == 1) {
-        object->ShowCaption(player_names_[id], *font_);
-      }
-      objects_[id] = object;
+      entity_config = "player";
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      Sprite* sprite = resource_manager_.CreateSprite("dummy");
-      CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
-      CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
-      object->SetPosition(position);
-      objects_[id] = object;
+      entity_config = "dummy";
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_STATION: {
-      std::string sprite_id;
       switch (snapshot->data[0]) {
         case EntitySnapshot::STATION_TYPE_HEALTH: {
-          sprite_id = "health_kit";
+          entity_config = "health_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_BLOW: {
-          sprite_id = "blow_kit";
+          entity_config = "blow_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_MORPH: {
-          sprite_id = "morph_kit";
+          entity_config = "morph_kit";
         } break;
         case EntitySnapshot::STATION_TYPE_COMPOSITE: {
-          sprite_id = "composite_kit";
+          entity_config = "composite_kit";
         } break;
         default: {
           CHECK(false);  // Unreachable.
         }
       }
-      Sprite* sprite = resource_manager_.CreateSprite(sprite_id);
-      CHECK(sprite != NULL);
-      Object* object = new Object(id, type, sprite, position, time);
+    } break;
+
+    default:
+      CHECK(false);  // Unreachable.
+  }
+
+  std::string sprite_config =
+      entities_settings_.GetString(entity_config + ".sprite");
+
+  Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
+  CHECK(sprite != NULL);
+
+  switch (snapshot->type) {
+    case EntitySnapshot::ENTITY_TYPE_WALL: {
+      Object* wall = new Object(id, Object::TYPE_WALL,
+          world_, sprite, position, time);
+      CHECK(wall != NULL);
+      walls_[id] = wall;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_BULLET: {
+      Object* object = new Object(id, Object::TYPE_BULLET,
+          world_, sprite, position, time);
       CHECK(object != NULL);
-      object->EnableInterpolation(interpolation_offset_);
+      //object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      objects_[id] = object;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_PLAYER: {
+      Object* object = new Object(id, Object::TYPE_PLAYER,
+          world_, sprite, position, time);
+      CHECK(object != NULL);
+      //object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      if (player_names_.count(id) == 1) {
+        object->EnableCaption(player_names_[id], *font_);
+      }
+      objects_[id] = object;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_DUMMY: {
+      Object* object = new Object(id, Object::TYPE_DUMMY,
+          world_, sprite, position, time);
+      CHECK(object != NULL);
+      //object->EnableInterpolation(interpolation_offset_);
+      object->SetPosition(position);
+      objects_[id] = object;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_STATION: {
+      Object* object = new Object(id, Object::TYPE_KIT,
+          world_, sprite, position, time);
+      CHECK(object != NULL);
+      //object->EnableInterpolation(interpolation_offset_);
       object->SetPosition(position);
       objects_[id] = object;
     } break;
@@ -767,19 +813,18 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  int64_t time = snapshot->time;
   sf::Vector2f position = sf::Vector2f(snapshot->x, snapshot->y);
 
-  ObjectState state;
-  state.position = position;
-  state.health = static_cast<float>(snapshot->data[0]);
-  state.blow_charge = static_cast<float>(snapshot->data[1]);
-  state.morph_charge = static_cast<float>(snapshot->data[2]);
-
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
-    walls_[snapshot->id]->PushState(state, time);
+    walls_[snapshot->id]->SetPosition(position);
   } else {
-    objects_[snapshot->id]->PushState(state, time);
+    int64_t server_time = GetServerTime();
+    if (server_time - interpolation_offset_ >= snapshot->time) {
+      // Ignore snapshots that are too old.
+      return;
+    }
+    objects_[snapshot->id]->SetInterpolationPosition(position,
+        snapshot->time, interpolation_offset_, server_time);
   }
 }
 
@@ -797,7 +842,8 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   player_morph_charge_ = static_cast<float>(snapshot->data[2]);
 
   if (Length(distance) > max_player_misposition_) {
-    player_->EnforceState(state, snapshot->time);
+    //player_->EnforceState(state, snapshot->time);
+    player_->SetPosition(position);
   } else {
     // player_->UpdateCurrentState(state, snapshot->time);
   }
@@ -819,7 +865,8 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
     walls_.erase(it);
   }
 
-  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET) {
+  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_DUMMY) {
     // TODO(xairy): create explosion animation on explosion packet.
     Sprite* explosion = resource_manager_.CreateSprite("explosion");
     if (explosion == NULL) {
@@ -837,44 +884,21 @@ void Application::SimulatePhysics() {
   CHECK(state_ == STATE_INITIALIZED);
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
-    int64_t current_time = GetServerTime();
+    int64_t current_time = Timestamp();
     int64_t delta_time = current_time - last_physics_simulation_;
     last_physics_simulation_ = current_time;
 
-    float delta_x = (keyboard_state_.right - keyboard_state_.left) *
-      client_options_.speed * delta_time;
-    float delta_y = (keyboard_state_.down - keyboard_state_.up) *
-      client_options_.speed * delta_time;
+    b2Vec2 velocity(0.0f, 0.0f);
+    velocity.x = keyboard_state_.left * (-client_options_.speed)
+      + keyboard_state_.right * (client_options_.speed);
+    velocity.y = keyboard_state_.up * (-client_options_.speed)
+      + keyboard_state_.down * (client_options_.speed);
+    player_->body.SetImpulse(player_->body.GetMass() * velocity);
 
-    bool intersection_x = false;
-    bool intersection_y = false;
-
-    std::map<uint32_t, Object*>::iterator it;
-    sf::Vector2f player_pos = player_->GetPosition(current_time);
-
-    for (it = walls_.begin() ; it != walls_.end(); it++) {
-      sf::Vector2f wall_pos = it->second->GetPosition(current_time);
-      float player_to_wall_x = abs(wall_pos.x - (player_pos.x + delta_x));
-      float player_to_wall_y = abs(wall_pos.y - player_pos.y);
-      if (player_to_wall_x < (player_size_ + wall_size_) / 2 &&
-          player_to_wall_y < (player_size_ + wall_size_) / 2) {
-        intersection_x = true;
-        break;
-      }
-    }
-    for (it = walls_.begin() ; it != walls_.end(); it++) {
-      sf::Vector2f wall_pos = it->second->GetPosition(current_time);
-      float player_to_wall_x = abs(wall_pos.x - player_pos.x);
-      float player_to_wall_y = abs(wall_pos.y - (player_pos.y + delta_y));
-      if (player_to_wall_x < (player_size_ + wall_size_) / 2 &&
-          player_to_wall_y < (player_size_ + wall_size_) / 2) {
-        intersection_y = true;
-        break;
-      }
-    }
-
-    if (!intersection_x) player_->Move(sf::Vector2f(delta_x, 0.0f));
-    if (!intersection_y) player_->Move(sf::Vector2f(0.0f, delta_y));
+    int32_t velocity_iterations = 6;
+    int32_t position_iterations = 2;
+    world_->Step(static_cast<float>(delta_time) / 1000,
+      velocity_iterations, position_iterations);
   }
 }
 
@@ -885,7 +909,7 @@ void Application::Render() {
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
     int64_t render_time = GetServerTime();
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f player_pos = player_->GetPosition();
 
     view_.setCenter(Round(player_pos));
     render_window_->setView(view_);
@@ -907,13 +931,13 @@ void Application::Render() {
 
     std::map<uint32_t, Object*>::iterator it;
     for (it = walls_.begin() ; it != walls_.end(); ++it) {
-      RenderObject(it->second, render_time, font_, *render_window_);
+      it->second->Render(*render_window_, render_time);
     }
     for (it = objects_.begin() ; it != objects_.end(); ++it) {
-      RenderObject(it->second, render_time, font_, *render_window_);
+      it->second->Render(*render_window_, render_time);
     }
 
-    RenderObject(player_, render_time, font_, *render_window_);
+    player_->Render(*render_window_, render_time);
 
     RenderHUD();
   }
@@ -996,8 +1020,8 @@ void Application::RenderHUD() {
   for (it = objects_.begin(); it != objects_.end(); ++it) {
     Object* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition(render_time);
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f obj_pos = obj->GetPosition();
+    sf::Vector2f player_pos = player_->GetPosition();
     sf::Vector2f rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = rel * (compass_radius / compass_range);
@@ -1011,8 +1035,8 @@ void Application::RenderHUD() {
   for (it = walls_.begin(); it != walls_.end(); ++it) {
     Object* obj = it->second;
 
-    sf::Vector2f obj_pos = obj->GetPosition(render_time);
-    sf::Vector2f player_pos = player_->GetPosition(render_time);
+    sf::Vector2f obj_pos = obj->GetPosition();
+    sf::Vector2f player_pos = player_->GetPosition();
     sf::Vector2f rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = rel * (compass_radius / compass_range);

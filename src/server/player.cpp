@@ -5,153 +5,71 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
 
+#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
 
-Player* Player::Create(
-  WorldManager* world_manager,
-  uint32_t id,
-  const Vector2f& position
-) {
-  SettingsManager* _settings = world_manager->GetSettings();
+Player::Player(
+    WorldManager* world_manager,
+    uint32_t id,
+    const b2Vec2& position
+) : Entity(world_manager, id, "player", position, Entity::FILTER_PLAYER,
+           Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
+  SettingsManager* settings = world_manager->GetSettings();
+  _speed = settings->GetFloat("player.speed");
 
-  float speed = _settings->GetFloat("player.speed");
+  _score = 0;
+  _killer_id = Entity::BAD_ID;
 
-  int max_health = _settings->GetInt32("player.max_health");
-  int health_regeneration = _settings->GetInt32("player.health_regeneration");
+  _max_health = settings->GetInt32("player.max_health");
+  _health_regeneration = settings->GetInt32("player.health_regeneration");
+  _health = _max_health;
 
-  int blow_capacity = _settings->GetInt32("player.blow.capacity");
-  int blow_consumption = _settings->GetInt32("player.blow.consumption");
-  int blow_regeneration = _settings->GetInt32("player.blow.regeneration");
+  _blow_capacity = settings->GetInt32("player.blow.capacity");
+  _blow_regeneration = settings->GetInt32("player.blow.regeneration");
+  _blow_charge = _blow_capacity;
 
-  int morph_capacity = _settings->GetInt32("player.morph.capacity");
-  int morph_consumption = _settings->GetInt32("player.morph.consumption");
-  int morph_regeneration = _settings->GetInt32("player.morph.regeneration");
-
-  std::auto_ptr<Player> player(new Player(world_manager, id));
-  CHECK(player.get() != NULL);
-
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("player.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
-
-  player->_shape = shape.release();
-  player->_prev_position = position;
-  player->_speed = speed;
-  player->_last_update_time = 0;
-
-  player->_score = 0;
-
-  player->_health = max_health;
-  player->_max_health = max_health;
-  player->_health_regeneration = health_regeneration;
-
-  player->_blow_charge = blow_capacity;
-  player->_blow_capacity = blow_capacity;
-  player->_blow_consumption = blow_consumption;
-  player->_blow_regeneration = blow_regeneration;
-
-  player->_morph_charge = morph_capacity;
-  player->_morph_capacity = morph_capacity;
-  player->_morph_consumption = morph_consumption;
-  player->_morph_regeneration = morph_regeneration;
-
-  player->_keyboard_state.up = false;
-  player->_keyboard_state.down = false;
-  player->_keyboard_state.left = false;
-  player->_keyboard_state.right = false;
-  player->_keyboard_update_time.up = 0;
-  player->_keyboard_update_time.down = 0;
-  player->_keyboard_update_time.right = 0;
-  player->_keyboard_update_time.left = 0;
-
-  return player.release();
+  _morph_capacity = settings->GetInt32("player.morph.capacity");
+  _morph_regeneration = settings->GetInt32("player.morph.regeneration");
+  _morph_charge = _morph_capacity;
 }
+
 Player::~Player() { }
 
-std::string Player::GetType() {
-  return "Player";
+Entity::Type Player::GetType() {
+  return Entity::TYPE_PLAYER;
 }
+
 bool Player::IsStatic() {
   return false;
-}
-
-void Player::Update(int64_t time) {
-  int64_t delta_time = time - _last_update_time;
-  _last_update_time = time;
-
-  _prev_position = _shape->GetPosition();
-  Vector2f velocity;
-  velocity.x = _keyboard_state.left * (-_speed)
-    + _keyboard_state.right * (_speed);
-  velocity.y = _keyboard_state.up * (-_speed)
-    + _keyboard_state.down * (_speed);
-  _shape->Move(velocity * static_cast<float>(delta_time));
-
-  // FIXME(alex): casts to int?
-  _health += static_cast<int>(delta_time * _health_regeneration);
-  if (_health > _max_health) {
-    _health = _max_health;
-  }
-  _blow_charge += static_cast<int>(delta_time * _blow_regeneration);
-  if (_blow_charge > _blow_capacity) {
-    _blow_charge = _blow_capacity;
-  }
-  _morph_charge += static_cast<int>(delta_time * _morph_regeneration);
-  if (_morph_charge > _morph_capacity) {
-    _morph_charge = _morph_capacity;
-  }
 }
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;
   output->time = time;
   output->id = _id;
-  output->x = _prev_position.x;
-  output->y = _prev_position.y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
   output->data[0] = _health;
   output->data[1] = _blow_charge;
   output->data[2] = _morph_charge;
   output->data[3] = _score;
 }
 
-void Player::OnEntityAppearance(Entity* entity) {
-}
-void Player::OnEntityDisappearance(Entity* entity) {
-}
-
 void Player::Damage(int damage, uint32_t source_id) {
   _health -= damage;
   if (_health <= 0) {
-    _health = _max_health;
-    Respawn();
-    if (source_id == _id) {
-      DecScore();
-    } else {
-      Entity* entity = _world_manager->GetEntity(source_id);
-      if (entity->GetType() == "Player") {
-        Player* killer = static_cast<Player*>(entity);
-        killer->IncScore();
-      }
-    }
+    _killer_id = source_id;
   }
-}
-
-void Player::SetPosition(const Vector2f& position) {
-  _prev_position = position;
-  _shape->SetPosition(position);
 }
 
 void Player::OnKeyboardEvent(const KeyboardEvent& event) {
@@ -231,37 +149,6 @@ void Player::OnKeyboardEvent(const KeyboardEvent& event) {
   }
 }
 
-bool Player::OnMouseEvent(const MouseEvent& event, int64_t time) {
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_LEFT) {
-    if (_blow_charge >= _blow_consumption) {
-      _blow_charge -= _blow_consumption;
-      Vector2f start = GetPosition();
-      Vector2f end(static_cast<float>(event.x), static_cast<float>(event.y));
-      if (_world_manager->CreateBullet(_id, start, end, time) == false) {
-        return false;
-      }
-    }
-  }
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_RIGHT) {
-    if (_morph_charge >= _morph_consumption) {
-      _morph_charge -= _morph_consumption;
-      float x = static_cast<float>(event.x);
-      float y = static_cast<float>(event.y);
-      if (_world_manager->Morph(Vector2f(x, y)) == false) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-void Player::Respawn() {
-  Vector2f spawn_position = _world_manager->GetRandomSpawn();
-  SetPosition(spawn_position);
-}
-
 float Player::GetSpeed() const {
   return _speed;
 }
@@ -274,6 +161,29 @@ void Player::IncScore() {
 }
 void Player::DecScore() {
     _score--;
+}
+
+uint32_t Player::GetKillerId() const {
+  return _killer_id;
+}
+
+Player::KeyboardState* Player::GetKeyboardState() {
+  return &_keyboard_state;
+}
+
+void Player::Regenerate(int64_t delta_time) {
+  _health += delta_time * _health_regeneration;
+  if (_health > _max_health) {
+    _health = _max_health;
+  }
+  _blow_charge += delta_time * _blow_regeneration;
+  if (_blow_charge > _blow_capacity) {
+    _blow_charge = _blow_capacity;
+  }
+  _morph_charge += delta_time * _morph_regeneration;
+  if (_morph_charge > _morph_capacity) {
+    _morph_charge = _morph_capacity;
+  }
 }
 
 int Player::GetHealth() const {
@@ -336,48 +246,53 @@ void Player::SetMorphRegeneration(int regeneration) {
   _morph_regeneration = regeneration;
 }
 
-void Player::RestoreHealth(int value) {
+void Player::AddHealth(int value) {
   _health += value;
   if (_health > _max_health) {
     _health = _max_health;
   }
 }
-
-void Player::RestoreBlow(int value) {
+void Player::AddBlow(int value) {
   _blow_charge += value;
   if (_blow_charge > _blow_capacity) {
     _blow_charge = _blow_capacity;
   }
 }
-
-void Player::RestoreMorph(int value) {
+void Player::AddMorph(int value) {
   _morph_charge += value;
   if (_morph_charge > _morph_capacity) {
     _morph_charge = _morph_capacity;
   }
 }
 
-bool Player::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Player::RestoreHealth() {
+  _health = _max_health;
+}
+void Player::RestoreBlow() {
+  _blow_charge = _blow_capacity;
+}
+void Player::RestoreMorph() {
+  _morph_charge = _morph_capacity;
 }
 
-bool Player::Collide(Player* other) {
-  return Entity::Collide(other, this);
-}
-bool Player::Collide(Dummy* other) {
-  return Entity::Collide(this, other);
-}
-bool Player::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
-}
-bool Player::Collide(Wall* other) {
-  return Entity::Collide(other, this);
-}
-bool Player::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Player::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-Player::Player(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
+void Player::Collide(Player* other) {
+  Entity::Collide(other, this);
+}
+void Player::Collide(Dummy* other) {
+  Entity::Collide(this, other);
+}
+void Player::Collide(Bullet* other) {
+  Entity::Collide(this, other);
+}
+void Player::Collide(Wall* other) {
+  Entity::Collide(other, this);
+}
+void Player::Collide(Station* other) {
+  Entity::Collide(other, this);
+}
 
 }  // namespace bm

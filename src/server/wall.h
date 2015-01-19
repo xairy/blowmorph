@@ -5,12 +5,13 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
@@ -24,40 +25,36 @@ class Wall : public Entity {
     TYPE_MORPHED
   };
 
-  static Wall* Create(
+  Wall(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position,
+    const b2Vec2& position,
     Type type);
   virtual ~Wall();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
-  virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
-  virtual void OnEntityAppearance(Entity* entity);
-  virtual void OnEntityDisappearance(Entity* entity);
 
   virtual void Damage(int damage, uint32_t source_id);
 
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity);
+  virtual void Collide(Entity* entity);
 
-  virtual bool Collide(Player* other);
-  virtual bool Collide(Dummy* other);
-  virtual bool Collide(Bullet* other);
-  virtual bool Collide(Wall* other);
-  virtual bool Collide(Station* other);
+  virtual void Collide(Player* other);
+  virtual void Collide(Dummy* other);
+  virtual void Collide(Bullet* other);
+  virtual void Collide(Wall* other);
+  virtual void Collide(Station* other);
 
  protected:
-  Wall(WorldManager* world_manager, uint32_t id);
-
   Type _type;
 
  private:
+  std::string TypeToEntityName(Type type);
+
   DISALLOW_COPY_AND_ASSIGN(Wall);
 };
 

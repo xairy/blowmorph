@@ -7,6 +7,9 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
+#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
@@ -14,8 +17,6 @@
 #include "base/settings_manager.h"
 
 #include "server/id_manager.h"
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 #include "server/bullet.h"
@@ -26,36 +27,75 @@
 
 namespace bm {
 
-Entity::Entity(WorldManager* world_manager, uint32_t id)
-  : _world_manager(world_manager),
+// XXX(xairy): load dynamic, category and mask from cfg?
+Entity::Entity(
+  WorldManager* world_manager,
+  uint32_t id,
+  const std::string& entity_config,
+  b2Vec2 position,
+  uint16_t collision_category,
+  uint16_t collision_mask
+) : _world_manager(world_manager),
     _id(id),
-    _shape(NULL),
     _is_destroyed(false),
-    _is_updated(true)
-{ }
+    _is_updated(true) {
+  SettingsManager* entity_settings = world_manager->GetSettings();
+  std::string body_config = entity_settings->GetString(entity_config + ".body");
+
+  // XXX(xairy): some kind of body manager?
+  SettingsManager body_settings;
+  bool rv = body_settings.Open("data/bodies.cfg");
+  CHECK(rv == true);
+
+  b2World* world = world_manager->GetWorld();
+  body_ = new Body();
+  CHECK(body_ != NULL);
+  body_->Create(world, &body_settings, body_config);
+  body_->SetUserData(this);
+  body_->SetPosition(position);
+  body_->SetCollisionFilter(collision_category, collision_mask);
+}
+
 Entity::~Entity() {
-  if (_shape != NULL) {
-    delete _shape;
-    _shape = NULL;
+  if (body_ != NULL) {
+    delete body_;
+    body_ = NULL;
   }
+}
+
+WorldManager* Entity::GetWorldManager() {
+  return _world_manager;
 }
 
 uint32_t Entity::GetId() const {
   return _id;
 }
 
-Shape* Entity::GetShape() {
-  return _shape;
+b2Vec2 Entity::GetPosition() const {
+  return body_->GetPosition();
 }
-void Entity::SetShape(Shape* shape) {
-  _shape = shape;
+void Entity::SetPosition(const b2Vec2& position) {
+  body_->SetPosition(position);
 }
 
-Vector2f Entity::GetPosition() const {
-  return _shape->GetPosition();
+b2Vec2 Entity::GetVelocity() const {
+  return body_->GetVelocity();
 }
-void Entity::SetPosition(const Vector2f& position) {
-  _shape->SetPosition(position);
+
+void Entity::SetVelocity(const b2Vec2& velocity) {
+  body_->SetVelocity(velocity);
+}
+
+float Entity::GetMass() const {
+  return body_->GetMass();
+}
+
+void Entity::ApplyImpulse(const b2Vec2& impulse) {
+  body_->ApplyImpulse(impulse);
+}
+
+void Entity::SetImpulse(const b2Vec2& impulse) {
+  body_->SetImpulse(impulse);
 }
 
 void Entity::Destroy() {
@@ -74,126 +114,54 @@ bool Entity::IsUpdated() const {
 
 // Double dispatch.
 
-bool Entity::Collide(Station* station1, Station* station2) {
-  return false;
+void Entity::Collide(Station* first, Station* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Station* station, Wall* wall) {
-  return false;
+void Entity::Collide(Station* first, Wall* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Station* station, Player* player) {
-  if (station->_shape->Collide(player->_shape)) {
-    player->RestoreHealth(station->_health_regeneration);
-    player->RestoreBlow(station->_blow_regeneration);
-    player->RestoreMorph(station->_morph_regeneration);
-    station->Destroy();
-    return true;
-  }
-  return false;
+void Entity::Collide(Station* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Station* station, Dummy* dummy) {
-  return false;
+void Entity::Collide(Station* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Station* station, Bullet* bullet) {
-  return false;
+void Entity::Collide(Station* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Wall* wall1, Wall* wall2) {
-  return false;
-}
-bool Entity::Collide(Wall* wall, Player* player) {
-  bool result = false;
 
-  Vector2f px(player->_prev_position.x, player->_shape->GetPosition().y);
-  Vector2f py(player->_shape->GetPosition().x, player->_prev_position.y);
-
-  Vector2f position = player->_shape->GetPosition();
-
-  player->_shape->SetPosition(px);
-  if (player->_shape->Collide(wall->_shape)) {
-    position.y = player->_prev_position.y;
-    result &= true;
-  }
-
-  player->_shape->SetPosition(py);
-  if (player->_shape->Collide(wall->_shape)) {
-    position.x = player->_prev_position.x;
-    result &= true;
-  }
-
-  player->_shape->SetPosition(position);
-
-  return result;
+void Entity::Collide(Wall* first, Wall* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
-bool Entity::Collide(Wall* wall, Dummy* dummy) {
-  bool result = false;
+void Entity::Collide(Wall* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Wall* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Wall* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
 
-  Vector2f px(dummy->_prev_position.x, dummy->_shape->GetPosition().y);
-  Vector2f py(dummy->_shape->GetPosition().x, dummy->_prev_position.y);
+void Entity::Collide(Player* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Player* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Player* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
 
-  Vector2f position = dummy->_shape->GetPosition();
+void Entity::Collide(Dummy* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Dummy* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
 
-  dummy->_shape->SetPosition(px);
-  if (dummy->_shape->Collide(wall->_shape)) {
-    position.y = dummy->_prev_position.y;
-    result &= true;
-  }
-
-  dummy->_shape->SetPosition(py);
-  if (dummy->_shape->Collide(wall->_shape)) {
-    position.x = dummy->_prev_position.x;
-    result &= true;
-  }
-
-  dummy->_shape->SetPosition(position);
-
-  return result;
-}
-bool Entity::Collide(Wall* wall, Bullet* bullet) {
-  if (wall->_shape->Collide(bullet->_shape)) {
-    bullet->Explode(bullet->_owner_id);
-    return true;
-  }
-  return false;
-}
-bool Entity::Collide(Player* player1, Player* player2) {
-  return false;
-}
-bool Entity::Collide(Player* player, Dummy* dummy) {
-  if (player->_shape->Collide(dummy->_shape)) {
-    SettingsManager* settings = dummy->_world_manager->GetSettings();
-    int damage = settings->GetInt32("dummy.damage");
-    player->Damage(damage, dummy->_id);
-    dummy->Damage(0, player->_id);
-    return true;
-  }
-  return false;
-}
-bool Entity::Collide(Player* player, Bullet* bullet) {
-  if (bullet->_owner_id == player->GetId()) {
-    return false;
-  }
-  if (player->_shape->Collide(bullet->_shape)) {
-    bullet->Explode(bullet->_owner_id);
-    return true;
-  }
-  return false;
-}
-bool Entity::Collide(Dummy* dummy1, Dummy* dummy2) {
-  return false;
-}
-bool Entity::Collide(Dummy* dummy, Bullet* bullet) {
-  if (dummy->_shape->Collide(bullet->_shape)) {
-    bullet->Explode(bullet->_owner_id);
-    return true;
-  }
-  return false;
-}
-bool Entity::Collide(Bullet* bullet1, Bullet* bullet2) {
-  if (bullet1->_shape->Collide(bullet2->_shape)) {
-    bullet1->Explode(bullet1->_owner_id);
-    bullet2->Explode(bullet1->_owner_id);
-    return true;
-  }
-  return false;
+void Entity::Collide(Bullet* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
 }
 
 }  // namespace bm

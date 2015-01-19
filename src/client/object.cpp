@@ -6,10 +6,10 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "interpolator/interpolator.h"
-
+#include "base/body.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
+#include "base/time.h"
 
 namespace {
 
@@ -23,55 +23,57 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 
 }  // anonymous namespace
 
-namespace interpolator {
-
-template<>
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, double ratio) {
-  sf::Vector2f result;
-  result.x = lerp(a.x, b.x, ratio);
-  result.y = lerp(a.y, b.y, ratio);
-  return result;
-}
-
-template<>
-bm::ObjectState lerp(const bm::ObjectState& a,
-    const bm::ObjectState& b, double ratio) {
-  bm::ObjectState result;
-  result.position = lerp(a.position, b.position, ratio);
-  result.blow_charge = lerp(a.blow_charge, b.blow_charge, ratio);
-  result.morph_charge = lerp(a.morph_charge, b.morph_charge, ratio);
-  result.health = lerp(a.health, b.health, ratio);
-  return result;
-}
-
-}  // namespace interpolator
-
 namespace bm {
 
 // TODO(alex): fix method names.
-Object::Object(uint32_t id, uint32_t type, Sprite* sprite,
+Object::Object(uint32_t id, Type type, b2World* world, Sprite* sprite,
     const sf::Vector2f& position, int64_t time)
       : id(id),
         type(type),
         visible(true),
         sprite(sprite),
-        caption_visible(false),
-        interpolation_enabled(false),
-        interpolator(ObjectInterpolator(0, 1)) {
-  // XXX(xairy): call some method instead?
-  ObjectState state;
-  state.position = position;
-  state.blow_charge = 0;
-  state.morph_charge = 0;
-  state.health = 0;
-  interpolator.Push(state, time);
+        caption_visible(false) {
+  // TODO(xairy): initialize sprite here.
+
+  SettingsManager body_settings;
+  bool rv = body_settings.Open("data/bodies.cfg");
+  CHECK(rv == true);
+
+  std::string body_config;
+  switch (type) {
+    case TYPE_BULLET:
+      body_config = "bullet";
+      break;
+    case TYPE_PLAYER:
+      body_config = "mechos";
+      break;
+    case TYPE_WALL:
+      body_config = "wall";
+      break;
+    case TYPE_KIT:
+      body_config = "kit";
+      break;
+    case TYPE_DUMMY:
+      body_config = "dummy";
+      break;
+    default:
+      CHECK(false);  // Unreachable.
+  }
+
+  body.Create(world, &body_settings, body_config);
+  body.SetUserData(this);
+  body.SetPosition(b2Vec2(position.x, position.y));
 }
 
 Object::~Object() {
   if (sprite != NULL) delete sprite;
 }
 
-void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
+Object::Type Object::GetType() const {
+  return type;
+}
+
+void Object::EnableCaption(const std::string& caption, const sf::Font& font) {
   CHECK(caption_visible == false);
   caption_text = sf::Text(caption, font, 12);
   sf::FloatRect rect = caption_text.getLocalBounds();
@@ -80,55 +82,38 @@ void Object::ShowCaption(const std::string& caption, const sf::Font& font) {
   caption_visible = true;
 }
 
-void Object::EnableInterpolation(int64_t interpolation_offset) {
-  CHECK(interpolation_enabled == false);
-  interpolator = ObjectInterpolator(interpolation_offset, 2);
-  interpolation_enabled = true;
+sf::Vector2f Object::GetPosition() {
+  b2Vec2 b2p = body.GetPosition();
+  return sf::Vector2f(b2p.x, b2p.y);
 }
 
-void Object::EnforceState(const ObjectState& state, int64_t time) {
-  interpolator.Clear();
-  interpolator.Push(state, time);
+void Object::SetPosition(const sf::Vector2f& position) {
+  body.SetPosition(b2Vec2(position.x, position.y));
 }
 
-void Object::PushState(const ObjectState& state, int64_t time) {
-  interpolator.Push(state, time);
+void Object::SetInterpolationPosition(const sf::Vector2f& position,
+    int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time) {
+  CHECK(server_time - interpolation_offset < snapshot_time);
+  b2Vec2 impulse = body.GetMass() /
+      (snapshot_time - (server_time - interpolation_offset)) * 1000 *
+      (b2Vec2(position.x, position.y) - body.GetPosition());
+  body.SetImpulse(impulse);
 }
 
-sf::Vector2f Object::GetPosition(int64_t time) {
-  return interpolator.Interpolate(time).position;
-}
+void Object::Render(sf::RenderWindow& render_window, int64_t time) {
+  b2Vec2 b2p = body.GetPosition();
+  sf::Vector2f position = Round(sf::Vector2f(b2p.x, b2p.y));
 
-void Object::SetPosition(const sf::Vector2f& value, int64_t time) {
-  ObjectState state = interpolator.Interpolate(time);
-  state.position = value;
-  EnforceState(state, time);
-}
-
-void Object::Move(const sf::Vector2f& value, int64_t time) {
-  ObjectState state = interpolator.Interpolate(time);
-  state.position = state.position + value;
-  EnforceState(state, time);
-}
-
-void RenderObject(Object* object, int64_t time,
-    sf::Font* font, sf::RenderWindow& render_window) {
-  CHECK(object != NULL);
-  CHECK(font != NULL);
-
-  ObjectState state = object->interpolator.Interpolate(time);
-
-  if (object->visible) {
-    sf::Vector2f object_pos(Round(state.position));
-    object->sprite->SetPosition(object_pos);
-    object->sprite->Render(&render_window);
+  if (visible) {
+    sprite->SetPosition(position);
+    sprite->Render(&render_window);
   }
 
-  if (object->visible && object->caption_visible) {
+  if (visible && caption_visible) {
     sf::Vector2f caption_offset = sf::Vector2f(0.0f, -25.0f);
-    sf::Vector2f caption_pos = Round(state.position + caption_offset);
-    object->caption_text.setPosition(caption_pos.x, caption_pos.y);
-    render_window.draw(object->caption_text);
+    sf::Vector2f caption_pos = position + caption_offset;
+    caption_text.setPosition(caption_pos.x, caption_pos.y);
+    render_window.draw(caption_text);
   }
 }
 

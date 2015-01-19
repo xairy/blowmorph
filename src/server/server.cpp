@@ -26,8 +26,6 @@
 #include "server/client_manager.h"
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 #include "server/bullet.h"
@@ -141,7 +139,7 @@ bool Server::Tick() {
       return false;
     }
   } else {
-    // printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
+    printf("Can't keep up, %ld ms behind!\n", current_time - sleep_until);
   }
 
   return true;
@@ -184,26 +182,10 @@ bool Server::BroadcastStaticEntities(bool force) {
 }
 
 bool Server::UpdateWorld() {
-  // XXX(xairy): Temporary.
-  static int counter = 0;
-  if (counter == 300) {
-    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    world_manager_.CreateDummy(Vector2f(x, y), Timestamp());
-    counter = 0;
-  }
-  counter++;
-
-  world_manager_.UpdateEntities(Timestamp());
-
-  world_manager_.CollideEntities();
-
-  world_manager_.DestroyOutlyingEntities();
-
+  world_manager_.Update(update_timeout_);
   if (!DeleteDestroyedEntities()) {
     return false;
   }
-
   return true;
 }
 
@@ -351,30 +333,25 @@ bool Server::OnReceive() {
     } break;
 
     case Packet::TYPE_KEYBOARD_EVENT: {
-      KeyboardEvent keyboardevent_;
-      rv = ExtractPacketData(message, &keyboardevent_);
+      KeyboardEvent keyboard_event_;
+      rv = ExtractPacketData(message, &keyboard_event_);
       if (rv == false) {
         printf("#%u: Incorrect message format [1], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-
-      client->entity->OnKeyboardEvent(keyboardevent_);
+      world_manager_.OnKeyboardEvent(client->entity, keyboard_event_);
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      MouseEvent mouseevent_;
-      rv = ExtractPacketData(message, &mouseevent_);
+      MouseEvent mouse_event_;
+      rv = ExtractPacketData(message, &mouse_event_);
       if (rv == false) {
         printf("#%u: Incorrect message format [2], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-
-      rv = client->entity->OnMouseEvent(mouseevent_, Timestamp());
-      if (rv == false) {
-        return false;
-      }
+      world_manager_.OnMouseEvent(client->entity, mouse_event_);
     } break;
 
     default: {
@@ -407,15 +384,13 @@ bool Server::OnLogin(uint32_t client_id) {
 
   // Create player.
 
-  Player* player = Player::Create(
+  // XXX(xairy): move player creation to WorldManager?
+  Player* player = new Player(
     &world_manager_,
     client_id,
-    Vector2f(0.0f, 0.0f));
-  if (player == NULL) {
-    THROW_ERROR("Unable to create player!");
-    return false;
-  }
-  player->Respawn();
+    b2Vec2(0.0f, 0.0f));
+  CHECK(player != NULL);
+  world_manager_.RespawnPlayer(player);
 
   login_data.login[LoginData::MAX_LOGIN_LENGTH] = '\0';
   std::string login(&login_data.login[0]);

@@ -11,6 +11,8 @@
 
 #include <pugixml.hpp>
 
+#include <Box2D/Box2D.h>
+
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -18,8 +20,6 @@
 
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/vector.h"
-#include "server/shape.h"
 
 #include "server/bullet.h"
 #include "server/dummy.h"
@@ -28,6 +28,8 @@
 #include "server/station.h"
 
 namespace {
+
+// TODO(xairy): move to utils.
 
 // XXX(xairy): shouldn't it come from math.h?
 double round(double value) {
@@ -51,9 +53,10 @@ size_t Random(size_t max) {
 namespace bm {
 
 WorldManager::WorldManager(IdManager* id_manager)
-    : _map_type(MAP_NONE), _id_manager(id_manager) {
+    : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
+  world_.SetContactListener(&contact_listener_);
   bool rv = _settings.Open("data/entities.cfg");
-  CHECK(rv == true);  // FIXME.
+  CHECK(rv == true);  // FIXME(xairy).
 }
 
 WorldManager::~WorldManager() {
@@ -68,6 +71,10 @@ WorldManager::~WorldManager() {
   }
 }
 
+b2World* WorldManager::GetWorld() {
+  return &world_;
+}
+
 SettingsManager* WorldManager::GetSettings() {
   return &_settings;
 }
@@ -79,18 +86,7 @@ void WorldManager::AddEntity(uint32_t id, Entity* entity) {
   } else {
     _dynamic_entities[id] = entity;
   }
-
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _static_entities.end();
-  for (itr = _static_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityAppearance(entity);
-    entity->OnEntityAppearance(itr->second);
-  }
-  end = _dynamic_entities.end();
-  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityAppearance(entity);
-    entity->OnEntityAppearance(itr->second);
-  }
+  OnEntityAppearance(entity);
 }
 
 void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
@@ -105,18 +101,66 @@ void WorldManager::DeleteEntity(uint32_t id, bool deallocate) {
   }
   CHECK(entity != NULL);
 
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _static_entities.end();
-  for (itr = _static_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityDisappearance(entity);
-  }
-  end = _dynamic_entities.end();
-  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
-    itr->second->OnEntityDisappearance(entity);
-  }
+  OnEntityDisappearance(entity);
 
   if (deallocate) {
     delete entity;
+  }
+}
+
+void WorldManager::OnEntityAppearance(Entity* entity) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _dynamic_entities.end();
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
+    Entity::Type itr_type = itr->second->GetType();
+    Entity::Type ent_type = entity->GetType();
+    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
+      Dummy* dummy = NULL;
+      Player* player = NULL;
+      if (itr_type == Entity::TYPE_DUMMY) {
+        dummy = static_cast<Dummy*>(itr->second);
+        player = static_cast<Player*>(entity);
+      } else {
+        dummy = static_cast<Dummy*>(entity);
+        player = static_cast<Player*>(itr->second);
+      }
+      if (dummy->GetTarget() == NULL) {
+         dummy->SetTarget(player);
+      } else {
+        float current_distance = (dummy->GetTarget()->GetPosition() -
+            dummy->GetPosition()).Length();
+        float new_distance = (player->GetPosition() -
+            dummy->GetPosition()).Length();
+        if (new_distance < current_distance) {
+          dummy->SetTarget(player);
+        }
+      }
+    }
+  }
+}
+
+void WorldManager::OnEntityDisappearance(Entity* entity) {
+  std::map<uint32_t, Entity*>::iterator itr, end;
+  end = _dynamic_entities.end();
+  for (itr = _dynamic_entities.begin(); itr != end; ++itr) {
+    Entity::Type itr_type = itr->second->GetType();
+    Entity::Type ent_type = entity->GetType();
+    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
+      Dummy* dummy = NULL;
+      Player* player = NULL;
+      if (itr_type == Entity::TYPE_DUMMY) {
+        dummy = static_cast<Dummy*>(itr->second);
+        player = static_cast<Player*>(entity);
+      } else {
+        dummy = static_cast<Dummy*>(entity);
+        player = static_cast<Player*>(itr->second);
+      }
+      if (dummy->GetTarget() == player) {
+         dummy->SetTarget(NULL);
+      }
+    }
   }
 }
 
@@ -129,7 +173,6 @@ void WorldManager::DeleteEntities(const std::vector<uint32_t>& input,
 }
 
 Entity* WorldManager::GetEntity(uint32_t id) {
-  CHECK(_static_entities.count(id) + _dynamic_entities.count(id) == 1);
   if (_static_entities.count(id) == 1) {
     return _static_entities[id];
   } else if (_dynamic_entities.count(id) == 1) {
@@ -165,34 +208,57 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
-void WorldManager::UpdateEntities(int64_t time) {
-  std::map<uint32_t, Entity*>::iterator i, end;
-  end = _static_entities.end();
-  for (i = _static_entities.begin(); i != end; ++i) {
-    Entity* entity = i->second;
-    entity->Update(time);
+void WorldManager::Update(int64_t time_delta) {
+  // XXX(xairy): Temporary.
+  static int counter = 0;
+  if (counter == 300) {
+    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
+    CreateDummy(b2Vec2(x, y));
+    counter = 0;
   }
+  counter++;
+
+  UpdateEntities(time_delta);
+  StepPhysics(time_delta);
+  DestroyOutlyingEntities();
+  RespawnDeadPlayers();
+}
+
+void WorldManager::UpdateEntities(int64_t time_delta) {
+  std::map<uint32_t, Entity*>::iterator i, end;
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    entity->Update(time);
+    if (entity->GetType() == Entity::TYPE_DUMMY) {
+      Dummy* dummy = static_cast<Dummy*>(entity);
+      Entity* target = dummy->GetTarget();
+      if (target != NULL) {
+        b2Vec2 velocity = target->GetPosition() - dummy->GetPosition();
+        velocity.Normalize();
+        velocity *= dummy->GetSpeed();
+        dummy->SetImpulse(dummy->GetMass() * velocity);
+      }
+    } else if (entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* player = static_cast<Player*>(entity);
+      Player::KeyboardState* keyboard_state = player->GetKeyboardState();
+      float speed = player->GetSpeed();
+      b2Vec2 velocity;
+      velocity.x = keyboard_state->left * (-speed)
+        + keyboard_state->right * (speed);
+      velocity.y = keyboard_state->up * (-speed)
+        + keyboard_state->down * (speed);
+      player->SetImpulse(player->GetMass() * velocity);
+      player->Regenerate(time_delta);
+    }
   }
 }
 
-void WorldManager::CollideEntities() {
-  std::map<uint32_t, Entity*>::iterator s, d, s_end, d_end;
-  d_end = _dynamic_entities.end();
-  s_end = _static_entities.end();
-  for (d = _dynamic_entities.begin(); d != d_end; ++d) {
-    s = d;
-    ++s;
-    for (; s != d_end; ++s) {
-      d->second->Collide(s->second);
-    }
-    for (s = _static_entities.begin(); s != s_end; ++s) {
-      d->second->Collide(s->second);
-    }
-  }
+void WorldManager::StepPhysics(int64_t time_delta) {
+  int32_t velocity_iterations = 6;
+  int32_t position_iterations = 2;
+  world_.Step(static_cast<float>(time_delta) / 1000,
+      velocity_iterations, position_iterations);
 }
 
 void WorldManager::DestroyOutlyingEntities() {
@@ -200,7 +266,7 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _static_entities.end();
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2f position = entity->GetPosition();
+    b2Vec2 position = entity->GetPosition();
     if (abs(position.x) > _bound || abs(position.y) > _bound) {
       entity->Destroy();
     }
@@ -208,88 +274,71 @@ void WorldManager::DestroyOutlyingEntities() {
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    Vector2f position = entity->GetPosition();
+    b2Vec2 position = entity->GetPosition();
     if (abs(position.x) > _bound || abs(position.y) > _bound) {
-      if (entity->GetType() != "Player") {
+      if (entity->GetType() != Entity::TYPE_PLAYER) {
         entity->Destroy();
       }
     }
   }
 }
 
-bool WorldManager::CreateBullet(
+void WorldManager::CreateBullet(
   uint32_t owner_id,
-  const Vector2f& start,
-  const Vector2f& end,
-  int64_t time
+  const b2Vec2& start,
+  const b2Vec2& end
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
-  Bullet* bullet = Bullet::Create(this, id, owner_id, start, end, time);
-  if (bullet == NULL) {
-    return false;
-  }
+  Bullet* bullet = new Bullet(this, id, owner_id, start, end);
+  CHECK(bullet != NULL);
   AddEntity(id, bullet);
-  return true;
 }
 
-bool WorldManager::CreateDummy(
-  const Vector2f& position,
-  int64_t time
+void WorldManager::CreateDummy(
+  const b2Vec2& position
 ) {
   uint32_t id = _id_manager->NewId();
-  Dummy* dummy = Dummy::Create(this, id, position, time);
-  if (dummy == NULL) {
-    return false;
-  }
+  Dummy* dummy = new Dummy(this, id, position);
+  CHECK(dummy != NULL);
   AddEntity(id, dummy);
-  return true;
 }
 
-bool WorldManager::CreateWall(
-  const Vector2f& position,
+void WorldManager::CreateWall(
+  const b2Vec2& position,
   Wall::Type type
 ) {
   uint32_t id = _id_manager->NewId();
-  Wall* wall = Wall::Create(this, id, position, type);
-  if (wall == NULL) {
-    return false;
-  }
+  Wall* wall = new Wall(this, id, position, type);
+  CHECK(wall != NULL);
   AddEntity(id, wall);
-  return true;
 }
 
-bool WorldManager::CreateStation(
-  const Vector2f& position,
+void WorldManager::CreateStation(
+  const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
   Station::Type type
 ) {
   uint32_t id = _id_manager->NewId();
-  Station* station = Station::Create(this, id, position, health_regeneration,
+  Station* station = new Station(this, id, position, health_regeneration,
     blow_regeneration, morph_regeneration, type);
-  if (station == NULL) {
-    return false;
-  }
+  CHECK(station != NULL);
   AddEntity(id, station);
-  return true;
 }
 
-bool WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
+void WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
-
   int xa = static_cast<int>(round(x / _block_size));
   int ya = static_cast<int>(round(y / _block_size));
-
-  return _CreateAlignedWall(xa, ya, type);
+  _CreateAlignedWall(xa, ya, type);
 }
 
-bool WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
+void WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
   CHECK(_map_type == MAP_GRID);
-
-  return CreateWall(Vector2f(x * _block_size, y * _block_size), type);
+  CreateWall(b2Vec2(x * _block_size, y * _block_size), type);
 }
 
 bool WorldManager::LoadMap(const std::string& file) {
@@ -364,10 +413,7 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
     if (rv == false) {
       return false;
     }
-    rv = _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
-    if (rv == false) {
-      return false;
-    }
+    _CreateAlignedWall(x.as_int(), y.as_int(), type_value);
   }
 
   return true;
@@ -398,10 +444,7 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
     }
     for (int i = 0; i < wv; i++) {
       for (int j = 0; j < hv; j++) {
-        bool rv = _CreateAlignedWall(xv + i, yv + j, type_value);
-        if (rv == false) {
-          return false;
-        }
+        _CreateAlignedWall(xv + i, yv + j, type_value);
       }
     }
   }
@@ -421,7 +464,7 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
   } else {
     float x = x_attr.as_float();
     float y = y_attr.as_float();
-    _spawn_positions.push_back(Vector2f(x, y));
+    _spawn_positions.push_back(b2Vec2(x, y));
   }
 
   return true;
@@ -451,10 +494,7 @@ bool WorldManager::_LoadStation(const pugi::xml_node& node) {
     if (rv == false) {
       return false;
     }
-    rv = CreateStation(Vector2f(x, y), hr, br, mr, type);
-    if (rv == false) {
-      return false;
-    }
+    CreateStation(b2Vec2(x, y), hr, br, mr, type);
   }
 
   return true;
@@ -494,77 +534,178 @@ bool WorldManager::_LoadStationType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-bool WorldManager::Blow(const Vector2f& location, uint32_t source_id) {
+void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
   float radius = _settings.GetFloat("player.blow.radius");
   int damage = _settings.GetInt32("player.blow.damage");
 
-  Circle explosion(location, radius);
+  // FIXME(xairy): can miss huge entities.
+  radius += 13.0f;
 
   std::map<uint32_t, Entity*>::iterator i, end;
   end = _static_entities.end();
   for (i = _static_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if (explosion.Collide(entity->GetShape())) {
+    float distance2 = (entity->GetPosition() - location).LengthSquared();
+    if (distance2 <= radius * radius) {
       entity->Damage(damage, source_id);
     }
   }
   end = _dynamic_entities.end();
   for (i = _dynamic_entities.begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if (explosion.Collide(entity->GetShape())) {
+    float distance2 = (entity->GetPosition() - location).LengthSquared();
+    if (distance2 <= radius * radius) {
       entity->Damage(damage, source_id);
     }
   }
-
-  return true;
 }
 
-bool WorldManager::Morph(const Vector2f& location) {
+void WorldManager::Morph(const b2Vec2& location) {
   int radius = _settings.GetInt32("player.morph.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
   for (int x = -radius; x <= radius; x++) {
     for (int y = -radius; y <= radius; y++) {
       if (x * x + y * y <= radius * radius) {
-        bool rv = _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
-        if (rv == false) {
-          return false;
-        }
+        _CreateAlignedWall(lx + x, ly + y, Wall::TYPE_MORPHED);
       }
     }
   }
-  return true;
 }
 
-Vector2f WorldManager::GetRandomSpawn() const {
-  CHECK(_spawn_positions.size() > 0);
+void WorldManager::RespawnDeadPlayers() {
+  std::map<uint32_t, Entity*>::iterator i, end;
+  end = _dynamic_entities.end();
+  for (i = _dynamic_entities.begin(); i != end; ++i) {
+    Entity* entity = i->second;
+    if (entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* player = static_cast<Player*>(entity);
+      if (player->GetHealth() <= 0) {
+        RespawnPlayer(player);
+        UpdateScore(player);
+      }
+    }
+  }
+}
 
+void WorldManager::RespawnPlayer(Player* player) {
+  player->SetPosition(GetRandomSpawn());
+  player->RestoreHealth();
+}
+
+void WorldManager::UpdateScore(Player* player) {
+  uint32_t killer_id = player->GetKillerId();
+  if (killer_id == player->GetId()) {
+    player->DecScore();
+  } else {
+    Entity* entity = GetEntity(killer_id);
+    if (entity != NULL && entity->GetType() == Entity::TYPE_PLAYER) {
+      Player* killer = static_cast<Player*>(entity);
+      killer->IncScore();
+    }
+  }
+}
+
+b2Vec2 WorldManager::GetRandomSpawn() const {
+  CHECK(_spawn_positions.size() > 0);
   size_t spawn_count = _spawn_positions.size();
   size_t spawn = Random(spawn_count);
   return _spawn_positions[spawn];
 }
 
-Shape* WorldManager::LoadShape(const std::string& prefix) {
-  std::string shape_type = _settings.GetString(prefix + ".type");
-  if (shape_type == "circle") {
-    float radius = _settings.GetFloat(prefix + ".radius");
-    Shape* shape = new Circle(Vector2f(0.0f, 0.0f), radius);
-    CHECK(shape != NULL);
-    return shape;
-  } else if (shape_type == "rectangle") {
-    float width = _settings.GetFloat(prefix + ".width");
-    float height = _settings.GetFloat(prefix + ".height");
-    Shape* shape = new Rectangle(Vector2f(0.0f, 0.0f), width, height);
-    CHECK(shape != NULL);
-    return shape;
-  } else if (shape_type == "square") {
-    float side = _settings.GetFloat(prefix + ".side");
-    Shape* shape = new Square(Vector2f(0.0f, 0.0f), side);
-    CHECK(shape != NULL);
-    return shape;
+void WorldManager::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
+  player->OnKeyboardEvent(event);
+}
+
+void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
+  int blow_consumption = _settings.GetInt32("player.blow.consumption");
+  int morph_consumption = _settings.GetInt32("player.morph.consumption");
+
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
+    event.button_type == MouseEvent::BUTTON_LEFT) {
+    if (player->GetBlowCharge() >= blow_consumption) {
+      player->AddBlow(-blow_consumption);
+      b2Vec2 start = player->GetPosition();
+      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
+      CreateBullet(player->GetId(), start, end);
+    }
   }
-  THROW_ERROR("Unknown shape type.");
-  return NULL;
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
+    event.button_type == MouseEvent::BUTTON_RIGHT) {
+    if (player->GetMorphCharge() >= morph_consumption) {
+      player->AddMorph(-morph_consumption);
+      float x = static_cast<float>(event.x);
+      float y = static_cast<float>(event.y);
+      Morph(b2Vec2(x, y));
+    }
+  }
+}
+
+void WorldManager::ExplodeBullet(Bullet* bullet) {
+  // We do not want 'bullet' to explode multiple times.
+  if (!bullet->IsDestroyed()) {
+    Blow(bullet->GetPosition(), bullet->GetOwnerId());
+    bullet->Destroy();
+  }
+}
+
+void WorldManager::ExplodeDummy(Dummy* dummy) {
+  // We do not want 'dummy' to explode multiple times.
+  if (!dummy->IsDestroyed()) {
+    Blow(dummy->GetPosition(), dummy->GetId());
+    dummy->Destroy();
+  }
+}
+
+// Collisions.
+
+void WorldManager::OnCollision(Station* station1, Station* station2) { }
+void WorldManager::OnCollision(Station* station, Wall* wall) { }
+
+void WorldManager::OnCollision(Station* station, Player* player) {
+  player->AddHealth(station->GetHealthRegeneration());
+  player->AddBlow(station->GetBlowRegeneration());
+  player->AddMorph(station->GetMorphRegeneration());
+  station->Destroy();
+}
+
+void WorldManager::OnCollision(Station* station, Dummy* dummy) { }
+void WorldManager::OnCollision(Station* station, Bullet* bullet) { }
+
+void WorldManager::OnCollision(Wall* wall1, Wall* wall2) { }
+void WorldManager::OnCollision(Wall* wall, Player* player) { }
+
+void WorldManager::OnCollision(Wall* wall, Dummy* dummy) {
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Wall* wall, Bullet* bullet) {
+  ExplodeBullet(bullet);
+}
+
+void WorldManager::OnCollision(Player* player1, Player* player2) { }
+
+void WorldManager::OnCollision(Player* player, Dummy* dummy) {
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Player* player, Bullet* bullet) {
+  if (bullet->GetOwnerId() == player->GetId()) {
+    return;
+  }
+  ExplodeBullet(bullet);
+}
+
+void WorldManager::OnCollision(Dummy* dummy1, Dummy* dummy2) { }
+
+void WorldManager::OnCollision(Dummy* dummy, Bullet* bullet) {
+  ExplodeBullet(bullet);
+  ExplodeDummy(dummy);
+}
+
+void WorldManager::OnCollision(Bullet* bullet1, Bullet* bullet2) {
+  ExplodeBullet(bullet1);
+  ExplodeBullet(bullet2);
 }
 
 }  // namespace bm

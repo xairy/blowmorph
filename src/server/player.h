@@ -5,19 +5,22 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
 class Player : public Entity {
   friend class Entity;
 
+ public:
   struct KeyboardState {
+    KeyboardState() : up(false), down(false), right(false), left(false) { }
     bool up;
     bool down;
     bool right;
@@ -26,6 +29,7 @@ class Player : public Entity {
 
   // The time of the last update of each key.
   struct KeyboardUpdateTime {
+    KeyboardUpdateTime() : up(0), down(0), right(0), left(0) { }
     int64_t up;
     int64_t down;
     int64_t right;
@@ -33,36 +37,29 @@ class Player : public Entity {
   };
 
  public:
-  // XXX(xairy): create Shape in WorldManager? What to do with bullet creation?
-  static Player* Create(
-    WorldManager* world_manager,
-    uint32_t id,
-    const Vector2f& position);
+  Player(WorldManager* world_manager, uint32_t id, const b2Vec2& position);
   virtual ~Player();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
-  virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
-  virtual void OnEntityAppearance(Entity* entity);
-  virtual void OnEntityDisappearance(Entity* entity);
 
   virtual void Damage(int damage, uint32_t source_id);
 
-  virtual void SetPosition(const Vector2f& position);
-
   void OnKeyboardEvent(const KeyboardEvent& event);
-  bool OnMouseEvent(const MouseEvent& event, int64_t time);
-
-  void Respawn();
 
   float GetSpeed() const;
   void SetSpeed(float speed);
 
   void IncScore();
   void DecScore();
+
+  uint32_t GetKillerId() const;
+
+  KeyboardState* GetKeyboardState();
+
+  void Regenerate(int64_t delta_time);
 
   int GetHealth() const;
   int GetMaxHealth() const;
@@ -88,46 +85,44 @@ class Player : public Entity {
   void SetMorphCapacity(int capacity);
   void SetMorphRegeneration(int regeneration);
 
-  void RestoreHealth(int value);
-  void RestoreBlow(int value);
-  void RestoreMorph(int value);
+  void AddHealth(int value);
+  void AddBlow(int value);
+  void AddMorph(int value);
+
+  void RestoreHealth();
+  void RestoreBlow();
+  void RestoreMorph();
 
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity);
+  virtual void Collide(Entity* entity);
 
-  virtual bool Collide(Player* other);
-  virtual bool Collide(Dummy* other);
-  virtual bool Collide(Bullet* other);
-  virtual bool Collide(Wall* other);
-  virtual bool Collide(Station* other);
+  virtual void Collide(Player* other);
+  virtual void Collide(Dummy* other);
+  virtual void Collide(Bullet* other);
+  virtual void Collide(Wall* other);
+  virtual void Collide(Station* other);
 
  protected:
-  Player(WorldManager* world_manager, uint32_t id);
-
-  Vector2f _prev_position;  // Before the last 'Update'.
-
   float _speed;  // In vertical and horizontal directions.
 
   int _score;
+  uint32_t _killer_id;
 
-  int _health;
-  int _max_health;
-  int _health_regeneration;
-
-  int _blow_charge;
-  int _blow_capacity;
-  int _blow_consumption;
-  int _blow_regeneration;  // Points per ms.
-
-  int _morph_charge;
-  int _morph_capacity;
-  int _morph_consumption;
-  int _morph_regeneration;  // Points per ms.
-
-  int64_t _last_update_time;
   KeyboardState _keyboard_state;
   KeyboardUpdateTime _keyboard_update_time;
+
+  int _max_health;
+  int _health_regeneration;
+  int _health;
+
+  int _blow_capacity;
+  int _blow_regeneration;  // Points per ms.
+  int _blow_charge;
+
+  int _morph_capacity;
+  int _morph_regeneration;  // Points per ms.
+  int _morph_charge;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Player);

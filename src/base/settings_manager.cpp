@@ -13,7 +13,7 @@
 #include "base/pstdint.h"
 
 #define DEFINE_GET_METHOD(type, lookup_method, get_method) \
-type SettingsManager::get_method(const std::string& key) {        \
+type SettingsManager::get_method(const std::string& key) { \
   type result;                                             \
   bool rv = lookup_method(key, &result);                   \
   CHECK(rv == true);                                       \

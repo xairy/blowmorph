@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 
 #include <enet-plus/enet.h>
@@ -17,6 +18,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "client/contact_listener.h"
 #include "client/object.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
@@ -34,6 +36,7 @@ class Application {
 
  private:
   bool InitializeGraphics();
+  bool InitializePhysics();
   bool InitializeNetwork();
 
   bool Connect();
@@ -68,7 +71,8 @@ class Application {
 
   bool is_running_;
 
-  SettingsManager settings_;
+  SettingsManager client_settings_;
+  SettingsManager entities_settings_;
   ResourceManager resource_manager_;
 
   sf::RenderWindow* render_window_;
@@ -93,6 +97,9 @@ class Application {
   std::map<uint32_t, Object*> walls_;
   std::list<Sprite*> explosions_;
 
+  b2World* world_;
+  ContactListener contact_listener_;
+
   ClientOptions client_options_;
 
   std::map<uint32_t, std::string> player_names_;
@@ -103,10 +110,6 @@ class Application {
   float player_health_;
   float player_blow_charge_;
   float player_morph_charge_;
-
-  // TODO(xairy): load from somewhere.
-  uint32_t wall_size_;
-  uint32_t player_size_;
 
   float max_player_misposition_;
   int64_t interpolation_offset_;

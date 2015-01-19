@@ -16,45 +16,60 @@ How to run master server:
   2. $ ./master-server.sh
 
 How to build under Ubuntu Linux:
-  1. Install SFML-2.1
-     http://www.sfml-dev.org/download/sfml/2.1/
+  1. Install SFML-2.2
+     http://www.sfml-dev.org/
      See the instructions below
-  2. Install ENetPlus.
+  2. Install Box2D-2.3.0
+     http://box2d.org/
+     See the instructions below
+  3. Install ENetPlus.
      https://github.com/xairy/enet-plus
-  3. Install pugixml-1.2
+  4. Install pugixml-1.2
      sudo apt-get install libpugixml-dev
      If the packet is not available, see the instructions below
-  4. Install wxWidgets for Python:
+  5. Install wxWidgets for Python:
      sudo apt-get install python-wxtools
-  5. Install libconfig
+  6. Install libconfig
      $ sudo apt-get install libconfig-dev libconfig++-dev
      $ sudo apt-get install libboost-python1.54-dev
      $ sudo pip install git+https://github.com/cnangel/python-libconfig.git
-  6. Generate project files
+  7. Generate project files
      $ ./premake4 gmake
-  7. $ cd build
-  8. On x32 system:
+  8. $ cd build
+  9. On x32 system:
      $ make config=release32
      On x64 system:
      $ make config=release64
 
-How to install SFML-2.1:
+How to install SFML-2.2:
   1. Install cmake
      $ sudo apt-get install cmake
   2. Install the required dependencies
      $ sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev \
        libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev \
-       libsndfile1-dev libopenal-dev
-  3. Download and extract SFML-2.1-sources.zip
-     http://www.sfml-dev.org/download/sfml/2.1/
-  4. $ cd SFML-2.1
+       libsndfile1-dev libopenal-dev libudev-dev
+  3. Download and extract SFML-2.2-sources.zip
+     http://www.sfml-dev.org/download/sfml/2.2/
+  4. $ cd SFML-2.2
   5. $ cmake .
+  6. $ make
+  7. $ sudo make install
+
+How to install Box2D-2.3.0:
+  1. Install cmake
+     $ sudo apt-get install cmake
+  2. Install the required dependencies
+     $ sudo apt-get install freeglut3-dev libxi-dev
+  3. Download Box2D-2.3.0 source
+     https://box2d.googlecode.com/files/Box2D_v2.3.0.7z
+  4. $ cd Box2D/
+  5. $ cmake -DBOX2D_INSTALL=ON -DBOX2D_BUILD_SHARED=ON .
   6. $ make
   7. $ sudo make install
 
 How to install pugixml-1.2:
   1. Download and extract pugixml-1.2.tar.gz
-     https://code.google.com/p/pugixml/
+     https://github.com/zeux/pugixml/releases
   2. $ cd pugixml-1.2/scripts
   3. $ cmake .
   4. $ make

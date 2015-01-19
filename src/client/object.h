@@ -11,6 +11,7 @@
 
 #include "interpolator/interpolator.h"
 
+#include "base/body.h"
 #include "base/pstdint.h"
 
 #include "client/sprite.h"
@@ -27,41 +28,44 @@ struct ObjectState {
 typedef interpolator::LinearInterpolator<ObjectState, int64_t>
   ObjectInterpolator;
 
-// TODO(alex): fix method names.
-// TODO(xairy): comments.
+// TODO(xairy): merge with server's Entity class.
 struct Object {
-  Object(uint32_t id, uint32_t type, Sprite* sprite,
+  enum Type {
+    TYPE_PLAYER,
+    TYPE_BULLET,
+    TYPE_WALL,
+    TYPE_KIT,
+    TYPE_DUMMY
+  };
+
+  Object(uint32_t id, Type type, b2World *world, Sprite* sprite,
     const sf::Vector2f& position, int64_t time);
   ~Object();
 
-  void ShowCaption(const std::string& caption, const sf::Font& font);
+  Type GetType() const;
 
-  // Position will be reset after enabling interpolation.
-  void EnableInterpolation(int64_t interpolation_offset);
+  void EnableCaption(const std::string& caption, const sf::Font& font);
 
-  void EnforceState(const ObjectState& state, int64_t time);
-  void PushState(const ObjectState& state, int64_t time);
+  sf::Vector2f GetPosition();
+  void SetPosition(const sf::Vector2f& position);
 
-  sf::Vector2f GetPosition(int64_t time = 0);
-  void SetPosition(const sf::Vector2f& value, int64_t time = 0);
-  void Move(const sf::Vector2f& value, int64_t time = 0);
+  // Makes object move towards 'position' to be there when
+  // current time - 'interpolation_offset' == 'time'.
+  void SetInterpolationPosition(const sf::Vector2f& position,
+      int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time);
+
+  void Render(sf::RenderWindow& render_window, int64_t time);
 
   uint32_t id;
-  uint32_t type;
+  Type type;
 
   bool visible;
   Sprite* sprite;
+  Body body;
 
   bool caption_visible;
   sf::Text caption_text;
-
-  bool interpolation_enabled;
-  ObjectInterpolator interpolator;
 };
-
-// XXX(xairy): separate function?
-void RenderObject(Object* object, int64_t time,
-    sf::Font* font, sf::RenderWindow& render_window);
 
 }  // namespace bm
 

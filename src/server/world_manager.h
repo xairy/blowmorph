@@ -9,11 +9,14 @@
 
 #include <pugixml.hpp>
 
+#include <Box2D/Box2D.h>
+
+#include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/contact_listener.h"
 #include "server/entity.h"
-#include "server/vector.h"
 
 #include "server/bullet.h"
 #include "server/dummy.h"
@@ -26,11 +29,13 @@ namespace bm {
 class Entity;
 class IdManager;
 
+// FIXME(xairy): divide WorldManager into World and Controller.
 class WorldManager {
  public:
   explicit WorldManager(IdManager* id_manager);
   ~WorldManager();
 
+  b2World* GetWorld();
   SettingsManager* GetSettings();
 
   bool LoadMap(const std::string& file);
@@ -39,48 +44,79 @@ class WorldManager {
   void DeleteEntity(uint32_t id, bool deallocate);
   void DeleteEntities(const std::vector<uint32_t>& input, bool deallocate);
 
+  void OnEntityAppearance(Entity* entity);
+  void OnEntityDisappearance(Entity* entity);
+
   Entity* GetEntity(uint32_t id);
   std::map<uint32_t, Entity*>* GetStaticEntities();
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
 
-  void UpdateEntities(int64_t time);
-  void CollideEntities();
+  void Update(int64_t time_delta);
+  void UpdateEntities(int64_t time_delta);
+  void StepPhysics(int64_t time_delta);
   void DestroyOutlyingEntities();
 
-  bool CreateBullet(
+  void CreateBullet(
     uint32_t owner_id,
-    const Vector2f& start,
-    const Vector2f& end,
-    int64_t time);
+    const b2Vec2& start,
+    const b2Vec2& end);
 
-  bool CreateDummy(
-    const Vector2f& position,
-    int64_t time);
+  void CreateDummy(
+    const b2Vec2& position);
 
-  bool CreateWall(
-    const Vector2f& position,
+  void CreateWall(
+    const b2Vec2& position,
     Wall::Type type);
 
-  bool CreateStation(
-    const Vector2f& position,
+  void CreateStation(
+    const b2Vec2& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
     Station::Type type);
 
   // Works only with grid map.
-  bool CreateAlignedWall(float x, float y, Wall::Type type);
+  void CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  bool Blow(const Vector2f& location, uint32_t source_id);
-  bool Morph(const Vector2f& location);
+  void Blow(const b2Vec2& location, uint32_t source_id);
+  void Morph(const b2Vec2& location);
+
+  void RespawnDeadPlayers();
+  void RespawnPlayer(Player* player);
+  void UpdateScore(Player* player);
 
   // Returns one of the spawn positions stored in '_spawn_positions'.
-  Vector2f GetRandomSpawn() const;
+  b2Vec2 GetRandomSpawn() const;
 
-  // XXX(xairy): in WorldManager?
-  Shape* LoadShape(const std::string& settings_prefix);
+  void OnKeyboardEvent(Player* player, const KeyboardEvent& event);
+  void OnMouseEvent(Player* player, const MouseEvent& event);
+
+  void ExplodeBullet(Bullet* bullet);
+  void ExplodeDummy(Dummy* dummy);
+
+  // Collisions.
+
+  void OnCollision(Station* station1, Station* station2);
+  void OnCollision(Station* station, Wall* wall);
+  void OnCollision(Station* station, Player* player);
+  void OnCollision(Station* station, Dummy* dummy);
+  void OnCollision(Station* station, Bullet* bullet);
+
+  void OnCollision(Wall* wall1, Wall* wall2);
+  void OnCollision(Wall* wall, Player* player);
+  void OnCollision(Wall* wall, Dummy* dummy);
+  void OnCollision(Wall* wall, Bullet* bullet);
+
+  void OnCollision(Player* player1, Player* player2);
+  void OnCollision(Player* player, Dummy* dummy);
+  void OnCollision(Player* player, Bullet* bullet);
+
+  void OnCollision(Dummy* dummy1, Dummy* dummy2);
+  void OnCollision(Dummy* dummy, Bullet* bullet);
+
+  void OnCollision(Bullet* bullet1, Bullet* bullet2);
 
  private:
   bool _LoadWall(const pugi::xml_node& node);
@@ -92,13 +128,17 @@ class WorldManager {
   bool _LoadStationType(const pugi::xml_attribute& attr, Station::Type* output);
 
   // Works only with grid map.
-  bool _CreateAlignedWall(int x, int y, Wall::Type type);
+  void _CreateAlignedWall(int x, int y, Wall::Type type);
+
+  b2World world_;
+  ContactListener contact_listener_;
 
   std::map<uint32_t, Entity*> _static_entities;
   std::map<uint32_t, Entity*> _dynamic_entities;
 
-  std::vector<Vector2f> _spawn_positions;
+  std::vector<b2Vec2> _spawn_positions;
 
+  // TODO(xairy): get rid of it.
   enum {
     MAP_NONE,
     MAP_GRID

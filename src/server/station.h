@@ -5,15 +5,17 @@
 
 #include <string>
 
+#include <Box2D/Box2D.h>
+
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/vector.h"
 
 namespace bm {
 
+// FIXME(xairy): rename to Kit.
 class Station : public Entity {
   friend class Entity;
 
@@ -25,40 +27,38 @@ class Station : public Entity {
     TYPE_COMPOSITE
   };
 
-  static Station* Create(
+  Station(
     WorldManager* world_manager,
     uint32_t id,
-    const Vector2f& position,
+    const b2Vec2& position,
     int health_regeneration,
     int blow_regeneration,
     int morph_regeneration,
     Type type);
   virtual ~Station();
 
-  virtual std::string GetType();
+  virtual Entity::Type GetType();
   virtual bool IsStatic();
 
-  virtual void Update(int64_t time);
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
-  virtual void OnEntityAppearance(Entity* entity);
-  virtual void OnEntityDisappearance(Entity* entity);
 
   virtual void Damage(int damage, uint32_t source_id);
 
+  int GetHealthRegeneration() const;
+  int GetBlowRegeneration() const;
+  int GetMorphRegeneration() const;
+
   // Double dispatch. Collision detection.
 
-  virtual bool Collide(Entity* entity);
+  virtual void Collide(Entity* entity);
 
-  virtual bool Collide(Player* other);
-  virtual bool Collide(Dummy* other);
-  virtual bool Collide(Bullet* other);
-  virtual bool Collide(Wall* other);
-  virtual bool Collide(Station* other);
+  virtual void Collide(Player* other);
+  virtual void Collide(Dummy* other);
+  virtual void Collide(Bullet* other);
+  virtual void Collide(Wall* other);
+  virtual void Collide(Station* other);
 
  protected:
-  Station(WorldManager* world_manager, uint32_t id);
-
   int _health_regeneration;
   int _blow_regeneration;
   int _morph_regeneration;
@@ -66,6 +66,8 @@ class Station : public Entity {
   Type _type;
 
  private:
+  std::string TypeToEntityName(Type type);
+
   DISALLOW_COPY_AND_ASSIGN(Station);
 };
 

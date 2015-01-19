@@ -5,61 +5,49 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
+#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
 
-Station* Station::Create(
+Station::Station(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2f& position,
+  const b2Vec2& position,
   int health_regeneration,
   int blow_regeneration,
   int morph_regeneration,
   Type type
-) {
-  std::auto_ptr<Station> station(new Station(world_manager, id));
-  CHECK(station.get() != NULL);
-
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("station.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
-
-  station->_shape = shape.release();
-  station->_health_regeneration = health_regeneration;
-  station->_blow_regeneration = blow_regeneration;
-  station->_morph_regeneration = morph_regeneration;
-  station->_type = type;
-
-  return station.release();
+) : Entity(world_manager, id, TypeToEntityName(type), position,
+           Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
+  _health_regeneration = health_regeneration;
+  _blow_regeneration = blow_regeneration;
+  _morph_regeneration = morph_regeneration;
+  _type = type;
 }
 
 Station::~Station() { }
 
-std::string Station::GetType() {
-  return "Station";
+Entity::Type Station::GetType() {
+  return Entity::TYPE_KIT;
 }
 bool Station::IsStatic() {
   return false;
 }
 
-void Station::Update(int64_t time) { }
-
 void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_STATION;
   output->time = time;
   output->id = _id;
-  output->x = _shape->GetPosition().x;
-  output->y = _shape->GetPosition().y;
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
   if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::STATION_TYPE_HEALTH;
   } else if (_type == TYPE_BLOW) {
@@ -73,36 +61,53 @@ void Station::GetSnapshot(int64_t time, EntitySnapshot* output) {
   }
 }
 
-void Station::OnEntityAppearance(Entity* entity) {
-}
-void Station::OnEntityDisappearance(Entity* entity) {
-}
-
 void Station::Damage(int damage, uint32_t source_id) { }
+
+int Station::GetHealthRegeneration() const {
+  return _health_regeneration;
+}
+int Station::GetBlowRegeneration() const {
+  return _blow_regeneration;
+}
+int Station::GetMorphRegeneration() const {
+  return _morph_regeneration;
+}
 
 // Double dispatch. Collision detection.
 
-bool Station::Collide(Entity* entity) {
-  return entity->Collide(this);
+void Station::Collide(Entity* entity) {
+  entity->Collide(this);
 }
 
-bool Station::Collide(Player* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Player* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Dummy* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Dummy* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Bullet* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Wall* other) {
-  return Entity::Collide(this, other);
+void Station::Collide(Wall* other) {
+  Entity::Collide(this, other);
 }
-bool Station::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Station::Collide(Station* other) {
+  Entity::Collide(other, this);
 }
 
-Station::Station(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
+std::string Station::TypeToEntityName(Station::Type type) {
+  switch (type) {
+    case Station::TYPE_HEALTH:
+      return "health_kit";
+    case Station::TYPE_BLOW:
+      return "blow_kit";
+    case Station::TYPE_MORPH:
+      return "morph_kit";
+    case Station::TYPE_COMPOSITE:
+      return "composite_kit";
+    default:
+      CHECK(false);
+  }
+}
 
 }  // namespace bm

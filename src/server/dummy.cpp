@@ -5,121 +5,82 @@
 #include <memory>
 #include <string>
 
+#include <Box2D/Box2D.h>
+
+#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/vector.h"
-#include "server/shape.h"
 #include "server/world_manager.h"
 
 namespace bm {
 
-Dummy* Dummy::Create(
+Dummy::Dummy(
   WorldManager* world_manager,
   uint32_t id,
-  const Vector2f& position,
-  int64_t time
-) {
+  const b2Vec2& position
+) : Entity(world_manager, id, "dummy", position, Entity::FILTER_BULLET,
+           Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
-  float speed = settings->GetFloat("dummy.speed");
-
-  std::auto_ptr<Dummy> dummy(new Dummy(world_manager, id));
-  CHECK(dummy.get() != NULL);
-
-  std::auto_ptr<Shape> shape(world_manager->LoadShape("dummy.shape"));
-  if (shape.get() == NULL) {
-    return NULL;
-  }
-  shape->SetPosition(position);
-
-  dummy->_shape = shape.release();
-  dummy->_speed = speed;
-  dummy->_meat = NULL;
-  dummy->_last_update = time;
-  dummy->_prev_position = position;
-
-  return dummy.release();
+  _speed = settings->GetFloat("dummy.speed");
+  _target = NULL;
 }
 
 Dummy::~Dummy() { }
 
-std::string Dummy::GetType() {
-  return "Dummy";
+Entity::Type Dummy::GetType() {
+  return Entity::TYPE_DUMMY;
 }
+
 bool Dummy::IsStatic() {
   return false;
 }
 
-void Dummy::Update(int64_t time) {
-  _prev_position = _shape->GetPosition();
-  if (_meat != NULL) {
-    int64_t dt = time - _last_update;
-    Vector2f direction = _meat->GetPosition() - GetPosition();
-    direction = Normalize(direction);
-    _shape->Move(direction * _speed * static_cast<float>(dt));
-  }
-  _last_update = time;
-}
 void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_DUMMY;
   output->time = time;
   output->id = _id;
-  output->x = _shape->GetPosition().x;
-  output->y = _shape->GetPosition().y;
-}
-
-void Dummy::OnEntityAppearance(Entity* entity) {
-  if (entity->GetType() == "Player") {
-    if (_meat == NULL) {
-      _meat = entity;
-    } else {
-      float current_distance = Magnitude(_meat->GetPosition() - GetPosition());
-      float new_distance = Magnitude(entity->GetPosition() - GetPosition());
-      if (new_distance < current_distance) {
-        _meat = entity;
-      }
-    }
-  }
-}
-void Dummy::OnEntityDisappearance(Entity* entity) {
-  if (_meat == entity) {
-    _meat = NULL;
-  }
+  output->x = body_->GetPosition().x;
+  output->y = body_->GetPosition().y;
 }
 
 void Dummy::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
-void Dummy::SetPosition(const Vector2f& position) {
-  _prev_position = position;
-  _shape->SetPosition(position);
+float Dummy::GetSpeed() const {
+  return _speed;
 }
 
-bool Dummy::Collide(Entity* entity) {
-  return entity->Collide(this);
+Entity* Dummy::GetTarget() const {
+  return _target;
 }
 
-bool Dummy::Collide(Player* other) {
-  return Entity::Collide(other, this);
-}
-bool Dummy::Collide(Dummy* other) {
-  return Entity::Collide(other, this);
-}
-bool Dummy::Collide(Bullet* other) {
-  return Entity::Collide(this, other);
-}
-bool Dummy::Collide(Wall* other) {
-  return Entity::Collide(other, this);
-}
-bool Dummy::Collide(Station* other) {
-  return Entity::Collide(other, this);
+void Dummy::SetTarget(Entity* target) {
+  _target = target;
 }
 
-Dummy::Dummy(WorldManager* world_manager, uint32_t id)
-  : Entity(world_manager, id) { }
+void Dummy::Collide(Entity* entity) {
+  entity->Collide(this);
+}
+
+void Dummy::Collide(Player* other) {
+  Entity::Collide(other, this);
+}
+void Dummy::Collide(Dummy* other) {
+  Entity::Collide(other, this);
+}
+void Dummy::Collide(Bullet* other) {
+  Entity::Collide(this, other);
+}
+void Dummy::Collide(Wall* other) {
+  Entity::Collide(other, this);
+}
+void Dummy::Collide(Station* other) {
+  Entity::Collide(other, this);
+}
 
 }  // namespace bm
