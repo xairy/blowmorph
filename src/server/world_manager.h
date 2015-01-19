@@ -72,8 +72,7 @@ class WorldManager {
   void CreateKit(
     const b2Vec2& position,
     int health_regeneration,
-    int blow_regeneration,
-    int morph_regeneration,
+    int energy_regeneration,
     Kit::Type type);
 
   // Works only with grid map.

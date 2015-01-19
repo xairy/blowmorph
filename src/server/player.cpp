@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/player.h"
 
@@ -34,13 +34,9 @@ Player::Player(
   _health_regeneration = settings->GetInt32("player.health_regeneration");
   _health = _max_health;
 
-  _blow_capacity = settings->GetInt32("player.blow.capacity");
-  _blow_regeneration = settings->GetInt32("player.blow.regeneration");
-  _blow_charge = _blow_capacity;
-
-  _morph_capacity = settings->GetInt32("player.morph.capacity");
-  _morph_regeneration = settings->GetInt32("player.morph.regeneration");
-  _morph_charge = _morph_capacity;
+  _energy_capacity = settings->GetInt32("player.energy_capacity");
+  _energy_regeneration = settings->GetInt32("player.energy_regeneration");
+  _energy = _energy_capacity;
 }
 
 Player::~Player() { }
@@ -60,9 +56,8 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
   output->data[0] = _health;
-  output->data[1] = _blow_charge;
-  output->data[2] = _morph_charge;
-  output->data[3] = _score;
+  output->data[1] = _energy;
+  output->data[2] = _score;
 }
 
 void Player::Damage(int damage, uint32_t source_id) {
@@ -176,13 +171,9 @@ void Player::Regenerate(int64_t delta_time) {
   if (_health > _max_health) {
     _health = _max_health;
   }
-  _blow_charge += delta_time * _blow_regeneration;
-  if (_blow_charge > _blow_capacity) {
-    _blow_charge = _blow_capacity;
-  }
-  _morph_charge += delta_time * _morph_regeneration;
-  if (_morph_charge > _morph_capacity) {
-    _morph_charge = _morph_capacity;
+  _energy += delta_time * _energy_regeneration;
+  if (_energy > _energy_capacity) {
+    _energy = _energy_capacity;
   }
 }
 
@@ -206,44 +197,24 @@ void Player::SetHealthRegeneration(int health_regeneration) {
   _health_regeneration = health_regeneration;
 }
 
-int Player::GetBlowCharge() const {
-  return _blow_charge;
+int Player::GetEnergy() const {
+  return _energy;
 }
-int Player::GetBlowCapacity() const {
-  return _blow_capacity;
+int Player::GetEnergyCapacity() const {
+  return _energy_capacity;
 }
-int Player::GetBlowRegeneration() const {
-  return _blow_regeneration;
-}
-
-void Player::SetBlowCharge(int charge) {
-  _blow_charge = charge;
-}
-void Player::SetBlowCapacity(int capacity) {
-  _blow_capacity = capacity;
-}
-void Player::SetBlowRegeneration(int regeneration) {
-  _blow_regeneration = regeneration;
+int Player::GetEnergyRegeneration() const {
+  return _energy_regeneration;
 }
 
-int Player::GetMorphCharge() const {
-  return _morph_charge;
+void Player::SetEnergy(int charge) {
+  _energy = charge;
 }
-int Player::GetMorphCapacity() const {
-  return _morph_capacity;
+void Player::SetEnergyCapacity(int capacity) {
+  _energy_capacity = capacity;
 }
-int Player::GetMorphRegeneration() const {
-  return _morph_regeneration;
-}
-
-void Player::SetMorphCharge(int charge) {
-  _morph_charge = charge;
-}
-void Player::SetMorphCapacity(int capacity) {
-  _morph_capacity = capacity;
-}
-void Player::SetMorphRegeneration(int regeneration) {
-  _morph_regeneration = regeneration;
+void Player::SetEnergyRegeneration(int regeneration) {
+  _energy_regeneration = regeneration;
 }
 
 void Player::AddHealth(int value) {
@@ -252,27 +223,18 @@ void Player::AddHealth(int value) {
     _health = _max_health;
   }
 }
-void Player::AddBlow(int value) {
-  _blow_charge += value;
-  if (_blow_charge > _blow_capacity) {
-    _blow_charge = _blow_capacity;
-  }
-}
-void Player::AddMorph(int value) {
-  _morph_charge += value;
-  if (_morph_charge > _morph_capacity) {
-    _morph_charge = _morph_capacity;
+void Player::AddEnergy(int value) {
+  _energy += value;
+  if (_energy > _energy_capacity) {
+    _energy = _energy_capacity;
   }
 }
 
 void Player::RestoreHealth() {
   _health = _max_health;
 }
-void Player::RestoreBlow() {
-  _blow_charge = _blow_capacity;
-}
-void Player::RestoreMorph() {
-  _morph_charge = _morph_capacity;
+void Player::RestoreEnergy() {
+  _energy = _energy_capacity;
 }
 
 void Player::Collide(Entity* entity) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "client/application.h"
 
@@ -109,8 +109,7 @@ bool Application::Initialize() {
   show_score_table_ = false;
 
   player_health_ = 0;
-  player_blow_charge_ = 0;
-  player_morph_charge_ = 0;
+  player_energy_ = 0;
 
   max_player_misposition_ = client_settings_.GetFloat("client.max_player_misposition");
   interpolation_offset_ = client_settings_.GetInt64("client.interpolation_offset");
@@ -644,7 +643,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         return false;
       }
       if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
-        player_scores_[snapshot.id] = static_cast<int>(snapshot.data[3]);
+        player_scores_[snapshot.id] = static_cast<int>(snapshot.data[2]);
       }
       if (snapshot.id == player_->GetId()) {
         OnPlayerUpdate(&snapshot);
@@ -736,11 +735,8 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         case EntitySnapshot::KIT_TYPE_HEALTH: {
           entity_config = "health_kit";
         } break;
-        case EntitySnapshot::KIT_TYPE_BLOW: {
-          entity_config = "blow_kit";
-        } break;
-      case EntitySnapshot::KIT_TYPE_MORPH: {
-          entity_config = "morph_kit";
+        case EntitySnapshot::KIT_TYPE_ENERGY: {
+          entity_config = "energy_kit";
         } break;
         case EntitySnapshot::KIT_TYPE_COMPOSITE: {
           entity_config = "composite_kit";
@@ -829,8 +825,7 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   CHECK(snapshot != NULL);
 
   player_health_ = snapshot->data[0];
-  player_blow_charge_ = snapshot->data[1];
-  player_morph_charge_ = snapshot->data[2];
+  player_energy_ = snapshot->data[1];
 
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
   b2Vec2 distance = player_->GetBody()->GetPosition() - position;
@@ -959,7 +954,7 @@ void Application::RenderHUD() {
   sf::Transform bottom_left_transform;
   bottom_left_transform.translate(view_.getCenter() - size / 2.0f);
 
-  // Draw health, blow and morph bars.
+  // Draw health and energy bars.
 
   int32_t max_health = client_options_.max_health;
   float health_rect_width = 200.0f * player_health_ / max_health;
@@ -967,29 +962,19 @@ void Application::RenderHUD() {
   sf::Vector2f health_rect_size(health_rect_width, health_rect_height);
   sf::RectangleShape health_rect;
   health_rect.setSize(health_rect_size);
-  health_rect.setPosition(sf::Vector2f(20.0f, -70.0f));
+  health_rect.setPosition(sf::Vector2f(20.0f, -50.0f));
   health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
   render_window_->draw(health_rect, bottom_left_transform);
 
-  int32_t blow_capacity = client_options_.blow_capacity;
-  float blow_rect_width = 200.0f * player_blow_charge_ / blow_capacity;
-  float blow_rect_height = 10.0f;
-  sf::Vector2f blow_rect_size(blow_rect_width, blow_rect_height);
-  sf::RectangleShape blow_charge_rect;
-  blow_charge_rect.setSize(blow_rect_size);
-  blow_charge_rect.setPosition(sf::Vector2f(20.0f, -50.0f));
-  blow_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
-  render_window_->draw(blow_charge_rect, bottom_left_transform);
-
-  int32_t morph_capacity = client_options_.morph_capacity;
-  float morph_rect_width = 200.0f * player_morph_charge_ / morph_capacity;
-  float morph_rect_height = 10.0f;
-  sf::Vector2f morph_rect_size(morph_rect_width, morph_rect_height);
-  sf::RectangleShape morph_charge_rect;
-  morph_charge_rect.setSize(morph_rect_size);
-  morph_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
-  morph_charge_rect.setFillColor(sf::Color(0xFF, 0xFF, 0x00, 0xBB));
-  render_window_->draw(morph_charge_rect, bottom_left_transform);
+  int32_t energy_capacity = client_options_.energy_capacity;
+  float energy_rect_width = 200.0f * player_energy_ / energy_capacity;
+  float energy_rect_height = 10.0f;
+  sf::Vector2f energy_rect_size(energy_rect_width, energy_rect_height);
+  sf::RectangleShape energy_charge_rect;
+  energy_charge_rect.setSize(energy_rect_size);
+  energy_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
+  energy_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
+  render_window_->draw(energy_charge_rect, bottom_left_transform);
 
   // Draw compass.
 

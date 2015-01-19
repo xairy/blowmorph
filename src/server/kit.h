@@ -21,8 +21,7 @@ class Kit : public Entity {
  public:
   enum Type {
     TYPE_HEALTH,
-    TYPE_BLOW,
-    TYPE_MORPH,
+    TYPE_ENERGY,
     TYPE_COMPOSITE
   };
 
@@ -31,8 +30,7 @@ class Kit : public Entity {
     uint32_t id,
     const b2Vec2& position,
     int health_regeneration,
-    int blow_regeneration,
-    int morph_regeneration,
+    int energy_regeneration,
     Type type);
   virtual ~Kit();
 
@@ -44,8 +42,7 @@ class Kit : public Entity {
   virtual void Damage(int damage, uint32_t source_id);
 
   int GetHealthRegeneration() const;
-  int GetBlowRegeneration() const;
-  int GetMorphRegeneration() const;
+  int GetEnergyRegeneration() const;
 
   // Double dispatch. Collision detection.
 
@@ -59,8 +56,7 @@ class Kit : public Entity {
 
  protected:
   int _health_regeneration;
-  int _blow_regeneration;
-  int _morph_regeneration;
+  int _energy_regeneration;
 
   Type _type;
 

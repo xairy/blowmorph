@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef BASE_PROTOCOL_H_
 #define BASE_PROTOCOL_H_
@@ -58,8 +58,7 @@ struct ClientOptions {
   float32_t speed;
   float32_t x, y;
   int32_t max_health;
-  int32_t blow_capacity;
-  int32_t morph_capacity;
+  int32_t energy_capacity;
 };
 
 struct TimeSyncData {
@@ -82,9 +81,8 @@ struct PlayerInfo {
 
 // type == EntitySnapshot::ENTITY_TYPE_PLAYER:
 //   data[0] - health
-//   data[1] - blow charge
-//   data[2] - morph charge
-//   data[3] - score
+//   data[1] - energy
+//   data[2] - score
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
 // type == EntitySnapshot::ENTITY_TYPE_KIT:
@@ -117,8 +115,7 @@ struct EntitySnapshot {
     KIT_TYPE_UNKNOWN,
 
     KIT_TYPE_HEALTH,
-    KIT_TYPE_BLOW,
-    KIT_TYPE_MORPH,
+    KIT_TYPE_ENERGY,
     KIT_TYPE_COMPOSITE,
 
     KIT_TYPE_MAX_VALUE

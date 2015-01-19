@@ -318,13 +318,12 @@ void WorldManager::CreateWall(
 void WorldManager::CreateKit(
   const b2Vec2& position,
   int health_regeneration,
-  int blow_regeneration,
-  int morph_regeneration,
+  int energy_regeneration,
   Kit::Type type
 ) {
   uint32_t id = _id_manager->NewId();
   Kit* kit = new Kit(this, id, position, health_regeneration,
-    blow_regeneration, morph_regeneration, type);
+    energy_regeneration, type);
   CHECK(kit != NULL);
   AddEntity(id, kit);
 }
@@ -477,24 +476,22 @@ bool WorldManager::_LoadKit(const pugi::xml_node& node) {
   pugi::xml_attribute x_attr = node.attribute("x");
   pugi::xml_attribute y_attr = node.attribute("y");
   pugi::xml_attribute hr_attr = node.attribute("health_regeneration");
-  pugi::xml_attribute br_attr = node.attribute("blow_regeneration");
-  pugi::xml_attribute mr_attr = node.attribute("morph_regeneration");
+  pugi::xml_attribute er_attr = node.attribute("energy_regeneration");
   pugi::xml_attribute type_attr = node.attribute("type");
-  if (!x_attr || !y_attr || !hr_attr || !br_attr || !mr_attr || !type_attr) {
+  if (!x_attr || !y_attr || !hr_attr || !er_attr || !type_attr) {
     THROW_ERROR("Incorrect format of 'kit' in map file!\n");
     return false;
   } else {
     float x = x_attr.as_float();
     float y = y_attr.as_float();
     int hr = hr_attr.as_int();
-    int br = br_attr.as_int();
-    int mr = mr_attr.as_int();
+    int er = er_attr.as_int();
     Kit::Type type;
     bool rv = _LoadKitType(type_attr, &type);
     if (rv == false) {
       return false;
     }
-    CreateKit(b2Vec2(x, y), hr, br, mr, type);
+    CreateKit(b2Vec2(x, y), hr, er, type);
   }
 
   return true;
@@ -521,10 +518,8 @@ bool WorldManager::_LoadKitType(const pugi::xml_attribute& attribute,
   CHECK(std::string(attribute.name()) == "type");
   if (std::string(attribute.value()) == "health") {
     *output = Kit::TYPE_HEALTH;
-  } else if (std::string(attribute.value()) == "blow") {
-    *output = Kit::TYPE_BLOW;
-  } else if (std::string(attribute.value()) == "morph") {
-    *output = Kit::TYPE_MORPH;
+  } else if (std::string(attribute.value()) == "energy") {
+    *output = Kit::TYPE_ENERGY;
   } else if (std::string(attribute.value()) == "composite") {
     *output = Kit::TYPE_COMPOSITE;
   } else {
@@ -535,8 +530,8 @@ bool WorldManager::_LoadKitType(const pugi::xml_attribute& attribute,
 }
 
 void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
-  float radius = _settings.GetFloat("player.blow.radius");
-  int damage = _settings.GetInt32("player.blow.damage");
+  float radius = _settings.GetFloat("player.bazooka.explosion_radius");
+  int damage = _settings.GetInt32("player.bazooka.explosion_damage");
 
   // FIXME(xairy): can miss huge entities.
   radius += 13.0f;
@@ -561,7 +556,7 @@ void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
 }
 
 void WorldManager::Morph(const b2Vec2& location) {
-  int radius = _settings.GetInt32("player.morph.radius");
+  int radius = _settings.GetInt32("player.morpher.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
   for (int x = -radius; x <= radius; x++) {
@@ -618,13 +613,15 @@ void WorldManager::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
 }
 
 void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
-  int blow_consumption = _settings.GetInt32("player.blow.consumption");
-  int morph_consumption = _settings.GetInt32("player.morph.consumption");
+  int bazooka_consumption =
+      _settings.GetInt32("player.bazooka.energy_consumption");
+  int morpher_consumption =
+      _settings.GetInt32("player.morpher.energy_consumption");
 
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
-    if (player->GetBlowCharge() >= blow_consumption) {
-      player->AddBlow(-blow_consumption);
+    if (player->GetEnergy() >= bazooka_consumption) {
+      player->AddEnergy(-bazooka_consumption);
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       CreateBullet(player->GetId(), start, end);
@@ -632,8 +629,8 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
   }
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_RIGHT) {
-    if (player->GetMorphCharge() >= morph_consumption) {
-      player->AddMorph(-morph_consumption);
+    if (player->GetEnergy() >= morpher_consumption) {
+      player->AddEnergy(-morpher_consumption);
       float x = static_cast<float>(event.x);
       float y = static_cast<float>(event.y);
       Morph(b2Vec2(x, y));
@@ -664,8 +661,7 @@ void WorldManager::OnCollision(Kit* kit, Wall* wall) { }
 
 void WorldManager::OnCollision(Kit* kit, Player* player) {
   player->AddHealth(kit->GetHealthRegeneration());
-  player->AddBlow(kit->GetBlowRegeneration());
-  player->AddMorph(kit->GetMorphRegeneration());
+  player->AddEnergy(kit->GetEnergyRegeneration());
   kit->Destroy();
 }
 

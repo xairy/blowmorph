@@ -22,14 +22,12 @@ Kit::Kit(
   uint32_t id,
   const b2Vec2& position,
   int health_regeneration,
-  int blow_regeneration,
-  int morph_regeneration,
+  int energy_regeneration,
   Type type
 ) : Entity(world_manager, id, TypeToEntityName(type), position,
            Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
   _health_regeneration = health_regeneration;
-  _blow_regeneration = blow_regeneration;
-  _morph_regeneration = morph_regeneration;
+  _energy_regeneration = energy_regeneration;
   _type = type;
 }
 
@@ -50,10 +48,8 @@ void Kit::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->y = body_->GetPosition().y;
   if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::KIT_TYPE_HEALTH;
-  } else if (_type == TYPE_BLOW) {
-    output->data[0] = EntitySnapshot::KIT_TYPE_BLOW;
-  } else if (_type == TYPE_MORPH) {
-    output->data[0] = EntitySnapshot::KIT_TYPE_MORPH;
+  } else if (_type == TYPE_ENERGY) {
+    output->data[0] = EntitySnapshot::KIT_TYPE_ENERGY;
   } else if (_type == TYPE_COMPOSITE) {
     output->data[0] = EntitySnapshot::KIT_TYPE_COMPOSITE;
   } else {
@@ -66,11 +62,8 @@ void Kit::Damage(int damage, uint32_t source_id) { }
 int Kit::GetHealthRegeneration() const {
   return _health_regeneration;
 }
-int Kit::GetBlowRegeneration() const {
-  return _blow_regeneration;
-}
-int Kit::GetMorphRegeneration() const {
-  return _morph_regeneration;
+int Kit::GetEnergyRegeneration() const {
+  return _energy_regeneration;
 }
 
 // Double dispatch. Collision detection.
@@ -99,10 +92,8 @@ std::string Kit::TypeToEntityName(Kit::Type type) {
   switch (type) {
     case Kit::TYPE_HEALTH:
       return "health_kit";
-    case Kit::TYPE_BLOW:
-      return "blow_kit";
-    case Kit::TYPE_MORPH:
-      return "morph_kit";
+    case Kit::TYPE_ENERGY:
+      return "energy_kit";
     case Kit::TYPE_COMPOSITE:
       return "composite_kit";
     default:

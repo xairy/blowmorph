@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef SERVER_PLAYER_H_
 #define SERVER_PLAYER_H_
@@ -69,29 +69,19 @@ class Player : public Entity {
   void SetMaxHealth(int max_health);
   void SetHealthRegeneration(int health_regeneration);
 
-  int GetBlowCharge() const;
-  int GetBlowCapacity() const;
-  int GetBlowRegeneration() const;
+  int GetEnergy() const;
+  int GetEnergyCapacity() const;
+  int GetEnergyRegeneration() const;
 
-  void SetBlowCharge(int charge);
-  void SetBlowCapacity(int capacity);
-  void SetBlowRegeneration(int regeneration);
-
-  int GetMorphCharge() const;
-  int GetMorphCapacity() const;
-  int GetMorphRegeneration() const;
-
-  void SetMorphCharge(int charge);
-  void SetMorphCapacity(int capacity);
-  void SetMorphRegeneration(int regeneration);
+  void SetEnergy(int charge);
+  void SetEnergyCapacity(int capacity);
+  void SetEnergyRegeneration(int regeneration);
 
   void AddHealth(int value);
-  void AddBlow(int value);
-  void AddMorph(int value);
+  void AddEnergy(int value);
 
   void RestoreHealth();
-  void RestoreBlow();
-  void RestoreMorph();
+  void RestoreEnergy();
 
   // Double dispatch. Collision detection.
 
@@ -113,16 +103,12 @@ class Player : public Entity {
   KeyboardUpdateTime _keyboard_update_time;
 
   int _max_health;
-  int _health_regeneration;
+  int _health_regeneration;  // Points per ms.
   int _health;
 
-  int _blow_capacity;
-  int _blow_regeneration;  // Points per ms.
-  int _blow_charge;
-
-  int _morph_capacity;
-  int _morph_regeneration;  // Points per ms.
-  int _morph_charge;
+  int _energy_capacity;
+  int _energy_regeneration;  // Points per ms.
+  int _energy;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Player);
