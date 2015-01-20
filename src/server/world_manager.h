@@ -60,7 +60,8 @@ class WorldManager {
   void CreateBullet(
     uint32_t owner_id,
     const b2Vec2& start,
-    const b2Vec2& end);
+    const b2Vec2& end,
+    Bullet::Type type);
 
   void CreateDummy(
     const b2Vec2& position);
@@ -136,6 +137,8 @@ class WorldManager {
   std::map<uint32_t, Entity*> _dynamic_entities;
 
   std::vector<b2Vec2> _spawn_positions;
+
+  std::vector<b2Vec2> _morph_list;
 
   // TODO(xairy): get rid of it.
   enum {

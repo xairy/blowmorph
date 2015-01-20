@@ -723,7 +723,17 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      entity_config = "bullet";
+      switch (snapshot->data[0]) {
+        case EntitySnapshot::BULLET_TYPE_ROCKET: {
+          entity_config = "bullet";
+        } break;
+        case EntitySnapshot::BULLET_TYPE_SLIME: {
+          entity_config = "slime";
+        } break;
+        default: {
+          CHECK(false);  // Unreachable.
+        }
+      }
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
@@ -855,7 +865,9 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
     static_entities_.erase(it);
   }
 
-  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET ||
+  // FIXME(xairy): compare data[0] to something meaningful.
+  if ((snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET &&
+       snapshot->data[0] == EntitySnapshot::BULLET_TYPE_ROCKET) ||
       snapshot->type == EntitySnapshot::ENTITY_TYPE_DUMMY) {
     // TODO(xairy): create explosion animation on explosion packet.
     Sprite* explosion = resource_manager_.CreateSprite("explosion");

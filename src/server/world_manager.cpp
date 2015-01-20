@@ -219,6 +219,12 @@ void WorldManager::Update(int64_t time_delta) {
   }
   counter++;
 
+  std::vector<b2Vec2>::iterator it;
+  for (it = _morph_list.begin(); it != _morph_list.end(); ++it) {
+    Morph(*it);
+  }
+  _morph_list.clear();
+
   UpdateEntities(time_delta);
   StepPhysics(time_delta);
   DestroyOutlyingEntities();
@@ -286,12 +292,13 @@ void WorldManager::DestroyOutlyingEntities() {
 void WorldManager::CreateBullet(
   uint32_t owner_id,
   const b2Vec2& start,
-  const b2Vec2& end
+  const b2Vec2& end,
+  Bullet::Type type
 ) {
   CHECK(_static_entities.count(owner_id) +
     _dynamic_entities.count(owner_id) == 1);
   uint32_t id = _id_manager->NewId();
-  Bullet* bullet = new Bullet(this, id, owner_id, start, end);
+  Bullet* bullet = new Bullet(this, id, owner_id, start, end, type);
   CHECK(bullet != NULL);
   AddEntity(id, bullet);
 }
@@ -624,16 +631,16 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
       player->AddEnergy(-bazooka_consumption);
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      CreateBullet(player->GetId(), start, end);
+      CreateBullet(player->GetId(), start, end, Bullet::TYPE_ROCKET);
     }
   }
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_RIGHT) {
     if (player->GetEnergy() >= morpher_consumption) {
       player->AddEnergy(-morpher_consumption);
-      float x = static_cast<float>(event.x);
-      float y = static_cast<float>(event.y);
-      Morph(b2Vec2(x, y));
+      b2Vec2 start = player->GetPosition();
+      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
+      CreateBullet(player->GetId(), start, end, Bullet::TYPE_SLIME);
     }
   }
 }
@@ -641,7 +648,12 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
 void WorldManager::ExplodeBullet(Bullet* bullet) {
   // We do not want 'bullet' to explode multiple times.
   if (!bullet->IsDestroyed()) {
-    Blow(bullet->GetPosition(), bullet->GetOwnerId());
+    if (bullet->GetBulletType() == Bullet::TYPE_ROCKET) {
+      Blow(bullet->GetPosition(), bullet->GetOwnerId());
+    } else if (bullet->GetBulletType() == Bullet::TYPE_SLIME) {
+      //Morph(bullet->GetPosition());
+      _morph_list.push_back(bullet->GetPosition());
+    }
     bullet->Destroy();
   }
 }

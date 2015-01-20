@@ -83,6 +83,8 @@ struct PlayerInfo {
 //   data[0] - health
 //   data[1] - energy
 //   data[2] - score
+// type == EntitySnapshot::ENTITY_TYPE_BULLET:
+//    data[0] - bullet type
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
 // type == EntitySnapshot::ENTITY_TYPE_KIT:
@@ -99,6 +101,15 @@ struct EntitySnapshot {
     ENTITY_TYPE_EXPLOSION,
 
     ENTITY_TYPE_MAX_VALUE
+  };
+
+  enum BulletType {
+    BULLET_TYPE_UNKNOWN,
+
+    BULLET_TYPE_ROCKET,
+    BULLET_TYPE_SLIME,
+
+    BULLET_TYPE_MAX_VALUE
   };
 
   enum WallType {

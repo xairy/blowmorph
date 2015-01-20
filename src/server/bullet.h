@@ -20,12 +20,18 @@ class Bullet : public Entity {
   friend class Entity;
 
  public:
+  enum Type {
+    TYPE_ROCKET,
+    TYPE_SLIME,
+  };
+
   Bullet(
     WorldManager* world_manager,
     uint32_t id,
     uint32_t owner_id,
     const b2Vec2& start,
-    const b2Vec2& end);
+    const b2Vec2& end,
+    Type type);
   virtual ~Bullet();
 
   virtual Entity::Type GetType();
@@ -35,7 +41,8 @@ class Bullet : public Entity {
 
   virtual void Damage(int damage, uint32_t source_id);
 
-  uint32_t GetOwnerId();
+  uint32_t GetOwnerId() const;
+  Type GetBulletType() const;
 
   // Double dispatch. Collision detection.
 
@@ -49,6 +56,7 @@ class Bullet : public Entity {
 
  protected:
   uint32_t _owner_id;
+  Type _type;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Bullet);

@@ -23,7 +23,8 @@ Bullet::Bullet(
   uint32_t id,
   uint32_t owner_id,
   const b2Vec2& start,
-  const b2Vec2& end
+  const b2Vec2& end,
+  Type type
 ) : Entity(world_manager, id, "bullet", start, Entity::FILTER_BULLET,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = world_manager->GetSettings();
@@ -35,6 +36,7 @@ Bullet::Bullet(
   body_->ApplyImpulse(body_->GetMass() * velocity);
 
   _owner_id = owner_id;
+  _type = type;
 }
 
 Bullet::~Bullet() { }
@@ -52,14 +54,25 @@ void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
+  if (_type == TYPE_ROCKET) {
+    output->data[0] = EntitySnapshot::BULLET_TYPE_ROCKET;
+  } else if (_type == TYPE_SLIME) {
+    output->data[0] = EntitySnapshot::BULLET_TYPE_SLIME;
+  } else {
+    CHECK(false);
+  }
 }
 
 void Bullet::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
-uint32_t Bullet::GetOwnerId() {
+uint32_t Bullet::GetOwnerId() const {
   return _owner_id;
+}
+
+Bullet::Type Bullet::GetBulletType() const {
+  return _type;
 }
 
 // Double dispatch. Collision detection.
