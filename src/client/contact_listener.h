@@ -31,7 +31,8 @@ class ContactListener : public b2ContactListener {
     Entity* b = static_cast<Entity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
 
-    if (player_id_set_ && a->GetId() != player_id_ && b->GetId() != player_id_) {
+    if (player_id_set_ && a->GetId() != player_id_ &&
+                          b->GetId() != player_id_) {
       // Nothing except our player collides.
       contact->SetEnabled(false);
       return;

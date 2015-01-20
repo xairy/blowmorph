@@ -50,7 +50,7 @@ class Entity {
 
   void EnableCaption(const std::string& caption, const sf::Font& font);
 
-  void Render(sf::RenderWindow& render_window, int64_t time);
+  void Render(sf::RenderWindow* render_window, int64_t time);
 
  private:
   uint32_t id_;

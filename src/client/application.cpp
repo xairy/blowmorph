@@ -111,8 +111,10 @@ bool Application::Initialize() {
   player_health_ = 0;
   player_energy_ = 0;
 
-  max_player_misposition_ = client_settings_.GetFloat("client.max_player_misposition");
-  interpolation_offset_ = client_settings_.GetInt64("client.interpolation_offset");
+  max_player_misposition_ =
+      client_settings_.GetFloat("client.max_player_misposition");
+  interpolation_offset_ =
+      client_settings_.GetInt64("client.interpolation_offset");
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -274,7 +276,8 @@ bool Application::Connect() {
     return false;
   }
 
-  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout =
+      client_settings_.GetUInt32("client.connect_timeout");
 
   bool rv = client_->Service(event_, connect_timeout);
   if (rv == false) {
@@ -468,7 +471,8 @@ bool Application::OnQuitEvent() {
 
   is_running_ = false;
 
-  uint32_t connect_timeout = client_settings_.GetUInt32("client.connect_timeout");
+  uint32_t connect_timeout =
+      client_settings_.GetUInt32("client.connect_timeout");
 
   if (!DisconnectPeer(peer_, event_, client_, connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
@@ -917,13 +921,13 @@ void Application::Render() {
 
     std::map<uint32_t, Entity*>::iterator it;
     for (it = static_entities_.begin() ; it != static_entities_.end(); ++it) {
-      it->second->Render(*render_window_, render_time);
+      it->second->Render(render_window_, render_time);
     }
     for (it = dynamic_entities_.begin() ; it != dynamic_entities_.end(); ++it) {
-      it->second->Render(*render_window_, render_time);
+      it->second->Render(render_window_, render_time);
     }
 
-    player_->Render(*render_window_, render_time);
+    player_->Render(render_window_, render_time);
 
     RenderHUD();
   }
