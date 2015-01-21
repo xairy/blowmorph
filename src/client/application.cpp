@@ -676,6 +676,24 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       }
     } break;
 
+    case Packet::TYPE_GAME_EVENT: {
+      GameEvent event;
+      bool rv = ExtractPacketData(buffer, &event);
+      if (rv == false) {
+        THROW_ERROR("Incorrect game event packet format!");
+        return false;
+      }
+      if (event.type == GameEvent::TYPE_EXPLOSION) {
+        Sprite* explosion = resource_manager_.CreateSprite("explosion");
+        if (explosion == NULL) {
+          return false;
+        }
+        explosion->SetPosition(Round(sf::Vector2f(event.x, event.y)));
+        explosion->Play();
+        explosions_.push_back(explosion);
+      }
+    } break;
+
     case Packet::TYPE_PLAYER_INFO: {
       PlayerInfo player_info;
       bool rv = ExtractPacketData(buffer, &player_info);
@@ -863,20 +881,6 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
   if (it != static_entities_.end()) {
     delete it->second;
     static_entities_.erase(it);
-  }
-
-  // FIXME(xairy): compare data[0] to something meaningful.
-  if ((snapshot->type == EntitySnapshot::ENTITY_TYPE_BULLET &&
-       snapshot->data[0] == EntitySnapshot::BULLET_TYPE_ROCKET) ||
-      snapshot->type == EntitySnapshot::ENTITY_TYPE_DUMMY) {
-    // TODO(xairy): create explosion animation on explosion packet.
-    Sprite* explosion = resource_manager_.CreateSprite("explosion");
-    if (explosion == NULL) {
-      return false;
-    }
-    explosion->SetPosition(Round(sf::Vector2f(snapshot->x, snapshot->y)));
-    explosion->Play();
-    explosions_.push_back(explosion);
   }
 
   return true;

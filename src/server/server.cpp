@@ -114,6 +114,9 @@ bool Server::Tick() {
     if (!BroadcastStaticEntities()) {
       return false;
     }
+    if (!BroadcastGameEvents()) {
+      return false;
+    }
   }
 
   if (Timestamp() - last_update_ >= update_timeout_) {
@@ -178,6 +181,19 @@ bool Server::BroadcastStaticEntities(bool force) {
     }
   }
 
+  return true;
+}
+
+bool Server::BroadcastGameEvents() {
+  std::vector<GameEvent> *events = world_manager_.GetGameEvents();
+  std::vector<GameEvent>::iterator it;
+  for (it = events->begin(); it != events->end(); ++it) {
+    bool rv = BroadcastPacket(host_, Packet::TYPE_GAME_EVENT, *it, true);
+    if (rv == false) {
+      return false;
+    }
+  }
+  events->clear();
   return true;
 }
 

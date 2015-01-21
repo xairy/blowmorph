@@ -35,6 +35,9 @@ class Packet {
     TYPE_ENTITY_UPDATED,
     TYPE_ENTITY_DISAPPEARED,
 
+    // S -> C. Followed by 'GameEvent'.
+    TYPE_GAME_EVENT,
+
     // C -> S. Followed by 'KeyboardEvent'.
     TYPE_KEYBOARD_EVENT,
     // C -> S. Followed by 'MouseEvent'.
@@ -138,6 +141,15 @@ struct EntitySnapshot {
   float32_t x;
   float32_t y;
   int32_t data[4];
+};
+
+struct GameEvent {
+  enum EventType {
+    TYPE_EXPLOSION
+  };
+
+  EventType type;
+  float32_t x, y;
 };
 
 struct KeyboardEvent {

@@ -52,6 +52,9 @@ class WorldManager {
   std::map<uint32_t, Entity*>* GetDynamicEntities();
   void GetDestroyedEntities(std::vector<uint32_t>* output);
 
+  // The list of the events should be cleared by the caller.
+  std::vector<GameEvent>* GetGameEvents();
+
   void Update(int64_t time_delta);
   void UpdateEntities(int64_t time_delta);
   void StepPhysics(int64_t time_delta);
@@ -80,8 +83,8 @@ class WorldManager {
   void CreateAlignedWall(float x, float y, Wall::Type type);
 
   // Works only with grid map.
-  void Blow(const b2Vec2& location, uint32_t source_id);
-  void Morph(const b2Vec2& location);
+  void MakeExplosion(const b2Vec2& location, uint32_t source_id);
+  void MakeSlimeExplosion(const b2Vec2& location);
 
   void RespawnDeadPlayers();
   void RespawnPlayer(Player* player);
@@ -138,7 +141,10 @@ class WorldManager {
 
   std::vector<b2Vec2> _spawn_positions;
 
+  // TODO(xairy): refactor.
   std::vector<b2Vec2> _morph_list;
+
+  std::vector<GameEvent> _game_events;
 
   // TODO(xairy): get rid of it.
   enum {

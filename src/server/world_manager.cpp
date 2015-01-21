@@ -208,6 +208,10 @@ void WorldManager::GetDestroyedEntities(std::vector<uint32_t>* output) {
   }
 }
 
+std::vector<GameEvent>* WorldManager::GetGameEvents() {
+  return &_game_events;
+}
+
 void WorldManager::Update(int64_t time_delta) {
   // XXX(xairy): Temporary.
   static int counter = 0;
@@ -219,16 +223,17 @@ void WorldManager::Update(int64_t time_delta) {
   }
   counter++;
 
-  std::vector<b2Vec2>::iterator it;
-  for (it = _morph_list.begin(); it != _morph_list.end(); ++it) {
-    Morph(*it);
-  }
-  _morph_list.clear();
-
   UpdateEntities(time_delta);
   StepPhysics(time_delta);
   DestroyOutlyingEntities();
   RespawnDeadPlayers();
+
+  // TODO(xairy): refactor.
+  std::vector<b2Vec2>::iterator it;
+  for (it = _morph_list.begin(); it != _morph_list.end(); ++it) {
+    MakeSlimeExplosion(*it);
+  }
+  _morph_list.clear();
 }
 
 void WorldManager::UpdateEntities(int64_t time_delta) {
@@ -536,7 +541,7 @@ bool WorldManager::_LoadKitType(const pugi::xml_attribute& attribute,
   return true;
 }
 
-void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
+void WorldManager::MakeExplosion(const b2Vec2& location, uint32_t source_id) {
   float radius = _settings.GetFloat("player.bazooka.explosion_radius");
   int damage = _settings.GetInt32("player.bazooka.explosion_damage");
 
@@ -560,9 +565,15 @@ void WorldManager::Blow(const b2Vec2& location, uint32_t source_id) {
       entity->Damage(damage, source_id);
     }
   }
+
+  GameEvent event;
+  event.x = location.x;
+  event.y = location.y;
+  event.type = GameEvent::TYPE_EXPLOSION;
+  _game_events.push_back(event);
 }
 
-void WorldManager::Morph(const b2Vec2& location) {
+void WorldManager::MakeSlimeExplosion(const b2Vec2& location) {
   int radius = _settings.GetInt32("player.morpher.radius");
   int lx = static_cast<int>(round(location.x / _block_size));
   int ly = static_cast<int>(round(location.y / _block_size));
@@ -649,9 +660,8 @@ void WorldManager::ExplodeBullet(Bullet* bullet) {
   // We do not want 'bullet' to explode multiple times.
   if (!bullet->IsDestroyed()) {
     if (bullet->GetBulletType() == Bullet::TYPE_ROCKET) {
-      Blow(bullet->GetPosition(), bullet->GetOwnerId());
+      MakeExplosion(bullet->GetPosition(), bullet->GetOwnerId());
     } else if (bullet->GetBulletType() == Bullet::TYPE_SLIME) {
-      //Morph(bullet->GetPosition());
       _morph_list.push_back(bullet->GetPosition());
     }
     bullet->Destroy();
@@ -661,7 +671,7 @@ void WorldManager::ExplodeBullet(Bullet* bullet) {
 void WorldManager::ExplodeDummy(Dummy* dummy) {
   // We do not want 'dummy' to explode multiple times.
   if (!dummy->IsDestroyed()) {
-    Blow(dummy->GetPosition(), dummy->GetId());
+    MakeExplosion(dummy->GetPosition(), dummy->GetId());
     dummy->Destroy();
   }
 }

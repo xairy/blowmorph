@@ -39,6 +39,8 @@ class Server {
   bool BroadcastDynamicEntities();
   bool BroadcastStaticEntities(bool force = false);
 
+  bool BroadcastGameEvents();
+
   bool UpdateWorld();
   bool DeleteDestroyedEntities();
 
