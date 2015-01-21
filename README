@@ -33,10 +33,14 @@ How to build under Ubuntu Linux:
      $ sudo apt-get install libconfig-dev libconfig++-dev
      $ sudo apt-get install libboost-python1.54-dev
      $ sudo pip install git+https://github.com/cnangel/python-libconfig.git
-  7. Generate project files
+  7. Install premake4
+     $ sudo apt-get install premake4
+     If the packet is not available, get the binary here
+     http://industriousone.com/premake/download
+  8. Generate project files
      $ ./premake4 gmake
-  8. $ cd build
-  9. On x32 system:
+  9. $ cd build
+ 10. On x32 system:
      $ make config=release32
      On x64 system:
      $ make config=release64
@@ -89,5 +93,7 @@ How to install wxFormBuilder:
 
 How to build under Microsoft Windows, Visual Studio 2008:
   1. Install Python 2.7.6
-  2. Run "premake4.exe vs2008"
-  3. Build build\blowmorph.sln
+  2. Download third-party.zip and extract in the blowmorph folder.
+  3. Download premake4.exe from http://industriousone.com/premake/download
+  4. Run "premake4.exe vs2008"
+  5. Build build\blowmorph.sln
