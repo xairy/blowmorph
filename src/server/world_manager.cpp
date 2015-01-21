@@ -654,6 +654,12 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
       CreateBullet(player->GetId(), start, end, Bullet::TYPE_SLIME);
     }
   }
+  if (event.event_type == MouseEvent::EVENT_MOVE) {
+    b2Vec2 mouse_position = b2Vec2(event.x, event.y);
+    b2Vec2 direction = mouse_position - player->GetPosition();
+    float angle = atan2f(-direction.x, direction.y);
+    player->SetRotation(angle / M_PI * 180);
+  }
 }
 
 void WorldManager::ExplodeBullet(Bullet* bullet) {

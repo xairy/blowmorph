@@ -131,11 +131,10 @@ bool Application::Run() {
     return false;
   }
 
-  // XXX(alex): maybe we should have a xml file for each object with
-  //            texture paths, pivots, captions, etc
   // FIXME(xairy): move to a separate method.
+  // FIXME(xairy): use entity_settings_.
   b2Vec2 position(client_options_.x, client_options_.y);
-  Sprite* sprite = resource_manager_.CreateSprite("mechos");
+  Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
   player_ = new Entity(&body_settings_, &entity_settings_, client_options_.id,
     Entity::TYPE_PLAYER, world_, sprite, position, 0);
@@ -849,6 +848,13 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
     }
     dynamic_entities_[snapshot->id]->SetInterpolationPosition(position,
         snapshot->time, interpolation_offset_, server_time);
+
+    // FIXME(xairy): ignoring angle on entity appearance.
+    dynamic_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
+
+    // TODO(xairy): use SetInterpolationRotation.
+    //dynamic_entities_[snapshot->id]->SetInterpolationRotation(snapshot->angle,
+    //    snapshot->time, interpolation_offset_, server_time);
   }
 }
 
@@ -943,6 +949,19 @@ void Application::Render() {
       it->second->Render(render_window_, render_time);
     }
 
+    // Set player rotation.
+    sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
+    int screen_width = render_window_->getSize().x;
+    int screen_height = render_window_->getSize().y;
+    mouse_position.x = (mouse_position.x - screen_width / 2) +
+      player_->GetBody()->GetPosition().x;
+    mouse_position.y = (mouse_position.y - screen_height / 2) +
+      player_->GetBody()->GetPosition().y;
+    b2Vec2 b2_mouse_position = b2Vec2(mouse_position.x, mouse_position.y);
+    b2Vec2 direction = b2_mouse_position - player_->GetBody()->GetPosition();
+    float angle = atan2f(-direction.x, direction.y);
+    player_->GetBody()->SetRotation(angle / M_PI * 180);
+
     player_->Render(render_window_, render_time);
 
     RenderHUD();
@@ -995,6 +1014,23 @@ void Application::RenderHUD() {
   energy_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
   energy_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
   render_window_->draw(energy_charge_rect, bottom_left_transform);
+
+  // Draw gun slots.
+
+  sf::Vector2f gun_slot_rect_size(30.0f, 30.0f);
+  sf::RectangleShape gun_slot_rect;
+  gun_slot_rect.setSize(gun_slot_rect_size);
+  gun_slot_rect.setPosition(sf::Vector2f(-50.0f, -50.0f));
+  gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
+  gun_slot_rect.setOutlineColor(sf::Color(0xFF, 0x00, 0x00, 0xBB));
+  gun_slot_rect.setOutlineThickness(3.0f);
+  render_window_->draw(gun_slot_rect, bottom_right_transform);
+
+  gun_slot_rect.setPosition(sf::Vector2f(-110.0f, -50.0f));
+  gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
+  gun_slot_rect.setOutlineColor(sf::Color(0x00, 0xFF, 0x00, 0xBB));
+  gun_slot_rect.setOutlineThickness(3.0f);
+  render_window_->draw(gun_slot_rect, bottom_right_transform);
 
   // Draw compass.
 
@@ -1112,6 +1148,26 @@ bool Application::SendInputEvents() {
     }
   }
   mouse_events_.clear();
+
+  // Send mouse position.
+  // FIXME(xairy): copy paste.
+  MouseEvent event;
+  event.time = GetServerTime();
+  event.button_type =  MouseEvent::BUTTON_NONE;
+  event.event_type = MouseEvent::EVENT_MOVE;
+  sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
+  int screen_width = render_window_->getSize().x;
+  int screen_height = render_window_->getSize().y;
+  mouse_position.x = (mouse_position.x - screen_width / 2) +
+    player_->GetBody()->GetPosition().x;
+  mouse_position.y = (mouse_position.y - screen_height / 2) +
+    player_->GetBody()->GetPosition().y;
+  event.x = mouse_position.x;
+  event.y = mouse_position.y;
+  bool rv = SendPacket(peer_, Packet::TYPE_MOUSE_EVENT, event);
+  if (rv == false) {
+    return false;
+  }
 
   return true;
 }

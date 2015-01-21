@@ -130,6 +130,20 @@ sf::Vector2f Sprite::GetPosition() const {
   return _frames[_current_frame]->getPosition();
 }
 
+void Sprite::SetRotation(float angle) {
+  CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
+  for (size_t frame = 0; frame < _frames_count; frame++) {
+    DCHECK(_frames[frame] != NULL);
+    _frames[frame]->setRotation(angle);
+  }
+}
+
+float Sprite::GetRotation() const {
+  CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
+  DCHECK(_frames[_current_frame] != NULL);
+  return _frames[_current_frame]->getRotation();
+}
+
 void Sprite::SetPivot(const sf::Vector2f& pivot) {
   CHECK(_state == STATE_PLAYING || _state == STATE_STOPPED);
   for (size_t frame = 0; frame < _frames_count; frame++) {

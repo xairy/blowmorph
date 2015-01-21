@@ -52,6 +52,9 @@ class Sprite {
   void SetPosition(const sf::Vector2f& value);
   sf::Vector2f GetPosition() const;
 
+  void SetRotation(float angle);
+  float GetRotation() const;
+
   // Setter and getter for pivot (a point relative to
   // the texture to which sprite is attached).
   void SetPivot(const sf::Vector2f& value);

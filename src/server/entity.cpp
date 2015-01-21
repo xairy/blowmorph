@@ -78,6 +78,13 @@ void Entity::SetPosition(const b2Vec2& position) {
   body_->SetPosition(position);
 }
 
+float Entity::GetRotation() const {
+  return body_->GetRotation();
+}
+void Entity::SetRotation(float angle) {
+  body_->SetRotation(angle);
+}
+
 b2Vec2 Entity::GetVelocity() const {
   return body_->GetVelocity();
 }

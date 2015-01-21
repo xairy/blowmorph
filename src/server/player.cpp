@@ -55,6 +55,7 @@ void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
+  output->angle = body_->GetRotation();
   output->data[0] = _health;
   output->data[1] = _energy;
   output->data[2] = _score;

@@ -46,6 +46,7 @@ void Kit::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
+  output->angle = body_->GetRotation();
   if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::KIT_TYPE_HEALTH;
   } else if (_type == TYPE_ENERGY) {

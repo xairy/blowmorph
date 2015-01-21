@@ -38,6 +38,7 @@ void Body::Create(b2World* world, SettingsManager* body_settings,
   b2FixtureDef fixture_def;
   fixture_def.density = 1.0f;
   fixture_def.friction = 0.0f;
+  fixture_def.restitution = 0.0f;
 
   std::string type = body_settings->GetString(body_config + ".shape.type");
   if (type == "box") {
@@ -85,6 +86,16 @@ void Body::SetPosition(const b2Vec2& position) {
   b2Vec2 scaled_position = position;
   scaled_position *= 1.0f / BOX2D_SCALE;
   body_->SetTransform(scaled_position, body_->GetAngle());
+}
+
+float Body::GetRotation() const {
+  CHECK(state_ == STATE_CREATED);
+  return body_->GetAngle();
+}
+
+void Body::SetRotation(float angle) {
+  CHECK(state_ == STATE_CREATED);
+  body_->SetTransform(body_->GetPosition(), angle);
 }
 
 b2Vec2 Body::GetVelocity() const {

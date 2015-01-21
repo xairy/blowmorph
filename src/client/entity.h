@@ -43,7 +43,7 @@ class Entity {
 
   Body* GetBody();
 
-  // Makes object move towards 'position' to be there when
+  // Makes object to start moving towards 'position' to be there when
   // current time - 'interpolation_offset' == 'time'.
   void SetInterpolationPosition(const b2Vec2& position,
       int64_t snapshot_time, int64_t interpolation_offset, int64_t server_time);

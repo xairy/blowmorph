@@ -71,6 +71,9 @@ class Entity {
   virtual b2Vec2 GetPosition() const;
   virtual void SetPosition(const b2Vec2& position);
 
+  virtual float GetRotation() const;
+  virtual void SetRotation(float angle);
+
   virtual b2Vec2 GetVelocity() const;
   virtual void SetVelocity(const b2Vec2& velocity);
 

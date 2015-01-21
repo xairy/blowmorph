@@ -101,8 +101,6 @@ struct EntitySnapshot {
     ENTITY_TYPE_WALL,
     ENTITY_TYPE_DUMMY,
     ENTITY_TYPE_KIT,
-    ENTITY_TYPE_EXPLOSION,
-
     ENTITY_TYPE_MAX_VALUE
   };
 
@@ -138,8 +136,8 @@ struct EntitySnapshot {
   int64_t time;
   uint32_t id;
   EntityType type;
-  float32_t x;
-  float32_t y;
+  float32_t x, y;
+  float32_t angle;
   int32_t data[4];
 };
 
@@ -171,17 +169,19 @@ struct KeyboardEvent {
 
 struct MouseEvent {
   enum ButtonType {
+    BUTTON_NONE,
     BUTTON_LEFT,
     BUTTON_RIGHT
   };
   enum EventType {
     EVENT_KEYDOWN,
-    EVENT_KEYUP
+    EVENT_KEYUP,
+    EVENT_MOVE
   };
 
   int64_t time;
-  ButtonType button_type;
   EventType event_type;
+  ButtonType button_type;
   float32_t x, y;
 };
 

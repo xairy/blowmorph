@@ -27,6 +27,14 @@ class ContactListener : public b2ContactListener {
         contact->SetEnabled(false);
       }
     }
+    if (b->GetType() == Entity::TYPE_PLAYER &&
+        a->GetType() == Entity::TYPE_BULLET) {
+      Player* player = static_cast<Player*>(b);
+      Bullet* bullet = static_cast<Bullet*>(a);
+      if (player->GetId() == bullet->GetOwnerId()) {
+        contact->SetEnabled(false);
+      }
+    }
   }
 
   virtual void BeginContact(b2Contact* contact) {

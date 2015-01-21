@@ -45,6 +45,7 @@ void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
+  output->angle = body_->GetRotation();
 }
 
 void Dummy::Damage(int damage, uint32_t source_id) {

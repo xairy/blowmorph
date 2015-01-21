@@ -38,11 +38,19 @@ class ContactListener : public b2ContactListener {
       return;
     }
 
-    if (a->GetType() != Entity::TYPE_PLAYER ||
-        b->GetType() != Entity::TYPE_WALL) {
+    if (a->GetType() == Entity::TYPE_PLAYER &&
+        b->GetType() == Entity::TYPE_WALL) {
       // Our player collides only with walls.
-      contact->SetEnabled(false);
+      return;
     }
+
+    if (b->GetType() == Entity::TYPE_PLAYER &&
+        a->GetType() == Entity::TYPE_WALL) {
+      // Our player collides only with walls.
+      return;
+    }
+
+    contact->SetEnabled(false);
   }
 
   virtual void BeginContact(b2Contact* contact) { }

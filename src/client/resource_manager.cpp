@@ -57,8 +57,13 @@ TextureAtlas* ResourceManager::LoadTexture(const std::string& id) {
   }
 
   std::string image = textures_settings_.GetString(id + ".image");
-  uint32_t transparent_color =
-    textures_settings_.GetUInt32(id + ".transparent_color");
+
+  uint32_t transparent_color;
+  bool rv = textures_settings_.LookupUInt32(id + ".transparent_color",
+                                            &transparent_color);
+  if (rv == false) {
+    transparent_color = 0xFFFFFFFF;
+  }
 
   bool tiled = false;
   if (textures_settings_.HasSetting(id + ".tile")) {

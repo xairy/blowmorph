@@ -47,7 +47,7 @@ Entity::Entity(
       body_config = "bullet";
       break;
     case TYPE_PLAYER:
-      body_config = "mechos";
+      body_config = "man";
       break;
     case TYPE_WALL:
       body_config = "wall";
@@ -107,6 +107,7 @@ void Entity::Render(sf::RenderWindow* render_window, int64_t time) {
 
   if (visible_) {
     sprite_->SetPosition(position);
+    sprite_->SetRotation(body_.GetRotation());
     sprite_->Render(render_window);
   }
 

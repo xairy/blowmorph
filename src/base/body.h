@@ -29,12 +29,19 @@ class Body {
   b2Vec2 GetPosition() const;
   void SetPosition(const b2Vec2& position);
 
+  float GetRotation() const;
+  void SetRotation(float angle);
+
   b2Vec2 GetVelocity() const;
   void SetVelocity(const b2Vec2& velocity);
 
   float GetMass() const;
+
   void ApplyImpulse(const b2Vec2& impulse);
   void SetImpulse(const b2Vec2& impulse);
+
+  // void ApplyAngularImpulse(float impulse);
+  void SetAngularImpulse(float impulse);
 
   void SetUserData(void* data);
   void SetCollisionFilter(int16_t category, int16_t mask);
