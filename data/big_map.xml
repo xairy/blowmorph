@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+X axis is pointing to the right, Y axis is pointing down.
+-->
+
+<!-- 160 x 160 -->
+
+<map block_size="16.0" bound="3000.0">
+  <!-- Borders -->
+
+  <chunk x="-79" y="-79" width="1" height="160" type="unbreakable"></chunk>
+  <chunk x="-79" y="-79" width="160" height="1" type="unbreakable"></chunk>
+  <chunk x="80" y="-79" width="1" height="160" type="unbreakable"></chunk>
+  <chunk x="-79" y="80" width="160" height="1" type="unbreakable"></chunk>
+
+  <!-- Central building -->
+  
+  <chunk x="15" y="15" width="15" height="1" type="unbreakable"></chunk>
+  <chunk x="15" y="15" width="1" height="15" type="unbreakable"></chunk>
+
+  <chunk x="-29" y="15" width="15" height="1" type="unbreakable"></chunk>
+  <chunk x="-15" y="15" width="1" height="15" type="unbreakable"></chunk>
+
+  <chunk x="15" y="-29" width="1" height="15" type="unbreakable"></chunk>
+  <chunk x="15" y="-15" width="15" height="1" type="unbreakable"></chunk>
+
+  <chunk x="-15" y="-29" width="1" height="15" type="unbreakable"></chunk>
+  <chunk x="-29" y="-15" width="15" height="1" type="unbreakable"></chunk>
+
+  <chunk x="30" y="-15" width="1" height="12" type="unbreakable"></chunk>
+  <chunk x="30" y="4" width="1" height="12" type="unbreakable"></chunk>
+
+  <chunk x="-15" y="30" width="12" height="1" type="unbreakable"></chunk>
+  <chunk x="4" y="30" width="12" height="1" type="unbreakable"></chunk>
+
+  <chunk x="-15" y="-29" width="12" height="1" type="unbreakable"></chunk>
+  <chunk x="4" y="-29" width="12" height="1" type="unbreakable"></chunk>
+
+  <chunk x="-29" y="-15" width="1" height="12" type="unbreakable"></chunk>
+  <chunk x="-29" y="4" width="1" height="12" type="unbreakable"></chunk>
+
+  <kit x="272.0" y="272.0" type="health" health_regeneration="100" energy_regeneration="0"></kit>
+  <kit x="-272.0" y="-272.0" type="health" health_regeneration="100" energy_regeneration="0"></kit>
+
+  <kit x="272.0" y="-272.0" type="energy" health_regeneration="0" energy_regeneration="10000"></kit>
+  <kit x="-272.0" y="272.0" type="energy" health_regeneration="0" energy_regeneration="10000"></kit>
+
+  <!-- Right building -->
+
+  <chunk x="50" y="-15" width="1" height="31" type="unbreakable"></chunk>
+  <chunk x="70" y="-15" width="1" height="31" type="unbreakable"></chunk>
+
+  <chunk x="50" y="15" width="8" height="1" type="unbreakable"></chunk>
+  <chunk x="63" y="15" width="8" height="1" type="unbreakable"></chunk>
+
+  <chunk x="50" y="-15" width="8" height="1" type="unbreakable"></chunk>
+  <chunk x="63" y="-15" width="8" height="1" type="unbreakable"></chunk>
+
+  <kit x="960.0" y="0.0" type="composite" health_regeneration="100" energy_regeneration="10000"></kit>
+
+  <!-- Bottom building -->
+
+  <chunk x="-15" y="50" width="31" height="1" type="unbreakable"></chunk>
+  <chunk x="-15" y="70" width="31" height="1" type="unbreakable"></chunk>
+
+  <chunk x="15" y="50" width="1" height="8" type="unbreakable"></chunk>
+  <chunk x="15" y="63" width="1" height="8" type="unbreakable"></chunk>
+
+  <chunk x="-15" y="50" width="1" height="8" type="unbreakable"></chunk>
+  <chunk x="-15" y="63" width="1" height="8" type="unbreakable"></chunk>
+
+  <kit x="0.0" y="960.0" type="composite" health_regeneration="100" energy_regeneration="10000"></kit>
+
+  <!-- Top building -->
+
+  <chunk x="-15" y="-50" width="31" height="1" type="unbreakable"></chunk>
+  <chunk x="-15" y="-70" width="31" height="1" type="unbreakable"></chunk>
+
+  <chunk x="-15" y="-70" width="1" height="8" type="unbreakable"></chunk>
+  <chunk x="-15" y="-57" width="1" height="8" type="unbreakable"></chunk>
+
+  <chunk x="15" y="-70" width="1" height="8" type="unbreakable"></chunk>
+  <chunk x="15" y="-57" width="1" height="8" type="unbreakable"></chunk>
+
+  <kit x="0.0" y="-960.0" type="composite" health_regeneration="100" energy_regeneration="10000"></kit>
+
+  <!-- Left building -->
+
+  <chunk x="-50" y="-15" width="1" height="31" type="unbreakable"></chunk>
+  <chunk x="-70" y="-15" width="1" height="31" type="unbreakable"></chunk>
+
+  <chunk x="-70" y="-15" width="8" height="1" type="unbreakable"></chunk>
+  <chunk x="-57" y="-15" width="8" height="1" type="unbreakable"></chunk>
+
+  <chunk x="-70" y="15" width="8" height="1" type="unbreakable"></chunk>
+  <chunk x="-57" y="15" width="8" height="1" type="unbreakable"></chunk>
+
+  <kit x="-960.0" y="0.0" type="composite" health_regeneration="100" energy_regeneration="10000"></kit>
+
+  <!-- Spawns -->
+
+  <chunk x="40" y="40" width="1" height="20" type="unbreakable"></chunk>
+  <chunk x="40" y="40" width="20" height="1" type="unbreakable"></chunk>
+
+  <spawn x="700.0" y="700.0"></spawn>
+
+  <chunk x="-40" y="-59" width="1" height="20" type="unbreakable"></chunk>
+  <chunk x="-59" y="-40" width="20" height="1" type="unbreakable"></chunk>
+
+  <spawn x="-700.0" y="-700.0"></spawn>
+
+  <chunk x="40" y="-59" width="1" height="20" type="unbreakable"></chunk>
+  <chunk x="40" y="-40" width="20" height="1" type="unbreakable"></chunk>
+
+  <spawn x="700.0" y="-700.0"></spawn>
+
+  <chunk x="-59" y="40" width="20" height="1" type="unbreakable"></chunk>
+  <chunk x="-40" y="40" width="1" height="20" type="unbreakable"></chunk>
+
+  <spawn x="-700.0" y="700.0"></spawn>
+</map>
