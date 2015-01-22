@@ -249,6 +249,8 @@ void WorldManager::UpdateEntities(int64_t time_delta) {
         velocity.Normalize();
         velocity *= dummy->GetSpeed();
         dummy->SetImpulse(dummy->GetMass() * velocity);
+        float angle = atan2f(-velocity.x, velocity.y);
+        dummy->SetRotation(angle / M_PI * 180);
       }
     } else if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);

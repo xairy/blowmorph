@@ -758,7 +758,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      entity_config = "dummy";
+      entity_config = "zombie";
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {

@@ -56,7 +56,7 @@ Entity::Entity(
       body_config = "kit";
       break;
     case TYPE_DUMMY:
-      body_config = "dummy";
+      body_config = "zombie";
       break;
     default:
       CHECK(false);  // Unreachable.
