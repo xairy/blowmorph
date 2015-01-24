@@ -33,21 +33,9 @@
 
 namespace {
 
-// TODO(xairy): move to utils.
-float Length(const b2Vec2& vector) {
-  return sqrt(vector.x * vector.x + vector.y * vector.y);
-}
-
 // TODO(xairy): move to sfml_utils.
 sf::Vector2f Round(const sf::Vector2f& vector) {
   return sf::Vector2f(floor(vector.x), floor(vector.y));
-}
-
-// TODO(xairy): move to utils.
-std::string IntToStr(int value) {
-  std::stringstream ss;
-  ss << value;
-  return ss.str();
 }
 
 }  // anonymous namespace

@@ -10,12 +10,9 @@
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/time.h"
+#include "base/utils.h"
 
 namespace {
-
-float Length(const sf::Vector2f& vector) {
-  return sqrt(vector.x * vector.x + vector.y * vector.y);
-}
 
 sf::Vector2f Round(const sf::Vector2f& vector) {
   return sf::Vector2f(floor(vector.x), floor(vector.y));
