@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "client/entity.h"
 
@@ -26,8 +26,8 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 namespace bm {
 
 Entity::Entity(
-  SettingsManager *body_settings,
-  SettingsManager *entity_settings,
+  SettingsManager* body_settings,
+  const std::string& body_config,
   uint32_t id,
   Type type,
   b2World* world,
@@ -39,32 +39,6 @@ Entity::Entity(
     visible_(true),
     sprite_(sprite),
     caption_visible_(false) {
-  // TODO(xairy): initialize sprite here.
-
-  std::string body_config;
-  switch (type) {
-    case TYPE_BULLET:
-      body_config = "bullet";
-      break;
-    case TYPE_PLAYER:
-      body_config = "man";
-      break;
-    case TYPE_WALL:
-      body_config = "wall";
-      break;
-    case TYPE_KIT:
-      body_config = "kit";
-      break;
-    case TYPE_DUMMY:
-      body_config = "zombie";
-      break;
-    case TYPE_ACTIVATOR:
-      body_config = "wall";
-      break;
-    default:
-      CHECK(false);  // Unreachable.
-  }
-
   body_.Create(world, body_settings, body_config);
   body_.SetUserData(this);
   body_.SetPosition(position);

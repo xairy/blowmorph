@@ -137,7 +137,7 @@ bool Application::Run() {
   b2Vec2 position(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
-  player_ = new Entity(&body_settings_, &entity_settings_, client_options_.id,
+  player_ = new Entity(&body_settings_, "man", client_options_.id,
     Entity::TYPE_PLAYER, world_, sprite, position, 0);
   CHECK(player_ != NULL);
   player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
@@ -800,23 +800,26 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
   CHECK(sprite != NULL);
 
+  std::string body_config =
+      entity_settings_.GetString(entity_config + ".body");
+
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      Entity* wall = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* wall = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_WALL, world_, sprite, position, time);
       CHECK(wall != NULL);
       static_entities_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_BULLET: {
-      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* object = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_BULLET, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* object = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_PLAYER, world_, sprite, position, time);
       CHECK(object != NULL);
       if (player_names_.count(id) == 1) {
@@ -826,21 +829,21 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_DUMMY: {
-      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* object = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_DUMMY, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* object = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_KIT, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+      Entity* object = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_ACTIVATOR, world_, sprite, position, time);
       CHECK(object != NULL);
       static_entities_[id] = object;

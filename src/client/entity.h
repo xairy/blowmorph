@@ -30,7 +30,7 @@ class Entity {
 
   Entity(
     SettingsManager *body_settings,
-    SettingsManager *entity_settings,
+    const std::string& body_config,
     uint32_t id,
     Type type,
     b2World *world,
