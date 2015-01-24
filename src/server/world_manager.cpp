@@ -32,7 +32,7 @@
 namespace bm {
 
 WorldManager::WorldManager(IdManager* id_manager)
-    : world_(b2Vec2(0.0f, 0.0f)), _map_type(MAP_NONE), _id_manager(id_manager) {
+    : world_(b2Vec2(0.0f, 0.0f)), _id_manager(id_manager) {
   world_.SetContactListener(&contact_listener_);
   bool rv = _settings.Open("data/entities.cfg");
   CHECK(rv == true);  // FIXME(xairy).
@@ -335,14 +335,12 @@ void WorldManager::CreateActivator(
 }
 
 void WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
-  CHECK(_map_type == MAP_GRID);
   int xa = static_cast<int>(round(x / _block_size));
   int ya = static_cast<int>(round(y / _block_size));
   _CreateAlignedWall(xa, ya, type);
 }
 
 void WorldManager::_CreateAlignedWall(int x, int y, Wall::Type type) {
-  CHECK(_map_type == MAP_GRID);
   CreateWall(b2Vec2(x * _block_size, y * _block_size), type);
 }
 
@@ -367,7 +365,6 @@ bool WorldManager::LoadMap(const std::string& file) {
     return false;
   }
   _block_size = block_size.as_float();
-  _map_type = MAP_GRID;
 
   pugi::xml_attribute bound = map_node.attribute("bound");
   if (!bound) {
@@ -403,7 +400,6 @@ bool WorldManager::LoadMap(const std::string& file) {
 
 // TODO(xairy): refactor.
 bool WorldManager::_LoadWall(const pugi::xml_node& node) {
-  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "wall");
 
   pugi::xml_attribute x = node.attribute("x");
@@ -426,7 +422,6 @@ bool WorldManager::_LoadWall(const pugi::xml_node& node) {
 
 // TODO(xairy): refactor.
 bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
-  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "chunk");
 
   pugi::xml_attribute x = node.attribute("x");
@@ -458,7 +453,6 @@ bool WorldManager::_LoadChunk(const pugi::xml_node& node) {
 }
 
 bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
-  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "spawn");
 
   pugi::xml_attribute x_attr = node.attribute("x");
@@ -476,7 +470,6 @@ bool WorldManager::_LoadSpawn(const pugi::xml_node& node) {
 }
 
 bool WorldManager::_LoadKit(const pugi::xml_node& node) {
-  CHECK(_map_type == MAP_GRID);
   CHECK(std::string(node.name()) == "kit");
 
   pugi::xml_attribute x_attr = node.attribute("x");

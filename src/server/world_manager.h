@@ -160,13 +160,7 @@ class WorldManager {
 
   std::vector<GameEvent> _game_events;
 
-  // TODO(xairy): get rid of it.
-  enum {
-    MAP_NONE,
-    MAP_GRID
-  } _map_type;
-
-  float _block_size;  // Works only with grid map.
+  float _block_size;
   float _bound;  // Entities with greater coordinates are destroyed.
 
   IdManager* _id_manager;
