@@ -67,7 +67,14 @@ class Application {
   void WriteText(const std::string& str, const sf::Vector2f& position,
       int size, sf::Color color);
 
+  // Sends input events to the server and
+  // clears the input event queues afterwards.
   bool SendInputEvents();
+
+  bool OnActivateAction();
+
+  // Returns mouse position in world coordinates.
+  b2Vec2 GetMousePosition() const;
 
   bool is_running_;
 

@@ -360,18 +360,30 @@ bool Server::OnReceive() {
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      MouseEvent mouse_event_;
-      rv = ExtractPacketData(message, &mouse_event_);
+      MouseEvent mouse_event;
+      rv = ExtractPacketData(message, &mouse_event);
       if (rv == false) {
         printf("#%u: Incorrect message format [2], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-      world_manager_.OnMouseEvent(client->entity, mouse_event_);
+      world_manager_.OnMouseEvent(client->entity, mouse_event);
     } break;
 
+    case Packet::TYPE_PLAYER_ACTION: {
+      PlayerAction action;
+      rv = ExtractPacketData(message, &action);
+      if (rv == false) {
+        printf("#%u: Incorrect message format [3], client dropped.\n", id);
+        client_manager_.DisconnectClient(id);
+        return true;
+      }
+      world_manager_.OnPlayerAction(client->entity, action);
+    } break;
+
+
     default: {
-      printf("#%u: Incorrect message format [3], client dropped.\n", id);
+      printf("#%u: Incorrect message format [4], client dropped.\n", id);
       client_manager_.DisconnectClient(id);
       return true;
     } break;

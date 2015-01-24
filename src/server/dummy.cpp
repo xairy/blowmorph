@@ -83,5 +83,8 @@ void Dummy::Collide(Wall* other) {
 void Dummy::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
+void Dummy::Collide(Activator* other) {
+  Entity::Collide(other, this);
+}
 
 }  // namespace bm

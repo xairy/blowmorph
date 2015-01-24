@@ -9,13 +9,11 @@
 
 #include "base/macros.h"
 #include "base/settings_manager.h"
+#include "base/utils.h"
 
 namespace bm {
 
 class Body {
- public:
-  static const int BOX2D_SCALE = 16;
-
  public:
   Body();
   virtual ~Body();
@@ -39,9 +37,6 @@ class Body {
 
   void ApplyImpulse(const b2Vec2& impulse);
   void SetImpulse(const b2Vec2& impulse);
-
-  // void ApplyAngularImpulse(float impulse);
-  void SetAngularImpulse(float impulse);
 
   void SetUserData(void* data);
   void SetCollisionFilter(int16_t category, int16_t mask);

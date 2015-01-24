@@ -58,6 +58,9 @@ Entity::Entity(
     case TYPE_DUMMY:
       body_config = "zombie";
       break;
+    case TYPE_ACTIVATOR:
+      body_config = "wall";
+      break;
     default:
       CHECK(false);  // Unreachable.
   }

@@ -88,6 +88,9 @@ void Kit::Collide(Wall* other) {
 void Kit::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
+void Kit::Collide(Activator* other) {
+  Entity::Collide(other, this);
+}
 
 std::string Kit::TypeToEntityName(Kit::Type type) {
   switch (type) {

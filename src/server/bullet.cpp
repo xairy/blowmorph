@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/bullet.h"
 
@@ -95,6 +95,9 @@ void Bullet::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
 void Bullet::Collide(Kit* other) {
+  Entity::Collide(other, this);
+}
+void Bullet::Collide(Activator* other) {
   Entity::Collide(other, this);
 }
 

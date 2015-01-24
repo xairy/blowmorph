@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef SERVER_ENTITY_H_
 #define SERVER_ENTITY_H_
@@ -23,28 +23,30 @@ class Dummy;
 class Bullet;
 class Wall;
 class Kit;
+class Activator;
 
 class Entity {
  public:
   static const uint32_t BAD_ID = IdManager::BAD_ID;
 
-  // XXX(xairy): count Dummy as a Bullet?
   enum Type {
     TYPE_PLAYER,
     TYPE_BULLET,
     TYPE_WALL,
     TYPE_KIT,
-    TYPE_DUMMY
+    TYPE_DUMMY,
+    TYPE_ACTIVATOR
   };
 
   // Collision filters.
   enum FilterType {
-    FILTER_PLAYER = 0x0001,
-    FILTER_BULLET = 0x0002,
-    FILTER_WALL   = 0x0004,
-    FILTER_KIT    = 0x0008,
-    FILTER_ALL    = 0xffff,
-    FILTER_NONE   = 0x0000
+    FILTER_PLAYER    = 0x0001,
+    FILTER_BULLET    = 0x0002,
+    FILTER_WALL      = 0x0004,
+    FILTER_KIT       = 0x0008,
+    FILTER_ACTIVATOR = 0x0010,
+    FILTER_ALL       = 0xffff,
+    FILTER_NONE      = 0x0000
   };
 
  public:
@@ -97,26 +99,34 @@ class Entity {
   virtual void Collide(Bullet* other) = 0;
   virtual void Collide(Wall* other) = 0;
   virtual void Collide(Kit* other) = 0;
+  virtual void Collide(Activator* other) = 0;
 
-  static void Collide(Kit* kit1, Kit* kit2);
-  static void Collide(Kit* kit, Wall* wall);
-  static void Collide(Kit* kit, Player* player);
-  static void Collide(Kit* kit, Dummy* dummy);
-  static void Collide(Kit* kit, Bullet* bullet);
+  static void Collide(Activator* first, Activator* second);
+  static void Collide(Activator* first, Kit* second);
+  static void Collide(Activator* first, Wall* second);
+  static void Collide(Activator* first, Player* second);
+  static void Collide(Activator* first, Dummy* second);
+  static void Collide(Activator* first, Bullet* second);
 
-  static void Collide(Wall* wall1, Wall* wall2);
-  static void Collide(Wall* wall, Player* player);
-  static void Collide(Wall* wall, Dummy* dummy);
-  static void Collide(Wall* wall, Bullet* bullet);
+  static void Collide(Kit* first, Kit* second);
+  static void Collide(Kit* first, Wall* second);
+  static void Collide(Kit* first, Player* second);
+  static void Collide(Kit* first, Dummy* second);
+  static void Collide(Kit* first, Bullet* second);
 
-  static void Collide(Player* player1, Player* player2);
-  static void Collide(Player* player, Dummy* dummy);
-  static void Collide(Player* player, Bullet* bullet);
+  static void Collide(Wall* first, Wall* second);
+  static void Collide(Wall* first, Player* second);
+  static void Collide(Wall* first, Dummy* second);
+  static void Collide(Wall* first, Bullet* second);
 
-  static void Collide(Dummy* dummy1, Dummy* dummy2);
-  static void Collide(Dummy* dummy, Bullet* bullet);
+  static void Collide(Player* first, Player* second);
+  static void Collide(Player* first, Dummy* second);
+  static void Collide(Player* first, Bullet* second);
 
-  static void Collide(Bullet* bullet1, Bullet* bullet2);
+  static void Collide(Dummy* first, Dummy* second);
+  static void Collide(Dummy* first, Bullet* second);
+
+  static void Collide(Bullet* first, Bullet* second);
 
  protected:
   WorldManager* _world_manager;

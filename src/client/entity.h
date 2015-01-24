@@ -24,7 +24,8 @@ class Entity {
     TYPE_BULLET,
     TYPE_WALL,
     TYPE_KIT,
-    TYPE_DUMMY
+    TYPE_DUMMY,
+    TYPE_ACTIVATOR
   };
 
   Entity(

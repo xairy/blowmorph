@@ -19,6 +19,7 @@
 #include "server/id_manager.h"
 #include "server/world_manager.h"
 
+#include "server/activator.h"
 #include "server/bullet.h"
 #include "server/dummy.h"
 #include "server/kit.h"
@@ -120,6 +121,25 @@ bool Entity::IsUpdated() const {
 }
 
 // Double dispatch.
+
+void Entity::Collide(Activator* first, Activator* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Activator* first, Kit* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Activator* first, Wall* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Activator* first, Player* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Activator* first, Dummy* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
+void Entity::Collide(Activator* first, Bullet* second) {
+  first->GetWorldManager()->OnCollision(first, second);
+}
 
 void Entity::Collide(Kit* first, Kit* second) {
   first->GetWorldManager()->OnCollision(first, second);

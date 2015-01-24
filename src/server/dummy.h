@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef SERVER_DUMMY_H_
 #define SERVER_DUMMY_H_
@@ -15,6 +15,7 @@
 
 namespace bm {
 
+// TODO(xairy): rename to Zombie.
 class Dummy : public Entity {
   friend class Entity;
 
@@ -46,6 +47,7 @@ class Dummy : public Entity {
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
+  virtual void Collide(Activator* other);
 
  protected:
   float _speed;

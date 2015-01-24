@@ -48,6 +48,7 @@ class Wall : public Entity {
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
+  virtual void Collide(Activator* other);
 
  protected:
   Type _type;

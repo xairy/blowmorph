@@ -92,6 +92,7 @@ class Player : public Entity {
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
+  virtual void Collide(Activator* other);
 
  protected:
   float _speed;  // In vertical and horizontal directions.

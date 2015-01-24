@@ -15,7 +15,7 @@
 
 namespace bm {
 
-// FIXME(xairy): bullet's speed seems to be limited.
+// FIXME(xairy): rename to Projectile.
 class Bullet : public Entity {
   friend class Entity;
 
@@ -53,6 +53,7 @@ class Bullet : public Entity {
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
+  virtual void Collide(Activator* other);
 
  protected:
   uint32_t _owner_id;

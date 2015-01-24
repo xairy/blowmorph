@@ -24,6 +24,7 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 #include "base/time.h"
+#include "base/utils.h"
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
@@ -563,6 +564,13 @@ bool Application::OnKeyEvent(const sf::Event& event) {
       keyboard_state_.down = pressed;
       keyboard_event.key_type = KeyboardEvent::KEY_DOWN;
       break;
+    case sf::Keyboard::E:
+      if (event.type == sf::Event::KeyPressed) {
+        if (!OnActivateAction()) {
+          return false;
+        }
+      }
+      return true;
     case sf::Keyboard::Escape:
       OnQuitEvent();
       return true;
@@ -778,6 +786,10 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
     } break;
 
+    case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
+      entity_config = "door";
+    } break;
+
     default:
       CHECK(false);  // Unreachable.
   }
@@ -825,6 +837,13 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         Entity::TYPE_KIT, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
+      Entity* object = new Entity(&body_settings_, &entity_settings_, id,
+        Entity::TYPE_ACTIVATOR, world_, sprite, position, time);
+      CHECK(object != NULL);
+      static_entities_[id] = object;
     } break;
 
     default:
@@ -950,15 +969,8 @@ void Application::Render() {
     }
 
     // Set player rotation.
-    sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
-    int screen_width = render_window_->getSize().x;
-    int screen_height = render_window_->getSize().y;
-    mouse_position.x = (mouse_position.x - screen_width / 2) +
-      player_->GetBody()->GetPosition().x;
-    mouse_position.y = (mouse_position.y - screen_height / 2) +
-      player_->GetBody()->GetPosition().y;
-    b2Vec2 b2_mouse_position = b2Vec2(mouse_position.x, mouse_position.y);
-    b2Vec2 direction = b2_mouse_position - player_->GetBody()->GetPosition();
+    b2Vec2 mouse_position = GetMousePosition();
+    b2Vec2 direction = mouse_position - player_->GetBody()->GetPosition();
     float angle = atan2f(-direction.x, direction.y);
     player_->GetBody()->SetRotation(angle / M_PI * 180);
 
@@ -1128,8 +1140,6 @@ void Application::WriteText(const std::string& str,
   render_window_->draw(text, transform);
 }
 
-// Sends input events to the server and
-// clears the input event queues afterwards.
 bool Application::SendInputEvents() {
   for (size_t i = 0; i < keyboard_events_.size(); i++) {
     bool rv = SendPacket(peer_, Packet::TYPE_KEYBOARD_EVENT,
@@ -1150,18 +1160,11 @@ bool Application::SendInputEvents() {
   mouse_events_.clear();
 
   // Send mouse position.
-  // FIXME(xairy): copy paste.
   MouseEvent event;
   event.time = GetServerTime();
   event.button_type =  MouseEvent::BUTTON_NONE;
   event.event_type = MouseEvent::EVENT_MOVE;
-  sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
-  int screen_width = render_window_->getSize().x;
-  int screen_height = render_window_->getSize().y;
-  mouse_position.x = (mouse_position.x - screen_width / 2) +
-    player_->GetBody()->GetPosition().x;
-  mouse_position.y = (mouse_position.y - screen_height / 2) +
-    player_->GetBody()->GetPosition().y;
+  b2Vec2 mouse_position = GetMousePosition();
   event.x = mouse_position.x;
   event.y = mouse_position.y;
   bool rv = SendPacket(peer_, Packet::TYPE_MOUSE_EVENT, event);
@@ -1170,6 +1173,38 @@ bool Application::SendInputEvents() {
   }
 
   return true;
+}
+
+bool Application::OnActivateAction() {
+  b2Body* b = RayCast(world_, player_->GetBody()->GetPosition(),
+    GetMousePosition());
+  if (b == NULL) {
+    return true;
+  }
+
+  Entity* entity = static_cast<Entity*>(b->GetUserData());
+  PlayerAction action;
+  action.type = PlayerAction::TYPE_ACTIVATE;
+  action.target_id = entity->GetId();
+
+  bool rv = SendPacket(peer_, Packet::TYPE_PLAYER_ACTION, action);
+  if (rv == false) {
+    return false;
+  }
+
+  printf("! Activate: %u %d\n", entity->GetId(), (int)entity->GetType());
+  return true;
+}
+
+b2Vec2 Application::GetMousePosition() const {
+  sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
+  int screen_width = render_window_->getSize().x;
+  int screen_height = render_window_->getSize().y;
+  mouse_position.x = (mouse_position.x - screen_width / 2) +
+    player_->GetBody()->GetPosition().x;
+  mouse_position.y = (mouse_position.y - screen_height / 2) +
+    player_->GetBody()->GetPosition().y;
+  return b2Vec2(mouse_position.x, mouse_position.y);
 }
 
 }  // namespace bm

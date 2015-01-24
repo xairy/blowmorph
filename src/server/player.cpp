@@ -257,5 +257,8 @@ void Player::Collide(Wall* other) {
 void Player::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
+void Player::Collide(Activator* other) {
+  Entity::Collide(other, this);
+}
 
 }  // namespace bm

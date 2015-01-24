@@ -18,6 +18,7 @@
 #include "server/contact_listener.h"
 #include "server/entity.h"
 
+#include "server/activator.h"
 #include "server/bullet.h"
 #include "server/dummy.h"
 #include "server/kit.h"
@@ -79,6 +80,10 @@ class WorldManager {
     int energy_regeneration,
     Kit::Type type);
 
+  void CreateActivator(
+    const b2Vec2& position,
+    Activator::Type type);
+
   // Works only with grid map.
   void CreateAlignedWall(float x, float y, Wall::Type type);
 
@@ -96,10 +101,19 @@ class WorldManager {
   void OnKeyboardEvent(Player* player, const KeyboardEvent& event);
   void OnMouseEvent(Player* player, const MouseEvent& event);
 
+  void OnPlayerAction(Player* player, const PlayerAction& event);
+
   void ExplodeBullet(Bullet* bullet);
   void ExplodeDummy(Dummy* dummy);
 
   // Collisions.
+
+  void OnCollision(Activator* activator1, Activator* activator2);
+  void OnCollision(Activator* activator, Kit* kit);
+  void OnCollision(Activator* activator, Wall* wall);
+  void OnCollision(Activator* activator, Player* player);
+  void OnCollision(Activator* activator, Dummy* dummy);
+  void OnCollision(Activator* activator, Bullet* bullet);
 
   void OnCollision(Kit* kit1, Kit* kit2);
   void OnCollision(Kit* kit, Wall* wall);

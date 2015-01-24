@@ -43,6 +43,9 @@ class Packet {
     // C -> S. Followed by 'MouseEvent'.
     TYPE_MOUSE_EVENT,
 
+    // C -> S. Followed by 'PlayerAction'.
+    TYPE_PLAYER_ACTION,
+
     TYPE_MAX_VALUE
   };
 
@@ -101,6 +104,8 @@ struct EntitySnapshot {
     ENTITY_TYPE_WALL,
     ENTITY_TYPE_DUMMY,
     ENTITY_TYPE_KIT,
+    ENTITY_TYPE_ACTIVATOR,
+
     ENTITY_TYPE_MAX_VALUE
   };
 
@@ -183,6 +188,15 @@ struct MouseEvent {
   EventType event_type;
   ButtonType button_type;
   float32_t x, y;
+};
+
+struct PlayerAction {
+  enum ActionType {
+    TYPE_ACTIVATE
+  };
+
+  ActionType type;
+  uint32_t target_id;
 };
 
 }  // namespace bm

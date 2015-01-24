@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#ifndef SERVER_KIT_H_
-#define SERVER_KIT_H_
+#ifndef SERVER_ACTIVATOR_H_
+#define SERVER_ACTIVATOR_H_
 
 #include <string>
 
@@ -15,39 +15,32 @@
 
 namespace bm {
 
-class Kit : public Entity {
+class Activator : public Entity {
   friend class Entity;
 
  public:
   enum Type {
-    TYPE_HEALTH,
-    TYPE_ENERGY,
-    TYPE_COMPOSITE
+  	TYPE_DOOR
   };
 
-  Kit(
+ public:
+  Activator(
     WorldManager* world_manager,
     uint32_t id,
     const b2Vec2& position,
-    int health_regeneration,
-    int energy_regeneration,
     Type type);
-  virtual ~Kit();
+  virtual ~Activator();
 
+  // Inherited from Entity.
   virtual Entity::Type GetType();
   virtual bool IsStatic();
-
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
   virtual void Damage(int damage, uint32_t source_id);
 
-  int GetHealthRegeneration() const;
-  int GetEnergyRegeneration() const;
+  void Activate(Entity* activator);
 
   // Double dispatch. Collision detection.
-
   virtual void Collide(Entity* entity);
-
   virtual void Collide(Player* other);
   virtual void Collide(Dummy* other);
   virtual void Collide(Bullet* other);
@@ -56,17 +49,12 @@ class Kit : public Entity {
   virtual void Collide(Activator* other);
 
  protected:
-  int _health_regeneration;
-  int _energy_regeneration;
-
-  Type _type;
+	Type type_;
 
  private:
-  std::string TypeToEntityName(Type type);
-
-  DISALLOW_COPY_AND_ASSIGN(Kit);
+  DISALLOW_COPY_AND_ASSIGN(Activator);
 };
 
 }  // namespace bm
 
-#endif  // SERVER_KIT_H_
+#endif  // SERVER_ACTIVATOR_H_

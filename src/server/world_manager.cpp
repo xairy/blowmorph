@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/world_manager.h"
 
@@ -21,6 +21,7 @@
 #include "server/entity.h"
 #include "server/id_manager.h"
 
+#include "server/activator.h"
 #include "server/bullet.h"
 #include "server/dummy.h"
 #include "server/kit.h"
@@ -57,6 +58,9 @@ WorldManager::WorldManager(IdManager* id_manager)
   world_.SetContactListener(&contact_listener_);
   bool rv = _settings.Open("data/entities.cfg");
   CHECK(rv == true);  // FIXME(xairy).
+
+  // FIXME(xairy): Temporary.
+  CreateActivator(b2Vec2(0, 0), Activator::TYPE_DOOR);
 }
 
 WorldManager::~WorldManager() {
@@ -340,6 +344,16 @@ void WorldManager::CreateKit(
     energy_regeneration, type);
   CHECK(kit != NULL);
   AddEntity(id, kit);
+}
+
+void WorldManager::CreateActivator(
+  const b2Vec2& position,
+  Activator::Type type
+) {
+  uint32_t id = _id_manager->NewId();
+  Activator* activator = new Activator(this, id, position, type);
+  CHECK(activator != NULL);
+  AddEntity(id, activator);
 }
 
 void WorldManager::CreateAlignedWall(float x, float y, Wall::Type type) {
@@ -664,6 +678,20 @@ void WorldManager::OnMouseEvent(Player* player, const MouseEvent& event) {
   }
 }
 
+void WorldManager::OnPlayerAction(Player* player, const PlayerAction& event) {
+  if (event.type == PlayerAction::TYPE_ACTIVATE) {
+    Entity* entity = GetEntity(event.target_id);
+    if (entity == NULL) {
+      return;
+    }
+    if (entity->GetType() != Entity::TYPE_ACTIVATOR) {
+      return;
+    }
+    Activator* activator = static_cast<Activator*>(entity);
+    activator->Activate(player);
+  }
+}
+
 void WorldManager::ExplodeBullet(Bullet* bullet) {
   // We do not want 'bullet' to explode multiple times.
   if (!bullet->IsDestroyed()) {
@@ -685,6 +713,13 @@ void WorldManager::ExplodeDummy(Dummy* dummy) {
 }
 
 // Collisions.
+
+void WorldManager::OnCollision(Activator* activator1, Activator* activator2) { }
+void WorldManager::OnCollision(Activator* activator, Kit* kit) { }
+void WorldManager::OnCollision(Activator* activator, Wall* wall) { }
+void WorldManager::OnCollision(Activator* activator, Player* player) { }
+void WorldManager::OnCollision(Activator* activator, Dummy* dummy) { }
+void WorldManager::OnCollision(Activator* activator, Bullet* bullet) { }
 
 void WorldManager::OnCollision(Kit* kit1, Kit* kit2) { }
 void WorldManager::OnCollision(Kit* kit, Wall* wall) { }
