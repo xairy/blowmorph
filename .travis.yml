@@ -1,0 +1,55 @@
+language: cpp
+
+compiler:
+  - clang
+  - gcc
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install cmake
+
+  # SFML 2.2
+  - sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev \
+       libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev \
+       libsndfile1-dev libopenal-dev libudev-dev
+  - wget http://www.sfml-dev.org/files/SFML-2.2-sources.zip
+  - unzip SFML-2.2-sources.zip
+  - cd SFML-2.2/
+  - mkdir build && cd build/
+  - cmake ..
+  - make
+  - sudo make install
+
+  # Box2D 2.3.0
+  - sudo apt-get install freeglut3-dev libxi-dev
+  - wget https://box2d.googlecode.com/files/Box2D_v2.3.0.7z
+  - sudo apt-get install p7zip p7zip-full
+  - 7z x Box2D_v2.3.0.7z
+  - cd Box2D_v2.3.0/Box2D/
+  - mkdir build && cd build/
+  - cmake -DBOX2D_INSTALL=ON -DBOX2D_BUILD_SHARED=ON ..
+  - make
+  - sudo make install
+
+  # EnetPlus
+  - sudo apt-get install libenet1a libenet-dev
+  - wget https://github.com/xairy/enet-plus/releases/download/v0.1-alpha/libenet-plus_0.1-1_amd64.deb
+  - wget https://github.com/xairy/enet-plus/releases/download/v0.1-alpha/libenet-plus-dev_0.1-1_amd64.deb
+  - sudo dpkg -i libenet-plus_0.1-1_amd64.deb
+  - sudo dpkg -i libenet-plus-dev_0.1-1_amd64.deb
+
+  # libconfig
+  - sudo apt-get install libconfig-dev libconfig++-dev
+
+  # premake
+  - wget http://downloads.sourceforge.net/project/premake/Premake/4.3/premake-4.3-linux.tar.gz
+  - tar -xf premake-4.3-linux.tar.gz
+
+before_script:
+  - ./premake4 gmake
+
+script:
+  - cd build
+  - make config=debug64
