@@ -31,9 +31,8 @@ class Packet {
     TYPE_PLAYER_INFO,
 
     // S -> C. Followed by 'EntitySnapshot' with the entity description.
-    TYPE_ENTITY_APPEARED,
+    TYPE_ENTITY_APPEARED,  // FIXME(xairy): make a GameEvent.
     TYPE_ENTITY_UPDATED,
-    TYPE_ENTITY_DISAPPEARED,
 
     // S -> C. Followed by 'GameEvent'.
     TYPE_GAME_EVENT,
@@ -148,11 +147,13 @@ struct EntitySnapshot {
 
 struct GameEvent {
   enum EventType {
-    TYPE_EXPLOSION
+    TYPE_EXPLOSION,
+    TYPE_ENTITY_DISAPPEARED
   };
 
   EventType type;
   float32_t x, y;
+  EntitySnapshot entity;
 };
 
 struct KeyboardEvent {

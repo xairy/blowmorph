@@ -16,7 +16,7 @@
 
 namespace bm {
 
-class WorldManager;
+class Controller;
 
 class Player;
 class Dummy;
@@ -51,7 +51,7 @@ class Entity {
 
  public:
   Entity(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     const std::string& prefix,
     b2Vec2 position,
@@ -59,7 +59,7 @@ class Entity {
     uint16_t collision_mask);
   virtual ~Entity();
 
-  WorldManager* GetWorldManager();
+  Controller* GetController();
 
   virtual Type GetType() = 0;
   virtual bool IsStatic() = 0;
@@ -129,7 +129,7 @@ class Entity {
   static void Collide(Bullet* first, Bullet* second);
 
  protected:
-  WorldManager* _world_manager;
+  Controller* controller_;
 
   uint32_t _id;
 

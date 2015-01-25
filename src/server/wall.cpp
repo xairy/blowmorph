@@ -14,16 +14,17 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/world_manager.h"
+#include "server/controller.h"
+#include "server/entity.h"
 
 namespace bm {
 
 Wall::Wall(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   const b2Vec2& position,
   Type type
-) : Entity(world_manager, id, TypeToEntityName(type), position,
+) : Entity(controller, id, TypeToEntityName(type), position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
   _type = type;
 }

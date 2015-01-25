@@ -32,21 +32,21 @@ float Length(const b2Vec2& vector) {
 }
 
 struct RayCastCallback : public b2RayCastCallback {
-	RayCastCallback() : body(NULL) { }
+  RayCastCallback() : body(NULL) { }
 
-	float ReportFixture(b2Fixture* fixture, const b2Vec2& point,
-			const b2Vec2& normal, float fraction) {
-		body = fixture->GetBody();
-		return fraction;
-	}
+  float ReportFixture(b2Fixture* fixture, const b2Vec2& point,
+      const b2Vec2& normal, float fraction) {
+    body = fixture->GetBody();
+    return fraction;
+  }
 
-	b2Body *body;
+  b2Body *body;
 };
 
 b2Body* RayCast(b2World* world, const b2Vec2& start, const b2Vec2& end) {
-	RayCastCallback callback;
-	world->RayCast(&callback, 1.0f / 16 * start, 1.0f / 16 * end);
-	return callback.body;
+  RayCastCallback callback;
+  world->RayCast(&callback, 1.0f / 16 * start, 1.0f / 16 * end);
+  return callback.body;
 }
 
 }  // namespace bm

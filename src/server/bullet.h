@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef SERVER_BULLET_H_
 #define SERVER_BULLET_H_
@@ -15,6 +15,8 @@
 
 namespace bm {
 
+class Controller;
+
 // FIXME(xairy): rename to Projectile.
 class Bullet : public Entity {
   friend class Entity;
@@ -26,7 +28,7 @@ class Bullet : public Entity {
   };
 
   Bullet(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     uint32_t owner_id,
     const b2Vec2& start,

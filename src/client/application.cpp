@@ -656,21 +656,6 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       }
     } break;
 
-    case Packet::TYPE_ENTITY_DISAPPEARED: {
-      EntitySnapshot snapshot;
-      bool rv = ExtractPacketData(buffer, &snapshot);
-      if (rv == false) {
-        THROW_ERROR("Incorrect entity packet format!");
-        return false;
-      }
-      if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
-        player_scores_.erase(snapshot.id);
-      }
-      if (!OnEntityDisappearance(&snapshot)) {
-        return false;
-      }
-    } break;
-
     case Packet::TYPE_GAME_EVENT: {
       GameEvent event;
       bool rv = ExtractPacketData(buffer, &event);
@@ -686,6 +671,13 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         explosion->SetPosition(Round(sf::Vector2f(event.x, event.y)));
         explosion->Play();
         explosions_.push_back(explosion);
+      } else if (event.type == GameEvent::TYPE_ENTITY_DISAPPEARED) {
+        if (event.entity.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
+          player_scores_.erase(event.entity.id);
+        }
+        if (!OnEntityDisappearance(&event.entity)) {
+          return false;
+        }
       }
     } break;
 
@@ -863,8 +855,8 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
     dynamic_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
 
     // TODO(xairy): use SetInterpolationRotation.
-    //dynamic_entities_[snapshot->id]->SetInterpolationRotation(snapshot->angle,
-    //    snapshot->time, interpolation_offset_, server_time);
+    // dynamic_entities_[snapshot->id]->SetInterpolationRotation(
+    //   snapshot->angle, snapshot->time, interpolation_offset_, server_time);
   }
 }
 
@@ -1183,7 +1175,8 @@ bool Application::OnActivateAction() {
     return false;
   }
 
-  printf("! Activate: %u %d\n", entity->GetId(), (int)entity->GetType());
+  printf("! Activate: %u %d\n", entity->GetId(),
+    static_cast<int>(entity->GetType());
   return true;
 }
 

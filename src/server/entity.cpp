@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/entity.h"
 
@@ -16,8 +16,8 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
+#include "server/controller.h"
 #include "server/id_manager.h"
-#include "server/world_manager.h"
 
 #include "server/activator.h"
 #include "server/bullet.h"
@@ -30,17 +30,17 @@ namespace bm {
 
 // XXX(xairy): load dynamic, category and mask from cfg?
 Entity::Entity(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   const std::string& entity_config,
   b2Vec2 position,
   uint16_t collision_category,
   uint16_t collision_mask
-) : _world_manager(world_manager),
+) : controller_(controller),
     _id(id),
     _is_destroyed(false),
     _is_updated(true) {
-  SettingsManager* entity_settings = world_manager->GetSettings();
+  SettingsManager* entity_settings = controller_->GetSettings();
   std::string body_config = entity_settings->GetString(entity_config + ".body");
 
   // XXX(xairy): some kind of body manager?
@@ -48,7 +48,7 @@ Entity::Entity(
   bool rv = body_settings.Open("data/bodies.cfg");
   CHECK(rv == true);
 
-  b2World* world = world_manager->GetWorld();
+  b2World* world = controller_->GetWorld()->GetBox2DWorld();
   body_ = new Body();
   CHECK(body_ != NULL);
   body_->Create(world, &body_settings, body_config);
@@ -64,8 +64,8 @@ Entity::~Entity() {
   }
 }
 
-WorldManager* Entity::GetWorldManager() {
-  return _world_manager;
+Controller* Entity::GetController() {
+  return controller_;
 }
 
 uint32_t Entity::GetId() const {
@@ -123,72 +123,72 @@ bool Entity::IsUpdated() const {
 // Double dispatch.
 
 void Entity::Collide(Activator* first, Activator* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Kit* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Wall* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Player* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Dummy* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Kit* first, Kit* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Kit* first, Wall* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Kit* first, Player* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Kit* first, Dummy* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Kit* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Wall* first, Wall* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Wall* first, Player* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Wall* first, Dummy* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Wall* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Player* first, Player* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Player* first, Dummy* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Player* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Dummy* first, Dummy* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Dummy* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Bullet* first, Bullet* second) {
-  first->GetWorldManager()->OnCollision(first, second);
+  first->GetController()->OnCollision(first, second);
 }
 
 }  // namespace bm

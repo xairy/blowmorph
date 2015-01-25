@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/dummy.h"
 
@@ -14,17 +14,18 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/world_manager.h"
+#include "server/controller.h"
+#include "server/entity.h"
 
 namespace bm {
 
 Dummy::Dummy(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   const b2Vec2& position
-) : Entity(world_manager, id, "zombie", position, Entity::FILTER_BULLET,
+) : Entity(controller, id, "zombie", position, Entity::FILTER_BULLET,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = world_manager->GetSettings();
+  SettingsManager* settings = controller->GetSettings();
   _speed = settings->GetFloat("zombie.speed");
   _target = NULL;
 }

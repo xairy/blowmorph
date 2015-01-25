@@ -10,18 +10,19 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
+#include "server/controller.h"
 #include "server/entity.h"
 
 namespace bm {
 
 Activator::Activator(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   const b2Vec2& position,
   Type type
-) : Entity(world_manager, id, "door", position,
+) : Entity(controller, id, "door", position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
-	// FIXME(xairy): entity config depends on entity type.
+  // FIXME(xairy): entity config depends on entity type.
 }
 
 Activator::~Activator() { }

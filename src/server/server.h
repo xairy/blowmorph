@@ -19,9 +19,9 @@
 #include "base/timer.h"
 
 #include "server/client_manager.h"
+#include "server/controller.h"
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/world_manager.h"
 
 namespace bm {
 
@@ -42,7 +42,6 @@ class Server {
   bool BroadcastGameEvents();
 
   bool UpdateWorld();
-  bool DeleteDestroyedEntities();
 
   bool PumpEvents();
 
@@ -69,7 +68,7 @@ class Server {
   enet::Event* event_;
 
   IdManager id_manager_;
-  WorldManager world_manager_;
+  Controller controller_;
   ClientManager client_manager_;
 
   SettingsManager settings_;

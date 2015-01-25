@@ -15,6 +15,8 @@
 
 namespace bm {
 
+class Controller;
+
 class Kit : public Entity {
   friend class Entity;
 
@@ -26,7 +28,7 @@ class Kit : public Entity {
   };
 
   Kit(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     const b2Vec2& position,
     int health_regeneration,

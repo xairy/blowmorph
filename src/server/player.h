@@ -15,6 +15,8 @@
 
 namespace bm {
 
+class Controller;
+
 class Player : public Entity {
   friend class Entity;
 
@@ -37,7 +39,7 @@ class Player : public Entity {
   };
 
  public:
-  Player(WorldManager* world_manager, uint32_t id, const b2Vec2& position);
+  Player(Controller* controller, uint32_t id, const b2Vec2& position);
   virtual ~Player();
 
   virtual Entity::Type GetType();

@@ -15,17 +15,19 @@
 
 namespace bm {
 
+class Controller;
+
 class Activator : public Entity {
   friend class Entity;
 
  public:
   enum Type {
-  	TYPE_DOOR
+    TYPE_DOOR
   };
 
  public:
   Activator(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     const b2Vec2& position,
     Type type);
@@ -49,7 +51,7 @@ class Activator : public Entity {
   virtual void Collide(Activator* other);
 
  protected:
-	Type type_;
+  Type type_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Activator);

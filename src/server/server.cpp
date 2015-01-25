@@ -24,9 +24,10 @@
 #include "base/time.h"
 
 #include "server/client_manager.h"
+#include "server/controller.h"
 #include "server/entity.h"
 #include "server/id_manager.h"
-#include "server/world_manager.h"
+
 
 #include "server/bullet.h"
 #include "server/dummy.h"
@@ -36,8 +37,8 @@
 
 namespace bm {
 
-Server::Server() : state_(STATE_FINALIZED), host_(NULL), event_(NULL),
-  world_manager_(&id_manager_) { }
+Server::Server() : controller_(&id_manager_),
+  state_(STATE_FINALIZED), host_(NULL), event_(NULL) { }
 
 Server::~Server() {
   if (state_ == STATE_INITIALIZED) {
@@ -64,7 +65,7 @@ bool Server::Initialize() {
   event_ = NULL;
 
   std::string map_file = settings_.GetString("server.map");
-  if (!world_manager_.LoadMap(map_file)) {
+  if (!controller_.GetWorld()->LoadMap(map_file)) {
     return false;
   }
 
@@ -150,7 +151,7 @@ bool Server::Tick() {
 
 bool Server::BroadcastDynamicEntities() {
   std::map<uint32_t, Entity*>* _entities =
-    _entities = world_manager_.GetDynamicEntities();
+    _entities = controller_.GetWorld()->GetDynamicEntities();
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _entities->end();
   for (itr = _entities->begin(); itr != end; ++itr) {
@@ -166,7 +167,7 @@ bool Server::BroadcastDynamicEntities() {
 
 bool Server::BroadcastStaticEntities(bool force) {
   std::map<uint32_t, Entity*>* _entities =
-    _entities = world_manager_.GetStaticEntities();
+    _entities = controller_.GetWorld()->GetStaticEntities();
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = _entities->end();
   for (itr = _entities->begin(); itr != end; ++itr) {
@@ -185,7 +186,7 @@ bool Server::BroadcastStaticEntities(bool force) {
 }
 
 bool Server::BroadcastGameEvents() {
-  std::vector<GameEvent> *events = world_manager_.GetGameEvents();
+  std::vector<GameEvent> *events = controller_.GetGameEvents();
   std::vector<GameEvent>::iterator it;
   for (it = events->begin(); it != events->end(); ++it) {
     bool rv = BroadcastPacket(host_, Packet::TYPE_GAME_EVENT, *it, true);
@@ -198,29 +199,7 @@ bool Server::BroadcastGameEvents() {
 }
 
 bool Server::UpdateWorld() {
-  world_manager_.Update(update_timeout_);
-  if (!DeleteDestroyedEntities()) {
-    return false;
-  }
-  return true;
-}
-
-bool Server::DeleteDestroyedEntities() {
-  std::vector<uint32_t> destroyed_entities;
-  world_manager_.GetDestroyedEntities(&destroyed_entities);
-
-  size_t size = destroyed_entities.size();
-  for (size_t i = 0; i < size; i++) {
-    uint32_t id = destroyed_entities[i];
-    bool rv = BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
-      world_manager_.GetEntity(id));
-    if (rv == false) {
-      return false;
-    }
-  }
-
-  world_manager_.DeleteEntities(destroyed_entities, true);
-
+  controller_.Update(Timestamp(), update_timeout_);
   return true;
 }
 
@@ -279,13 +258,8 @@ bool Server::OnDisconnect() {
   uint32_t id = static_cast<uint32_t>(reinterpret_cast<size_t>(peer_data));
   Client* client = client_manager_.GetClient(id);
 
-  bool rv = BroadcastEntityRelatedMessage(Packet::TYPE_ENTITY_DISAPPEARED,
-    client->entity);
-  if (rv == false) {
-    return false;
-  }
+  controller_.OnPlayerDisconnected(client->entity);
 
-  client->entity->Destroy();
   client_manager_.DeleteClient(id, true);
 
   printf("#%u: Client from %s:%u disconnected.\n", id,
@@ -356,7 +330,7 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
-      world_manager_.OnKeyboardEvent(client->entity, keyboard_event_);
+      controller_.OnKeyboardEvent(client->entity, keyboard_event_);
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
@@ -367,7 +341,7 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
-      world_manager_.OnMouseEvent(client->entity, mouse_event);
+      controller_.OnMouseEvent(client->entity, mouse_event);
     } break;
 
     case Packet::TYPE_PLAYER_ACTION: {
@@ -378,7 +352,7 @@ bool Server::OnReceive() {
         client_manager_.DisconnectClient(id);
         return true;
       }
-      world_manager_.OnPlayerAction(client->entity, action);
+      controller_.OnPlayerAction(client->entity, action);
     } break;
 
 
@@ -412,21 +386,13 @@ bool Server::OnLogin(uint32_t client_id) {
 
   // Create player.
 
-  // XXX(xairy): move player creation to WorldManager?
-  Player* player = new Player(
-    &world_manager_,
-    client_id,
-    b2Vec2(0.0f, 0.0f));
-  CHECK(player != NULL);
-  world_manager_.RespawnPlayer(player);
+  Player* player = controller_.OnPlayerConnected();
 
   login_data.login[LoginData::MAX_LOGIN_LENGTH] = '\0';
   std::string login(&login_data.login[0]);
   Client* client = new Client(peer, player, login);
   CHECK(client != NULL);
-
   client_manager_.AddClient(client_id, client);
-  world_manager_.AddEntity(client_id, player);
 
   if (!SendClientOptions(client)) {
     return false;
@@ -511,7 +477,6 @@ bool Server::OnClientStatus(uint32_t client_id) {
 bool Server::BroadcastEntityRelatedMessage(Packet::Type packet_type,
     Entity* entity) {
   CHECK(packet_type == Packet::TYPE_ENTITY_APPEARED ||
-    packet_type == Packet::TYPE_ENTITY_DISAPPEARED ||
     packet_type == Packet::TYPE_ENTITY_UPDATED);
 
   EntitySnapshot snapshot;

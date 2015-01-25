@@ -14,17 +14,18 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/world_manager.h"
+#include "server/controller.h"
+#include "server/entity.h"
 
 namespace bm {
 
 Player::Player(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     const b2Vec2& position
-) : Entity(world_manager, id, "player", position, Entity::FILTER_PLAYER,
+) : Entity(controller, id, "player", position, Entity::FILTER_PLAYER,
            Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
-  SettingsManager* settings = world_manager->GetSettings();
+  SettingsManager* settings = controller->GetSettings();
   _speed = settings->GetFloat("player.speed");
 
   _score = 0;

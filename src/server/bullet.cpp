@@ -14,20 +14,20 @@
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
 
-#include "server/world_manager.h"
+#include "server/controller.h"
 
 namespace bm {
 
 Bullet::Bullet(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
   Type type
-) : Entity(world_manager, id, "bullet", start, Entity::FILTER_BULLET,
+) : Entity(controller, id, "bullet", start, Entity::FILTER_BULLET,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = world_manager->GetSettings();
+  SettingsManager* settings = controller->GetSettings();
   float speed = settings->GetFloat("bullet.speed");
 
   b2Vec2 velocity = end - start;

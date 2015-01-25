@@ -15,13 +15,15 @@
 
 namespace bm {
 
+class Controller;
+
 // TODO(xairy): rename to Zombie.
 class Dummy : public Entity {
   friend class Entity;
 
  public:
   Dummy(
-    WorldManager* world_manager,
+    Controller* controller,
     uint32_t id,
     const b2Vec2& position);
   virtual ~Dummy();

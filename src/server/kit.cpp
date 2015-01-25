@@ -13,18 +13,19 @@
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
-#include "server/world_manager.h"
+#include "server/controller.h"
+#include "server/entity.h"
 
 namespace bm {
 
 Kit::Kit(
-  WorldManager* world_manager,
+  Controller* controller,
   uint32_t id,
   const b2Vec2& position,
   int health_regeneration,
   int energy_regeneration,
   Type type
-) : Entity(world_manager, id, TypeToEntityName(type), position,
+) : Entity(controller, id, TypeToEntityName(type), position,
            Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
