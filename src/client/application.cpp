@@ -1176,7 +1176,7 @@ bool Application::OnActivateAction() {
   }
 
   printf("! Activate: %u %d\n", entity->GetId(),
-    static_cast<int>(entity->GetType());
+    static_cast<int>(entity->GetType()));
   return true;
 }
 
