@@ -59,7 +59,7 @@ If the packet is not available, see the instructions below
     sudo apt-get install premake4
     ```
     
-    If the packet is not available, get the binary from http://industriousone.com/premake/download
+    If the packet is not available, get the binary from http://industriousone.com/premake/download.
 
 8. Generate project files:
     ```
@@ -83,7 +83,7 @@ On x64 system:
 
 3. Download premake4.exe from http://industriousone.com/premake/download.
 
-4. Run "premake4.exe vs2008".
+4. Run `premake4.exe vs2008`.
 
 5. Build build\blowmorph.sln.
     
@@ -116,14 +116,14 @@ On x64 system:
 ### Box2D-2.3.0
 
 1. Install cmake
-```
-sudo apt-get install cmake
-```
+    ```
+    sudo apt-get install cmake
+    ```
 
 2. Install the required dependencies
-```
-sudo apt-get install freeglut3-dev libxi-dev
-```
+    ```
+    sudo apt-get install freeglut3-dev libxi-dev
+    ```
 
 3. Download Box2D-2.3.0 source from https://box2d.googlecode.com/files/Box2D_v2.3.0.7z and extract.
 
@@ -150,23 +150,23 @@ sudo apt-get install freeglut3-dev libxi-dev
 How to install wxFormBuilder:
 
 1. Add PPA for wxWidgets v3.0:
-```
-sudo add-apt-repository -y ppa:wxformbuilder/wxwidgets
-sudo apt-get update
-```
+    ```
+    sudo add-apt-repository -y ppa:wxformbuilder/wxwidgets
+    sudo apt-get update
+    ```
 
 2. Install prerequisites:
-```
-sudo apt-get install libwxgtk3.0-0 libwxgtk-media3.0-0
-```
+    ```
+    sudo apt-get install libwxgtk3.0-0 libwxgtk-media3.0-0
+    ```
 
 3. Add PPA for wxFormBuilder:
-```
-sudo add-apt-repository -y ppa:wxformbuilder/release
-sudo apt-get update
-```
+    ```
+    sudo add-apt-repository -y ppa:wxformbuilder/release
+    sudo apt-get update
+    ```
 
 4. Install wxFormBuilder:
-```
-sudo apt-get install wxformbuilder
-```
+    ```
+    sudo apt-get install wxformbuilder
+    ```
