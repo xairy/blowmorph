@@ -11,24 +11,24 @@ A demo can be found in the Releases section.
 
 ## Running
 
-To run the client:
+To run the client run:
 ```
 ./launcher.sh
 ```
 
-To run server configure blowmorph/data/server.cfg and then:
+To run the server configure blowmorph/data/server.cfg and run:
 ```
 ./server.sh
 ```
 
-To run master server configure blowmorph/data/master-server.cfg and then:
+To run the master server configure blowmorph/data/master-server.cfg and run:
 ```
 ./master-server.sh
 ```
 
 ## Building
 
-How to build on Ubuntu:
+### Ubuntu
 
 1. Install SFML-2.2 from http://www.sfml-dev.org/. See the instructions below.
 
@@ -75,7 +75,21 @@ On x64 system:
     cd build; make config=release64
     ```
 
-How to install SFML-2.2:
+### Windows
+
+1. Install Python 2.7.6.
+
+2. Download third-party.zip and extract in the blowmorph folder.
+
+3. Download premake4.exe from http://industriousone.com/premake/download.
+
+4. Run "premake4.exe vs2008".
+
+5. Build build\blowmorph.sln.
+    
+## Building dependencies
+
+### SFML-2.2
 
 1. Install cmake:
     ```
@@ -99,7 +113,7 @@ How to install SFML-2.2:
     sudo make install
     ```
 
-How to install Box2D-2.3.0:
+### Box2D-2.3.0
 
 1. Install cmake
 ```
@@ -121,7 +135,7 @@ sudo apt-get install freeglut3-dev libxi-dev
     sudo make install
     ```
 
-How to install pugixml-1.2:
+### pugixml-1.2
 
 1. Download pugixml-1.2.tar.gz from https://github.com/zeux/pugixml/releases and extract.
 
@@ -156,10 +170,3 @@ sudo apt-get update
 ```
 sudo apt-get install wxformbuilder
 ```
-
-How to build under Microsoft Windows, Visual Studio 2008:
-1. Install Python 2.7.6.
-2. Download third-party.zip and extract in the blowmorph folder.
-3. Download premake4.exe from http://industriousone.com/premake/download.
-4. Run "premake4.exe vs2008".
-5. Build build\blowmorph.sln.
