@@ -1,4 +1,9 @@
-﻿A simple crossplatform 2D multiplayer shooter.
+﻿Blowmorph
+=========
+
+[![Build Status](https://travis-ci.org/bmteam/blowmorph.svg?branch=master)](https://travis-ci.org/bmteam/blowmorph)
+
+A simple crossplatform 2D multiplayer shooter.
 
 More infromation is available in the Wiki.
 
