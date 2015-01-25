@@ -43,7 +43,7 @@ install:
   # pugixml 1.5
   - wget https://github.com/zeux/pugixml/releases/download/v1.5/pugixml-1.5.zip
   - unzip pugixml-1.5.zip
-  - cd pugixml-1.2/scripts/
+  - cd pugixml-1.5/scripts/
   - mkdir build && cd build/
   - cmake ..
   - make
