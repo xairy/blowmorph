@@ -43,11 +43,10 @@ install:
   # libconfig
   - sudo apt-get install libconfig-dev libconfig++-dev
 
-  # premake
+before_script:
   - wget http://downloads.sourceforge.net/project/premake/Premake/4.3/premake-4.3-linux.tar.gz
   - tar -xf premake-4.3-linux.tar.gz
-
-before_script:
+  - ls
   - ./premake4 gmake
 
 script:
