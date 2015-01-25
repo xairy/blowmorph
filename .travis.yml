@@ -44,9 +44,9 @@ install:
   - sudo apt-get install libconfig-dev libconfig++-dev
 
 before_script:
+  - sudo apt-get install ia32-libs
   - wget http://downloads.sourceforge.net/project/premake/Premake/4.3/premake-4.3-linux.tar.gz
   - tar -xvf premake-4.3-linux.tar.gz
-  - file premake4
   - ./premake4 gmake
 
 script:
