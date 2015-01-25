@@ -21,6 +21,7 @@ install:
   - cmake ..
   - make
   - sudo make install
+  - cd ../../
 
   # Box2D 2.3.0
   - sudo apt-get install freeglut3-dev libxi-dev
@@ -32,6 +33,7 @@ install:
   - cmake -DBOX2D_INSTALL=ON -DBOX2D_BUILD_SHARED=ON ..
   - make
   - sudo make install
+  - cd ../../../
 
   # EnetPlus
   - sudo apt-get install libenet1a libenet-dev
@@ -48,6 +50,7 @@ install:
   - cmake ..
   - make
   - sudo make install
+  - cd ../../../
 
   # libconfig
   - sudo apt-get install libconfig-dev libconfig++-dev
