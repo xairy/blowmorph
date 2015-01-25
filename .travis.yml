@@ -40,14 +40,23 @@ install:
   - sudo dpkg -i libenet-plus_0.1-1_amd64.deb
   - sudo dpkg -i libenet-plus-dev_0.1-1_amd64.deb
 
+  # pugixml 1.5
+  - wget https://github.com/zeux/pugixml/releases/download/v1.5/pugixml-1.5.zip
+  - unzip pugixml-1.5.zip
+  - cd pugixml-1.2/scripts/
+  - mkdir build && cd build/
+  - cmake ..
+  - make
+  - sudo make install
+
   # libconfig
   - sudo apt-get install libconfig-dev libconfig++-dev
 
 before_script:
-  - sudo apt-get install ia32-libs
-  - wget http://downloads.sourceforge.net/project/premake/Premake/4.3/premake-4.3-linux.tar.gz
-  - tar -xvf premake-4.3-linux.tar.gz
-  - ./premake4 gmake
+  - sudo add-apt-repository ppa:codegear/release -y
+  - sudo apt-get update -q
+  - sudo apt-get install premake4
+  - premake4 gmake
 
 script:
   - cd build
