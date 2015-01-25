@@ -87,7 +87,7 @@ On x64 system:
 
 5. Build build\blowmorph.sln.
     
-## Building dependencies
+## Installing dependencies
 
 ### SFML-2.2
 
@@ -115,12 +115,12 @@ On x64 system:
 
 ### Box2D-2.3.0
 
-1. Install cmake
+1. Install cmake:
     ```
     sudo apt-get install cmake
     ```
 
-2. Install the required dependencies
+2. Install the required dependencies:
     ```
     sudo apt-get install freeglut3-dev libxi-dev
     ```
@@ -147,7 +147,7 @@ On x64 system:
     sudo make install
     ```
 
-How to install wxFormBuilder:
+### wxFormBuilder
 
 1. Add PPA for wxWidgets v3.0:
     ```
