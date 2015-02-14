@@ -840,7 +840,9 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
 
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
-  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
+  // FIXME(xairy): add is_static flag.
+  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR) {
     static_entities_[snapshot->id]->GetBody()->SetPosition(position);
   } else {
     int64_t server_time = GetServerTime();
@@ -848,12 +850,11 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
       // Ignore snapshots that are too old.
       return;
     }
+    CHECK(dynamic_entities_.count(snapshot->id) == 1);
     dynamic_entities_[snapshot->id]->SetInterpolationPosition(position,
         snapshot->time, interpolation_offset_, server_time);
-
     // FIXME(xairy): ignoring angle on entity appearance.
     dynamic_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
-
     // TODO(xairy): use SetInterpolationRotation.
     // dynamic_entities_[snapshot->id]->SetInterpolationRotation(
     //   snapshot->angle, snapshot->time, interpolation_offset_, server_time);
