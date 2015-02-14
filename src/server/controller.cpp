@@ -33,7 +33,9 @@ namespace bm {
 
 Controller::Controller(IdManager* id_manager) : world_(this, id_manager) {
   world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
-  bool rv = settings_.Open("data/entities.cfg");
+  bool rv = entity_settings_.Open("data/entities.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+  rv = gun_settings_.Open("data/guns.cfg");
   CHECK(rv == true);  // FIXME(xairy).
 }
 
@@ -43,8 +45,8 @@ World* Controller::GetWorld() {
   return &world_;
 }
 
-SettingsManager* Controller::GetSettings() {
-  return &settings_;
+SettingsManager* Controller::GetEntitySettings() {
+  return &entity_settings_;
 }
 
 std::vector<GameEvent>* Controller::GetGameEvents() {
@@ -140,9 +142,9 @@ void Controller::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
 
 void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
   int bazooka_consumption =
-      settings_.GetInt32("player.bazooka.energy_consumption");
+      gun_settings_.GetInt32("bazooka.energy_consumption");
   int morpher_consumption =
-      settings_.GetInt32("player.morpher.energy_consumption");
+      gun_settings_.GetInt32("morpher.energy_consumption");
 
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
     event.button_type == MouseEvent::BUTTON_LEFT) {
@@ -413,8 +415,8 @@ void Controller::ExplodeCritter(Critter* critter) {
 }
 
 void Controller::MakeExplosion(const b2Vec2& location, uint32_t source_id) {
-  float radius = settings_.GetFloat("player.bazooka.explosion_radius");
-  int damage = settings_.GetInt32("player.bazooka.explosion_damage");
+  float radius = gun_settings_.GetFloat("bazooka.explosion_radius");
+  int damage = gun_settings_.GetInt32("bazooka.explosion_damage");
 
   // FIXME(xairy): can miss huge entities.
   radius += 13.0f;
@@ -445,7 +447,7 @@ void Controller::MakeExplosion(const b2Vec2& location, uint32_t source_id) {
 }
 
 void Controller::MakeSlimeExplosion(const b2Vec2& location) {
-  int radius = settings_.GetInt32("player.morpher.radius");
+  int radius = gun_settings_.GetInt32("morpher.radius");
   float block_size = world_.GetBlockSize();
   int lx = static_cast<int>(round(location.x / block_size));
   int ly = static_cast<int>(round(location.y / block_size));

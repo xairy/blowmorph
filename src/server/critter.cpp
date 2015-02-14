@@ -25,7 +25,7 @@ Critter::Critter(
   const b2Vec2& position
 ) : Entity(controller, id, "zombie", position, Entity::FILTER_BULLET,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = controller->GetSettings();
+  SettingsManager* settings = controller->GetEntitySettings();
   _speed = settings->GetFloat("zombie.speed");
   _target = NULL;
 }

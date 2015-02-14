@@ -32,7 +32,7 @@ class Controller {
   ~Controller();
 
   World* GetWorld();
-  SettingsManager* GetSettings();
+  SettingsManager* GetEntitySettings();
 
   // The list of the events should be cleared by the caller.
   std::vector<GameEvent>* GetGameEvents();
@@ -108,7 +108,8 @@ class Controller {
 
   std::vector<GameEvent> game_events_;
 
-  SettingsManager settings_;
+  SettingsManager entity_settings_;
+  SettingsManager gun_settings_;
 };
 
 }  // namespace bm

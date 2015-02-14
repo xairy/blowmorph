@@ -25,7 +25,7 @@ Player::Player(
     const b2Vec2& position
 ) : Entity(controller, id, "player", position, Entity::FILTER_PLAYER,
            Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
-  SettingsManager* settings = controller->GetSettings();
+  SettingsManager* settings = controller->GetEntitySettings();
   _speed = settings->GetFloat("player.speed");
 
   _score = 0;

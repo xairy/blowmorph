@@ -27,7 +27,7 @@ Bullet::Bullet(
   Type type
 ) : Entity(controller, id, "bullet", start, Entity::FILTER_BULLET,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = controller->GetSettings();
+  SettingsManager* settings = controller->GetEntitySettings();
   float speed = settings->GetFloat("bullet.speed");
 
   b2Vec2 velocity = end - start;

@@ -40,7 +40,7 @@ Entity::Entity(
     _id(id),
     _is_destroyed(false),
     _is_updated(true) {
-  SettingsManager* entity_settings = controller_->GetSettings();
+  SettingsManager* entity_settings = controller_->GetEntitySettings();
   std::string body_config = entity_settings->GetString(entity_config + ".body");
 
   // XXX(xairy): some kind of body manager?
