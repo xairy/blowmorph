@@ -24,12 +24,22 @@ Kit::Kit(
   const b2Vec2& position,
   int health_regeneration,
   int energy_regeneration,
-  Type type
-) : Entity(controller, id, TypeToEntityName(type), position, Entity::FILTER_KIT,
+  const std::string& config_name
+) : Entity(controller, id, config_name, position, Entity::FILTER_KIT,
            Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
-  _type = type;
+  SettingsManager* entity_settings = controller->GetEntitySettings();
+  std::string type_name = entity_settings->GetString(config_name + ".type");
+  if (type_name == "health") {
+    _type = TYPE_HEALTH;
+  } else if (type_name == "energy") {
+    _type = TYPE_ENERGY;
+  } else if (type_name == "composite") {
+    _type = TYPE_COMPOSITE;
+  } else {
+    CHECK(false);  // Unreachable.
+  }
 }
 
 Kit::~Kit() { }

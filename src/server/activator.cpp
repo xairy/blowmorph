@@ -19,10 +19,16 @@ Activator::Activator(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  Type type
-) : Entity(controller, id, "door", position,
+  const std::string& config_name
+) : Entity(controller, id, config_name, position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  // FIXME(xairy): entity config depends on entity type.
+  SettingsManager* entity_settings = controller->GetEntitySettings();
+  std::string type_name = entity_settings->GetString(config_name + ".type");
+  if (type_name == "door") {
+    type_ = TYPE_DOOR;
+  } else {
+    CHECK(false);  // Unreachable.
+  }
 }
 
 Activator::~Activator() { }

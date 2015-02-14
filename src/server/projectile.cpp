@@ -24,11 +24,11 @@ Projectile::Projectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
-  Type type
-) : Entity(controller, id, "bullet", start, Entity::FILTER_PROJECTILE,
+  const std::string& config_name
+) : Entity(controller, id, config_name, start, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = controller->GetEntitySettings();
-  float speed = settings->GetFloat("bullet.speed");
+  SettingsManager* entity_settings = controller->GetEntitySettings();
+  float speed = entity_settings->GetFloat(config_name + ".speed");
 
   b2Vec2 velocity = end - start;
   velocity.Normalize();
@@ -36,7 +36,15 @@ Projectile::Projectile(
   body_->ApplyImpulse(body_->GetMass() * velocity);
 
   _owner_id = owner_id;
-  _type = type;
+
+  std::string type_name = entity_settings->GetString(config_name + ".type");
+  if (type_name == "rocket") {
+    _type = TYPE_ROCKET;
+  } else if (type_name == "slime") {
+    _type = TYPE_SLIME;
+  } else {
+    CHECK(false);  // Unreachable.
+  }
 }
 
 Projectile::~Projectile() { }

@@ -70,6 +70,9 @@ void Controller::Update(int64_t time, int64_t time_delta) {
 }
 
 Player* Controller::OnPlayerConnected() {
+  // FIXME(xairy): Temporary.
+  world_.CreateActivator(b2Vec2(0, 0), "door");
+
   Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f));
   RespawnPlayer(player);
   OnEntityAppearance(player);
@@ -153,7 +156,7 @@ void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       Projectile* projectile = world_.CreateProjectile(player->GetId(),
-          start, end, Projectile::TYPE_ROCKET);
+          start, end, "rocket");
       OnEntityAppearance(projectile);
     }
   }
@@ -164,7 +167,7 @@ void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       Projectile* projectile = world_.CreateProjectile(player->GetId(),
-          start, end, Projectile::TYPE_SLIME);
+          start, end, "slime");
       OnEntityAppearance(projectile);
     }
   }
@@ -254,7 +257,7 @@ void Controller::SpawnZombies() {
   if (counter == 300) {
     float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
     float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    Critter* critter = world_.CreateCritter(b2Vec2(x, y));
+    Critter* critter = world_.CreateCritter(b2Vec2(x, y), "zombie");
     OnEntityAppearance(critter);
     counter = 0;
   }
@@ -455,7 +458,7 @@ void Controller::MakeSlimeExplosion(const b2Vec2& location) {
     for (int y = -radius; y <= radius; y++) {
       if (x * x + y * y <= radius * radius) {
         Wall* wall = world_.CreateWall(b2Vec2((lx + x) * block_size,
-          (ly + y) * block_size), Wall::TYPE_MORPHED);
+          (ly + y) * block_size), "morphed_wall");
         OnEntityAppearance(wall);
       }
     }

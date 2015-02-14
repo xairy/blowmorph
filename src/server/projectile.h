@@ -32,7 +32,7 @@ class Projectile : public Entity {
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
-    Type type);
+    const std::string& config_name);
   virtual ~Projectile();
 
   virtual Entity::Type GetType();

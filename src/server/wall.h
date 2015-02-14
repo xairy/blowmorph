@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef SERVER_WALL_H_
 #define SERVER_WALL_H_
@@ -31,7 +31,7 @@ class Wall : public Entity {
     Controller* controller,
     uint32_t id,
     const b2Vec2& position,
-    Type type);
+    const std::string& config_name);
   virtual ~Wall();
 
   virtual Entity::Type GetType();
@@ -52,11 +52,8 @@ class Wall : public Entity {
   virtual void Collide(Kit* other);
   virtual void Collide(Activator* other);
 
- protected:
-  Type _type;
-
  private:
-  std::string TypeToEntityName(Type type);
+  Type _type;
 
   DISALLOW_COPY_AND_ASSIGN(Wall);
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "server/wall.h"
 
@@ -23,10 +23,20 @@ Wall::Wall(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  Type type
-) : Entity(controller, id, TypeToEntityName(type), position,
+  const std::string& config_name
+) : Entity(controller, id, config_name, position,
            Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  _type = type;
+  SettingsManager* entity_settings = controller->GetEntitySettings();
+  std::string type_name = entity_settings->GetString(config_name + ".type");
+  if (type_name == "ordinary") {
+    _type = TYPE_ORDINARY;
+  } else if (type_name == "unbreakable") {
+    _type = TYPE_UNBREAKABLE;
+  } else if (type_name == "morphed") {
+    _type = TYPE_MORPHED;
+  } else {
+    CHECK(false);  // Unreachable.
+  }
 }
 
 Wall::~Wall() { }
@@ -85,19 +95,6 @@ void Wall::Collide(Kit* other) {
 }
 void Wall::Collide(Activator* other) {
   Entity::Collide(other, this);
-}
-
-std::string Wall::TypeToEntityName(Wall::Type type) {
-  switch (type) {
-    case Wall::TYPE_ORDINARY:
-      return "ordinary_wall";
-    case Wall::TYPE_UNBREAKABLE:
-      return "unbreakable_wall";
-    case Wall::TYPE_MORPHED:
-      return "morphed_wall";
-    default:
-      CHECK(false);
-  }
 }
 
 }  // namespace bm

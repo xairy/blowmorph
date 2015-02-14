@@ -15,6 +15,7 @@
 #define DEFINE_GET_METHOD(type, lookup_method, get_method) \
 type SettingsManager::get_method(const std::string& key) { \
   type result;                                             \
+  printf("Loading %s...\n", key.c_str());                  \
   bool rv = lookup_method(key, &result);                   \
   CHECK(rv == true);                                       \
   return result;                                           \

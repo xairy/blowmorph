@@ -55,24 +55,25 @@ class World {
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
-    Projectile::Type type);
+    const std::string& config_name);
 
   Critter* CreateCritter(
-    const b2Vec2& position);
+    const b2Vec2& position,
+    const std::string& config_name);
 
   Wall* CreateWall(
     const b2Vec2& position,
-    Wall::Type type);
+    const std::string& config_name);
 
   Kit* CreateKit(
     const b2Vec2& position,
     int health_regeneration,
     int energy_regeneration,
-    Kit::Type type);
+    const std::string& config_name);
 
   Activator* CreateActivator(
     const b2Vec2& position,
-    Activator::Type type);
+    const std::string& config_name);
 
   std::vector<b2Vec2>* GetSpawnPositions();
 
@@ -84,7 +85,6 @@ class World {
   bool LoadSpawn(const pugi::xml_node& node);
   bool LoadKit(const pugi::xml_node& node);
 
-  bool LoadWallType(const pugi::xml_attribute& attribute, Wall::Type* output);
   bool LoadKitType(const pugi::xml_attribute& attr, Kit::Type* output);
 
   b2World world_;

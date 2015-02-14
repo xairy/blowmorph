@@ -86,9 +86,6 @@ void World::RemoveEntity(uint32_t id) {
 }
 
 Player* World::CreatePlayer(const b2Vec2& position) {
-  // FIXME(xairy): Temporary.
-  CreateActivator(b2Vec2(0, 0), Activator::TYPE_DOOR);
-
   uint32_t id = id_manager_->NewId();
   Player* player = new Player(controller_, id, position);
   CHECK(player != NULL);
@@ -100,23 +97,24 @@ Projectile* World::CreateProjectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
-  Projectile::Type type
+  const std::string& config_name
 ) {
   CHECK(static_entities_.count(owner_id) +
     dynamic_entities_.count(owner_id) == 1);
   uint32_t id = id_manager_->NewId();
   Projectile* projectile = new Projectile(controller_,
-    id, owner_id, start, end, type);
+    id, owner_id, start, end, config_name);
   CHECK(projectile != NULL);
   AddEntity(id, projectile);
   return projectile;
 }
 
 Critter* World::CreateCritter(
-  const b2Vec2& position
+  const b2Vec2& position,
+  const std::string& config_name
 ) {
   uint32_t id = id_manager_->NewId();
-  Critter* critter = new Critter(controller_, id, position);
+  Critter* critter = new Critter(controller_, id, position, config_name);
   CHECK(critter != NULL);
   AddEntity(id, critter);
   return critter;
@@ -124,10 +122,10 @@ Critter* World::CreateCritter(
 
 Wall* World::CreateWall(
   const b2Vec2& position,
-  Wall::Type type
+  const std::string& config_name
 ) {
   uint32_t id = id_manager_->NewId();
-  Wall* wall = new Wall(controller_, id, position, type);
+  Wall* wall = new Wall(controller_, id, position, config_name);
   CHECK(wall != NULL);
   AddEntity(id, wall);
   return wall;
@@ -137,11 +135,11 @@ Kit* World::CreateKit(
   const b2Vec2& position,
   int health_regeneration,
   int energy_regeneration,
-  Kit::Type type
+  const std::string& config_name
 ) {
   uint32_t id = id_manager_->NewId();
-  Kit* kit = new Kit(controller_, id, position, health_regeneration,
-    energy_regeneration, type);
+  Kit* kit = new Kit(controller_, id, position,
+      health_regeneration, energy_regeneration, config_name);
   CHECK(kit != NULL);
   AddEntity(id, kit);
   return kit;
@@ -149,10 +147,10 @@ Kit* World::CreateKit(
 
 Activator* World::CreateActivator(
   const b2Vec2& position,
-  Activator::Type type
+  const std::string& config_name
 ) {
   uint32_t id = id_manager_->NewId();
-  Activator* activator = new Activator(controller_, id, position, type);
+  Activator* activator = new Activator(controller_, id, position, config_name);
   CHECK(activator != NULL);
   AddEntity(id, activator);
   return activator;
@@ -236,13 +234,9 @@ bool World::LoadWall(const pugi::xml_node& node) {
     THROW_ERROR("Incorrect format of 'wall' in map file!\n");
     return false;
   } else {
-    Wall::Type type_value;
-    bool rv = LoadWallType(type, &type_value);
-    if (rv == false) {
-      return false;
-    }
+    CHECK(std::string(type.name()) == "type");
     CreateWall(b2Vec2(x.as_int() * block_size_, y.as_int() * block_size_),
-        type_value);
+        std::string(type.value()) + "_wall");
   }
 
   return true;
@@ -264,15 +258,11 @@ bool World::LoadChunk(const pugi::xml_node& node) {
     int yv = y.as_int();
     int wv = width.as_int();
     int hv = height.as_int();
-    Wall::Type type_value;
-    bool rv = LoadWallType(type, &type_value);
-    if (rv == false) {
-      return false;
-    }
+    CHECK(std::string(type.name()) == "type");
     for (int i = 0; i < wv; i++) {
       for (int j = 0; j < hv; j++) {
         CreateWall(b2Vec2((xv + i) * block_size_, (yv + j) * block_size_),
-            type_value);
+            std::string(type.value()) + "_wall");
       }
     }
   }
@@ -313,46 +303,10 @@ bool World::LoadKit(const pugi::xml_node& node) {
     float y = y_attr.as_float();
     int hr = hr_attr.as_int();
     int er = er_attr.as_int();
-    Kit::Type type;
-    bool rv = LoadKitType(type_attr, &type);
-    if (rv == false) {
-      return false;
-    }
-    CreateKit(b2Vec2(x, y), hr, er, type);
+    CHECK(std::string(type_attr.name()) == "type");
+    CreateKit(b2Vec2(x, y), hr, er, std::string(type_attr.value()) + "_kit");
   }
 
-  return true;
-}
-
-bool World::LoadWallType(const pugi::xml_attribute& attribute,
-    Wall::Type* output) {
-  CHECK(std::string(attribute.name()) == "type");
-  if (std::string(attribute.value()) == "ordinary") {
-    *output = Wall::TYPE_ORDINARY;
-  } else if (std::string(attribute.value()) == "unbreakable") {
-    *output = Wall::TYPE_UNBREAKABLE;
-  } else if (std::string(attribute.value()) == "morphed") {
-    *output = Wall::TYPE_MORPHED;
-  } else {
-    THROW_ERROR("Incorrect wall type in map file!\n");
-    return false;
-  }
-  return true;
-}
-
-bool World::LoadKitType(const pugi::xml_attribute& attribute,
-    Kit::Type* output) {
-  CHECK(std::string(attribute.name()) == "type");
-  if (std::string(attribute.value()) == "health") {
-    *output = Kit::TYPE_HEALTH;
-  } else if (std::string(attribute.value()) == "energy") {
-    *output = Kit::TYPE_ENERGY;
-  } else if (std::string(attribute.value()) == "composite") {
-    *output = Kit::TYPE_COMPOSITE;
-  } else {
-    THROW_ERROR("Incorrect kit type in map file!\n");
-    return false;
-  }
   return true;
 }
 

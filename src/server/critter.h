@@ -21,10 +21,16 @@ class Critter : public Entity {
   friend class Entity;
 
  public:
+  enum Type {
+    TYPE_ZOMBIE
+  };
+
+ public:
   Critter(
     Controller* controller,
     uint32_t id,
-    const b2Vec2& position);
+    const b2Vec2& position,
+    const std::string& config_name);
   virtual ~Critter();
 
   virtual Entity::Type GetType();
@@ -53,6 +59,7 @@ class Critter : public Entity {
  protected:
   float _speed;
   Entity* _target;
+  Type type_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Critter);

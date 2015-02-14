@@ -730,7 +730,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
       switch (snapshot->data[0]) {
         case EntitySnapshot::PROJECTILE_TYPE_ROCKET: {
-          entity_config = "bullet";
+          entity_config = "rocket";
         } break;
         case EntitySnapshot::PROJECTILE_TYPE_SLIME: {
           entity_config = "slime";

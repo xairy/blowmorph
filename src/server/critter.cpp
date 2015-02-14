@@ -22,12 +22,19 @@ namespace bm {
 Critter::Critter(
   Controller* controller,
   uint32_t id,
-  const b2Vec2& position
-) : Entity(controller, id, "zombie", position, Entity::FILTER_PROJECTILE,
+  const b2Vec2& position,
+  const std::string& config_name
+) : Entity(controller, id, config_name, position, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* settings = controller->GetEntitySettings();
-  _speed = settings->GetFloat("zombie.speed");
+  SettingsManager* entity_settings = controller->GetEntitySettings();
+  _speed = entity_settings->GetFloat(config_name + ".speed");
   _target = NULL;
+  std::string type_name = entity_settings->GetString(config_name + ".type");
+  if (type_name == "zombie") {
+    type_ = TYPE_ZOMBIE;
+  } else {
+    CHECK(false);  // Unreachable.
+  }
 }
 
 Critter::~Critter() { }

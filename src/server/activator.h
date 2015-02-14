@@ -30,7 +30,7 @@ class Activator : public Entity {
     Controller* controller,
     uint32_t id,
     const b2Vec2& position,
-    Type type);
+    const std::string& config_name);
   virtual ~Activator();
 
   // Inherited from Entity.

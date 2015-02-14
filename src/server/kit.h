@@ -33,7 +33,7 @@ class Kit : public Entity {
     const b2Vec2& position,
     int health_regeneration,
     int energy_regeneration,
-    Type type);
+    const std::string& config_name);
   virtual ~Kit();
 
   virtual Entity::Type GetType();
