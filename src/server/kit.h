@@ -51,7 +51,7 @@ class Kit : public Entity {
   virtual void Collide(Entity* entity);
 
   virtual void Collide(Player* other);
-  virtual void Collide(Dummy* other);
+  virtual void Collide(Critter* other);
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);

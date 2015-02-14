@@ -85,7 +85,7 @@ void Bullet::Collide(Entity* entity) {
 void Bullet::Collide(Player* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Dummy* other) {
+void Bullet::Collide(Critter* other) {
   Entity::Collide(other, this);
 }
 void Bullet::Collide(Bullet* other) {

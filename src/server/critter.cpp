@@ -1,6 +1,6 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#include "server/dummy.h"
+#include "server/critter.h"
 
 #include <memory>
 #include <string>
@@ -19,7 +19,7 @@
 
 namespace bm {
 
-Dummy::Dummy(
+Critter::Critter(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position
@@ -30,18 +30,18 @@ Dummy::Dummy(
   _target = NULL;
 }
 
-Dummy::~Dummy() { }
+Critter::~Critter() { }
 
-Entity::Type Dummy::GetType() {
-  return Entity::TYPE_DUMMY;
+Entity::Type Critter::GetType() {
+  return Entity::TYPE_CRITTER;
 }
 
-bool Dummy::IsStatic() {
+bool Critter::IsStatic() {
   return false;
 }
 
-void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
-  output->type = EntitySnapshot::ENTITY_TYPE_DUMMY;
+void Critter::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  output->type = EntitySnapshot::ENTITY_TYPE_CRITTER;
   output->time = time;
   output->id = _id;
   output->x = body_->GetPosition().x;
@@ -49,42 +49,42 @@ void Dummy::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->angle = body_->GetRotation();
 }
 
-void Dummy::Damage(int damage, uint32_t source_id) {
+void Critter::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
-float Dummy::GetSpeed() const {
+float Critter::GetSpeed() const {
   return _speed;
 }
 
-Entity* Dummy::GetTarget() const {
+Entity* Critter::GetTarget() const {
   return _target;
 }
 
-void Dummy::SetTarget(Entity* target) {
+void Critter::SetTarget(Entity* target) {
   _target = target;
 }
 
-void Dummy::Collide(Entity* entity) {
+void Critter::Collide(Entity* entity) {
   entity->Collide(this);
 }
 
-void Dummy::Collide(Player* other) {
+void Critter::Collide(Player* other) {
   Entity::Collide(other, this);
 }
-void Dummy::Collide(Dummy* other) {
+void Critter::Collide(Critter* other) {
   Entity::Collide(other, this);
 }
-void Dummy::Collide(Bullet* other) {
+void Critter::Collide(Bullet* other) {
   Entity::Collide(this, other);
 }
-void Dummy::Collide(Wall* other) {
+void Critter::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
-void Dummy::Collide(Kit* other) {
+void Critter::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
-void Dummy::Collide(Activator* other) {
+void Critter::Collide(Activator* other) {
   Entity::Collide(other, this);
 }
 

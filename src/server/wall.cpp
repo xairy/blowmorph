@@ -71,7 +71,7 @@ void Wall::Collide(Entity* entity) {
 void Wall::Collide(Player* other) {
   Entity::Collide(this, other);
 }
-void Wall::Collide(Dummy* other) {
+void Wall::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
 void Wall::Collide(Bullet* other) {

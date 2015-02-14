@@ -19,7 +19,7 @@ namespace bm {
 class Controller;
 
 class Player;
-class Dummy;
+class Critter;
 class Bullet;
 class Wall;
 class Kit;
@@ -34,7 +34,7 @@ class Entity {
     TYPE_BULLET,
     TYPE_WALL,
     TYPE_KIT,
-    TYPE_DUMMY,
+    TYPE_CRITTER,
     TYPE_ACTIVATOR
   };
 
@@ -95,7 +95,7 @@ class Entity {
   virtual void Collide(Entity* entity) = 0;
 
   virtual void Collide(Player* other) = 0;
-  virtual void Collide(Dummy* other) = 0;
+  virtual void Collide(Critter* other) = 0;
   virtual void Collide(Bullet* other) = 0;
   virtual void Collide(Wall* other) = 0;
   virtual void Collide(Kit* other) = 0;
@@ -105,26 +105,26 @@ class Entity {
   static void Collide(Activator* first, Kit* second);
   static void Collide(Activator* first, Wall* second);
   static void Collide(Activator* first, Player* second);
-  static void Collide(Activator* first, Dummy* second);
+  static void Collide(Activator* first, Critter* second);
   static void Collide(Activator* first, Bullet* second);
 
   static void Collide(Kit* first, Kit* second);
   static void Collide(Kit* first, Wall* second);
   static void Collide(Kit* first, Player* second);
-  static void Collide(Kit* first, Dummy* second);
+  static void Collide(Kit* first, Critter* second);
   static void Collide(Kit* first, Bullet* second);
 
   static void Collide(Wall* first, Wall* second);
   static void Collide(Wall* first, Player* second);
-  static void Collide(Wall* first, Dummy* second);
+  static void Collide(Wall* first, Critter* second);
   static void Collide(Wall* first, Bullet* second);
 
   static void Collide(Player* first, Player* second);
-  static void Collide(Player* first, Dummy* second);
+  static void Collide(Player* first, Critter* second);
   static void Collide(Player* first, Bullet* second);
 
-  static void Collide(Dummy* first, Dummy* second);
-  static void Collide(Dummy* first, Bullet* second);
+  static void Collide(Critter* first, Critter* second);
+  static void Collide(Critter* first, Bullet* second);
 
   static void Collide(Bullet* first, Bullet* second);
 

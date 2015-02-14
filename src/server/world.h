@@ -18,7 +18,7 @@
 
 #include "server/activator.h"
 #include "server/bullet.h"
-#include "server/dummy.h"
+#include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
@@ -57,7 +57,7 @@ class World {
     const b2Vec2& end,
     Bullet::Type type);
 
-  Dummy* CreateDummy(
+  Critter* CreateCritter(
     const b2Vec2& position);
 
   Wall* CreateWall(

@@ -745,7 +745,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       entity_config = "player";
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_DUMMY: {
+    case EntitySnapshot::ENTITY_TYPE_CRITTER: {
       entity_config = "zombie";
     } break;
 
@@ -808,9 +808,9 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       dynamic_entities_[id] = object;
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_DUMMY: {
+    case EntitySnapshot::ENTITY_TYPE_CRITTER: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_DUMMY, world_, sprite, position, time);
+        Entity::TYPE_CRITTER, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;

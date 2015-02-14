@@ -77,7 +77,7 @@ void Kit::Collide(Entity* entity) {
 void Kit::Collide(Player* other) {
   Entity::Collide(this, other);
 }
-void Kit::Collide(Dummy* other) {
+void Kit::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
 void Kit::Collide(Bullet* other) {

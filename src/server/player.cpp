@@ -246,7 +246,7 @@ void Player::Collide(Entity* entity) {
 void Player::Collide(Player* other) {
   Entity::Collide(other, this);
 }
-void Player::Collide(Dummy* other) {
+void Player::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
 void Player::Collide(Bullet* other) {

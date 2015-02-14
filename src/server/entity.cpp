@@ -21,7 +21,7 @@
 
 #include "server/activator.h"
 #include "server/bullet.h"
-#include "server/dummy.h"
+#include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
@@ -134,7 +134,7 @@ void Entity::Collide(Activator* first, Wall* second) {
 void Entity::Collide(Activator* first, Player* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Activator* first, Dummy* second) {
+void Entity::Collide(Activator* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Activator* first, Bullet* second) {
@@ -150,7 +150,7 @@ void Entity::Collide(Kit* first, Wall* second) {
 void Entity::Collide(Kit* first, Player* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Kit* first, Dummy* second) {
+void Entity::Collide(Kit* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Kit* first, Bullet* second) {
@@ -163,7 +163,7 @@ void Entity::Collide(Wall* first, Wall* second) {
 void Entity::Collide(Wall* first, Player* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Wall* first, Dummy* second) {
+void Entity::Collide(Wall* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Wall* first, Bullet* second) {
@@ -173,17 +173,17 @@ void Entity::Collide(Wall* first, Bullet* second) {
 void Entity::Collide(Player* first, Player* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Player* first, Dummy* second) {
+void Entity::Collide(Player* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
 void Entity::Collide(Player* first, Bullet* second) {
   first->GetController()->OnCollision(first, second);
 }
 
-void Entity::Collide(Dummy* first, Dummy* second) {
+void Entity::Collide(Critter* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Dummy* first, Bullet* second) {
+void Entity::Collide(Critter* first, Bullet* second) {
   first->GetController()->OnCollision(first, second);
 }
 

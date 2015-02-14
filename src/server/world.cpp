@@ -19,7 +19,7 @@
 
 #include "server/activator.h"
 #include "server/bullet.h"
-#include "server/dummy.h"
+#include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
@@ -111,14 +111,14 @@ Bullet* World::CreateBullet(
   return bullet;
 }
 
-Dummy* World::CreateDummy(
+Critter* World::CreateCritter(
   const b2Vec2& position
 ) {
   uint32_t id = id_manager_->NewId();
-  Dummy* dummy = new Dummy(controller_, id, position);
-  CHECK(dummy != NULL);
-  AddEntity(id, dummy);
-  return dummy;
+  Critter* critter = new Critter(controller_, id, position);
+  CHECK(critter != NULL);
+  AddEntity(id, critter);
+  return critter;
 }
 
 Wall* World::CreateWall(

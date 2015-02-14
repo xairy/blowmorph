@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#ifndef SERVER_DUMMY_H_
-#define SERVER_DUMMY_H_
+#ifndef SERVER_CRITTER_H_
+#define SERVER_CRITTER_H_
 
 #include <string>
 
@@ -17,16 +17,15 @@ namespace bm {
 
 class Controller;
 
-// TODO(xairy): rename to Zombie.
-class Dummy : public Entity {
+class Critter : public Entity {
   friend class Entity;
 
  public:
-  Dummy(
+  Critter(
     Controller* controller,
     uint32_t id,
     const b2Vec2& position);
-  virtual ~Dummy();
+  virtual ~Critter();
 
   virtual Entity::Type GetType();
   virtual bool IsStatic();
@@ -45,7 +44,7 @@ class Dummy : public Entity {
   virtual void Collide(Entity* entity);
 
   virtual void Collide(Player* other);
-  virtual void Collide(Dummy* other);
+  virtual void Collide(Critter* other);
   virtual void Collide(Bullet* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
@@ -56,9 +55,9 @@ class Dummy : public Entity {
   Entity* _target;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(Dummy);
+  DISALLOW_COPY_AND_ASSIGN(Critter);
 };
 
 }  // namespace bm
 
-#endif  // SERVER_DUMMY_H_
+#endif  // SERVER_CRITTER_H_

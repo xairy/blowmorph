@@ -24,7 +24,7 @@
 
 #include "server/activator.h"
 #include "server/bullet.h"
-#include "server/dummy.h"
+#include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
 #include "server/wall.h"
@@ -84,26 +84,26 @@ void Controller::OnEntityAppearance(Entity* entity) {
   for (itr = world_.GetDynamicEntities()->begin(); itr != end; ++itr) {
     Entity::Type itr_type = itr->second->GetType();
     Entity::Type ent_type = entity->GetType();
-    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
-        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
-      Dummy* dummy = NULL;
+    if ((itr_type == Entity::TYPE_CRITTER && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_CRITTER)) {
+      Critter* critter = NULL;
       Player* player = NULL;
-      if (itr_type == Entity::TYPE_DUMMY) {
-        dummy = static_cast<Dummy*>(itr->second);
+      if (itr_type == Entity::TYPE_CRITTER) {
+        critter = static_cast<Critter*>(itr->second);
         player = static_cast<Player*>(entity);
       } else {
-        dummy = static_cast<Dummy*>(entity);
+        critter = static_cast<Critter*>(entity);
         player = static_cast<Player*>(itr->second);
       }
-      if (dummy->GetTarget() == NULL) {
-         dummy->SetTarget(player);
+      if (critter->GetTarget() == NULL) {
+         critter->SetTarget(player);
       } else {
-        float current_distance = (dummy->GetTarget()->GetPosition() -
-            dummy->GetPosition()).Length();
+        float current_distance = (critter->GetTarget()->GetPosition() -
+            critter->GetPosition()).Length();
         float new_distance = (player->GetPosition() -
-            dummy->GetPosition()).Length();
+            critter->GetPosition()).Length();
         if (new_distance < current_distance) {
-          dummy->SetTarget(player);
+          critter->SetTarget(player);
         }
       }
     }
@@ -116,19 +116,19 @@ void Controller::OnEntityDisappearance(Entity* entity) {
   for (itr = world_.GetDynamicEntities()->begin(); itr != end; ++itr) {
     Entity::Type itr_type = itr->second->GetType();
     Entity::Type ent_type = entity->GetType();
-    if ((itr_type == Entity::TYPE_DUMMY && ent_type == Entity::TYPE_PLAYER) ||
-        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_DUMMY)) {
-      Dummy* dummy = NULL;
+    if ((itr_type == Entity::TYPE_CRITTER && ent_type == Entity::TYPE_PLAYER) ||
+        (itr_type == Entity::TYPE_PLAYER && ent_type == Entity::TYPE_CRITTER)) {
+      Critter* critter = NULL;
       Player* player = NULL;
-      if (itr_type == Entity::TYPE_DUMMY) {
-        dummy = static_cast<Dummy*>(itr->second);
+      if (itr_type == Entity::TYPE_CRITTER) {
+        critter = static_cast<Critter*>(itr->second);
         player = static_cast<Player*>(entity);
       } else {
-        dummy = static_cast<Dummy*>(entity);
+        critter = static_cast<Critter*>(entity);
         player = static_cast<Player*>(itr->second);
       }
-      if (dummy->GetTarget() == player) {
-         dummy->SetTarget(NULL);
+      if (critter->GetTarget() == player) {
+         critter->SetTarget(NULL);
       }
     }
   }
@@ -194,7 +194,7 @@ void Controller::OnCollision(Activator* activator1, Activator* activator2) { }
 void Controller::OnCollision(Activator* activator, Kit* kit) { }
 void Controller::OnCollision(Activator* activator, Wall* wall) { }
 void Controller::OnCollision(Activator* activator, Player* player) { }
-void Controller::OnCollision(Activator* activator, Dummy* dummy) { }
+void Controller::OnCollision(Activator* activator, Critter* critter) { }
 void Controller::OnCollision(Activator* activator, Bullet* bullet) { }
 
 void Controller::OnCollision(Kit* kit1, Kit* kit2) { }
@@ -206,14 +206,14 @@ void Controller::OnCollision(Kit* kit, Player* player) {
   kit->Destroy();
 }
 
-void Controller::OnCollision(Kit* kit, Dummy* dummy) { }
+void Controller::OnCollision(Kit* kit, Critter* critter) { }
 void Controller::OnCollision(Kit* kit, Bullet* bullet) { }
 
 void Controller::OnCollision(Wall* wall1, Wall* wall2) { }
 void Controller::OnCollision(Wall* wall, Player* player) { }
 
-void Controller::OnCollision(Wall* wall, Dummy* dummy) {
-  ExplodeDummy(dummy);
+void Controller::OnCollision(Wall* wall, Critter* critter) {
+  ExplodeCritter(critter);
 }
 
 void Controller::OnCollision(Wall* wall, Bullet* bullet) {
@@ -222,8 +222,8 @@ void Controller::OnCollision(Wall* wall, Bullet* bullet) {
 
 void Controller::OnCollision(Player* player1, Player* player2) { }
 
-void Controller::OnCollision(Player* player, Dummy* dummy) {
-  ExplodeDummy(dummy);
+void Controller::OnCollision(Player* player, Critter* critter) {
+  ExplodeCritter(critter);
 }
 
 void Controller::OnCollision(Player* player, Bullet* bullet) {
@@ -233,11 +233,11 @@ void Controller::OnCollision(Player* player, Bullet* bullet) {
   ExplodeBullet(bullet);
 }
 
-void Controller::OnCollision(Dummy* dummy1, Dummy* dummy2) { }
+void Controller::OnCollision(Critter* critter1, Critter* critter2) { }
 
-void Controller::OnCollision(Dummy* dummy, Bullet* bullet) {
+void Controller::OnCollision(Critter* critter, Bullet* bullet) {
   ExplodeBullet(bullet);
-  ExplodeDummy(dummy);
+  ExplodeCritter(critter);
 }
 
 void Controller::OnCollision(Bullet* bullet1, Bullet* bullet2) {
@@ -252,8 +252,8 @@ void Controller::SpawnZombies() {
   if (counter == 300) {
     float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
     float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    Dummy* dummy = world_.CreateDummy(b2Vec2(x, y));
-    OnEntityAppearance(dummy);
+    Critter* critter = world_.CreateCritter(b2Vec2(x, y));
+    OnEntityAppearance(critter);
     counter = 0;
   }
   counter++;
@@ -264,16 +264,16 @@ void Controller::UpdateEntities(int64_t time_delta) {
   end = world_.GetDynamicEntities()->end();
   for (i = world_.GetDynamicEntities()->begin(); i != end; ++i) {
     Entity* entity = i->second;
-    if (entity->GetType() == Entity::TYPE_DUMMY) {
-      Dummy* dummy = static_cast<Dummy*>(entity);
-      Entity* target = dummy->GetTarget();
+    if (entity->GetType() == Entity::TYPE_CRITTER) {
+      Critter* critter = static_cast<Critter*>(entity);
+      Entity* target = critter->GetTarget();
       if (target != NULL) {
-        b2Vec2 velocity = target->GetPosition() - dummy->GetPosition();
+        b2Vec2 velocity = target->GetPosition() - critter->GetPosition();
         velocity.Normalize();
-        velocity *= dummy->GetSpeed();
-        dummy->SetImpulse(dummy->GetMass() * velocity);
+        velocity *= critter->GetSpeed();
+        critter->SetImpulse(critter->GetMass() * velocity);
         float angle = atan2f(-velocity.x, velocity.y);
-        dummy->SetRotation(angle / M_PI * 180);
+        critter->SetRotation(angle / M_PI * 180);
       }
     } else if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);
@@ -404,11 +404,11 @@ void Controller::ExplodeBullet(Bullet* bullet) {
   }
 }
 
-void Controller::ExplodeDummy(Dummy* dummy) {
-  // We do not want 'dummy' to explode multiple times.
-  if (!dummy->IsDestroyed()) {
-    MakeExplosion(dummy->GetPosition(), dummy->GetId());
-    dummy->Destroy();
+void Controller::ExplodeCritter(Critter* critter) {
+  // We do not want 'critter' to explode multiple times.
+  if (!critter->IsDestroyed()) {
+    MakeExplosion(critter->GetPosition(), critter->GetId());
+    critter->Destroy();
   }
 }
 
