@@ -45,7 +45,7 @@ class Activator : public Entity {
   virtual void Collide(Entity* entity);
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
-  virtual void Collide(Bullet* other);
+  virtual void Collide(Projectile* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
   virtual void Collide(Activator* other);

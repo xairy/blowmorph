@@ -28,7 +28,7 @@
 #include "server/entity.h"
 #include "server/id_manager.h"
 
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"

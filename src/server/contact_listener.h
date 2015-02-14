@@ -8,7 +8,7 @@
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/player.h"
 
 namespace bm {
@@ -20,18 +20,18 @@ class ContactListener : public b2ContactListener {
     Entity* b = static_cast<Entity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
     if (a->GetType() == Entity::TYPE_PLAYER &&
-        b->GetType() == Entity::TYPE_BULLET) {
+        b->GetType() == Entity::TYPE_PROJECTILE) {
       Player* player = static_cast<Player*>(a);
-      Bullet* bullet = static_cast<Bullet*>(b);
-      if (player->GetId() == bullet->GetOwnerId()) {
+      Projectile* projectile = static_cast<Projectile*>(b);
+      if (player->GetId() == projectile->GetOwnerId()) {
         contact->SetEnabled(false);
       }
     }
     if (b->GetType() == Entity::TYPE_PLAYER &&
-        a->GetType() == Entity::TYPE_BULLET) {
+        a->GetType() == Entity::TYPE_PROJECTILE) {
       Player* player = static_cast<Player*>(b);
-      Bullet* bullet = static_cast<Bullet*>(a);
-      if (player->GetId() == bullet->GetOwnerId()) {
+      Projectile* projectile = static_cast<Projectile*>(a);
+      if (player->GetId() == projectile->GetOwnerId()) {
         contact->SetEnabled(false);
       }
     }

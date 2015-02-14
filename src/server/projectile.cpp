@@ -1,6 +1,6 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#include "server/bullet.h"
+#include "server/projectile.h"
 
 #include <memory>
 #include <string>
@@ -18,14 +18,14 @@
 
 namespace bm {
 
-Bullet::Bullet(
+Projectile::Projectile(
   Controller* controller,
   uint32_t id,
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
   Type type
-) : Entity(controller, id, "bullet", start, Entity::FILTER_BULLET,
+) : Entity(controller, id, "bullet", start, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = controller->GetEntitySettings();
   float speed = settings->GetFloat("bullet.speed");
@@ -39,65 +39,65 @@ Bullet::Bullet(
   _type = type;
 }
 
-Bullet::~Bullet() { }
+Projectile::~Projectile() { }
 
-Entity::Type Bullet::GetType() {
-  return Entity::TYPE_BULLET;
+Entity::Type Projectile::GetType() {
+  return Entity::TYPE_PROJECTILE;
 }
-bool Bullet::IsStatic() {
+bool Projectile::IsStatic() {
   return false;
 }
 
-void Bullet::GetSnapshot(int64_t time, EntitySnapshot* output) {
-  output->type = EntitySnapshot::ENTITY_TYPE_BULLET;
+void Projectile::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  output->type = EntitySnapshot::ENTITY_TYPE_PROJECTILE;
   output->time = time;
   output->id = _id;
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
   output->angle = body_->GetRotation();
   if (_type == TYPE_ROCKET) {
-    output->data[0] = EntitySnapshot::BULLET_TYPE_ROCKET;
+    output->data[0] = EntitySnapshot::PROJECTILE_TYPE_ROCKET;
   } else if (_type == TYPE_SLIME) {
-    output->data[0] = EntitySnapshot::BULLET_TYPE_SLIME;
+    output->data[0] = EntitySnapshot::PROJECTILE_TYPE_SLIME;
   } else {
     CHECK(false);
   }
 }
 
-void Bullet::Damage(int damage, uint32_t source_id) {
+void Projectile::Damage(int damage, uint32_t source_id) {
   Destroy();
 }
 
-uint32_t Bullet::GetOwnerId() const {
+uint32_t Projectile::GetOwnerId() const {
   return _owner_id;
 }
 
-Bullet::Type Bullet::GetBulletType() const {
+Projectile::Type Projectile::GetProjectileType() const {
   return _type;
 }
 
 // Double dispatch. Collision detection.
 
-void Bullet::Collide(Entity* entity) {
+void Projectile::Collide(Entity* entity) {
   entity->Collide(this);
 }
 
-void Bullet::Collide(Player* other) {
+void Projectile::Collide(Player* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Critter* other) {
+void Projectile::Collide(Critter* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Bullet* other) {
+void Projectile::Collide(Projectile* other) {
   Entity::Collide(this, other);
 }
-void Bullet::Collide(Wall* other) {
+void Projectile::Collide(Wall* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Kit* other) {
+void Projectile::Collide(Kit* other) {
   Entity::Collide(other, this);
 }
-void Bullet::Collide(Activator* other) {
+void Projectile::Collide(Activator* other) {
   Entity::Collide(other, this);
 }
 

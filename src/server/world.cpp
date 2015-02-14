@@ -18,7 +18,7 @@
 #include "server/controller.h"
 
 #include "server/activator.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
@@ -96,19 +96,20 @@ Player* World::CreatePlayer(const b2Vec2& position) {
   return player;
 }
 
-Bullet* World::CreateBullet(
+Projectile* World::CreateProjectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
-  Bullet::Type type
+  Projectile::Type type
 ) {
   CHECK(static_entities_.count(owner_id) +
     dynamic_entities_.count(owner_id) == 1);
   uint32_t id = id_manager_->NewId();
-  Bullet* bullet = new Bullet(controller_, id, owner_id, start, end, type);
-  CHECK(bullet != NULL);
-  AddEntity(id, bullet);
-  return bullet;
+  Projectile* projectile = new Projectile(controller_,
+    id, owner_id, start, end, type);
+  CHECK(projectile != NULL);
+  AddEntity(id, projectile);
+  return projectile;
 }
 
 Critter* World::CreateCritter(

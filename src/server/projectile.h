@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#ifndef SERVER_BULLET_H_
-#define SERVER_BULLET_H_
+#ifndef SERVER_PROJECTILE_H_
+#define SERVER_PROJECTILE_H_
 
 #include <string>
 
@@ -17,8 +17,7 @@ namespace bm {
 
 class Controller;
 
-// FIXME(xairy): rename to Projectile.
-class Bullet : public Entity {
+class Projectile : public Entity {
   friend class Entity;
 
  public:
@@ -27,14 +26,14 @@ class Bullet : public Entity {
     TYPE_SLIME,
   };
 
-  Bullet(
+  Projectile(
     Controller* controller,
     uint32_t id,
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
     Type type);
-  virtual ~Bullet();
+  virtual ~Projectile();
 
   virtual Entity::Type GetType();
   virtual bool IsStatic();
@@ -44,7 +43,7 @@ class Bullet : public Entity {
   virtual void Damage(int damage, uint32_t source_id);
 
   uint32_t GetOwnerId() const;
-  Type GetBulletType() const;
+  Type GetProjectileType() const;
 
   // Double dispatch. Collision detection.
 
@@ -52,7 +51,7 @@ class Bullet : public Entity {
 
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
-  virtual void Collide(Bullet* other);
+  virtual void Collide(Projectile* other);
   virtual void Collide(Wall* other);
   virtual void Collide(Kit* other);
   virtual void Collide(Activator* other);
@@ -62,9 +61,9 @@ class Bullet : public Entity {
   Type _type;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(Bullet);
+  DISALLOW_COPY_AND_ASSIGN(Projectile);
 };
 
 }  // namespace bm
 
-#endif  // SERVER_BULLET_H_
+#endif  // SERVER_PROJECTILE_H_

@@ -23,7 +23,7 @@
 #include "server/id_manager.h"
 
 #include "server/activator.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
@@ -152,9 +152,9 @@ void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
       player->AddEnergy(-bazooka_consumption);
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      Bullet* bullet = world_.CreateBullet(player->GetId(),
-          start, end, Bullet::TYPE_ROCKET);
-      OnEntityAppearance(bullet);
+      Projectile* projectile = world_.CreateProjectile(player->GetId(),
+          start, end, Projectile::TYPE_ROCKET);
+      OnEntityAppearance(projectile);
     }
   }
   if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
@@ -163,9 +163,9 @@ void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
       player->AddEnergy(-morpher_consumption);
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      Bullet* bullet = world_.CreateBullet(player->GetId(),
-          start, end, Bullet::TYPE_SLIME);
-      OnEntityAppearance(bullet);
+      Projectile* projectile = world_.CreateProjectile(player->GetId(),
+          start, end, Projectile::TYPE_SLIME);
+      OnEntityAppearance(projectile);
     }
   }
   if (event.event_type == MouseEvent::EVENT_MOVE) {
@@ -197,7 +197,7 @@ void Controller::OnCollision(Activator* activator, Kit* kit) { }
 void Controller::OnCollision(Activator* activator, Wall* wall) { }
 void Controller::OnCollision(Activator* activator, Player* player) { }
 void Controller::OnCollision(Activator* activator, Critter* critter) { }
-void Controller::OnCollision(Activator* activator, Bullet* bullet) { }
+void Controller::OnCollision(Activator* activator, Projectile* projectile) { }
 
 void Controller::OnCollision(Kit* kit1, Kit* kit2) { }
 void Controller::OnCollision(Kit* kit, Wall* wall) { }
@@ -209,7 +209,7 @@ void Controller::OnCollision(Kit* kit, Player* player) {
 }
 
 void Controller::OnCollision(Kit* kit, Critter* critter) { }
-void Controller::OnCollision(Kit* kit, Bullet* bullet) { }
+void Controller::OnCollision(Kit* kit, Projectile* projectile) { }
 
 void Controller::OnCollision(Wall* wall1, Wall* wall2) { }
 void Controller::OnCollision(Wall* wall, Player* player) { }
@@ -218,8 +218,8 @@ void Controller::OnCollision(Wall* wall, Critter* critter) {
   ExplodeCritter(critter);
 }
 
-void Controller::OnCollision(Wall* wall, Bullet* bullet) {
-  ExplodeBullet(bullet);
+void Controller::OnCollision(Wall* wall, Projectile* projectile) {
+  ExplodeProjectile(projectile);
 }
 
 void Controller::OnCollision(Player* player1, Player* player2) { }
@@ -228,23 +228,23 @@ void Controller::OnCollision(Player* player, Critter* critter) {
   ExplodeCritter(critter);
 }
 
-void Controller::OnCollision(Player* player, Bullet* bullet) {
-  if (bullet->GetOwnerId() == player->GetId()) {
+void Controller::OnCollision(Player* player, Projectile* projectile) {
+  if (projectile->GetOwnerId() == player->GetId()) {
     return;
   }
-  ExplodeBullet(bullet);
+  ExplodeProjectile(projectile);
 }
 
 void Controller::OnCollision(Critter* critter1, Critter* critter2) { }
 
-void Controller::OnCollision(Critter* critter, Bullet* bullet) {
-  ExplodeBullet(bullet);
+void Controller::OnCollision(Critter* critter, Projectile* projectile) {
+  ExplodeProjectile(projectile);
   ExplodeCritter(critter);
 }
 
-void Controller::OnCollision(Bullet* bullet1, Bullet* bullet2) {
-  ExplodeBullet(bullet1);
-  ExplodeBullet(bullet2);
+void Controller::OnCollision(Projectile* projectile1, Projectile* projectile2) {
+  ExplodeProjectile(projectile1);
+  ExplodeProjectile(projectile2);
 }
 
 // Updating.
@@ -394,15 +394,15 @@ void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
 
 // Explosions.
 
-void Controller::ExplodeBullet(Bullet* bullet) {
-  // We do not want 'bullet' to explode multiple times.
-  if (!bullet->IsDestroyed()) {
-    if (bullet->GetBulletType() == Bullet::TYPE_ROCKET) {
-      MakeExplosion(bullet->GetPosition(), bullet->GetOwnerId());
-    } else if (bullet->GetBulletType() == Bullet::TYPE_SLIME) {
-      morph_list_.push_back(bullet->GetPosition());
+void Controller::ExplodeProjectile(Projectile* projectile) {
+  // We do not want 'projectile' to explode multiple times.
+  if (!projectile->IsDestroyed()) {
+    if (projectile->GetProjectileType() == Projectile::TYPE_ROCKET) {
+      MakeExplosion(projectile->GetPosition(), projectile->GetOwnerId());
+    } else if (projectile->GetProjectileType() == Projectile::TYPE_SLIME) {
+      morph_list_.push_back(projectile->GetPosition());
     }
-    bullet->Destroy();
+    projectile->Destroy();
   }
 }
 

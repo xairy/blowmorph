@@ -20,7 +20,7 @@
 #include "server/id_manager.h"
 
 #include "server/activator.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
@@ -137,7 +137,7 @@ void Entity::Collide(Activator* first, Player* second) {
 void Entity::Collide(Activator* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Activator* first, Bullet* second) {
+void Entity::Collide(Activator* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 
@@ -153,7 +153,7 @@ void Entity::Collide(Kit* first, Player* second) {
 void Entity::Collide(Kit* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Kit* first, Bullet* second) {
+void Entity::Collide(Kit* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 
@@ -166,7 +166,7 @@ void Entity::Collide(Wall* first, Player* second) {
 void Entity::Collide(Wall* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Wall* first, Bullet* second) {
+void Entity::Collide(Wall* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 
@@ -176,18 +176,18 @@ void Entity::Collide(Player* first, Player* second) {
 void Entity::Collide(Player* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Player* first, Bullet* second) {
+void Entity::Collide(Player* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 
 void Entity::Collide(Critter* first, Critter* second) {
   first->GetController()->OnCollision(first, second);
 }
-void Entity::Collide(Critter* first, Bullet* second) {
+void Entity::Collide(Critter* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 
-void Entity::Collide(Bullet* first, Bullet* second) {
+void Entity::Collide(Projectile* first, Projectile* second) {
   first->GetController()->OnCollision(first, second);
 }
 

@@ -25,8 +25,8 @@ Kit::Kit(
   int health_regeneration,
   int energy_regeneration,
   Type type
-) : Entity(controller, id, TypeToEntityName(type), position,
-           Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_BULLET) {
+) : Entity(controller, id, TypeToEntityName(type), position, Entity::FILTER_KIT,
+           Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
   _type = type;
@@ -80,7 +80,7 @@ void Kit::Collide(Player* other) {
 void Kit::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
-void Kit::Collide(Bullet* other) {
+void Kit::Collide(Projectile* other) {
   Entity::Collide(this, other);
 }
 void Kit::Collide(Wall* other) {

@@ -23,7 +23,7 @@ Critter::Critter(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position
-) : Entity(controller, id, "zombie", position, Entity::FILTER_BULLET,
+) : Entity(controller, id, "zombie", position, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   SettingsManager* settings = controller->GetEntitySettings();
   _speed = settings->GetFloat("zombie.speed");
@@ -75,7 +75,7 @@ void Critter::Collide(Player* other) {
 void Critter::Collide(Critter* other) {
   Entity::Collide(other, this);
 }
-void Critter::Collide(Bullet* other) {
+void Critter::Collide(Projectile* other) {
   Entity::Collide(this, other);
 }
 void Critter::Collide(Wall* other) {

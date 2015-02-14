@@ -249,7 +249,7 @@ void Player::Collide(Player* other) {
 void Player::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
-void Player::Collide(Bullet* other) {
+void Player::Collide(Projectile* other) {
   Entity::Collide(this, other);
 }
 void Player::Collide(Wall* other) {

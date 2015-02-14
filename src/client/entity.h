@@ -21,7 +21,7 @@ class Entity {
  public:
   enum Type {
     TYPE_PLAYER,
-    TYPE_BULLET,
+    TYPE_PROJECTILE,
     TYPE_WALL,
     TYPE_KIT,
     TYPE_CRITTER,

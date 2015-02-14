@@ -17,7 +17,7 @@
 #include "server/id_manager.h"
 
 #include "server/activator.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
@@ -51,11 +51,11 @@ class World {
   Player* CreatePlayer(
     const b2Vec2& position);
 
-  Bullet* CreateBullet(
+  Projectile* CreateProjectile(
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
-    Bullet::Type type);
+    Projectile::Type type);
 
   Critter* CreateCritter(
     const b2Vec2& position);

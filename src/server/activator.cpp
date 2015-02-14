@@ -64,7 +64,7 @@ void Activator::Collide(Player* other) {
 void Activator::Collide(Critter* other) {
   Entity::Collide(this, other);
 }
-void Activator::Collide(Bullet* other) {
+void Activator::Collide(Projectile* other) {
   Entity::Collide(this, other);
 }
 void Activator::Collide(Wall* other) {

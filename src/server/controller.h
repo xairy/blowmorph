@@ -18,7 +18,7 @@
 #include "server/world.h"
 
 #include "server/activator.h"
-#include "server/bullet.h"
+#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
 #include "server/player.h"
@@ -59,27 +59,27 @@ class Controller {
   void OnCollision(Activator* activator, Wall* wall);
   void OnCollision(Activator* activator, Player* player);
   void OnCollision(Activator* activator, Critter* critter);
-  void OnCollision(Activator* activator, Bullet* bullet);
+  void OnCollision(Activator* activator, Projectile* projectile);
 
   void OnCollision(Kit* kit1, Kit* kit2);
   void OnCollision(Kit* kit, Wall* wall);
   void OnCollision(Kit* kit, Player* player);
   void OnCollision(Kit* kit, Critter* critter);
-  void OnCollision(Kit* kit, Bullet* bullet);
+  void OnCollision(Kit* kit, Projectile* projectile);
 
   void OnCollision(Wall* wall1, Wall* wall2);
   void OnCollision(Wall* wall, Player* player);
   void OnCollision(Wall* wall, Critter* critter);
-  void OnCollision(Wall* wall, Bullet* bullet);
+  void OnCollision(Wall* wall, Projectile* projectile);
 
   void OnCollision(Player* player1, Player* player2);
   void OnCollision(Player* player, Critter* critter);
-  void OnCollision(Player* player, Bullet* bullet);
+  void OnCollision(Player* player, Projectile* projectile);
 
   void OnCollision(Critter* critter1, Critter* critter2);
-  void OnCollision(Critter* critter, Bullet* bullet);
+  void OnCollision(Critter* critter, Projectile* projectile);
 
-  void OnCollision(Bullet* bullet1, Bullet* bullet2);
+  void OnCollision(Projectile* projectile1, Projectile* projectile2);
 
  private:
   // Updating.
@@ -95,7 +95,7 @@ class Controller {
 
   // Explosions.
 
-  void ExplodeBullet(Bullet* bullet);
+  void ExplodeProjectile(Projectile* projectile);
   void ExplodeCritter(Critter* critter);
   void MakeExplosion(const b2Vec2& location, uint32_t source_id);
   void MakeSlimeExplosion(const b2Vec2& location);

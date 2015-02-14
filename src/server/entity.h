@@ -20,7 +20,7 @@ class Controller;
 
 class Player;
 class Critter;
-class Bullet;
+class Projectile;
 class Wall;
 class Kit;
 class Activator;
@@ -31,7 +31,7 @@ class Entity {
 
   enum Type {
     TYPE_PLAYER,
-    TYPE_BULLET,
+    TYPE_PROJECTILE,
     TYPE_WALL,
     TYPE_KIT,
     TYPE_CRITTER,
@@ -40,13 +40,13 @@ class Entity {
 
   // Collision filters.
   enum FilterType {
-    FILTER_PLAYER    = 0x0001,
-    FILTER_BULLET    = 0x0002,
-    FILTER_WALL      = 0x0004,
-    FILTER_KIT       = 0x0008,
-    FILTER_ACTIVATOR = 0x0010,
-    FILTER_ALL       = 0xffff,
-    FILTER_NONE      = 0x0000
+    FILTER_PLAYER     = 0x0001,
+    FILTER_PROJECTILE = 0x0002,
+    FILTER_WALL       = 0x0004,
+    FILTER_KIT        = 0x0008,
+    FILTER_ACTIVATOR  = 0x0010,
+    FILTER_ALL        = 0xffff,
+    FILTER_NONE       = 0x0000
   };
 
  public:
@@ -96,7 +96,7 @@ class Entity {
 
   virtual void Collide(Player* other) = 0;
   virtual void Collide(Critter* other) = 0;
-  virtual void Collide(Bullet* other) = 0;
+  virtual void Collide(Projectile* other) = 0;
   virtual void Collide(Wall* other) = 0;
   virtual void Collide(Kit* other) = 0;
   virtual void Collide(Activator* other) = 0;
@@ -106,27 +106,27 @@ class Entity {
   static void Collide(Activator* first, Wall* second);
   static void Collide(Activator* first, Player* second);
   static void Collide(Activator* first, Critter* second);
-  static void Collide(Activator* first, Bullet* second);
+  static void Collide(Activator* first, Projectile* second);
 
   static void Collide(Kit* first, Kit* second);
   static void Collide(Kit* first, Wall* second);
   static void Collide(Kit* first, Player* second);
   static void Collide(Kit* first, Critter* second);
-  static void Collide(Kit* first, Bullet* second);
+  static void Collide(Kit* first, Projectile* second);
 
   static void Collide(Wall* first, Wall* second);
   static void Collide(Wall* first, Player* second);
   static void Collide(Wall* first, Critter* second);
-  static void Collide(Wall* first, Bullet* second);
+  static void Collide(Wall* first, Projectile* second);
 
   static void Collide(Player* first, Player* second);
   static void Collide(Player* first, Critter* second);
-  static void Collide(Player* first, Bullet* second);
+  static void Collide(Player* first, Projectile* second);
 
   static void Collide(Critter* first, Critter* second);
-  static void Collide(Critter* first, Bullet* second);
+  static void Collide(Critter* first, Projectile* second);
 
-  static void Collide(Bullet* first, Bullet* second);
+  static void Collide(Projectile* first, Projectile* second);
 
  protected:
   Controller* controller_;

@@ -727,12 +727,12 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       }
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_BULLET: {
+    case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
       switch (snapshot->data[0]) {
-        case EntitySnapshot::BULLET_TYPE_ROCKET: {
+        case EntitySnapshot::PROJECTILE_TYPE_ROCKET: {
           entity_config = "bullet";
         } break;
-        case EntitySnapshot::BULLET_TYPE_SLIME: {
+        case EntitySnapshot::PROJECTILE_TYPE_SLIME: {
           entity_config = "slime";
         } break;
         default: {
@@ -791,9 +791,9 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       static_entities_[id] = wall;
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_BULLET: {
+    case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_BULLET, world_, sprite, position, time);
+        Entity::TYPE_PROJECTILE, world_, sprite, position, time);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
