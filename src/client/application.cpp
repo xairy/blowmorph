@@ -69,11 +69,26 @@ bool Application::Initialize() {
     return false;
   }
 
-  if (!entity_settings_.Open("data/entities.cfg")) {
+  if (!body_settings_.Open("data/bodies.cfg")) {
     return false;
   }
 
-  if (!body_settings_.Open("data/bodies.cfg")) {
+  if (!activator_settings_.Open("data/activators.cfg")) {
+    return false;
+  }
+  if (!critter_settings_.Open("data/critters.cfg")) {
+    return false;
+  }
+  if (!kit_settings_.Open("data/kits.cfg")) {
+    return false;
+  }
+  if (!player_settings_.Open("data/players.cfg")) {
+    return false;
+  }
+  if (!projectile_settings_.Open("data/projectiles.cfg")) {
+    return false;
+  }
+  if (!wall_settings_.Open("data/walls.cfg")) {
     return false;
   }
 
@@ -713,6 +728,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
   std::string entity_config;
+  SettingsManager* entity_settings = NULL;
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
@@ -725,6 +741,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       } else {
         CHECK(false);  // Unreachable.
       }
+      entity_settings = &wall_settings_;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
@@ -739,14 +756,17 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
           CHECK(false);  // Unreachable.
         }
       }
+      entity_settings = &projectile_settings_;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
       entity_config = "player";
+      entity_settings = &player_settings_;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
       entity_config = "zombie";
+      entity_settings = &critter_settings_;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
@@ -764,10 +784,12 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
           CHECK(false);  // Unreachable.
         }
       }
+      entity_settings = &kit_settings_;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
       entity_config = "door";
+      entity_settings = &activator_settings_;
     } break;
 
     default:
@@ -775,13 +797,13 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   }
 
   std::string sprite_config =
-      entity_settings_.GetString(entity_config + ".sprite");
+      entity_settings->GetString(entity_config + ".sprite");
 
   Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
   CHECK(sprite != NULL);
 
   std::string body_config =
-      entity_settings_.GetString(entity_config + ".body");
+      entity_settings->GetString(entity_config + ".body");
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {

@@ -22,9 +22,10 @@ Activator::Activator(
   uint32_t id,
   const b2Vec2& position,
   const std::string& config_name
-) : Entity(controller, id, config_name, position,
-           Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  SettingsManager* entity_settings = controller->GetEntitySettings();
+) : Entity(controller, id,
+           controller->GetActivatorSettings()->GetString(config_name + ".body"),
+           position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
+  SettingsManager* entity_settings = controller->GetActivatorSettings();
   std::string type_name = entity_settings->GetString(config_name + ".type");
   if (type_name == "door") {
     type_ = TYPE_DOOR;

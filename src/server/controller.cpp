@@ -34,8 +34,20 @@ namespace bm {
 
 Controller::Controller(IdManager* id_manager) : world_(this, id_manager) {
   world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
-  bool rv = entity_settings_.Open("data/entities.cfg");
+
+  bool rv = activator_settings_.Open("data/activators.cfg");
   CHECK(rv == true);  // FIXME(xairy).
+  rv = critter_settings_.Open("data/critters.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+  rv = kit_settings_.Open("data/kits.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+  rv = player_settings_.Open("data/players.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+  rv = projectile_settings_.Open("data/projectiles.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+  rv = wall_settings_.Open("data/walls.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
+
   rv = body_settings_.Open("data/bodies.cfg");
   CHECK(rv == true);  // FIXME(xairy).
   rv = gun_settings_.Open("data/guns.cfg");
@@ -48,8 +60,28 @@ World* Controller::GetWorld() {
   return &world_;
 }
 
-SettingsManager* Controller::GetEntitySettings() {
-  return &entity_settings_;
+SettingsManager* Controller::GetActivatorSettings() {
+  return &activator_settings_;
+}
+
+SettingsManager* Controller::GetCritterSettings() {
+  return &critter_settings_;
+}
+
+SettingsManager* Controller::GetKitSettings() {
+  return &kit_settings_;
+}
+
+SettingsManager* Controller::GetPlayerSettings() {
+  return &player_settings_;
+}
+
+SettingsManager* Controller::GetProjectileSettings() {
+  return &projectile_settings_;
+}
+
+SettingsManager* Controller::GetWallSettings() {
+  return &wall_settings_;
 }
 
 SettingsManager* Controller::GetBodySettings() {

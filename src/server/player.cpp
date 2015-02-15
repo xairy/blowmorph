@@ -19,13 +19,16 @@
 
 namespace bm {
 
+// FIXME(xairy): pass config_name.
 Player::Player(
     Controller* controller,
     uint32_t id,
     const b2Vec2& position
-) : Entity(controller, id, "player", position, Entity::FILTER_PLAYER,
+) : Entity(controller, id,
+           controller->GetPlayerSettings()->GetString("player.body"),
+           position, Entity::FILTER_PLAYER,
            Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
-  SettingsManager* settings = controller->GetEntitySettings();
+  SettingsManager* settings = controller->GetPlayerSettings();
   _speed = settings->GetFloat("player.speed");
 
   _score = 0;

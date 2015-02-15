@@ -24,9 +24,11 @@ Critter::Critter(
   uint32_t id,
   const b2Vec2& position,
   const std::string& config_name
-) : Entity(controller, id, config_name, position, Entity::FILTER_PROJECTILE,
+) : Entity(controller, id,
+           controller->GetCritterSettings()->GetString(config_name + ".body"),
+           position, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* entity_settings = controller->GetEntitySettings();
+  SettingsManager* entity_settings = controller->GetCritterSettings();
   _speed = entity_settings->GetFloat(config_name + ".speed");
   _target = NULL;
   std::string type_name = entity_settings->GetString(config_name + ".type");

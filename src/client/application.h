@@ -79,8 +79,15 @@ class Application {
   bool is_running_;
 
   SettingsManager client_settings_;
-  SettingsManager entity_settings_;
   SettingsManager body_settings_;
+
+  SettingsManager activator_settings_;
+  SettingsManager critter_settings_;
+  SettingsManager kit_settings_;
+  SettingsManager player_settings_;
+  SettingsManager projectile_settings_;
+  SettingsManager wall_settings_;
+
   ResourceManager resource_manager_;
 
   sf::RenderWindow* render_window_;

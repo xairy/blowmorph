@@ -32,7 +32,7 @@ namespace bm {
 Entity::Entity(
   Controller* controller,
   uint32_t id,
-  const std::string& entity_config,
+  const std::string& body_config,
   b2Vec2 position,
   uint16_t collision_category,
   uint16_t collision_mask
@@ -40,14 +40,10 @@ Entity::Entity(
     _id(id),
     _is_destroyed(false),
     _is_updated(true) {
-  SettingsManager* entity_settings = controller_->GetEntitySettings();
-  SettingsManager* body_settings = controller_->GetBodySettings();
-  std::string body_config = entity_settings->GetString(entity_config + ".body");
-
   b2World* world = controller_->GetWorld()->GetBox2DWorld();
   body_ = new Body();
   CHECK(body_ != NULL);
-  body_->Create(world, body_settings, body_config);
+  body_->Create(world, controller->GetBodySettings(), body_config);
   body_->SetUserData(this);
   body_->SetPosition(position);
   body_->SetCollisionFilter(collision_category, collision_mask);

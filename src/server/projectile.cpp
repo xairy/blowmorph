@@ -25,9 +25,12 @@ Projectile::Projectile(
   const b2Vec2& start,
   const b2Vec2& end,
   const std::string& config_name
-) : Entity(controller, id, config_name, start, Entity::FILTER_PROJECTILE,
+) : Entity(controller, id,
+           controller->GetProjectileSettings()->
+              GetString(config_name + ".body"),
+           start, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* entity_settings = controller->GetEntitySettings();
+  SettingsManager* entity_settings = controller->GetProjectileSettings();
   float speed = entity_settings->GetFloat(config_name + ".speed");
 
   b2Vec2 velocity = end - start;

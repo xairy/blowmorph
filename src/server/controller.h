@@ -33,7 +33,14 @@ class Controller {
   ~Controller();
 
   World* GetWorld();
-  SettingsManager* GetEntitySettings();
+
+  SettingsManager* GetActivatorSettings();
+  SettingsManager* GetCritterSettings();
+  SettingsManager* GetKitSettings();
+  SettingsManager* GetPlayerSettings();
+  SettingsManager* GetProjectileSettings();
+  SettingsManager* GetWallSettings();
+
   SettingsManager* GetBodySettings();
 
   // The list of the events should be cleared by the caller.
@@ -110,7 +117,13 @@ class Controller {
 
   std::vector<GameEvent> game_events_;
 
-  SettingsManager entity_settings_;
+  SettingsManager activator_settings_;
+  SettingsManager critter_settings_;
+  SettingsManager kit_settings_;
+  SettingsManager player_settings_;
+  SettingsManager projectile_settings_;
+  SettingsManager wall_settings_;
+
   SettingsManager body_settings_;
   SettingsManager gun_settings_;
 };
