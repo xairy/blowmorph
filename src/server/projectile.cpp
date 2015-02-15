@@ -35,13 +35,19 @@ Projectile::Projectile(
   velocity *= speed;
   body_->ApplyImpulse(body_->GetMass() * velocity);
 
-  _owner_id = owner_id;
+  owner_id_ = owner_id;
 
   std::string type_name = entity_settings->GetString(config_name + ".type");
   if (type_name == "rocket") {
-    _type = TYPE_ROCKET;
+    type_ = TYPE_ROCKET;
+    rocket_explosion_radius_ = entity_settings->GetFloat(
+        config_name + ".explosion_radius");
+    rocket_explosion_damage_ = entity_settings->GetInt32(
+        config_name + ".explosion_damage");
   } else if (type_name == "slime") {
-    _type = TYPE_SLIME;
+    type_ = TYPE_SLIME;
+    slime_explosion_radius_ = entity_settings->GetInt32(
+        config_name + ".explosion_radius");
   } else {
     CHECK(false);  // Unreachable.
   }
@@ -63,9 +69,9 @@ void Projectile::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->x = body_->GetPosition().x;
   output->y = body_->GetPosition().y;
   output->angle = body_->GetRotation();
-  if (_type == TYPE_ROCKET) {
+  if (type_ == TYPE_ROCKET) {
     output->data[0] = EntitySnapshot::PROJECTILE_TYPE_ROCKET;
-  } else if (_type == TYPE_SLIME) {
+  } else if (type_ == TYPE_SLIME) {
     output->data[0] = EntitySnapshot::PROJECTILE_TYPE_SLIME;
   } else {
     CHECK(false);
@@ -77,11 +83,23 @@ void Projectile::Damage(int damage, uint32_t source_id) {
 }
 
 uint32_t Projectile::GetOwnerId() const {
-  return _owner_id;
+  return owner_id_;
 }
 
 Projectile::Type Projectile::GetProjectileType() const {
-  return _type;
+  return type_;
+}
+
+float Projectile::GetRocketExplosionRadius() const {
+  return rocket_explosion_radius_;
+}
+
+int Projectile::GetRocketExplosionDamage() const {
+  return rocket_explosion_damage_;
+}
+
+int Projectile::GetSlimeExplosionRadius() const {
+  return slime_explosion_radius_;
 }
 
 // Double dispatch. Collision detection.

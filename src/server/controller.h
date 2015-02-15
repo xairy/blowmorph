@@ -93,18 +93,18 @@ class Controller {
   void UpdateScore(Player* player);
   void DeleteDestroyedEntities(int64_t time, int64_t time_delta);
 
-  // Explosions.
+  // Projectiles.
 
-  void ExplodeProjectile(Projectile* projectile);
-  void ExplodeCritter(Critter* critter);
-  void MakeExplosion(const b2Vec2& location, uint32_t source_id);
-  void MakeSlimeExplosion(const b2Vec2& location);
+  void DestroyProjectile(Projectile* projectile);
+  void MakeRocketExplosion(const b2Vec2& location, float radius,
+                           int damage, uint32_t source_id);
+  void MakeSlimeExplosion(const b2Vec2& location, int radius);
 
   World world_;
   ContactListener contact_listener_;
 
   // TODO(xairy): refactor.
-  std::vector<b2Vec2> morph_list_;
+  std::vector<std::pair<b2Vec2, int> > morph_list_;
 
   std::vector<GameEvent> game_events_;
 

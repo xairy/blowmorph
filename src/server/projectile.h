@@ -45,6 +45,10 @@ class Projectile : public Entity {
   uint32_t GetOwnerId() const;
   Type GetProjectileType() const;
 
+  float GetRocketExplosionRadius() const;
+  int GetRocketExplosionDamage() const;
+  int GetSlimeExplosionRadius() const;
+
   // Double dispatch. Collision detection.
 
   virtual void Collide(Entity* entity);
@@ -57,8 +61,15 @@ class Projectile : public Entity {
   virtual void Collide(Activator* other);
 
  protected:
-  uint32_t _owner_id;
-  Type _type;
+  uint32_t owner_id_;
+  Type type_;
+
+  // For TYPE_ROCKET:
+  float rocket_explosion_radius_;
+  int rocket_explosion_damage_;
+
+  // For TYPE_SLIME:
+  int slime_explosion_radius_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Projectile);

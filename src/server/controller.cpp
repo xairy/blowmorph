@@ -62,9 +62,9 @@ void Controller::Update(int64_t time, int64_t time_delta) {
   DeleteDestroyedEntities(time, time_delta);
 
   // TODO(xairy): refactor.
-  std::vector<b2Vec2>::iterator it;
+  std::vector<std::pair<b2Vec2, int> >::iterator it;
   for (it = morph_list_.begin(); it != morph_list_.end(); ++it) {
-    MakeSlimeExplosion(*it);
+    MakeSlimeExplosion(it->first, it->second);
   }
   morph_list_.clear();
 }
@@ -144,33 +144,29 @@ void Controller::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
 }
 
 void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
-  int bazooka_consumption =
-      gun_settings_.GetInt32("bazooka.energy_consumption");
-  int morpher_consumption =
-      gun_settings_.GetInt32("morpher.energy_consumption");
+  if (event.event_type == MouseEvent::EVENT_KEYDOWN) {
+    std::string gun_config;
+    if (event.button_type == MouseEvent::BUTTON_LEFT) {
+      gun_config = "bazooka";
+    } else if (event.button_type == MouseEvent::BUTTON_RIGHT) {
+      gun_config = "morpher";
+    }
 
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_LEFT) {
-    if (player->GetEnergy() >= bazooka_consumption) {
-      player->AddEnergy(-bazooka_consumption);
+    int energy_consumption =
+      gun_settings_.GetInt32(gun_config + ".energy_consumption");
+    std::string projectile_config =
+      gun_settings_.GetString(gun_config + ".projectile");
+
+    if (player->GetEnergy() >= energy_consumption) {
+      player->AddEnergy(-energy_consumption);
       b2Vec2 start = player->GetPosition();
       b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
       Projectile* projectile = world_.CreateProjectile(player->GetId(),
-          start, end, "rocket");
+          start, end, projectile_config);
       OnEntityAppearance(projectile);
     }
   }
-  if (event.event_type == MouseEvent::EVENT_KEYDOWN &&
-    event.button_type == MouseEvent::BUTTON_RIGHT) {
-    if (player->GetEnergy() >= morpher_consumption) {
-      player->AddEnergy(-morpher_consumption);
-      b2Vec2 start = player->GetPosition();
-      b2Vec2 end(static_cast<float>(event.x), static_cast<float>(event.y));
-      Projectile* projectile = world_.CreateProjectile(player->GetId(),
-          start, end, "slime");
-      OnEntityAppearance(projectile);
-    }
-  }
+
   if (event.event_type == MouseEvent::EVENT_MOVE) {
     b2Vec2 mouse_position = b2Vec2(event.x, event.y);
     b2Vec2 direction = mouse_position - player->GetPosition();
@@ -218,36 +214,38 @@ void Controller::OnCollision(Wall* wall1, Wall* wall2) { }
 void Controller::OnCollision(Wall* wall, Player* player) { }
 
 void Controller::OnCollision(Wall* wall, Critter* critter) {
-  ExplodeCritter(critter);
+  critter->Destroy();
 }
 
 void Controller::OnCollision(Wall* wall, Projectile* projectile) {
-  ExplodeProjectile(projectile);
+  DestroyProjectile(projectile);
 }
 
 void Controller::OnCollision(Player* player1, Player* player2) { }
 
 void Controller::OnCollision(Player* player, Critter* critter) {
-  ExplodeCritter(critter);
+  // FIXME(xairy): load damage from config.
+  player->Damage(30, critter->GetId());
+  critter->Destroy();
 }
 
 void Controller::OnCollision(Player* player, Projectile* projectile) {
   if (projectile->GetOwnerId() == player->GetId()) {
     return;
   }
-  ExplodeProjectile(projectile);
+  DestroyProjectile(projectile);
 }
 
 void Controller::OnCollision(Critter* critter1, Critter* critter2) { }
 
 void Controller::OnCollision(Critter* critter, Projectile* projectile) {
-  ExplodeProjectile(projectile);
-  ExplodeCritter(critter);
+  DestroyProjectile(projectile);
+  critter->Destroy();
 }
 
 void Controller::OnCollision(Projectile* projectile1, Projectile* projectile2) {
-  ExplodeProjectile(projectile1);
-  ExplodeProjectile(projectile2);
+  DestroyProjectile(projectile1);
+  DestroyProjectile(projectile2);
 }
 
 // Updating.
@@ -397,30 +395,25 @@ void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
 
 // Explosions.
 
-void Controller::ExplodeProjectile(Projectile* projectile) {
+void Controller::DestroyProjectile(Projectile* projectile) {
   // We do not want 'projectile' to explode multiple times.
   if (!projectile->IsDestroyed()) {
     if (projectile->GetProjectileType() == Projectile::TYPE_ROCKET) {
-      MakeExplosion(projectile->GetPosition(), projectile->GetOwnerId());
+      MakeRocketExplosion(projectile->GetPosition(),
+        projectile->GetRocketExplosionRadius(),
+        projectile->GetRocketExplosionDamage(),
+        projectile->GetOwnerId());
     } else if (projectile->GetProjectileType() == Projectile::TYPE_SLIME) {
-      morph_list_.push_back(projectile->GetPosition());
+      morph_list_.push_back(
+        std::pair<b2Vec2, int>(projectile->GetPosition(),
+          projectile->GetSlimeExplosionRadius()));
     }
     projectile->Destroy();
   }
 }
 
-void Controller::ExplodeCritter(Critter* critter) {
-  // We do not want 'critter' to explode multiple times.
-  if (!critter->IsDestroyed()) {
-    MakeExplosion(critter->GetPosition(), critter->GetId());
-    critter->Destroy();
-  }
-}
-
-void Controller::MakeExplosion(const b2Vec2& location, uint32_t source_id) {
-  float radius = gun_settings_.GetFloat("bazooka.explosion_radius");
-  int damage = gun_settings_.GetInt32("bazooka.explosion_damage");
-
+void Controller::MakeRocketExplosion(const b2Vec2& location, float radius,
+                               int damage, uint32_t source_id) {
   // FIXME(xairy): can miss huge entities.
   radius += 13.0f;
 
@@ -449,8 +442,7 @@ void Controller::MakeExplosion(const b2Vec2& location, uint32_t source_id) {
   game_events_.push_back(event);
 }
 
-void Controller::MakeSlimeExplosion(const b2Vec2& location) {
-  int radius = gun_settings_.GetInt32("morpher.radius");
+void Controller::MakeSlimeExplosion(const b2Vec2& location, int radius) {
   float block_size = world_.GetBlockSize();
   int lx = static_cast<int>(round(location.x / block_size));
   int ly = static_cast<int>(round(location.y / block_size));
