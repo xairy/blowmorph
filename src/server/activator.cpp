@@ -2,6 +2,8 @@
 
 #include "server/activator.h"
 
+#include <string>
+
 #include <Box2D/Box2D.h>
 
 #include "base/body.h"

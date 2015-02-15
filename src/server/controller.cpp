@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <pugixml.hpp>
 
@@ -35,6 +36,8 @@ Controller::Controller(IdManager* id_manager) : world_(this, id_manager) {
   world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
   bool rv = entity_settings_.Open("data/entities.cfg");
   CHECK(rv == true);  // FIXME(xairy).
+  rv = body_settings_.Open("data/bodies.cfg");
+  CHECK(rv == true);  // FIXME(xairy).
   rv = gun_settings_.Open("data/guns.cfg");
   CHECK(rv == true);  // FIXME(xairy).
 }
@@ -47,6 +50,10 @@ World* Controller::GetWorld() {
 
 SettingsManager* Controller::GetEntitySettings() {
   return &entity_settings_;
+}
+
+SettingsManager* Controller::GetBodySettings() {
+  return &body_settings_;
 }
 
 std::vector<GameEvent>* Controller::GetGameEvents() {

@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <Box2D/Box2D.h>
 
@@ -33,6 +34,7 @@ class Controller {
 
   World* GetWorld();
   SettingsManager* GetEntitySettings();
+  SettingsManager* GetBodySettings();
 
   // The list of the events should be cleared by the caller.
   std::vector<GameEvent>* GetGameEvents();
@@ -109,6 +111,7 @@ class Controller {
   std::vector<GameEvent> game_events_;
 
   SettingsManager entity_settings_;
+  SettingsManager body_settings_;
   SettingsManager gun_settings_;
 };
 
