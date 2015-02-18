@@ -109,8 +109,7 @@ solution "blowmorph"
     files { "src/client/**.cpp",
             "src/client/**.h" }
 
-    links { "base" }
-    links { "interpolator" }
+    links { "base", "engine" }
 
     resource("data", "data")
 
@@ -170,7 +169,7 @@ solution "blowmorph"
     files { "src/server/**.cpp",
             "src/server/**.h" }
 
-    links { "base" }
+    links { "base", "engine" }
 
     resource("data", "data")
 
@@ -226,6 +225,15 @@ solution "blowmorph"
       links { "enet-plus" }
     configuration "linux"
       links { "enet-plus" }
+
+  project "engine"
+    kind "SharedLib"
+    language "C++"
+
+    defines { "BM_ENGINE_DLL" }
+    includedirs { "src" }
+    files { "src/engine/**.cpp",
+            "src/engine/**.h" }
 
     -- Box2D
     configuration "windows"

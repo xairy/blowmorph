@@ -1,7 +1,7 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#ifndef BASE_BODY_H_
-#define BASE_BODY_H_
+#ifndef ENGINE_BODY_H_
+#define ENGINE_BODY_H_
 
 #include <string>
 
@@ -9,7 +9,6 @@
 
 #include "base/macros.h"
 #include "base/settings_manager.h"
-#include "base/utils.h"
 
 namespace bm {
 
@@ -56,4 +55,4 @@ class Body {
 
 }  // namespace bm
 
-#endif  // BASE_BODY_H_
+#endif  // ENGINE_BODY_H_

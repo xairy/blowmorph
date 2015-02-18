@@ -26,6 +26,8 @@
 #include "base/time.h"
 #include "base/utils.h"
 
+#include "engine/utils.h"
+
 #include "client/contact_listener.h"
 #include "client/entity.h"
 #include "client/resource_manager.h"

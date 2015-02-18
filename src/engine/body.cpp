@@ -1,6 +1,6 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#include "base/body.h"
+#include "engine/body.h"
 
 #include <string>
 
@@ -8,6 +8,8 @@
 
 #include "base/macros.h"
 #include "base/settings_manager.h"
+
+#include "engine/utils.h"
 
 namespace bm {
 

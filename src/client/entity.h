@@ -9,8 +9,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "base/body.h"
 #include "base/pstdint.h"
+
+#include "engine/body.h"
 
 #include "client/sprite.h"
 

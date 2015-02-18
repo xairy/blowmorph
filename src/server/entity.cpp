@@ -9,12 +9,13 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/body.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/settings_manager.h"
+
+#include "engine/body.h"
 
 #include "server/controller.h"
 #include "server/id_manager.h"

@@ -6,11 +6,12 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "base/body.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/time.h"
 #include "base/utils.h"
+
+#include "engine/body.h"
 
 namespace {
 
