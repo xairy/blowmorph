@@ -346,7 +346,7 @@ void Controller::DestroyOutlyingEntities() {
   for (i = world_.GetStaticEntities()->begin(); i != end; ++i) {
     Entity* entity = i->second;
     b2Vec2 position = entity->GetPosition();
-    if (abs(position.x) > bound || abs(position.y) > bound) {
+    if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
       entity->Destroy();
     }
   }
@@ -354,7 +354,7 @@ void Controller::DestroyOutlyingEntities() {
   for (i = world_.GetDynamicEntities()->begin(); i != end; ++i) {
     Entity* entity = i->second;
     b2Vec2 position = entity->GetPosition();
-    if (abs(position.x) > bound || abs(position.y) > bound) {
+    if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
       if (entity->GetType() != Entity::TYPE_PLAYER) {
         entity->Destroy();
       }
@@ -401,8 +401,9 @@ void Controller::UpdateScore(Player* player) {
 void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = world_.GetStaticEntities()->end();
-  for (itr = world_.GetStaticEntities()->begin(); itr != end; ++itr) {
+  for (itr = world_.GetStaticEntities()->begin(); itr != end;) {
     Entity* entity = itr->second;
+    ++itr;
     if (entity->IsDestroyed()) {
       GameEvent event;
       event.type = GameEvent::TYPE_ENTITY_DISAPPEARED;
@@ -416,8 +417,9 @@ void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
     }
   }
   end = world_.GetDynamicEntities()->end();
-  for (itr = world_.GetDynamicEntities()->begin(); itr != end; ++itr) {
+  for (itr = world_.GetDynamicEntities()->begin(); itr != end;) {
     Entity* entity = itr->second;
+    ++itr;
     if (entity->IsDestroyed()) {
       GameEvent event;
       event.type = GameEvent::TYPE_ENTITY_DISAPPEARED;

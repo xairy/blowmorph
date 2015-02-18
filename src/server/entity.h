@@ -18,33 +18,34 @@ namespace bm {
 
 class Controller;
 
-class Player;
+class Activator;
 class Critter;
+class Kit;
+class Player;
 class Projectile;
 class Wall;
-class Kit;
-class Activator;
 
 class Entity {
  public:
   static const uint32_t BAD_ID = IdManager::BAD_ID;
 
   enum Type {
+    TYPE_ACTIVATOR,
+    TYPE_CRITTER,
+    TYPE_KIT,
     TYPE_PLAYER,
     TYPE_PROJECTILE,
     TYPE_WALL,
-    TYPE_KIT,
-    TYPE_CRITTER,
-    TYPE_ACTIVATOR
   };
 
   // Collision filters.
   enum FilterType {
-    FILTER_PLAYER     = 0x0001,
-    FILTER_PROJECTILE = 0x0002,
-    FILTER_WALL       = 0x0004,
-    FILTER_KIT        = 0x0008,
-    FILTER_ACTIVATOR  = 0x0010,
+    FILTER_ACTIVATOR  = 0x0001,
+    FILTER_CRITTER    = 0x0002,
+    FILTER_KIT        = 0x0004,
+    FILTER_PLAYER     = 0x0008,
+    FILTER_PROJECTILE = 0x0010,
+    FILTER_WALL       = 0x0020,
     FILTER_ALL        = 0xffff,
     FILTER_NONE       = 0x0000
   };

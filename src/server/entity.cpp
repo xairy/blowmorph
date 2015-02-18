@@ -28,7 +28,6 @@
 
 namespace bm {
 
-// XXX(xairy): load dynamic, category and mask from cfg?
 Entity::Entity(
   Controller* controller,
   uint32_t id,
