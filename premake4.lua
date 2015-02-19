@@ -86,8 +86,12 @@ solution "blowmorph"
 
   configuration { "linux" }
     flags { "NoExceptions" }
+    -- TODO: use "-stdlib=libc++" for clang.
+    linkoptions { "-std=c++11" }
+    buildoptions { "-std=c++11" }
 
   configuration { "windows" }
+    -- TODO: C++11
     includedirs { "src/windows" }
     defines { "WIN32", "_WIN32" }
     defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS" }
@@ -111,7 +115,8 @@ solution "blowmorph"
 
     links { "base", "engine" }
 
-    resource("data", "data")
+    configuration "windows"
+      resource("data", "data")
 
     -- SFML
     configuration "windows"
@@ -171,7 +176,8 @@ solution "blowmorph"
 
     links { "base", "engine" }
 
-    resource("data", "data")
+    configuration "windows"
+      resource("data", "data")
 
     -- PugiXML
     configuration "windows"
