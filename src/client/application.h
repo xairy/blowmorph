@@ -63,6 +63,7 @@ class Application {
   void SimulatePhysics();
 
   void Render();
+  void RenderTerrain();
   void RenderHUD();
   void WriteText(const std::string& str, const sf::Vector2f& position,
       int size, sf::Color color);

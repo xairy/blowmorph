@@ -948,9 +948,10 @@ void Application::Render() {
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
     int64_t render_time = GetServerTime();
     b2Vec2 position = player_->GetBody()->GetPosition();
-
     view_.setCenter(Round(sf::Vector2f(position.x, position.y)));
     render_window_->setView(view_);
+
+    RenderTerrain();
 
     // FIXME(xairy): madness.
     std::list<Sprite*>::iterator it2;
@@ -987,6 +988,18 @@ void Application::Render() {
   }
 
   render_window_->display();
+}
+
+void Application::RenderTerrain() {
+  // FIXME(xairy): temporary.
+  static Sprite* sprite = resource_manager_.CreateSprite("grass");
+  CHECK(sprite != NULL);
+  for (int x = -16; x <= 16; x++) {
+    for (int y = -16; y <= 16; y++) {
+      sprite->SetPosition(sf::Vector2f(x * 100.0f, y * 100.0f));
+      sprite->Render(render_window_);
+    }
+  }
 }
 
 // TODO(xairy): load HUD layout parameters from some config file.
