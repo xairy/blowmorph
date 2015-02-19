@@ -212,7 +212,7 @@ void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
     b2Vec2 mouse_position = b2Vec2(event.x, event.y);
     b2Vec2 direction = mouse_position - player->GetPosition();
     float angle = atan2f(-direction.x, direction.y);
-    player->SetRotation(angle / M_PI * 180);
+    player->SetRotation(angle);
   }
 }
 
@@ -339,7 +339,7 @@ void Controller::UpdateEntities(int64_t time_delta) {
         velocity *= critter->GetSpeed();
         critter->SetImpulse(critter->GetMass() * velocity);
         float angle = atan2f(-velocity.x, velocity.y);
-        critter->SetRotation(angle / M_PI * 180);
+        critter->SetRotation(angle);
       }
     } else if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);
