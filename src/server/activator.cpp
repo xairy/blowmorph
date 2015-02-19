@@ -26,8 +26,10 @@ Activator::Activator(
 ) : Entity(controller, id,
            controller->GetActivatorSettings()->GetString(config_name + ".body"),
            position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  SettingsManager* entity_settings = controller->GetActivatorSettings();
-  std::string type_name = entity_settings->GetString(config_name + ".type");
+  SettingsManager* settings = controller->GetActivatorSettings();
+  activation_distance_ = settings->GetFloat(
+      config_name + ".activation_distance");
+  std::string type_name = settings->GetString(config_name + ".type");
   if (type_name == "door") {
     type_ = TYPE_DOOR;
   } else {
@@ -56,6 +58,10 @@ void Activator::GetSnapshot(int64_t time, EntitySnapshot* output) {
 }
 
 void Activator::Damage(int damage, uint32_t source_id) { }
+
+float Activator::GetActivationDistance() const {
+  return activation_distance_;
+}
 
 void Activator::Activate(Entity* activator) {
   printf("Player %d activated %d\n",

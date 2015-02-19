@@ -20,6 +20,8 @@
 #include "base/settings_manager.h"
 #include "base/utils.h"
 
+#include "engine/utils.h"
+
 #include "server/entity.h"
 #include "server/id_manager.h"
 
@@ -220,10 +222,29 @@ void Controller::OnPlayerAction(Player* player, const PlayerAction& event) {
     if (entity == NULL) {
       return;
     }
+
+    // Check visibility.
+    b2Body* body = RayCast(world_.GetBox2DWorld(), player->GetPosition(),
+      entity->GetPosition());
+    if (body == NULL) {
+      return;
+    }
+    if (entity != static_cast<Entity*>(body->GetUserData())) {
+      return;
+    }
+
+    // Check entity type.
     if (entity->GetType() != Entity::TYPE_ACTIVATOR) {
       return;
     }
     Activator* activator = static_cast<Activator*>(entity);
+
+    // Check distance.
+    if (Length(entity->GetPosition() - player->GetPosition()) >
+        activator->GetActivationDistance()) {
+      return;
+    }
+
     activator->Activate(player);
   }
 }

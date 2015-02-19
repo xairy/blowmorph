@@ -39,6 +39,8 @@ class Activator : public Entity {
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
   virtual void Damage(int damage, uint32_t source_id);
 
+  float GetActivationDistance() const;
+
   void Activate(Entity* activator);
 
   // Double dispatch. Collision detection.
@@ -50,10 +52,10 @@ class Activator : public Entity {
   virtual void Collide(Kit* other);
   virtual void Collide(Activator* other);
 
- protected:
+ private:
+  float activation_distance_;
   Type type_;
 
- private:
   DISALLOW_COPY_AND_ASSIGN(Activator);
 };
 
