@@ -39,14 +39,16 @@ class ContactListener : public b2ContactListener {
     }
 
     if (a->GetType() == Entity::TYPE_PLAYER &&
-        b->GetType() == Entity::TYPE_WALL) {
-      // Our player collides only with walls.
+        (b->GetType() == Entity::TYPE_WALL ||
+         b->GetType() == Entity::TYPE_ACTIVATOR)) {
+      // Our player collides only with static entities.
       return;
     }
 
     if (b->GetType() == Entity::TYPE_PLAYER &&
-        a->GetType() == Entity::TYPE_WALL) {
-      // Our player collides only with walls.
+        (a->GetType() == Entity::TYPE_WALL ||
+         a->GetType() == Entity::TYPE_ACTIVATOR)) {
+      // Our player collides only with static entities.
       return;
     }
 

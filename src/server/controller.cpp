@@ -112,7 +112,7 @@ void Controller::Update(int64_t time, int64_t time_delta) {
 
 Player* Controller::OnPlayerConnected() {
   // FIXME(xairy): Temporary.
-  world_.CreateActivator(b2Vec2(0, 0), "door");
+  world_.CreateActivator(b2Vec2(-800.0f, 800.0f), "door");
 
   Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f));
   RespawnPlayer(player);
@@ -256,7 +256,10 @@ void Controller::OnCollision(Activator* activator, Kit* kit) { }
 void Controller::OnCollision(Activator* activator, Wall* wall) { }
 void Controller::OnCollision(Activator* activator, Player* player) { }
 void Controller::OnCollision(Activator* activator, Critter* critter) { }
-void Controller::OnCollision(Activator* activator, Projectile* projectile) { }
+
+void Controller::OnCollision(Activator* activator, Projectile* projectile) {
+  DestroyProjectile(projectile);
+}
 
 void Controller::OnCollision(Kit* kit1, Kit* kit2) { }
 void Controller::OnCollision(Kit* kit, Wall* wall) { }

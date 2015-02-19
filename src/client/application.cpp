@@ -806,55 +806,59 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   std::string body_config =
       entity_settings->GetString(entity_config + ".body");
 
+  Entity* entity = NULL;
+
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      Entity* wall = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_WALL, world_, sprite, position);
-      CHECK(wall != NULL);
-      static_entities_[id] = wall;
+      CHECK(entity != NULL);
+      static_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      Entity* object = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_PROJECTILE, world_, sprite, position);
-      CHECK(object != NULL);
-      dynamic_entities_[id] = object;
+      CHECK(entity != NULL);
+      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      Entity* object = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_PLAYER, world_, sprite, position);
-      CHECK(object != NULL);
+      CHECK(entity != NULL);
       if (player_names_.count(id) == 1) {
-        object->EnableCaption(player_names_[id], *font_);
+        entity->EnableCaption(player_names_[id], *font_);
       }
-      dynamic_entities_[id] = object;
+      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      Entity* object = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_CRITTER, world_, sprite, position);
-      CHECK(object != NULL);
-      dynamic_entities_[id] = object;
+      CHECK(entity != NULL);
+      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      Entity* object = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_KIT, world_, sprite, position);
-      CHECK(object != NULL);
-      dynamic_entities_[id] = object;
+      CHECK(entity != NULL);
+      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      Entity* object = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(&body_settings_, body_config, id,
         Entity::TYPE_ACTIVATOR, world_, sprite, position);
-      CHECK(object != NULL);
-      static_entities_[id] = object;
+      CHECK(entity != NULL);
+      static_entities_[id] = entity;
     } break;
 
     default:
-      break;
+      CHECK(false);  // Unreachable.
   }
+
+  entity->GetBody()->SetRotation(snapshot->angle);
 }
 
 void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
@@ -867,6 +871,10 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL ||
       snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR) {
     static_entities_[snapshot->id]->GetBody()->SetPosition(position);
+    static_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
+    if (snapshot->angle != 0) {
+      printf("! %f\n", snapshot->angle);
+    }
   } else {
     int64_t server_time = GetServerTime();
     if (server_time - interpolation_offset_ >= snapshot->time) {
@@ -980,7 +988,7 @@ void Application::Render() {
     b2Vec2 mouse_position = GetMousePosition();
     b2Vec2 direction = mouse_position - player_->GetBody()->GetPosition();
     float angle = atan2f(-direction.x, direction.y);
-    player_->GetBody()->SetRotation(angle / M_PI * 180);
+    player_->GetBody()->SetRotation(angle);
 
     player_->Render(render_window_, render_time);
 

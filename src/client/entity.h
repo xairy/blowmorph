@@ -21,12 +21,12 @@ namespace bm {
 class Entity {
  public:
   enum Type {
+    TYPE_ACTIVATOR,
+    TYPE_CRITTER,
+    TYPE_KIT,
     TYPE_PLAYER,
     TYPE_PROJECTILE,
     TYPE_WALL,
-    TYPE_KIT,
-    TYPE_CRITTER,
-    TYPE_ACTIVATOR
   };
 
   Entity(

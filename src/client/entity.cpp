@@ -2,6 +2,8 @@
 
 #include "client/entity.h"
 
+#include <cmath>
+
 #include <string>
 
 #include <SFML/Graphics.hpp>
@@ -81,7 +83,7 @@ void Entity::Render(sf::RenderWindow* render_window, int64_t time) {
 
   if (visible_) {
     sprite_->SetPosition(position);
-    sprite_->SetRotation(body_.GetRotation());
+    sprite_->SetRotation(body_.GetRotation() / M_PI * 180.0f);
     sprite_->Render(render_window);
   }
 

@@ -2,6 +2,8 @@
 
 #include "server/activator.h"
 
+#include <cmath>
+
 #include <string>
 
 #include <Box2D/Box2D.h>
@@ -66,6 +68,8 @@ float Activator::GetActivationDistance() const {
 void Activator::Activate(Entity* activator) {
   printf("Player %d activated %d\n",
       activator->GetId(), GetId());
+  SetRotation(GetRotation() + M_PI / 2);
+  SetUpdatedFlag(true);
 }
 
 // Double dispatch. Collision detection.
