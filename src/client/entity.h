@@ -36,8 +36,7 @@ class Entity {
     Type type,
     b2World *world,
     Sprite* sprite,
-    const b2Vec2& position,
-    int64_t time);
+    const b2Vec2& position);
   ~Entity();
 
   Type GetType() const;

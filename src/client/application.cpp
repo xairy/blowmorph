@@ -143,7 +143,7 @@ bool Application::Run() {
   Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
   player_ = new Entity(&body_settings_, "man", client_options_.id,
-    Entity::TYPE_PLAYER, world_, sprite, position, 0);
+    Entity::TYPE_PLAYER, world_, sprite, position);
   CHECK(player_ != NULL);
   player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
   player_->GetBody()->SetPosition(position);
@@ -724,7 +724,6 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  int64_t time = snapshot->time;
   uint32_t id = snapshot->id;
   EntitySnapshot::EntityType type = snapshot->type;
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
@@ -810,21 +809,21 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
       Entity* wall = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_WALL, world_, sprite, position, time);
+        Entity::TYPE_WALL, world_, sprite, position);
       CHECK(wall != NULL);
       static_entities_[id] = wall;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_PROJECTILE, world_, sprite, position, time);
+        Entity::TYPE_PROJECTILE, world_, sprite, position);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_PLAYER, world_, sprite, position, time);
+        Entity::TYPE_PLAYER, world_, sprite, position);
       CHECK(object != NULL);
       if (player_names_.count(id) == 1) {
         object->EnableCaption(player_names_[id], *font_);
@@ -834,21 +833,21 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_CRITTER, world_, sprite, position, time);
+        Entity::TYPE_CRITTER, world_, sprite, position);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_KIT, world_, sprite, position, time);
+        Entity::TYPE_KIT, world_, sprite, position);
       CHECK(object != NULL);
       dynamic_entities_[id] = object;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
       Entity* object = new Entity(&body_settings_, body_config, id,
-        Entity::TYPE_ACTIVATOR, world_, sprite, position, time);
+        Entity::TYPE_ACTIVATOR, world_, sprite, position);
       CHECK(object != NULL);
       static_entities_[id] = object;
     } break;
@@ -1158,6 +1157,7 @@ bool Application::SendInputEvents() {
   }
   keyboard_events_.clear();
 
+  // TODO(xairy): make mouse event actions.
   for (size_t i = 0; i < mouse_events_.size(); i++) {
     bool rv = SendPacket(peer_, Packet::TYPE_MOUSE_EVENT,
         mouse_events_[i]);
