@@ -884,7 +884,6 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
     CHECK(dynamic_entities_.count(snapshot->id) == 1);
     dynamic_entities_[snapshot->id]->SetInterpolationPosition(position,
         snapshot->time, interpolation_offset_, server_time);
-    // FIXME(xairy): ignoring angle on entity appearance.
     dynamic_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
     // TODO(xairy): use SetInterpolationRotation.
     // dynamic_entities_[snapshot->id]->SetInterpolationRotation(
