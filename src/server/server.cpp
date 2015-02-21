@@ -15,12 +15,12 @@
 
 #include <enet-plus/enet.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/time.h"
 
 #include "server/client_manager.h"

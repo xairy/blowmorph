@@ -7,11 +7,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "engine/body.h"
 
@@ -29,7 +29,7 @@ Player::Player(
            controller->GetPlayerSettings()->GetString("player.body"),
            position, Entity::FILTER_PLAYER,
            Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
-  SettingsManager* settings = controller->GetPlayerSettings();
+  ConfigReader* settings = controller->GetPlayerSettings();
   _speed = settings->GetFloat("player.speed");
 
   _score = 0;

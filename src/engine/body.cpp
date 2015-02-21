@@ -6,8 +6,8 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/macros.h"
-#include "base/settings_manager.h"
 
 #include "engine/utils.h"
 
@@ -21,7 +21,7 @@ Body::~Body() {
   }
 }
 
-void Body::Create(b2World* world, SettingsManager* body_settings,
+void Body::Create(b2World* world, ConfigReader* body_settings,
     const std::string& body_config) {
   CHECK(state_ == STATE_DESTROYED);
 

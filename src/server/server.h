@@ -11,11 +11,11 @@
 
 #include <enet-plus/enet.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/timer.h"
 
 #include "server/client_manager.h"
@@ -71,7 +71,7 @@ class Server {
   Controller controller_;
   ClientManager client_manager_;
 
-  SettingsManager settings_;
+  ConfigReader settings_;
 
   enum {
     STATE_FINALIZED,

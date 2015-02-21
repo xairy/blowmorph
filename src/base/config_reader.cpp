@@ -1,6 +1,6 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#include "base/settings_manager.h"
+#include "base/config_reader.h"
 
 #include <limits>
 #include <string>
@@ -13,7 +13,7 @@
 #include "base/pstdint.h"
 
 #define DEFINE_GET_METHOD(type, lookup_method, get_method) \
-type SettingsManager::get_method(const std::string& key) { \
+type ConfigReader::get_method(const std::string& key) { \
   type result;                                             \
   printf("Loading %s...\n", key.c_str());                  \
   bool rv = lookup_method(key, &result);                   \
@@ -23,12 +23,12 @@ type SettingsManager::get_method(const std::string& key) { \
 
 namespace bm {
 
-SettingsManager::SettingsManager() : state_(STATE_CLOSED) { }
-SettingsManager::~SettingsManager() {
+ConfigReader::ConfigReader() : state_(STATE_CLOSED) { }
+ConfigReader::~ConfigReader() {
   Close();
 }
 
-bool SettingsManager::Open(const std::string& path) {
+bool ConfigReader::Open(const std::string& path) {
   cfg_ = new config_t();
   CHECK(cfg_ != NULL);
   config_init(cfg_);
@@ -41,7 +41,7 @@ bool SettingsManager::Open(const std::string& path) {
   return true;
 }
 
-void SettingsManager::Close() {
+void ConfigReader::Close() {
   if (state_ == STATE_OPENED) {
     config_destroy(cfg_);
     delete cfg_;
@@ -50,12 +50,12 @@ void SettingsManager::Close() {
   }
 }
 
-bool SettingsManager::HasSetting(const std::string& key) {
+bool ConfigReader::HasSetting(const std::string& key) {
   CHECK(state_ == STATE_OPENED);
   return (config_lookup(cfg_, key.c_str()) != NULL);
 }
 
-bool SettingsManager::LookupInt16(const std::string& key, int16_t* output) {
+bool ConfigReader::LookupInt16(const std::string& key, int16_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -71,7 +71,7 @@ bool SettingsManager::LookupInt16(const std::string& key, int16_t* output) {
 }
 DEFINE_GET_METHOD(int16_t, LookupInt16, GetInt16);
 
-bool SettingsManager::LookupUInt16(const std::string& key, uint16_t* output) {
+bool ConfigReader::LookupUInt16(const std::string& key, uint16_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -86,7 +86,7 @@ bool SettingsManager::LookupUInt16(const std::string& key, uint16_t* output) {
 }
 DEFINE_GET_METHOD(uint16_t, LookupUInt16, GetUInt16);
 
-bool SettingsManager::LookupInt32(const std::string& key, int32_t* output) {
+bool ConfigReader::LookupInt32(const std::string& key, int32_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -102,7 +102,7 @@ bool SettingsManager::LookupInt32(const std::string& key, int32_t* output) {
 }
 DEFINE_GET_METHOD(int32_t, LookupInt32, GetInt32);
 
-bool SettingsManager::LookupUInt32(const std::string& key, uint32_t* output) {
+bool ConfigReader::LookupUInt32(const std::string& key, uint32_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -117,7 +117,7 @@ bool SettingsManager::LookupUInt32(const std::string& key, uint32_t* output) {
 }
 DEFINE_GET_METHOD(uint32_t, LookupUInt32, GetUInt32);
 
-bool SettingsManager::LookupInt64(const std::string& key, int64_t* output) {
+bool ConfigReader::LookupInt64(const std::string& key, int64_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -133,7 +133,7 @@ bool SettingsManager::LookupInt64(const std::string& key, int64_t* output) {
 }
 DEFINE_GET_METHOD(int64_t, LookupInt64, GetInt64);
 
-bool SettingsManager::LookupUInt64(const std::string& key, uint64_t* output) {
+bool ConfigReader::LookupUInt64(const std::string& key, uint64_t* output) {
   CHECK(state_ == STATE_OPENED);
   long long tmp;  // NOLINT
   int rv = config_lookup_int64(cfg_, key.c_str(), &tmp);
@@ -148,7 +148,7 @@ bool SettingsManager::LookupUInt64(const std::string& key, uint64_t* output) {
 }
 DEFINE_GET_METHOD(uint64_t, LookupUInt64, GetUInt64);
 
-bool SettingsManager::LookupFloat(const std::string& key, float* output) {
+bool ConfigReader::LookupFloat(const std::string& key, float* output) {
   CHECK(state_ == STATE_OPENED);
   double tmp;
   int rv = config_lookup_float(cfg_, key.c_str(), &tmp);
@@ -160,14 +160,14 @@ bool SettingsManager::LookupFloat(const std::string& key, float* output) {
 }
 DEFINE_GET_METHOD(float, LookupFloat, GetFloat);
 
-bool SettingsManager::LookupDouble(const std::string& key, double* output) {
+bool ConfigReader::LookupDouble(const std::string& key, double* output) {
   CHECK(state_ == STATE_OPENED);
   int rv = config_lookup_float(cfg_, key.c_str(), output);
   return (rv == CONFIG_TRUE);
 }
 DEFINE_GET_METHOD(double, LookupDouble, GetDouble);
 
-bool SettingsManager::LookupBool(const std::string& key, bool* output) {
+bool ConfigReader::LookupBool(const std::string& key, bool* output) {
   CHECK(state_ == STATE_OPENED);
   int tmp;
   int rv = config_lookup_bool(cfg_, key.c_str(), &tmp);
@@ -179,7 +179,7 @@ bool SettingsManager::LookupBool(const std::string& key, bool* output) {
 }
 DEFINE_GET_METHOD(bool, LookupBool, GetBool);
 
-bool SettingsManager::LookupString(const std::string& key,
+bool ConfigReader::LookupString(const std::string& key,
     std::string* output) {
   CHECK(state_ == STATE_OPENED);
   const char *tmp;
@@ -192,7 +192,7 @@ bool SettingsManager::LookupString(const std::string& key,
 }
 DEFINE_GET_METHOD(std::string, LookupString, GetString);
 
-bool SettingsManager::LookupInt32List(const std::string& key,
+bool ConfigReader::LookupInt32List(const std::string& key,
     std::vector<int32_t>* output) {
   CHECK(state_ == STATE_OPENED);
   config_setting_t* setting = config_lookup(cfg_, key.c_str());

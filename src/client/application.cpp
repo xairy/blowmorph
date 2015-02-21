@@ -17,12 +17,12 @@
 
 #include <enet-plus/enet.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/time.h"
 #include "base/utils.h"
 
@@ -729,7 +729,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
   std::string entity_config;
-  SettingsManager* entity_settings = NULL;
+  ConfigReader* entity_settings = NULL;
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {

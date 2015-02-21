@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-#include "base/settings_manager.h"
+#include "base/config_reader.h"
 
 #include "client/sprite.h"
 #include "client/texture_atlas.h"
@@ -23,8 +23,8 @@ class ResourceManager {
  private:
   TextureAtlas* LoadTexture(const std::string& id);
 
-  SettingsManager textures_settings_;
-  SettingsManager sprites_settings_;
+  ConfigReader textures_settings_;
+  ConfigReader sprites_settings_;
 
   std::map<std::string, TextureAtlas*> textures_;
 

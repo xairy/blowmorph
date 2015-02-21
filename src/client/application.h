@@ -13,10 +13,10 @@
 
 #include <enet-plus/enet.h>
 
+#include "base/config_reader.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
@@ -79,15 +79,15 @@ class Application {
 
   bool is_running_;
 
-  SettingsManager client_settings_;
-  SettingsManager body_settings_;
+  ConfigReader client_settings_;
+  ConfigReader body_settings_;
 
-  SettingsManager activator_settings_;
-  SettingsManager critter_settings_;
-  SettingsManager kit_settings_;
-  SettingsManager player_settings_;
-  SettingsManager projectile_settings_;
-  SettingsManager wall_settings_;
+  ConfigReader activator_settings_;
+  ConfigReader critter_settings_;
+  ConfigReader kit_settings_;
+  ConfigReader player_settings_;
+  ConfigReader projectile_settings_;
+  ConfigReader wall_settings_;
 
   ResourceManager resource_manager_;
 

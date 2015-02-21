@@ -1,7 +1,7 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#ifndef BASE_SETTINGS_MANAGER_H_
-#define BASE_SETTINGS_MANAGER_H_
+#ifndef BASE_CONFIG_READER_H_
+#define BASE_CONFIG_READER_H_
 
 #include <string>
 #include <vector>
@@ -14,10 +14,10 @@ struct config_t;
 namespace bm {
 
 // FIXME: make methods const.
-class SettingsManager {
+class ConfigReader {
  public:
-  BM_BASE_DECL SettingsManager();
-  BM_BASE_DECL ~SettingsManager();
+  BM_BASE_DECL ConfigReader();
+  BM_BASE_DECL ~ConfigReader();
 
   BM_BASE_DECL bool Open(const std::string& path);
   BM_BASE_DECL void Close();
@@ -63,4 +63,4 @@ class SettingsManager {
 
 }  // namespace bm
 
-#endif  // BASE_SETTINGS_MANAGER_H_
+#endif  // BASE_CONFIG_READER_H_

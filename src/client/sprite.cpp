@@ -8,9 +8,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/timer.h"
 
 #include "client/texture_atlas.h"

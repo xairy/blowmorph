@@ -7,11 +7,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "engine/body.h"
 
@@ -31,7 +31,7 @@ Projectile::Projectile(
               GetString(config_name + ".body"),
            start, Entity::FILTER_PROJECTILE,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* entity_settings = controller->GetProjectileSettings();
+  ConfigReader* entity_settings = controller->GetProjectileSettings();
   float speed = entity_settings->GetFloat(config_name + ".speed");
 
   b2Vec2 velocity = end - start;

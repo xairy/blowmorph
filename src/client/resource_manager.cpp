@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "base/config_reader.h"
 #include "base/macros.h"
-#include "base/settings_manager.h"
 
 #include "client/sprite.h"
 #include "client/texture_atlas.h"

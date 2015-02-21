@@ -26,7 +26,7 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 namespace bm {
 
 Entity::Entity(
-  SettingsManager* body_settings,
+  ConfigReader* body_settings,
   const std::string& body_config,
   uint32_t id,
   Type type,

@@ -7,8 +7,8 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/macros.h"
-#include "base/settings_manager.h"
 
 namespace bm {
 
@@ -17,7 +17,7 @@ class Body {
   Body();
   virtual ~Body();
 
-  void Create(b2World* world, SettingsManager* body_settings,
+  void Create(b2World* world, ConfigReader* body_settings,
       const std::string& body_config);
   void Destroy();
 
