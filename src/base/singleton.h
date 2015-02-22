@@ -1,7 +1,9 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef BASE_SINGLETON_H_
 #define BASE_SINGLETON_H_
+
+#include "base/macros.h"
 
 // WARNING: Singleton is NOT thread safe.
 
@@ -13,10 +15,9 @@ class Singleton {
     return &_instance;
   }
 
- private:
-  // Forbid creating Singleton itself.
-  Singleton();
-  ~Singleton();
+ protected:
+ 	Singleton() { }
+  DISALLOW_COPY_AND_ASSIGN(Singleton);
 };
 
 #endif  // BASE_SINGLETON_H_

@@ -6,9 +6,9 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/macros.h"
 
+#include "engine/config.h"
 #include "engine/utils.h"
 
 namespace bm {
@@ -21,18 +21,19 @@ Body::~Body() {
   }
 }
 
-void Body::Create(b2World* world, ConfigReader* body_settings,
-    const std::string& body_config) {
+void Body::Create(b2World* world, const std::string& body_name) {
   CHECK(state_ == STATE_DESTROYED);
-
   CHECK(world != NULL);
-  CHECK(body_settings != NULL);
 
   world_ = world;
 
-  bool dynamic = body_settings->GetBool(body_config + ".dynamic");
+  // FIXME(xairy): check.
+  CHECK(Config::GetInstance()->GetBodiesConfig().count(body_name) > 0);
+  const Config::BodyConfig& config =
+    Config::GetInstance()->GetBodiesConfig().at(body_name);
+
   b2BodyDef body_def;
-  body_def.type = dynamic ? b2_dynamicBody : b2_staticBody;
+  body_def.type = config.dynamic ? b2_dynamicBody : b2_staticBody;
   body_def.fixedRotation = true;
   body_ = world_->CreateBody(&body_def);
   CHECK(body_ != NULL);
@@ -42,18 +43,15 @@ void Body::Create(b2World* world, ConfigReader* body_settings,
   fixture_def.friction = 0.0f;
   fixture_def.restitution = 0.0f;
 
-  std::string type = body_settings->GetString(body_config + ".shape.type");
-  if (type == "box") {
-    float width = body_settings->GetFloat(body_config + ".shape.width");
-    float height = body_settings->GetFloat(body_config + ".shape.height");
+  if (config.shape_type == Config::BodyConfig::SHAPE_TYPE_BOX) {
     b2PolygonShape shape;
-    shape.SetAsBox(width / 2 / BOX2D_SCALE, height / 2 / BOX2D_SCALE);
+    shape.SetAsBox(config.box_config.width / 2 / BOX2D_SCALE,
+                   config.box_config.height / 2 / BOX2D_SCALE);
     fixture_def.shape = &shape;
     body_->CreateFixture(&fixture_def);
-  } else if (type == "circle") {
-    float radius = body_settings->GetFloat(body_config + ".shape.radius");
+  } else if (config.shape_type == Config::BodyConfig::SHAPE_TYPE_CIRCLE) {
     b2CircleShape shape;
-    shape.m_radius = radius / BOX2D_SCALE;
+    shape.m_radius = config.circle_config.radius / BOX2D_SCALE;
     fixture_def.shape = &shape;
     body_->CreateFixture(&fixture_def);
   } else {

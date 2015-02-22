@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "client/sprite.h"
 
@@ -8,7 +8,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/pstdint.h"
 #include "base/timer.h"

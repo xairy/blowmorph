@@ -15,7 +15,6 @@
 #define DEFINE_GET_METHOD(type, lookup_method, get_method) \
 type ConfigReader::get_method(const std::string& key) { \
   type result;                                             \
-  printf("Loading %s...\n", key.c_str());                  \
   bool rv = lookup_method(key, &result);                   \
   CHECK(rv == true);                                       \
   return result;                                           \
@@ -34,7 +33,7 @@ bool ConfigReader::Open(const std::string& path) {
   config_init(cfg_);
   if (!config_read_file(cfg_, path.c_str())) {
     config_destroy(cfg_);
-    THROW_ERROR("Unable to read config!");
+    THROW_ERROR("Unable to read config \"%s\"!", path.c_str());
     return false;
   }
   state_ = STATE_OPENED;
@@ -224,6 +223,20 @@ bool ConfigReader::LookupInt32List(const std::string& key,
     output->push_back(static_cast<int32_t>(value));
   }
   return true;
+}
+
+void ConfigReader::GetRootConfigs(std::vector<std::string>* output) {
+  CHECK(state_ == STATE_OPENED);
+  output->clear();
+  config_setting_t* root_setting = config_root_setting(cfg_);
+  int length = config_setting_length(root_setting);
+  for (int i = 0; i < length; i++) {
+    config_setting_t* setting = config_setting_get_elem(root_setting, i);
+    CHECK(setting != NULL);
+    const char* name = config_setting_name(setting);
+    CHECK(name != NULL);
+    output->push_back(std::string(name));
+  }
 }
 
 #undef DEFINE_GET_METHOD

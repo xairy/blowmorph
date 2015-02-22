@@ -52,6 +52,8 @@ class ConfigReader {
   BM_BASE_DECL bool LookupInt32List(const std::string& key,
     std::vector<int32_t>* output);
 
+  BM_BASE_DECL void GetRootConfigs(std::vector<std::string>* output);
+
  private:
   enum {
     STATE_CLOSED,

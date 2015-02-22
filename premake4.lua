@@ -241,6 +241,8 @@ solution "blowmorph"
     files { "src/engine/**.cpp",
             "src/engine/**.h" }
 
+    links { "base" }
+
     -- Box2D
     configuration "windows"
       -- TODO

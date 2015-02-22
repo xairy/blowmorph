@@ -42,7 +42,7 @@ Entity::Entity(
   b2World* world = controller_->GetWorld()->GetBox2DWorld();
   body_ = new Body();
   CHECK(body_ != NULL);
-  body_->Create(world, controller->GetBodySettings(), body_config);
+  body_->Create(world, body_config);
   body_->SetUserData(this);
   body_->SetPosition(position);
   body_->SetCollisionFilter(collision_category, collision_mask);

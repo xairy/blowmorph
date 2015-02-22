@@ -7,7 +7,6 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/macros.h"
 
 namespace bm {
@@ -17,8 +16,7 @@ class Body {
   Body();
   virtual ~Body();
 
-  void Create(b2World* world, ConfigReader* body_settings,
-      const std::string& body_config);
+  void Create(b2World* world, const std::string& body_config);
   void Destroy();
 
   b2Body* GetBody();

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef CLIENT_APPLICATION_H_
 #define CLIENT_APPLICATION_H_
@@ -13,10 +13,11 @@
 
 #include <enet-plus/enet.h>
 
-#include "base/config_reader.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
+
+#include "engine/config.h"
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
@@ -78,16 +79,6 @@ class Application {
   b2Vec2 GetMousePosition() const;
 
   bool is_running_;
-
-  ConfigReader client_settings_;
-  ConfigReader body_settings_;
-
-  ConfigReader activator_settings_;
-  ConfigReader critter_settings_;
-  ConfigReader kit_settings_;
-  ConfigReader player_settings_;
-  ConfigReader projectile_settings_;
-  ConfigReader wall_settings_;
 
   ResourceManager resource_manager_;
 

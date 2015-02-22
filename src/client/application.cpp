@@ -17,7 +17,6 @@
 
 #include <enet-plus/enet.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
@@ -26,6 +25,7 @@
 #include "base/time.h"
 #include "base/utils.h"
 
+#include "engine/config.h"
 #include "engine/utils.h"
 
 #include "client/contact_listener.h"
@@ -67,30 +67,7 @@ bool Application::Initialize() {
 
   is_running_ = false;
 
-  if (!client_settings_.Open("data/client.cfg")) {
-    return false;
-  }
-
-  if (!body_settings_.Open("data/bodies.cfg")) {
-    return false;
-  }
-
-  if (!activator_settings_.Open("data/activators.cfg")) {
-    return false;
-  }
-  if (!critter_settings_.Open("data/critters.cfg")) {
-    return false;
-  }
-  if (!kit_settings_.Open("data/kits.cfg")) {
-    return false;
-  }
-  if (!player_settings_.Open("data/players.cfg")) {
-    return false;
-  }
-  if (!projectile_settings_.Open("data/projectiles.cfg")) {
-    return false;
-  }
-  if (!wall_settings_.Open("data/walls.cfg")) {
+  if (!Config::GetInstance()->Initialize()) {
     return false;
   }
 
@@ -106,7 +83,7 @@ bool Application::Initialize() {
     return false;
   }
 
-  tick_rate_ = client_settings_.GetInt32("client.tick_rate");
+  tick_rate_ = Config::GetInstance()->GetClientConfig().tick_rate;
 
   time_correction_ = 0;
   last_tick_ = 0;
@@ -118,9 +95,9 @@ bool Application::Initialize() {
   player_energy_ = 0;
 
   max_player_misposition_ =
-      client_settings_.GetFloat("client.max_player_misposition");
+      Config::GetInstance()->GetClientConfig().max_player_misposition;
   interpolation_offset_ =
-      client_settings_.GetInt64("client.interpolation_offset");
+      Config::GetInstance()->GetClientConfig().interpolation_offset;
 
   state_ = STATE_INITIALIZED;
   return true;
@@ -142,10 +119,12 @@ bool Application::Run() {
   b2Vec2 position(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
-  player_ = new Entity(&body_settings_, "man", client_options_.id,
+  player_ = new Entity("man", client_options_.id,
     Entity::TYPE_PLAYER, world_, sprite, position);
   CHECK(player_ != NULL);
-  player_->EnableCaption(client_settings_.GetString("player.login"), *font_);
+  const Config::ClientConfig& config =
+    Config::GetInstance()->GetClientConfig();
+  player_->EnableCaption(config.player_name, *font_);
   player_->GetBody()->SetPosition(position);
 
   contact_listener_.SetPlayerId(client_options_.id);
@@ -211,16 +190,17 @@ void Application::Finalize() {
 bool Application::InitializeGraphics() {
   CHECK(state_ == STATE_FINALIZED);
 
-  uint32_t width = client_settings_.GetUInt32("graphics.width");
-  uint32_t height = client_settings_.GetUInt32("graphics.height");
-  bool fullscreen = client_settings_.GetBool("graphics.fullscreen");
+  const Config::ClientConfig& config =
+    Config::GetInstance()->GetClientConfig();
 
-  sf::VideoMode video_mode(width, height);
-  sf::Uint32 style = fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
+  sf::VideoMode video_mode(config.screen_width, config.screen_height);
+  sf::Uint32 style = config.fullscreen ?
+    sf::Style::Fullscreen : sf::Style::Default;
   render_window_ = new sf::RenderWindow(video_mode, "Blowmorph", style);
   CHECK(render_window_ != NULL);
   view_.reset(sf::FloatRect(0.0f, 0.0f,
-      static_cast<float>(width), static_cast<float>(height)));
+      static_cast<float>(config.screen_width),
+      static_cast<float>(config.screen_height)));
   render_window_->setView(view_);
 
   // By default if a key is held, multiple 'KeyPressed' events
@@ -273,24 +253,21 @@ bool Application::Connect() {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(network_state_ == NETWORK_STATE_INITIALIZED);
 
-  std::string host = client_settings_.GetString("server.host");
-  uint16_t port = client_settings_.GetUInt16("server.port");
+  const Config::ClientConfig& config =
+    Config::GetInstance()->GetClientConfig();
 
-  peer_ = client_->Connect(host, port);
+  peer_ = client_->Connect(config.server_host, config.server_port);
   if (peer_ == NULL) {
     return false;
   }
 
-  uint32_t connect_timeout =
-      client_settings_.GetUInt32("client.connect_timeout");
-
-  bool rv = client_->Service(event_, connect_timeout);
+  bool rv = client_->Service(event_, config.connect_timeout);
   if (rv == false) {
     return false;
   }
   if (event_->GetType() != enet::Event::TYPE_CONNECT) {
     THROW_ERROR("Could not connect to server %s:%d.",
-        host.c_str(), static_cast<int>(port));
+        config.server_host.c_str(), static_cast<int>(config.server_port));
     return false;
   }
 
@@ -307,18 +284,19 @@ bool Application::Synchronize() {
 
   printf("Synchronization started.\n");
 
-  int64_t sync_timeout = client_settings_.GetInt64("client.sync_timeout");
+  const Config::ClientConfig& config =
+    Config::GetInstance()->GetClientConfig();
+
+  int64_t sync_timeout = config.sync_timeout;
   int64_t start_time = Timestamp();
 
   // Send login data.
 
-  std::string login = client_settings_.GetString("player.login");
-  CHECK(login.size() <= LoginData::MAX_LOGIN_LENGTH);
-
+  CHECK(config.player_name.size() <= LoginData::MAX_LOGIN_LENGTH);
   LoginData login_data;
-  std::copy(login.begin(), login.end(), &login_data.login[0]);
-  login_data.login[login.size()] = '\0';
-
+  std::copy(config.player_name.begin(), config.player_name.end(),
+      &login_data.login[0]);
+  login_data.login[config.player_name.size()] = '\0';
   bool rv = SendPacket(peer_, Packet::TYPE_LOGIN, login_data, true);
   if (rv == false) {
     return false;
@@ -476,10 +454,10 @@ bool Application::OnQuitEvent() {
 
   is_running_ = false;
 
-  uint32_t connect_timeout =
-      client_settings_.GetUInt32("client.connect_timeout");
+  const Config::ClientConfig& config =
+    Config::GetInstance()->GetClientConfig();
 
-  if (!DisconnectPeer(peer_, event_, client_, connect_timeout)) {
+  if (!DisconnectPeer(peer_, event_, client_, config.connect_timeout)) {
     THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
     return false;
   } else {
@@ -728,103 +706,118 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   EntitySnapshot::EntityType type = snapshot->type;
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
-  std::string entity_config;
-  ConfigReader* entity_settings = NULL;
+  std::string entity_name;
+  std::string sprite_name;
+  std::string body_name;
+
+  // FIXME(xairy): code below is terrible.
 
   switch (snapshot->type) {
-    case EntitySnapshot::ENTITY_TYPE_WALL: {
-      if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-        entity_config = "ordinary_wall";
-      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-        entity_config = "unbreakable_wall";
-      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-        entity_config = "morphed_wall";
-      } else {
-        CHECK(false);  // Unreachable.
-      }
-      entity_settings = &wall_settings_;
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      switch (snapshot->data[0]) {
-        case EntitySnapshot::PROJECTILE_TYPE_ROCKET: {
-          entity_config = "rocket";
-        } break;
-        case EntitySnapshot::PROJECTILE_TYPE_SLIME: {
-          entity_config = "slime";
-        } break;
-        default: {
-          CHECK(false);  // Unreachable.
-        }
-      }
-      entity_settings = &projectile_settings_;
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity_config = "player";
-      entity_settings = &player_settings_;
+    case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
+      entity_name = "door";
+      sprite_name = Config::GetInstance()->
+        GetActivatorsConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetActivatorsConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity_config = "zombie";
-      entity_settings = &critter_settings_;
+      entity_name = "zombie";
+      sprite_name = Config::GetInstance()->
+        GetCrittersConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetCrittersConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
       switch (snapshot->data[0]) {
         case EntitySnapshot::KIT_TYPE_HEALTH: {
-          entity_config = "health_kit";
+          entity_name = "health_kit";
         } break;
         case EntitySnapshot::KIT_TYPE_ENERGY: {
-          entity_config = "energy_kit";
+          entity_name = "energy_kit";
         } break;
         case EntitySnapshot::KIT_TYPE_COMPOSITE: {
-          entity_config = "composite_kit";
+          entity_name = "composite_kit";
         } break;
         default: {
           CHECK(false);  // Unreachable.
         }
       }
-      entity_settings = &kit_settings_;
+      sprite_name = Config::GetInstance()->
+        GetKitsConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetKitsConfig().at(entity_name).body_name;
     } break;
 
-    case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity_config = "door";
-      entity_settings = &activator_settings_;
+    case EntitySnapshot::ENTITY_TYPE_WALL: {
+      if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
+        entity_name = "ordinary_wall";
+      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
+        entity_name = "unbreakable_wall";
+      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
+        entity_name = "morphed_wall";
+      } else {
+        CHECK(false);  // Unreachable.
+      }
+      sprite_name = Config::GetInstance()->
+        GetWallsConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetWallsConfig().at(entity_name).body_name;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
+      switch (snapshot->data[0]) {
+        case EntitySnapshot::PROJECTILE_TYPE_ROCKET: {
+          entity_name = "rocket";
+        } break;
+        case EntitySnapshot::PROJECTILE_TYPE_SLIME: {
+          entity_name = "slime";
+        } break;
+        default: {
+          CHECK(false);  // Unreachable.
+        }
+      }
+      sprite_name = Config::GetInstance()->
+        GetProjectilesConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetProjectilesConfig().at(entity_name).body_name;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_PLAYER: {
+      entity_name = "player";
+      sprite_name = Config::GetInstance()->
+        GetPlayersConfig().at(entity_name).sprite_name;
+      body_name = Config::GetInstance()->
+        GetPlayersConfig().at(entity_name).body_name;
     } break;
 
     default:
       CHECK(false);  // Unreachable.
   }
 
-  std::string sprite_config =
-      entity_settings->GetString(entity_config + ".sprite");
-
-  Sprite* sprite = resource_manager_.CreateSprite(sprite_config);
+  Sprite* sprite = resource_manager_.CreateSprite(sprite_name);
   CHECK(sprite != NULL);
-
-  std::string body_config =
-      entity_settings->GetString(entity_config + ".body");
 
   Entity* entity = NULL;
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_WALL, world_, sprite, position);
       CHECK(entity != NULL);
       static_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_PROJECTILE, world_, sprite, position);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_PLAYER, world_, sprite, position);
       CHECK(entity != NULL);
       if (player_names_.count(id) == 1) {
@@ -834,21 +827,21 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_CRITTER, world_, sprite, position);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_KIT, world_, sprite, position);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity = new Entity(&body_settings_, body_config, id,
+      entity = new Entity(body_name, id,
         Entity::TYPE_ACTIVATOR, world_, sprite, position);
       CHECK(entity != NULL);
       static_entities_[id] = entity;
@@ -872,9 +865,6 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
       snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR) {
     static_entities_[snapshot->id]->GetBody()->SetPosition(position);
     static_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
-    if (snapshot->angle != 0) {
-      printf("! %f\n", snapshot->angle);
-    }
   } else {
     int64_t server_time = GetServerTime();
     if (server_time - interpolation_offset_ >= snapshot->time) {

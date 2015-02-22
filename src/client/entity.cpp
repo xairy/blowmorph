@@ -26,7 +26,6 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 namespace bm {
 
 Entity::Entity(
-  ConfigReader* body_settings,
   const std::string& body_config,
   uint32_t id,
   Type type,
@@ -38,7 +37,7 @@ Entity::Entity(
     visible_(true),
     sprite_(sprite),
     caption_visible_(false) {
-  body_.Create(world, body_settings, body_config);
+  body_.Create(world, body_config);
   body_.SetUserData(this);
   body_.SetPosition(position);
 }
