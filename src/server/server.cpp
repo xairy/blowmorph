@@ -15,13 +15,15 @@
 
 #include <enet-plus/enet.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/time.h"
+
+#include "engine/config.h"
 
 #include "server/client_manager.h"
 #include "server/controller.h"
@@ -48,6 +50,10 @@ Server::~Server() {
 bool Server::Initialize() {
   CHECK(state_ == STATE_FINALIZED);
 
+  if (!Config::GetInstance()->Initialize()) {
+    return false;
+  }
+
   if (!settings_.Open("data/server.cfg")) {
     return false;
   }
@@ -56,7 +62,7 @@ bool Server::Initialize() {
   broadcast_timeout_ = 1000 / broadcast_rate;
   last_broadcast_ = 0;
 
-  uint32_t update_rate = settings_.GetUInt32("server.update_rate");
+  uint32_t update_rate = settings_.GetUInt32("server.tick_rate");
   update_timeout_ = 1000 / update_rate;
   last_update_ = 0;
 

@@ -28,7 +28,7 @@ Activator::Activator(
 ) : Entity(controller, id,
            controller->GetActivatorSettings()->GetString(config_name + ".body"),
            position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  SettingsManager* settings = controller->GetActivatorSettings();
+  ConfigReader* settings = controller->GetActivatorSettings();
   activation_distance_ = settings->GetFloat(
       config_name + ".activation_distance");
   std::string type_name = settings->GetString(config_name + ".type");

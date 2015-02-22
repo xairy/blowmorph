@@ -32,7 +32,7 @@ Kit::Kit(
            Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
-  SettingsManager* entity_settings = controller->GetKitSettings();
+  ConfigReader* entity_settings = controller->GetKitSettings();
   std::string type_name = entity_settings->GetString(config_name + ".type");
   if (type_name == "health") {
     _type = TYPE_HEALTH;

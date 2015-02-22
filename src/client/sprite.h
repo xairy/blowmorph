@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef CLIENT_SPRITE_H_
 #define CLIENT_SPRITE_H_

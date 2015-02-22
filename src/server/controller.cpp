@@ -14,10 +14,10 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 #include "base/utils.h"
 
 #include "engine/utils.h"
@@ -62,31 +62,31 @@ World* Controller::GetWorld() {
   return &world_;
 }
 
-SettingsManager* Controller::GetActivatorSettings() {
+ConfigReader* Controller::GetActivatorSettings() {
   return &activator_settings_;
 }
 
-SettingsManager* Controller::GetCritterSettings() {
+ConfigReader* Controller::GetCritterSettings() {
   return &critter_settings_;
 }
 
-SettingsManager* Controller::GetKitSettings() {
+ConfigReader* Controller::GetKitSettings() {
   return &kit_settings_;
 }
 
-SettingsManager* Controller::GetPlayerSettings() {
+ConfigReader* Controller::GetPlayerSettings() {
   return &player_settings_;
 }
 
-SettingsManager* Controller::GetProjectileSettings() {
+ConfigReader* Controller::GetProjectileSettings() {
   return &projectile_settings_;
 }
 
-SettingsManager* Controller::GetWallSettings() {
+ConfigReader* Controller::GetWallSettings() {
   return &wall_settings_;
 }
 
-SettingsManager* Controller::GetBodySettings() {
+ConfigReader* Controller::GetBodySettings() {
   return &body_settings_;
 }
 

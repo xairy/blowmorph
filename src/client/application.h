@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef CLIENT_APPLICATION_H_
 #define CLIENT_APPLICATION_H_
@@ -16,7 +16,8 @@
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
+
+#include "engine/config.h"
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
@@ -78,16 +79,6 @@ class Application {
   b2Vec2 GetMousePosition() const;
 
   bool is_running_;
-
-  SettingsManager client_settings_;
-  SettingsManager body_settings_;
-
-  SettingsManager activator_settings_;
-  SettingsManager critter_settings_;
-  SettingsManager kit_settings_;
-  SettingsManager player_settings_;
-  SettingsManager projectile_settings_;
-  SettingsManager wall_settings_;
 
   ResourceManager resource_manager_;
 

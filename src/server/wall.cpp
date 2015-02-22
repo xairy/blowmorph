@@ -7,11 +7,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "engine/body.h"
 
@@ -28,7 +28,7 @@ Wall::Wall(
 ) : Entity(controller, id,
            controller->GetWallSettings()->GetString(config_name + ".body"),
            position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  SettingsManager* entity_settings = controller->GetWallSettings();
+  ConfigReader* entity_settings = controller->GetWallSettings();
   std::string type_name = entity_settings->GetString(config_name + ".type");
   if (type_name == "ordinary") {
     _type = TYPE_ORDINARY;

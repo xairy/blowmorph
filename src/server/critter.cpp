@@ -7,11 +7,11 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "engine/body.h"
 
@@ -29,7 +29,7 @@ Critter::Critter(
            controller->GetCritterSettings()->GetString(config_name + ".body"),
            position, Entity::FILTER_CRITTER,
            Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  SettingsManager* entity_settings = controller->GetCritterSettings();
+  ConfigReader* entity_settings = controller->GetCritterSettings();
   _speed = entity_settings->GetFloat(config_name + ".speed");
   _target = NULL;
   std::string type_name = entity_settings->GetString(config_name + ".type");

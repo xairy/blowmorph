@@ -10,9 +10,9 @@
 
 #include <Box2D/Box2D.h>
 
+#include "base/config_reader.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
-#include "base/settings_manager.h"
 
 #include "server/contact_listener.h"
 #include "server/entity.h"
@@ -34,14 +34,14 @@ class Controller {
 
   World* GetWorld();
 
-  SettingsManager* GetActivatorSettings();
-  SettingsManager* GetCritterSettings();
-  SettingsManager* GetKitSettings();
-  SettingsManager* GetPlayerSettings();
-  SettingsManager* GetProjectileSettings();
-  SettingsManager* GetWallSettings();
+  ConfigReader* GetActivatorSettings();
+  ConfigReader* GetCritterSettings();
+  ConfigReader* GetKitSettings();
+  ConfigReader* GetPlayerSettings();
+  ConfigReader* GetProjectileSettings();
+  ConfigReader* GetWallSettings();
 
-  SettingsManager* GetBodySettings();
+  ConfigReader* GetBodySettings();
 
   // The list of the events should be cleared by the caller.
   std::vector<GameEvent>* GetGameEvents();
@@ -117,15 +117,15 @@ class Controller {
 
   std::vector<GameEvent> game_events_;
 
-  SettingsManager activator_settings_;
-  SettingsManager critter_settings_;
-  SettingsManager kit_settings_;
-  SettingsManager player_settings_;
-  SettingsManager projectile_settings_;
-  SettingsManager wall_settings_;
+  ConfigReader activator_settings_;
+  ConfigReader critter_settings_;
+  ConfigReader kit_settings_;
+  ConfigReader player_settings_;
+  ConfigReader projectile_settings_;
+  ConfigReader wall_settings_;
 
-  SettingsManager body_settings_;
-  SettingsManager gun_settings_;
+  ConfigReader body_settings_;
+  ConfigReader gun_settings_;
 };
 
 }  // namespace bm

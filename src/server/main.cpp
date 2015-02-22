@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
   bm::Server server;
 
   if (!server.Initialize()) {
+    bm::Error::Print();
     return EXIT_FAILURE;
   }
 
