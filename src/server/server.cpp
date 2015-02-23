@@ -15,7 +15,6 @@
 
 #include <enet-plus/enet.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
@@ -54,23 +53,21 @@ bool Server::Initialize() {
     return false;
   }
 
-  if (!settings_.Open("data/server.cfg")) {
-    return false;
-  }
+  const Config::ServerConfig& config =
+    Config::GetInstance()->GetServerConfig();
 
-  uint32_t broadcast_rate = settings_.GetUInt32("server.broadcast_rate");
-  broadcast_timeout_ = 1000 / broadcast_rate;
-  last_broadcast_ = 0;
-
-  uint32_t update_rate = settings_.GetUInt32("server.tick_rate");
+  uint32_t update_rate = config.tick_rate;
   update_timeout_ = 1000 / update_rate;
   last_update_ = 0;
+
+  uint32_t broadcast_rate = config.broadcast_rate;
+  broadcast_timeout_ = 1000 / broadcast_rate;
+  last_broadcast_ = 0;
 
   host_ = NULL;
   event_ = NULL;
 
-  std::string map_file = settings_.GetString("server.map");
-  if (!controller_.GetWorld()->LoadMap(map_file)) {
+  if (!controller_.GetWorld()->LoadMap(config.map)) {
     return false;
   }
 
@@ -78,8 +75,7 @@ bool Server::Initialize() {
     return false;
   }
 
-  uint16_t server_port = settings_.GetUInt16("server.port");
-  std::auto_ptr<enet::ServerHost> host(enet_.CreateServerHost(server_port));
+  std::auto_ptr<enet::ServerHost> host(enet_.CreateServerHost(config.port));
   if (host.get() == NULL) {
     return false;
   }

@@ -7,13 +7,13 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 #include "server/entity.h"
@@ -24,17 +24,17 @@ Wall::Wall(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  const std::string& config_name
-) : Entity(controller, id,
-           controller->GetWallSettings()->GetString(config_name + ".body"),
-           position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  ConfigReader* entity_settings = controller->GetWallSettings();
-  std::string type_name = entity_settings->GetString(config_name + ".type");
-  if (type_name == "ordinary") {
+  const std::string& entity_name
+) : Entity(controller, id, entity_name, Entity::TYPE_WALL, position,
+           Entity::FILTER_WALL, Entity::FILTER_ALL) {
+  auto config = Config::GetInstance()->GetWallsConfig();
+  CHECK(config.count(entity_name) == 1);
+  Config::WallConfig::Type type = config.at(entity_name).type;
+  if (type == Config::WallConfig::TYPE_ORDINARY) {
     _type = TYPE_ORDINARY;
-  } else if (type_name == "unbreakable") {
+  } else if (type == Config::WallConfig::TYPE_UNBREAKABLE) {
     _type = TYPE_UNBREAKABLE;
-  } else if (type_name == "morphed") {
+  } else if (type == Config::WallConfig::TYPE_MORPHED) {
     _type = TYPE_MORPHED;
   } else {
     CHECK(false);  // Unreachable.
@@ -42,13 +42,6 @@ Wall::Wall(
 }
 
 Wall::~Wall() { }
-
-Entity::Type Wall::GetType() {
-  return Entity::TYPE_WALL;
-}
-bool Wall::IsStatic() {
-  return true;
-}
 
 void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_WALL;

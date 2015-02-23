@@ -32,14 +32,10 @@ class Projectile : public Entity {
     uint32_t owner_id,
     const b2Vec2& start,
     const b2Vec2& end,
-    const std::string& config_name);
+    const std::string& entity_name);
   virtual ~Projectile();
 
-  virtual Entity::Type GetType();
-  virtual bool IsStatic();
-
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
   virtual void Damage(int damage, uint32_t source_id);
 
   uint32_t GetOwnerId() const;

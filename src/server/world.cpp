@@ -84,9 +84,48 @@ void World::RemoveEntity(uint32_t id) {
   CHECK(entity != NULL);
 }
 
-Player* World::CreatePlayer(const b2Vec2& position) {
+Activator* World::CreateActivator(
+  const b2Vec2& position,
+  const std::string& entity_name
+) {
   uint32_t id = id_manager_->NewId();
-  Player* player = new Player(controller_, id, position);
+  Activator* activator = new Activator(controller_, id, position, entity_name);
+  CHECK(activator != NULL);
+  AddEntity(id, activator);
+  return activator;
+}
+
+Critter* World::CreateCritter(
+  const b2Vec2& position,
+  const std::string& entity_name
+) {
+  uint32_t id = id_manager_->NewId();
+  Critter* critter = new Critter(controller_, id, position, entity_name);
+  CHECK(critter != NULL);
+  AddEntity(id, critter);
+  return critter;
+}
+
+Kit* World::CreateKit(
+  const b2Vec2& position,
+  int health_regeneration,
+  int energy_regeneration,
+  const std::string& entity_name
+) {
+  uint32_t id = id_manager_->NewId();
+  Kit* kit = new Kit(controller_, id, position,
+      health_regeneration, energy_regeneration, entity_name);
+  CHECK(kit != NULL);
+  AddEntity(id, kit);
+  return kit;
+}
+
+Player* World::CreatePlayer(
+    const b2Vec2& position,
+    const std::string& entity_name
+) {
+  uint32_t id = id_manager_->NewId();
+  Player* player = new Player(controller_, entity_name, id, position);
   CHECK(player != NULL);
   AddEntity(id, player);
   return player;
@@ -96,63 +135,27 @@ Projectile* World::CreateProjectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
-  const std::string& config_name
+  const std::string& entity_name
 ) {
   CHECK(static_entities_.count(owner_id) +
     dynamic_entities_.count(owner_id) == 1);
   uint32_t id = id_manager_->NewId();
   Projectile* projectile = new Projectile(controller_,
-    id, owner_id, start, end, config_name);
+    id, owner_id, start, end, entity_name);
   CHECK(projectile != NULL);
   AddEntity(id, projectile);
   return projectile;
 }
 
-Critter* World::CreateCritter(
-  const b2Vec2& position,
-  const std::string& config_name
-) {
-  uint32_t id = id_manager_->NewId();
-  Critter* critter = new Critter(controller_, id, position, config_name);
-  CHECK(critter != NULL);
-  AddEntity(id, critter);
-  return critter;
-}
-
 Wall* World::CreateWall(
   const b2Vec2& position,
-  const std::string& config_name
+  const std::string& entity_name
 ) {
   uint32_t id = id_manager_->NewId();
-  Wall* wall = new Wall(controller_, id, position, config_name);
+  Wall* wall = new Wall(controller_, id, position, entity_name);
   CHECK(wall != NULL);
   AddEntity(id, wall);
   return wall;
-}
-
-Kit* World::CreateKit(
-  const b2Vec2& position,
-  int health_regeneration,
-  int energy_regeneration,
-  const std::string& config_name
-) {
-  uint32_t id = id_manager_->NewId();
-  Kit* kit = new Kit(controller_, id, position,
-      health_regeneration, energy_regeneration, config_name);
-  CHECK(kit != NULL);
-  AddEntity(id, kit);
-  return kit;
-}
-
-Activator* World::CreateActivator(
-  const b2Vec2& position,
-  const std::string& config_name
-) {
-  uint32_t id = id_manager_->NewId();
-  Activator* activator = new Activator(controller_, id, position, config_name);
-  CHECK(activator != NULL);
-  AddEntity(id, activator);
-  return activator;
 }
 
 void World::AddEntity(uint32_t id, Entity* entity) {

@@ -55,7 +55,8 @@ class Entity {
   Entity(
     Controller* controller,
     uint32_t id,
-    const std::string& prefix,
+    const std::string& entity_name,
+    Type type,
     b2Vec2 position,
     uint16_t collision_category,
     uint16_t collision_mask);
@@ -63,34 +64,34 @@ class Entity {
 
   Controller* GetController();
 
-  virtual Type GetType() = 0;
-  virtual bool IsStatic() = 0;
+  // FIXME(xairy): remove dynamic config from cfg files.
 
-  virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
+  uint32_t GetId() const;
+  Type GetType() const;
+  bool IsStatic() const;
 
-  virtual void Damage(int damage, uint32_t source_id) = 0;
+  b2Vec2 GetPosition() const;
+  void SetPosition(const b2Vec2& position);
 
-  virtual uint32_t GetId() const;
+  float GetRotation() const;
+  void SetRotation(float angle);
 
-  virtual b2Vec2 GetPosition() const;
-  virtual void SetPosition(const b2Vec2& position);
+  b2Vec2 GetVelocity() const;
+  void SetVelocity(const b2Vec2& velocity);
 
-  virtual float GetRotation() const;
-  virtual void SetRotation(float angle);
-
-  virtual b2Vec2 GetVelocity() const;
-  virtual void SetVelocity(const b2Vec2& velocity);
-
-  virtual float GetMass() const;
-  virtual void ApplyImpulse(const b2Vec2& impulse);
-  virtual void SetImpulse(const b2Vec2& impulse);
-
-  virtual void Destroy();
-  virtual bool IsDestroyed() const;
+  float GetMass() const;
+  void ApplyImpulse(const b2Vec2& impulse);
+  void SetImpulse(const b2Vec2& impulse);
 
   // FIXME(xairy): get rid of it.
-  virtual void SetUpdatedFlag(bool value);
-  virtual bool IsUpdated() const;
+  void SetUpdatedFlag(bool value);
+  bool IsUpdated() const;
+
+  void Destroy();
+  bool IsDestroyed() const;
+
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
+  virtual void Damage(int damage, uint32_t source_id) = 0;
 
   // Double dispatch. Collision handling.
 
@@ -134,6 +135,7 @@ class Entity {
   Controller* controller_;
 
   uint32_t _id;
+  Type type_;
 
   bool _is_destroyed;
   bool _is_updated;

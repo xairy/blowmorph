@@ -145,7 +145,7 @@ bool Config::LoadServerConfig() {
 		THROW_ERROR("Unable to load 'server.map' from '%s'.", file);
 		return false;
 	}
-	if (!reader.LookupString("server.name", &server_.map)) {
+	if (!reader.LookupString("server.name", &server_.name)) {
 		THROW_ERROR("Unable to load 'server.name' from '%s'.", file);
 		return false;
 	}

@@ -11,7 +11,6 @@
 
 #include <enet-plus/enet.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
@@ -70,8 +69,6 @@ class Server {
   IdManager id_manager_;
   Controller controller_;
   ClientManager client_manager_;
-
-  ConfigReader settings_;
 
   enum {
     STATE_FINALIZED,

@@ -33,14 +33,10 @@ class Kit : public Entity {
     const b2Vec2& position,
     int health_regeneration,
     int energy_regeneration,
-    const std::string& config_name);
+    const std::string& entity_name);
   virtual ~Kit();
 
-  virtual Entity::Type GetType();
-  virtual bool IsStatic();
-
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
   virtual void Damage(int damage, uint32_t source_id);
 
   int GetHealthRegeneration() const;

@@ -10,7 +10,6 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
@@ -33,15 +32,6 @@ class Controller {
   ~Controller();
 
   World* GetWorld();
-
-  ConfigReader* GetActivatorSettings();
-  ConfigReader* GetCritterSettings();
-  ConfigReader* GetKitSettings();
-  ConfigReader* GetPlayerSettings();
-  ConfigReader* GetProjectileSettings();
-  ConfigReader* GetWallSettings();
-
-  ConfigReader* GetBodySettings();
 
   // The list of the events should be cleared by the caller.
   std::vector<GameEvent>* GetGameEvents();
@@ -116,16 +106,6 @@ class Controller {
   std::vector<std::pair<b2Vec2, int> > morph_list_;
 
   std::vector<GameEvent> game_events_;
-
-  ConfigReader activator_settings_;
-  ConfigReader critter_settings_;
-  ConfigReader kit_settings_;
-  ConfigReader player_settings_;
-  ConfigReader projectile_settings_;
-  ConfigReader wall_settings_;
-
-  ConfigReader body_settings_;
-  ConfigReader gun_settings_;
 };
 
 }  // namespace bm

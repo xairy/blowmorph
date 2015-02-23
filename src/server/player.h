@@ -39,14 +39,11 @@ class Player : public Entity {
   };
 
  public:
-  Player(Controller* controller, uint32_t id, const b2Vec2& position);
+  Player(Controller* controller, std::string entity_name,
+    uint32_t id, const b2Vec2& position);
   virtual ~Player();
 
-  virtual Entity::Type GetType();
-  virtual bool IsStatic();
-
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
-
   virtual void Damage(int damage, uint32_t source_id);
 
   void OnKeyboardEvent(const KeyboardEvent& event);

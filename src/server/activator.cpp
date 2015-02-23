@@ -14,6 +14,7 @@
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 #include "server/entity.h"
@@ -24,15 +25,14 @@ Activator::Activator(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  const std::string& config_name
-) : Entity(controller, id,
-           controller->GetActivatorSettings()->GetString(config_name + ".body"),
-           position, Entity::FILTER_WALL, Entity::FILTER_ALL) {
-  ConfigReader* settings = controller->GetActivatorSettings();
-  activation_distance_ = settings->GetFloat(
-      config_name + ".activation_distance");
-  std::string type_name = settings->GetString(config_name + ".type");
-  if (type_name == "door") {
+  const std::string& entity_name
+) : Entity(controller, id, entity_name, Entity::TYPE_ACTIVATOR, position,
+           Entity::FILTER_WALL, Entity::FILTER_ALL) {
+  auto config = Config::GetInstance()->GetActivatorsConfig();
+  CHECK(config.count(entity_name) == 1);
+  activation_distance_ = config.at(entity_name).activation_distance;
+  Config::ActivatorConfig::Type type = config.at(entity_name).type;
+  if (type == Config::ActivatorConfig::TYPE_DOOR) {
     type_ = TYPE_DOOR;
   } else {
     CHECK(false);  // Unreachable.
@@ -40,14 +40,6 @@ Activator::Activator(
 }
 
 Activator::~Activator() { }
-
-Entity::Type Activator::GetType() {
-  return Entity::TYPE_ACTIVATOR;
-}
-
-bool Activator::IsStatic() {
-  return true;
-}
 
 void Activator::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_ACTIVATOR;

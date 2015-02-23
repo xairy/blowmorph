@@ -7,13 +7,13 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 #include "server/entity.h"
@@ -24,16 +24,15 @@ Critter::Critter(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  const std::string& config_name
-) : Entity(controller, id,
-           controller->GetCritterSettings()->GetString(config_name + ".body"),
-           position, Entity::FILTER_CRITTER,
-           Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  ConfigReader* entity_settings = controller->GetCritterSettings();
-  _speed = entity_settings->GetFloat(config_name + ".speed");
+  const std::string& entity_name
+) : Entity(controller, id, entity_name, Entity::TYPE_CRITTER, position,
+           Entity::FILTER_CRITTER, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
+  auto config = Config::GetInstance()->GetCrittersConfig();
+  CHECK(config.count(entity_name) == 1);
+  _speed = config.at(entity_name).speed;
   _target = NULL;
-  std::string type_name = entity_settings->GetString(config_name + ".type");
-  if (type_name == "zombie") {
+  Config::CritterConfig::Type type = config.at(entity_name).type;
+  if (type == Config::CritterConfig::TYPE_ZOMBIE) {
     type_ = TYPE_ZOMBIE;
   } else {
     CHECK(false);  // Unreachable.
@@ -41,14 +40,6 @@ Critter::Critter(
 }
 
 Critter::~Critter() { }
-
-Entity::Type Critter::GetType() {
-  return Entity::TYPE_CRITTER;
-}
-
-bool Critter::IsStatic() {
-  return false;
-}
 
 void Critter::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_CRITTER;

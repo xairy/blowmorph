@@ -7,13 +7,13 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 
@@ -25,14 +25,12 @@ Projectile::Projectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
-  const std::string& config_name
-) : Entity(controller, id,
-           controller->GetProjectileSettings()->
-              GetString(config_name + ".body"),
-           start, Entity::FILTER_PROJECTILE,
-           Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
-  ConfigReader* entity_settings = controller->GetProjectileSettings();
-  float speed = entity_settings->GetFloat(config_name + ".speed");
+  const std::string& entity_name
+) : Entity(controller, id, entity_name, Entity::TYPE_PROJECTILE, start,
+          Entity::FILTER_PROJECTILE, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
+  auto config = Config::GetInstance()->GetProjectilesConfig();
+  CHECK(config.count(entity_name) == 1);
+  float speed = config.at(entity_name).speed;
 
   b2Vec2 velocity = end - start;
   velocity.Normalize();
@@ -41,30 +39,23 @@ Projectile::Projectile(
 
   owner_id_ = owner_id;
 
-  std::string type_name = entity_settings->GetString(config_name + ".type");
-  if (type_name == "rocket") {
+  Config::ProjectileConfig::Type type = config.at(entity_name).type;
+  if (type == Config::ProjectileConfig::TYPE_ROCKET) {
     type_ = TYPE_ROCKET;
-    rocket_explosion_radius_ = entity_settings->GetFloat(
-        config_name + ".explosion_radius");
-    rocket_explosion_damage_ = entity_settings->GetInt32(
-        config_name + ".explosion_damage");
-  } else if (type_name == "slime") {
+    rocket_explosion_radius_ = config.at(entity_name).
+        rocket_config.explosion_radius;
+    rocket_explosion_damage_ = config.at(entity_name).
+        rocket_config.explosion_damage;
+  } else if (type == Config::ProjectileConfig::TYPE_SLIME) {
     type_ = TYPE_SLIME;
-    slime_explosion_radius_ = entity_settings->GetInt32(
-        config_name + ".explosion_radius");
+    slime_explosion_radius_ = config.at(entity_name).
+        slime_config.explosion_radius;
   } else {
     CHECK(false);  // Unreachable.
   }
 }
 
 Projectile::~Projectile() { }
-
-Entity::Type Projectile::GetType() {
-  return Entity::TYPE_PROJECTILE;
-}
-bool Projectile::IsStatic() {
-  return false;
-}
 
 void Projectile::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PROJECTILE;

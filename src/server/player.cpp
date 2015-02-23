@@ -7,52 +7,40 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 #include "server/entity.h"
 
 namespace bm {
 
-// FIXME(xairy): pass config_name.
 Player::Player(
     Controller* controller,
+    std::string entity_name,
     uint32_t id,
     const b2Vec2& position
-) : Entity(controller, id,
-           controller->GetPlayerSettings()->GetString("player.body"),
-           position, Entity::FILTER_PLAYER,
-           Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
-  ConfigReader* settings = controller->GetPlayerSettings();
-  _speed = settings->GetFloat("player.speed");
-
+) : Entity(controller, id, entity_name, Entity::TYPE_PLAYER, position,
+           Entity::FILTER_PLAYER, Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
+  auto config = Config::GetInstance()->GetPlayersConfig();
+  CHECK(config.count(entity_name) == 1);
+  _speed = config.at(entity_name).speed;
   _score = 0;
   _killer_id = Entity::BAD_ID;
-
-  _max_health = settings->GetInt32("player.max_health");
-  _health_regeneration = settings->GetInt32("player.health_regeneration");
+  _max_health = config.at(entity_name).health_max;
+  _health_regeneration = config.at(entity_name).health_regen;
   _health = _max_health;
-
-  _energy_capacity = settings->GetInt32("player.energy_capacity");
-  _energy_regeneration = settings->GetInt32("player.energy_regeneration");
+  _energy_capacity = config.at(entity_name).energy_max;
+  _energy_regeneration = config.at(entity_name).energy_regen;
   _energy = _energy_capacity;
 }
 
 Player::~Player() { }
-
-Entity::Type Player::GetType() {
-  return Entity::TYPE_PLAYER;
-}
-
-bool Player::IsStatic() {
-  return false;
-}
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;

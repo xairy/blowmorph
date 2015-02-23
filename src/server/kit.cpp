@@ -13,6 +13,7 @@
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/config.h"
 
 #include "server/controller.h"
 #include "server/entity.h"
@@ -25,20 +26,19 @@ Kit::Kit(
   const b2Vec2& position,
   int health_regeneration,
   int energy_regeneration,
-  const std::string& config_name
-) : Entity(controller, id,
-           controller->GetKitSettings()->GetString(config_name + ".body"),
-           position, Entity::FILTER_KIT,
-           Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
+  const std::string& entity_name
+) : Entity(controller, id, entity_name, Entity::TYPE_KIT, position,
+          Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
-  ConfigReader* entity_settings = controller->GetKitSettings();
-  std::string type_name = entity_settings->GetString(config_name + ".type");
-  if (type_name == "health") {
+  auto config = Config::GetInstance()->GetKitsConfig();
+  CHECK(config.count(entity_name) == 1);
+  Config::KitConfig::Type type = config.at(entity_name).type;
+  if (type == Config::KitConfig::TYPE_HEALTH) {
     _type = TYPE_HEALTH;
-  } else if (type_name == "energy") {
+  } else if (type == Config::KitConfig::TYPE_ENERGY) {
     _type = TYPE_ENERGY;
-  } else if (type_name == "composite") {
+  } else if (type == Config::KitConfig::TYPE_COMPOSITE) {
     _type = TYPE_COMPOSITE;
   } else {
     CHECK(false);  // Unreachable.
@@ -46,13 +46,6 @@ Kit::Kit(
 }
 
 Kit::~Kit() { }
-
-Entity::Type Kit::GetType() {
-  return Entity::TYPE_KIT;
-}
-bool Kit::IsStatic() {
-  return false;
-}
 
 void Kit::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_KIT;

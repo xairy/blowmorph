@@ -14,12 +14,12 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/utils.h"
 
+#include "engine/config.h"
 #include "engine/utils.h"
 
 #include "server/entity.h"
@@ -36,58 +36,12 @@ namespace bm {
 
 Controller::Controller(IdManager* id_manager) : world_(this, id_manager) {
   world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
-
-  bool rv = activator_settings_.Open("data/activators.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = critter_settings_.Open("data/critters.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = kit_settings_.Open("data/kits.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = player_settings_.Open("data/players.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = projectile_settings_.Open("data/projectiles.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = wall_settings_.Open("data/walls.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-
-  rv = body_settings_.Open("data/bodies.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
-  rv = gun_settings_.Open("data/guns.cfg");
-  CHECK(rv == true);  // FIXME(xairy).
 }
 
 Controller::~Controller() { }
 
 World* Controller::GetWorld() {
   return &world_;
-}
-
-ConfigReader* Controller::GetActivatorSettings() {
-  return &activator_settings_;
-}
-
-ConfigReader* Controller::GetCritterSettings() {
-  return &critter_settings_;
-}
-
-ConfigReader* Controller::GetKitSettings() {
-  return &kit_settings_;
-}
-
-ConfigReader* Controller::GetPlayerSettings() {
-  return &player_settings_;
-}
-
-ConfigReader* Controller::GetProjectileSettings() {
-  return &projectile_settings_;
-}
-
-ConfigReader* Controller::GetWallSettings() {
-  return &wall_settings_;
-}
-
-ConfigReader* Controller::GetBodySettings() {
-  return &body_settings_;
 }
 
 std::vector<GameEvent>* Controller::GetGameEvents() {
@@ -114,7 +68,7 @@ Player* Controller::OnPlayerConnected() {
   // FIXME(xairy): Temporary.
   world_.CreateActivator(b2Vec2(-800.0f, 800.0f), "door");
 
-  Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f));
+  Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f), "player");
   RespawnPlayer(player);
   OnEntityAppearance(player);
   return player;
@@ -186,17 +140,16 @@ void Controller::OnKeyboardEvent(Player* player, const KeyboardEvent& event) {
 
 void Controller::OnMouseEvent(Player* player, const MouseEvent& event) {
   if (event.event_type == MouseEvent::EVENT_KEYDOWN) {
-    std::string gun_config;
+    std::string gun_name;
     if (event.button_type == MouseEvent::BUTTON_LEFT) {
-      gun_config = "bazooka";
+      gun_name = "bazooka";
     } else if (event.button_type == MouseEvent::BUTTON_RIGHT) {
-      gun_config = "morpher";
+      gun_name = "morpher";
     }
 
-    int energy_consumption =
-      gun_settings_.GetInt32(gun_config + ".energy_consumption");
-    std::string projectile_config =
-      gun_settings_.GetString(gun_config + ".projectile");
+    auto config = Config::GetInstance()->GetGunsConfig().at(gun_name);
+    int energy_consumption = config.energy_consumption;
+    std::string projectile_config = config.projectile_name;
 
     if (player->GetEnergy() >= energy_consumption) {
       player->AddEnergy(-energy_consumption);

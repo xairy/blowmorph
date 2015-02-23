@@ -47,32 +47,33 @@ class World {
   // Doesn't delete the entity object.
   void RemoveEntity(uint32_t id);
 
-  Player* CreatePlayer(
-    const b2Vec2& position);
-
-  Projectile* CreateProjectile(
-    uint32_t owner_id,
-    const b2Vec2& start,
-    const b2Vec2& end,
-    const std::string& config_name);
+  Activator* CreateActivator(
+    const b2Vec2& position,
+    const std::string& entity_name);
 
   Critter* CreateCritter(
     const b2Vec2& position,
-    const std::string& config_name);
-
-  Wall* CreateWall(
-    const b2Vec2& position,
-    const std::string& config_name);
+    const std::string& entity_name);
 
   Kit* CreateKit(
     const b2Vec2& position,
     int health_regeneration,
     int energy_regeneration,
-    const std::string& config_name);
+    const std::string& entity_name);
 
-  Activator* CreateActivator(
+  Player* CreatePlayer(
     const b2Vec2& position,
-    const std::string& config_name);
+    const std::string& entity_name);
+
+  Projectile* CreateProjectile(
+    uint32_t owner_id,
+    const b2Vec2& start,
+    const b2Vec2& end,
+    const std::string& entity_name);
+
+  Wall* CreateWall(
+    const b2Vec2& position,
+    const std::string& entity_name);
 
   std::vector<b2Vec2>* GetSpawnPositions();
 
