@@ -20,15 +20,15 @@
 #include "base/utils.h"
 
 #include "engine/config.h"
+#include "base/id_manager.h"
 #include "engine/utils.h"
 
 #include "server/entity.h"
-#include "server/id_manager.h"
 
 #include "server/activator.h"
-#include "server/projectile.h"
 #include "server/critter.h"
 #include "server/kit.h"
+#include "server/projectile.h"
 #include "server/player.h"
 #include "server/wall.h"
 

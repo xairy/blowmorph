@@ -12,6 +12,7 @@
 #include <enet-plus/enet.h>
 
 #include "base/error.h"
+#include "base/id_manager.h"
 #include "base/macros.h"
 #include "base/protocol.h"
 #include "base/pstdint.h"
@@ -20,7 +21,6 @@
 #include "server/client_manager.h"
 #include "server/controller.h"
 #include "server/entity.h"
-#include "server/id_manager.h"
 
 namespace bm {
 

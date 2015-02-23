@@ -10,10 +10,10 @@
 #include <Box2D/Box2D.h>
 #include <pugixml.hpp>
 
+#include "base/id_manager.h"
 #include "base/pstdint.h"
 
 #include "server/entity.h"
-#include "server/id_manager.h"
 
 #include "server/activator.h"
 #include "server/projectile.h"

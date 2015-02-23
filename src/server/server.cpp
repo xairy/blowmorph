@@ -16,6 +16,7 @@
 #include <enet-plus/enet.h>
 
 #include "base/error.h"
+#include "base/id_manager.h"
 #include "base/macros.h"
 #include "base/net.h"
 #include "base/protocol.h"
@@ -27,11 +28,11 @@
 #include "server/client_manager.h"
 #include "server/controller.h"
 #include "server/entity.h"
-#include "server/id_manager.h"
 
-#include "server/projectile.h"
+#include "server/activator.h"
 #include "server/critter.h"
 #include "server/kit.h"
+#include "server/projectile.h"
 #include "server/player.h"
 #include "server/wall.h"
 
