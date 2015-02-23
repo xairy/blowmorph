@@ -13,6 +13,8 @@
 #include "base/id_manager.h"
 #include "base/pstdint.h"
 
+#include "engine/world.h"
+
 #include "server/entity.h"
 #include "server/controller.h"
 
@@ -25,65 +27,18 @@
 
 namespace bm {
 
-World::World(Controller* controller)
-    : world_(b2Vec2(0.0f, 0.0f)),
-      controller_(controller) { }
+ServerWorld::ServerWorld(Controller* controller) : controller_(controller) { }
+ServerWorld::~ServerWorld() { }
 
-World::~World() {
-  std::map<uint32_t, Entity*>::iterator i, end;
-  end = static_entities_.end();
-  for (i = static_entities_.begin(); i != end; ++i) {
-    delete i->second;
-  }
-  end = dynamic_entities_.end();
-  for (i = dynamic_entities_.begin(); i != end; ++i) {
-    delete i->second;
-  }
-}
-
-b2World* World::GetBox2DWorld() {
-  return &world_;
-}
-
-float World::GetBound() const {
+float ServerWorld::GetBound() const {
   return bound_;
 }
 
-float World::GetBlockSize() const {
+float ServerWorld::GetBlockSize() const {
   return block_size_;
 }
 
-Entity* World::GetEntity(uint32_t id) {
-  if (static_entities_.count(id) == 1) {
-    return static_entities_[id];
-  } else if (dynamic_entities_.count(id) == 1) {
-    return dynamic_entities_[id];
-  }
-  return NULL;
-}
-
-std::map<uint32_t, Entity*>* World::GetStaticEntities() {
-  return &static_entities_;
-}
-
-std::map<uint32_t, Entity*>* World::GetDynamicEntities() {
-  return &dynamic_entities_;
-}
-
-void World::RemoveEntity(uint32_t id) {
-  CHECK(static_entities_.count(id) + dynamic_entities_.count(id) == 1);
-  Entity* entity = NULL;
-  if (static_entities_.count(id) == 1) {
-    entity = static_entities_[id];
-    static_entities_.erase(id);
-  } else if (dynamic_entities_.count(id) == 1) {
-    entity = dynamic_entities_[id];
-    dynamic_entities_.erase(id);
-  }
-  CHECK(entity != NULL);
-}
-
-Activator* World::CreateActivator(
+Activator* ServerWorld::CreateActivator(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
@@ -94,7 +49,7 @@ Activator* World::CreateActivator(
   return activator;
 }
 
-Critter* World::CreateCritter(
+Critter* ServerWorld::CreateCritter(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
@@ -105,7 +60,7 @@ Critter* World::CreateCritter(
   return critter;
 }
 
-Kit* World::CreateKit(
+Kit* ServerWorld::CreateKit(
   const b2Vec2& position,
   int health_regeneration,
   int energy_regeneration,
@@ -119,7 +74,7 @@ Kit* World::CreateKit(
   return kit;
 }
 
-Player* World::CreatePlayer(
+Player* ServerWorld::CreatePlayer(
     const b2Vec2& position,
     const std::string& entity_name
 ) {
@@ -130,14 +85,13 @@ Player* World::CreatePlayer(
   return player;
 }
 
-Projectile* World::CreateProjectile(
+Projectile* ServerWorld::CreateProjectile(
   uint32_t owner_id,
   const b2Vec2& start,
   const b2Vec2& end,
   const std::string& entity_name
 ) {
-  CHECK(static_entities_.count(owner_id) +
-    dynamic_entities_.count(owner_id) == 1);
+  CHECK(GetEntity(owner_id) != NULL);
   uint32_t id = id_manager_.NewId();
   Projectile* projectile = new Projectile(controller_,
     id, owner_id, start, end, entity_name);
@@ -146,7 +100,7 @@ Projectile* World::CreateProjectile(
   return projectile;
 }
 
-Wall* World::CreateWall(
+Wall* ServerWorld::CreateWall(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
@@ -157,21 +111,11 @@ Wall* World::CreateWall(
   return wall;
 }
 
-void World::AddEntity(uint32_t id, Entity* entity) {
-  CHECK(static_entities_.count(id) == 0 && dynamic_entities_.count(id) == 0);
-  if (entity->IsStatic()) {
-    static_entities_[id] = entity;
-  } else {
-    dynamic_entities_[id] = entity;
-  }
-  // OnEntityAppearance(entity); !refactor
-}
-
-std::vector<b2Vec2>* World::GetSpawnPositions() {
+std::vector<b2Vec2>* ServerWorld::GetSpawnPositions() {
   return &spawn_positions_;
 }
 
-bool World::LoadMap(const std::string& file) {
+bool ServerWorld::LoadMap(const std::string& file) {
   pugi::xml_document document;
   pugi::xml_parse_result parse_result = document.load_file(file.c_str());
   if (!parse_result) {
@@ -225,7 +169,7 @@ bool World::LoadMap(const std::string& file) {
   return true;
 }
 
-bool World::LoadWall(const pugi::xml_node& node) {
+bool ServerWorld::LoadWall(const pugi::xml_node& node) {
   CHECK(std::string(node.name()) == "wall");
 
   pugi::xml_attribute x = node.attribute("x");
@@ -243,7 +187,7 @@ bool World::LoadWall(const pugi::xml_node& node) {
   return true;
 }
 
-bool World::LoadChunk(const pugi::xml_node& node) {
+bool ServerWorld::LoadChunk(const pugi::xml_node& node) {
   CHECK(std::string(node.name()) == "chunk");
 
   pugi::xml_attribute x = node.attribute("x");
@@ -271,7 +215,7 @@ bool World::LoadChunk(const pugi::xml_node& node) {
   return true;
 }
 
-bool World::LoadSpawn(const pugi::xml_node& node) {
+bool ServerWorld::LoadSpawn(const pugi::xml_node& node) {
   CHECK(std::string(node.name()) == "spawn");
 
   pugi::xml_attribute x_attr = node.attribute("x");
@@ -288,7 +232,7 @@ bool World::LoadSpawn(const pugi::xml_node& node) {
   return true;
 }
 
-bool World::LoadKit(const pugi::xml_node& node) {
+bool ServerWorld::LoadKit(const pugi::xml_node& node) {
   CHECK(std::string(node.name()) == "kit");
 
   pugi::xml_attribute x_attr = node.attribute("x");

@@ -31,7 +31,7 @@ class Controller {
   explicit Controller();
   ~Controller();
 
-  World* GetWorld();
+  ServerWorld* GetWorld();
 
   // The list of the events should be cleared by the caller.
   std::vector<GameEvent>* GetGameEvents();
@@ -99,7 +99,7 @@ class Controller {
                            int damage, uint32_t source_id);
   void MakeSlimeExplosion(const b2Vec2& location, int radius);
 
-  World world_;
+  ServerWorld world_;
   ContactListener contact_listener_;
 
   // TODO(xairy): refactor.

@@ -13,6 +13,8 @@
 #include "base/id_manager.h"
 #include "base/pstdint.h"
 
+#include "engine/world.h"
+
 #include "server/entity.h"
 
 #include "server/activator.h"
@@ -28,24 +30,16 @@ class Controller;
 
 // Holds the current state of the world.
 // Updated by the 'Controller' class.
-class World {
+class ServerWorld : public World{
  public:
-  explicit World(Controller* controller);
-  ~World();
+  explicit ServerWorld(Controller* controller);
+  virtual ~ServerWorld();
 
-  b2World* GetBox2DWorld();
   float GetBound() const;
   float GetBlockSize() const;
 
   // TODO(xairy): use json as map file format.
   bool LoadMap(const std::string& file);
-
-  Entity* GetEntity(uint32_t id);
-  std::map<uint32_t, Entity*>* GetStaticEntities();
-  std::map<uint32_t, Entity*>* GetDynamicEntities();
-
-  // Doesn't delete the entity object.
-  void RemoveEntity(uint32_t id);
 
   Activator* CreateActivator(
     const b2Vec2& position,
@@ -78,8 +72,6 @@ class World {
   std::vector<b2Vec2>* GetSpawnPositions();
 
  private:
-  void AddEntity(uint32_t id, Entity* entity);
-
   bool LoadWall(const pugi::xml_node& node);
   bool LoadChunk(const pugi::xml_node& node);
   bool LoadSpawn(const pugi::xml_node& node);
@@ -87,13 +79,8 @@ class World {
 
   bool LoadKitType(const pugi::xml_attribute& attr, Kit::Type* output);
 
-  b2World world_;
-
   float block_size_;
   float bound_;
-
-  std::map<uint32_t, Entity*> static_entities_;
-  std::map<uint32_t, Entity*> dynamic_entities_;
 
   std::vector<b2Vec2> spawn_positions_;
 

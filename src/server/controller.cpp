@@ -39,7 +39,7 @@ Controller::Controller() : world_(this) {
 
 Controller::~Controller() { }
 
-World* Controller::GetWorld() {
+ServerWorld* Controller::GetWorld() {
   return &world_;
 }
 
