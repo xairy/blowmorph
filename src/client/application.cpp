@@ -20,12 +20,12 @@
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/net.h"
-#include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/time.h"
 #include "base/utils.h"
 
 #include "engine/config.h"
+#include "engine/protocol.h"
 #include "engine/utils.h"
 
 #include "client/contact_listener.h"
@@ -294,7 +294,8 @@ bool Application::Synchronize() {
       continue;
     }
 
-    rv = ExtractPacketData(buffer, &client_options_);
+    rv = ExtractPacketData<Packet::Type, ClientOptions>(
+            buffer, &client_options_);
     if (rv == false) {
       THROW_ERROR("Incorrect client options packet format.");
       return false;
@@ -589,7 +590,8 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
     case Packet::TYPE_ENTITY_APPEARED:
     case Packet::TYPE_ENTITY_UPDATED: {
       EntitySnapshot snapshot;
-      bool rv = ExtractPacketData(buffer, &snapshot);
+      bool rv = ExtractPacketData<Packet::Type, EntitySnapshot>(
+                  buffer, &snapshot);
       if (rv == false) {
         THROW_ERROR("Incorrect entity packet format!");
         return false;
@@ -610,7 +612,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
 
     case Packet::TYPE_GAME_EVENT: {
       GameEvent event;
-      bool rv = ExtractPacketData(buffer, &event);
+      bool rv = ExtractPacketData<Packet::Type, GameEvent>(buffer, &event);
       if (rv == false) {
         THROW_ERROR("Incorrect game event packet format!");
         return false;
@@ -635,7 +637,8 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
 
     case Packet::TYPE_PLAYER_INFO: {
       PlayerInfo player_info;
-      bool rv = ExtractPacketData(buffer, &player_info);
+      bool rv = ExtractPacketData<Packet::Type, PlayerInfo>(
+                  buffer, &player_info);
       if (rv == false) {
         THROW_ERROR("Incorrect player info packet format!");
         return false;

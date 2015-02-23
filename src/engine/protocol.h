@@ -1,12 +1,10 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#ifndef BASE_PROTOCOL_H_
-#define BASE_PROTOCOL_H_
+#ifndef ENGINE_PROTOCOL_H_
+#define ENGINE_PROTOCOL_H_
 
 #include "base/macros.h"
 #include "base/pstdint.h"
-
-// TODO(xairy): move to engine.
 
 namespace bm {
 
@@ -204,4 +202,4 @@ struct PlayerAction {
 
 }  // namespace bm
 
-#endif  // BASE_PROTOCOL_H_
+#endif  // ENGINE_PROTOCOL_H_

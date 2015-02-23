@@ -11,12 +11,12 @@
 
 #include "base/error.h"
 #include "base/macros.h"
-#include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/body.h"
 #include "engine/config.h"
 #include "engine/entity.h"
+#include "engine/protocol.h"
 
 #include "server/controller.h"
 

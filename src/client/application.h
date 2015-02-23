@@ -14,10 +14,10 @@
 #include <enet-plus/enet.h>
 
 #include "base/macros.h"
-#include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "engine/config.h"
+#include "engine/protocol.h"
 #include "engine/world.h"
 
 #include "client/contact_listener.h"

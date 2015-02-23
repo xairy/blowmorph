@@ -11,41 +11,39 @@
 
 #include "base/error.h"
 #include "base/macros.h"
-#include "base/protocol.h"
 #include "base/pstdint.h"
 
 namespace bm {
 
 // Returns 'false' when packet format is incorrect.
-bool ExtractPacketType(const std::vector<char>& buffer, Packet::Type* type) {
+template<class PacketType>
+bool ExtractPacketType(const std::vector<char>& buffer, PacketType* type) {
   CHECK(type != NULL);
-  if (buffer.size() < sizeof(Packet::Type)) {
+  if (buffer.size() < sizeof(*type)) {
     return false;
   }
-  memcpy(type, &buffer[0], sizeof(Packet::Type));
+  memcpy(type, &buffer[0], sizeof(*type));
   return true;
 }
 
 // Returns 'false' when message format is incorrect.
-template<class T>
-bool ExtractPacketData(const std::vector<char>& buffer, T* data) {
+template<class PacketType, class DataType>
+bool ExtractPacketData(const std::vector<char>& buffer, DataType* data) {
   CHECK(data != NULL);
-  if (buffer.size() != sizeof(Packet::Type) + sizeof(T)) {
+  if (buffer.size() != sizeof(PacketType) + sizeof(DataType)) {
     return false;
   }
-  memcpy(data, &buffer[0] + sizeof(Packet::Type), sizeof(T));
+  memcpy(data, &buffer[0] + sizeof(PacketType), sizeof(DataType));
   return true;
 }
 
 // Appends packet type and data to the end of the buffer.
-template<class T> void AppendPacketToBuffer(
+template<class PacketType, class DataType>
+void AppendPacketToBuffer(
   std::vector<char>& buffer,
-  Packet::Type packet_type,
-  const T& data
+  PacketType packet_type,
+  const DataType& data
 ) {
-  CHECK(Packet::TYPE_UNKNOWN < packet_type);
-  CHECK(packet_type < Packet::TYPE_MAX_VALUE);
-
   buffer.insert(buffer.end(),
     reinterpret_cast<const char*>(&packet_type),
     reinterpret_cast<const char*>(&packet_type) + sizeof(packet_type));
@@ -55,10 +53,11 @@ template<class T> void AppendPacketToBuffer(
     reinterpret_cast<const char*>(&data) + sizeof(data));
 }
 
-template<class T> bool SendPacket(
+template<class PacketType, class DataType>
+bool SendPacket(
     enet::Peer* peer,
-    Packet::Type packet_type,
-    const T& data,
+    PacketType packet_type,
+    const DataType& data,
     bool reliable = false
 ) {
   std::vector<char> buffer;
@@ -72,10 +71,11 @@ template<class T> bool SendPacket(
   return true;
 }
 
-template<class T> bool BroadcastPacket(
+template<class PacketType, class DataType>
+bool BroadcastPacket(
     enet::ServerHost* host,
-    Packet::Type packet_type,
-    const T& data,
+    PacketType packet_type,
+    const DataType& data,
     bool reliable = false
 ) {
   std::vector<char> buffer;

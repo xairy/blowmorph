@@ -10,7 +10,6 @@
 
 #include <Box2D/Box2D.h>
 
-#include "base/protocol.h"
 #include "base/pstdint.h"
 
 #include "server/contact_listener.h"

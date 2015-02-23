@@ -19,11 +19,11 @@
 #include "base/id_manager.h"
 #include "base/macros.h"
 #include "base/net.h"
-#include "base/protocol.h"
 #include "base/pstdint.h"
 #include "base/time.h"
 
 #include "engine/config.h"
+#include "engine/protocol.h"
 
 #include "server/client_manager.h"
 #include "server/controller.h"
@@ -292,7 +292,7 @@ bool Server::OnReceive() {
   switch (packet_type) {
     case Packet::TYPE_SYNC_TIME_REQUEST: {
       TimeSyncData sync_data;
-      rv = ExtractPacketData(message, &sync_data);
+      rv = ExtractPacketData<Packet::Type, TimeSyncData>(message, &sync_data);
       if (rv == false) {
         printf("#%u: Incorrect message format [0], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
@@ -317,30 +317,30 @@ bool Server::OnReceive() {
     } break;
 
     case Packet::TYPE_KEYBOARD_EVENT: {
-      KeyboardEvent keyboard_event_;
-      rv = ExtractPacketData(message, &keyboard_event_);
+      KeyboardEvent event;
+      rv = ExtractPacketData<Packet::Type, KeyboardEvent>(message, &event);
       if (rv == false) {
         printf("#%u: Incorrect message format [1], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-      controller_.OnKeyboardEvent(client->entity, keyboard_event_);
+      controller_.OnKeyboardEvent(client->entity, event);
     } break;
 
     case Packet::TYPE_MOUSE_EVENT: {
-      MouseEvent mouse_event;
-      rv = ExtractPacketData(message, &mouse_event);
+      MouseEvent event;
+      rv = ExtractPacketData<Packet::Type, MouseEvent>(message, &event);
       if (rv == false) {
         printf("#%u: Incorrect message format [2], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
         return true;
       }
-      controller_.OnMouseEvent(client->entity, mouse_event);
+      controller_.OnMouseEvent(client->entity, event);
     } break;
 
     case Packet::TYPE_PLAYER_ACTION: {
       PlayerAction action;
-      rv = ExtractPacketData(message, &action);
+      rv = ExtractPacketData<Packet::Type, PlayerAction>(message, &action);
       if (rv == false) {
         printf("#%u: Incorrect message format [3], client dropped.\n", id);
         client_manager_.DisconnectClient(id);
@@ -370,7 +370,7 @@ bool Server::OnLogin(uint32_t client_id) {
   event_->GetData(&message);
 
   LoginData login_data;
-  bool rv = ExtractPacketData(message, &login_data);
+  bool rv = ExtractPacketData<Packet::Type, LoginData>(message, &login_data);
   if (rv == false) {
     printf("#%u: Incorrect message format [4], client dropped.\n", client_id);
     return true;
