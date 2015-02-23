@@ -30,6 +30,7 @@
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
+#include "client/render_window.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
 
@@ -45,9 +46,7 @@ sf::Vector2f Round(const sf::Vector2f& vector) {
 namespace bm {
 
 Application::Application()
-  : render_window_(NULL),
-    font_(NULL),
-    client_(NULL),
+  : client_(NULL),
     peer_(NULL),
     event_(NULL),
     player_(NULL),
@@ -70,9 +69,7 @@ bool Application::Initialize() {
     return false;
   }
 
-  if (!InitializeGraphics()) {
-    return false;
-  }
+  render_window_.Initialize();
 
   if (!InitializePhysics()) {
     return false;
@@ -123,7 +120,7 @@ bool Application::Run() {
   CHECK(player_ != NULL);
   const Config::ClientConfig& config =
     Config::GetInstance()->GetClientConfig();
-  player_->EnableCaption(config.player_name, *font_);
+  player_->EnableCaption(config.player_name, *render_window_.GetFont());
   player_->SetPosition(position);
 
   contact_listener_.SetPlayerId(client_options_.id);
@@ -176,37 +173,7 @@ void Application::Finalize() {
   if (client_ != NULL) delete client_;
   if (event_ != NULL) delete event_;
 
-  if (font_ != NULL) delete font_;
-  if (render_window_ != NULL) delete render_window_;
-
   state_ = STATE_FINALIZED;
-}
-
-bool Application::InitializeGraphics() {
-  CHECK(state_ == STATE_FINALIZED);
-
-  const Config::ClientConfig& config =
-    Config::GetInstance()->GetClientConfig();
-
-  sf::VideoMode video_mode(config.screen_width, config.screen_height);
-  sf::Uint32 style = config.fullscreen ?
-    sf::Style::Fullscreen : sf::Style::Default;
-  render_window_ = new sf::RenderWindow(video_mode, "Blowmorph", style);
-  CHECK(render_window_ != NULL);
-  view_.reset(sf::FloatRect(0.0f, 0.0f,
-      static_cast<float>(config.screen_width),
-      static_cast<float>(config.screen_height)));
-  render_window_->setView(view_);
-
-  // By default if a key is held, multiple 'KeyPressed' events
-  // will be generated. We disable such behaviour.
-  render_window_->setKeyRepeatEnabled(false);
-
-  font_ = new sf::Font();
-  CHECK(font_ != NULL);
-  font_->loadFromFile("data/fonts/tahoma.ttf");
-
-  return true;
 }
 
 bool Application::InitializePhysics() {
@@ -411,7 +378,7 @@ int64_t Application::GetServerTime() {
 bool Application::PumpEvents() {
   CHECK(state_ == STATE_INITIALIZED);
   sf::Event event;
-  while (render_window_->pollEvent(event)) {
+  while (render_window_.PollEvent(event)) {
     if (!ProcessEvent(event)) {
       return false;
     }
@@ -491,8 +458,8 @@ bool Application::OnMouseButtonEvent(const sf::Event& event) {
       return true;
   }
 
-  int screen_width = render_window_->getSize().x;
-  int screen_height = render_window_->getSize().y;
+  int screen_width = render_window_.GetWindowSize().x;
+  int screen_height = render_window_.GetWindowSize().y;
   mouse_event.x = (event.mouseButton.x - screen_width / 2) +
     player_->GetPosition().x;
   mouse_event.y = (event.mouseButton.y - screen_height / 2) +
@@ -679,7 +646,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       ClientEntity* entity = static_cast<ClientEntity*>(
           world_.GetEntity(player_info.id));
       if (entity != NULL) {
-        entity->EnableCaption(player_name, *font_);
+        entity->EnableCaption(player_name, *render_window_.GetFont());
       }
     } break;
 
@@ -811,7 +778,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
           Entity::TYPE_PLAYER, entity_name, position, sprite);
       CHECK(entity != NULL);
       if (player_names_.count(id) == 1) {
-        entity->EnableCaption(player_names_[id], *font_);
+        entity->EnableCaption(player_names_[id], *render_window_.GetFont());
       }
     } break;
 
@@ -933,20 +900,18 @@ void Application::SimulatePhysics() {
 void Application::Render() {
   CHECK(state_ == STATE_INITIALIZED);
 
-  render_window_->clear();
+  render_window_.StartFrame();
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
-    int64_t render_time = GetServerTime();
     b2Vec2 position = player_->GetPosition();
-    view_.setCenter(Round(sf::Vector2f(position.x, position.y)));
-    render_window_->setView(view_);
+    render_window_.SetViewCenter(sf::Vector2f(position.x, position.y));
 
-    RenderTerrain();
+    render_window_.RenderTerrain();
 
     // FIXME(xairy): madness.
     std::list<Sprite*>::iterator it2;
     for (it2 = explosions_.begin(); it2 != explosions_.end();) {
-      (*it2)->Render(render_window_);
+      render_window_.RenderSprite(*it2);
       if ((*it2)->IsStopped()) {
         std::list<Sprite*>::iterator it1 = it2;
         ++it1;
@@ -958,196 +923,25 @@ void Application::Render() {
       }
     }
 
-    for (auto i : *world_.GetStaticEntities()) {
-      ClientEntity* entity = static_cast<ClientEntity*>(i.second);
-      entity->Render(render_window_, render_time);
-    }
-    for (auto i : *world_.GetDynamicEntities()) {
-      ClientEntity* entity = static_cast<ClientEntity*>(i.second);
-      entity->Render(render_window_, render_time);
-    }
+    render_window_.RenderWorld(&world_);
 
     // Set player rotation.
     b2Vec2 mouse_position = GetMousePosition();
     b2Vec2 direction = mouse_position - player_->GetPosition();
     float angle = atan2f(-direction.x, direction.y);
     player_->SetRotation(angle);
+    render_window_.RenderEntity(player_);
 
-    player_->Render(render_window_, render_time);
+    render_window_.RenderPlayerStats(player_health_, client_options_.max_health,
+                              player_energy_, client_options_.energy_capacity);
+    render_window_.RenderMinimap(&world_, player_);
 
-    RenderHUD();
-  }
-
-  render_window_->display();
-}
-
-void Application::RenderTerrain() {
-  // FIXME(xairy): temporary.
-  static Sprite* sprite = resource_manager_.CreateSprite("grass");
-  CHECK(sprite != NULL);
-  for (int x = -16; x <= 16; x++) {
-    for (int y = -16; y <= 16; y++) {
-      sprite->SetPosition(sf::Vector2f(x * 100.0f, y * 100.0f));
-      sprite->Render(render_window_);
-    }
-  }
-}
-
-// TODO(xairy): load HUD layout parameters from some config file.
-void Application::RenderHUD() {
-  CHECK(state_ == STATE_INITIALIZED);
-
-  // Initialize transforms for drawing in different corners of the screen.
-
-  sf::Vector2f size = view_.getSize();
-
-  sf::Transform top_left_transform;
-  top_left_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.x = -size.x;
-  sf::Transform top_right_transform;
-  top_right_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.y = -size.y;
-  sf::Transform bottom_right_transform;
-  bottom_right_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.x = -size.x;
-  sf::Transform bottom_left_transform;
-  bottom_left_transform.translate(view_.getCenter() - size / 2.0f);
-
-  // Draw health and energy bars.
-
-  int32_t max_health = client_options_.max_health;
-  float health_rect_width = 200.0f * player_health_ / max_health;
-  float health_rect_height = 10.0f;
-  sf::Vector2f health_rect_size(health_rect_width, health_rect_height);
-  sf::RectangleShape health_rect;
-  health_rect.setSize(health_rect_size);
-  health_rect.setPosition(sf::Vector2f(20.0f, -50.0f));
-  health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
-  render_window_->draw(health_rect, bottom_left_transform);
-
-  int32_t energy_capacity = client_options_.energy_capacity;
-  float energy_rect_width = 200.0f * player_energy_ / energy_capacity;
-  float energy_rect_height = 10.0f;
-  sf::Vector2f energy_rect_size(energy_rect_width, energy_rect_height);
-  sf::RectangleShape energy_charge_rect;
-  energy_charge_rect.setSize(energy_rect_size);
-  energy_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
-  energy_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
-  render_window_->draw(energy_charge_rect, bottom_left_transform);
-
-  // Draw gun slots.
-
-  sf::Vector2f gun_slot_rect_size(30.0f, 30.0f);
-  sf::RectangleShape gun_slot_rect;
-  gun_slot_rect.setSize(gun_slot_rect_size);
-  gun_slot_rect.setPosition(sf::Vector2f(-50.0f, -50.0f));
-  gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
-  gun_slot_rect.setOutlineColor(sf::Color(0xFF, 0x00, 0x00, 0xBB));
-  gun_slot_rect.setOutlineThickness(3.0f);
-  render_window_->draw(gun_slot_rect, bottom_right_transform);
-
-  gun_slot_rect.setPosition(sf::Vector2f(-110.0f, -50.0f));
-  gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
-  gun_slot_rect.setOutlineColor(sf::Color(0x00, 0xFF, 0x00, 0xBB));
-  gun_slot_rect.setOutlineThickness(3.0f);
-  render_window_->draw(gun_slot_rect, bottom_right_transform);
-
-  // Draw compass.
-
-  float compass_range = 400.0f;
-  float compass_radius = 60.0f;
-  sf::Vector2f compass_center(-80.0f, 80.0f);
-
-  sf::CircleShape compass_border(compass_radius);
-  compass_border.setPosition(compass_center.x - compass_radius,
-      compass_center.y - compass_radius);  // Left top corner, not center.
-  compass_border.setOutlineColor(sf::Color(0xFF, 0xFF, 0xFF, 0xFF));
-  compass_border.setOutlineThickness(1.0f);
-  compass_border.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
-  render_window_->draw(compass_border, top_right_transform);
-
-  int64_t render_time = GetServerTime();
-
-  for (auto i : *world_.GetDynamicEntities()) {
-    Entity* obj = i.second;
-
-    b2Vec2 obj_pos = obj->GetPosition();
-    b2Vec2 player_pos = player_->GetPosition();
-    b2Vec2 rel = obj_pos - player_pos;
-    if (Length(rel) < compass_range) {
-      rel = (compass_radius / compass_range) * rel;
-      sf::CircleShape circle(1.0f);
-      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
-      circle.setFillColor(sf::Color(0xFF, 0x00, 0x00, 0xFF));
-      render_window_->draw(circle, top_right_transform);
+    if (show_score_table_) {
+      render_window_.RenderScoretable(player_scores_, player_names_);
     }
   }
 
-  for (auto i : *world_.GetStaticEntities()) {
-    Entity* obj = i.second;
-
-    b2Vec2 obj_pos = obj->GetPosition();
-    b2Vec2 player_pos = player_->GetPosition();
-    b2Vec2 rel = obj_pos - player_pos;
-    if (Length(rel) < compass_range) {
-      rel = (compass_radius / compass_range) * rel;
-      sf::CircleShape circle(1.0f);
-      circle.setPosition(compass_center + sf::Vector2f(rel.x, rel.y));
-      circle.setFillColor(sf::Color(0x00, 0xFF, 0x00, 0xFF));
-      render_window_->draw(circle, top_right_transform);
-    }
-  }
-
-  sf::CircleShape circle(1.0f);
-  circle.setPosition(compass_center);
-  circle.setFillColor(sf::Color(0x00, 0x00, 0xFF, 0xFF));
-  render_window_->draw(circle, top_right_transform);
-
-  // Draw score table.
-
-  if (show_score_table_) {
-    // TODO(xairy): sort players by score.
-
-    sf::Vector2f view_size = view_.getSize();
-    size_t player_count = player_scores_.size();
-    sf::Vector2f score_rect_size(400.0f, player_count * 50.0f);
-    sf::Vector2f score_rect_position((view_size.x - score_rect_size.x) / 2,
-          (view_size.y - score_rect_size.y) / 2);
-    sf::RectangleShape score_rect;
-    score_rect.setSize(score_rect_size);
-    score_rect.setPosition(score_rect_position);
-    score_rect.setFillColor(sf::Color(0xAA, 0xAA, 0xAA, 0xBB));
-    render_window_->draw(score_rect, top_left_transform);
-
-    int i = 0;
-    std::map<uint32_t, int>::iterator it;
-    for (it = player_scores_.begin(); it != player_scores_.end(); ++it) {
-      std::string score = IntToStr(it->second);
-      WriteText(player_names_[it->first], score_rect_position +
-          sf::Vector2f(20.0f, 50.0f * i), 40, sf::Color::Blue);
-      WriteText(score, score_rect_position +
-          sf::Vector2f(score_rect_size.x - 50.0f, 50.0f * i),
-          40, sf::Color::Magenta);
-      i++;
-    }
-  }
-}
-
-void Application::WriteText(const std::string& str,
-    const sf::Vector2f& position, int size, sf::Color color) {
-  sf::Text text;
-  text.setString(str);
-  text.setCharacterSize(size);
-  text.setColor(color);
-  text.setStyle(sf::Text::Regular);
-  text.setFont(*font_);
-  sf::Transform transform;
-  transform.translate(view_.getCenter() - view_.getSize() / 2.0f);
-  transform.translate(position);
-  render_window_->draw(text, transform);
+  render_window_.EndFrame();
 }
 
 bool Application::SendInputEvents() {
@@ -1209,9 +1003,9 @@ bool Application::OnActivateAction() {
 }
 
 b2Vec2 Application::GetMousePosition() const {
-  sf::Vector2i mouse_position = sf::Mouse::getPosition(*render_window_);
-  int screen_width = render_window_->getSize().x;
-  int screen_height = render_window_->getSize().y;
+  sf::Vector2i mouse_position = render_window_.GetMousePosition();
+  int screen_width = render_window_.GetWindowSize().x;
+  int screen_height = render_window_.GetWindowSize().y;
   mouse_position.x = (mouse_position.x - screen_width / 2) +
     player_->GetPosition().x;
   mouse_position.y = (mouse_position.y - screen_height / 2) +

@@ -29,6 +29,11 @@ class ClientEntity : public Entity {
     Sprite* sprite);
   ~ClientEntity();
 
+  Sprite* GetSprite();
+
+  bool HasCaption();
+  sf::Text* GetCaption();
+
   // Makes object to start moving towards 'position' to be there when
   // current time - 'interpolation_offset' == 'time'.
   void SetInterpolationPosition(const b2Vec2& position,
@@ -36,10 +41,7 @@ class ClientEntity : public Entity {
 
   void EnableCaption(const std::string& caption, const sf::Font& font);
 
-  void Render(sf::RenderWindow* render_window, int64_t time);
-
  private:
-  bool visible_;
   Sprite* sprite_;
 
   bool caption_visible_;

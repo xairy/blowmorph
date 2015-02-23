@@ -6,6 +6,8 @@
 #include "base/macros.h"
 #include "base/pstdint.h"
 
+// TODO(xairy): move to engine.
+
 namespace bm {
 
 class Packet {

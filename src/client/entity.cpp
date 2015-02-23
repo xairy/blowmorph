@@ -36,7 +36,6 @@ ClientEntity::ClientEntity(
   b2Vec2 position,
   Sprite* sprite
 ) : Entity(world, id, type, entity_name, position, FILTER_DEFAULT, FILTER_ALL),
-    visible_(true),
     sprite_(sprite),
     caption_visible_(false) {
   // XXX(xairy): create Sprite here?
@@ -44,6 +43,19 @@ ClientEntity::ClientEntity(
 
 ClientEntity::~ClientEntity() {
   if (sprite_ != NULL) delete sprite_;
+}
+
+Sprite* ClientEntity::GetSprite() {
+  return sprite_;
+}
+
+bool ClientEntity::HasCaption() {
+  return caption_visible_;
+}
+
+sf::Text* ClientEntity::GetCaption() {
+  CHECK(caption_visible_ == true);
+  return &caption_text_;
 }
 
 void ClientEntity::SetInterpolationPosition(
@@ -68,24 +80,6 @@ void ClientEntity::EnableCaption(
   sf::Vector2f origin(rect.left + rect.width / 2, rect.top  + rect.height / 2);
   caption_text_.setOrigin(Round(origin));
   caption_visible_ = true;
-}
-
-void ClientEntity::Render(sf::RenderWindow* render_window, int64_t time) {
-  b2Vec2 b2p = GetPosition();
-  sf::Vector2f position = Round(sf::Vector2f(b2p.x, b2p.y));
-
-  if (visible_) {
-    sprite_->SetPosition(position);
-    sprite_->SetRotation(GetRotation() / M_PI * 180.0f);
-    sprite_->Render(render_window);
-  }
-
-  if (visible_ && caption_visible_) {
-    sf::Vector2f caption_offset = sf::Vector2f(0.0f, -25.0f);
-    sf::Vector2f caption_pos = position + caption_offset;
-    caption_text_.setPosition(caption_pos.x, caption_pos.y);
-    render_window->draw(caption_text_);
-  }
 }
 
 }  // namespace bm

@@ -22,6 +22,7 @@
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
+#include "client/render_window.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
 
@@ -37,7 +38,6 @@ class Application {
   void Finalize();
 
  private:
-  bool InitializeGraphics();
   bool InitializePhysics();
   bool InitializeNetwork();
 
@@ -65,10 +65,6 @@ class Application {
   void SimulatePhysics();
 
   void Render();
-  void RenderTerrain();
-  void RenderHUD();
-  void WriteText(const std::string& str, const sf::Vector2f& position,
-      int size, sf::Color color);
 
   // Sends input events to the server and
   // clears the input event queues afterwards.
@@ -83,10 +79,6 @@ class Application {
 
   ResourceManager resource_manager_;
 
-  sf::RenderWindow* render_window_;
-  sf::View view_;
-  sf::Font* font_;
-
   enet::Enet enet_;
   enet::ClientHost* client_;
   enet::Event* event_;
@@ -100,19 +92,18 @@ class Application {
   int64_t last_tick_;
   int64_t last_physics_simulation_;
 
+  ClientOptions client_options_;
   ClientEntity* player_;
+
   World world_;
-
-  std::list<Sprite*> explosions_;
-
   ContactListener contact_listener_;
 
-  ClientOptions client_options_;
-
-  std::map<uint32_t, std::string> player_names_;
+  RenderWindow render_window_;
+  std::list<Sprite*> explosions_;
 
   bool show_score_table_;
   std::map<uint32_t, int> player_scores_;
+  std::map<uint32_t, std::string> player_names_;
 
   float player_health_;
   float player_energy_;
