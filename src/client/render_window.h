@@ -3,6 +3,9 @@
 #ifndef CLIENT_RENDER_WINDOW_H_
 #define CLIENT_RENDER_WINDOW_H_
 
+#include <map>
+#include <string>
+
 #include <SFML/Graphics.hpp>
 
 #include "base/macros.h"
@@ -52,7 +55,7 @@ class RenderWindow {
   sf::Font* GetFont();
   sf::Vector2i GetMousePosition() const;
 
-  bool PollEvent(sf::Event& event);
+  bool PollEvent(sf::Event* event);
 
  private:
   sf::RenderWindow* render_window_;
@@ -67,6 +70,6 @@ class RenderWindow {
   DISALLOW_COPY_AND_ASSIGN(RenderWindow);
 };
 
-} // namespace bm
+}  // namespace bm
 
 #endif  // CLIENT_RENDER_WINDOW_H_

@@ -30,7 +30,7 @@ class Controller;
 
 // Holds the current state of the world.
 // Updated by the 'Controller' class.
-class ServerWorld : public World{
+class ServerWorld : public World {
  public:
   explicit ServerWorld(Controller* controller);
   virtual ~ServerWorld();

@@ -2,6 +2,9 @@
 
 #include "client/render_window.h"
 
+#include <map>
+#include <string>
+
 #include <SFML/Graphics.hpp>
 
 #include "base/macros.h"
@@ -340,9 +343,9 @@ sf::Vector2i RenderWindow::GetMousePosition() const {
   return sf::Mouse::getPosition(*render_window_);
 }
 
-bool RenderWindow::PollEvent(sf::Event& event) {
+bool RenderWindow::PollEvent(sf::Event* event) {
   CHECK(state_ == STATE_INITIALIZED);
-  return render_window_->pollEvent(event);
+  return render_window_->pollEvent(*event);
 }
 
-} // namespace bm
+}  // namespace bm

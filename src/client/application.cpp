@@ -379,7 +379,7 @@ int64_t Application::GetServerTime() {
 bool Application::PumpEvents() {
   CHECK(state_ == STATE_INITIALIZED);
   sf::Event event;
-  while (render_window_.PollEvent(event)) {
+  while (render_window_.PollEvent(&event)) {
     if (!ProcessEvent(event)) {
       return false;
     }
