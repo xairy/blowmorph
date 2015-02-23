@@ -15,9 +15,9 @@ namespace bm {
 
 class ContactListener : public b2ContactListener {
   virtual void PreSolve(b2Contact* contact, const b2Manifold* old_manifold) {
-    Entity* a = static_cast<Entity*>(
+    ServerEntity* a = static_cast<ServerEntity*>(
         contact->GetFixtureA()->GetBody()->GetUserData());
-    Entity* b = static_cast<Entity*>(
+    ServerEntity* b = static_cast<ServerEntity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
     if (a->GetType() == Entity::TYPE_PLAYER &&
         b->GetType() == Entity::TYPE_PROJECTILE) {
@@ -38,9 +38,9 @@ class ContactListener : public b2ContactListener {
   }
 
   virtual void BeginContact(b2Contact* contact) {
-    Entity* a = static_cast<Entity*>(
+    ServerEntity* a = static_cast<ServerEntity*>(
         contact->GetFixtureA()->GetBody()->GetUserData());
-    Entity* b = static_cast<Entity*>(
+    ServerEntity* b = static_cast<ServerEntity*>(
         contact->GetFixtureB()->GetBody()->GetUserData());
     a->Collide(b);
   }

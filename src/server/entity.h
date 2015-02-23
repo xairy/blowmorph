@@ -12,6 +12,7 @@
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/entity.h"
 
 #include "server/id_manager.h"
 
@@ -26,62 +27,22 @@ class Player;
 class Projectile;
 class Wall;
 
-class Entity {
+class ServerEntity : public Entity {
  public:
   static const uint32_t BAD_ID = IdManager::BAD_ID;
 
-  enum Type {
-    TYPE_ACTIVATOR,
-    TYPE_CRITTER,
-    TYPE_KIT,
-    TYPE_PLAYER,
-    TYPE_PROJECTILE,
-    TYPE_WALL,
-  };
-
-  // Collision filters.
-  enum FilterType {
-    FILTER_ACTIVATOR  = 0x0001,
-    FILTER_CRITTER    = 0x0002,
-    FILTER_KIT        = 0x0004,
-    FILTER_PLAYER     = 0x0008,
-    FILTER_PROJECTILE = 0x0010,
-    FILTER_WALL       = 0x0020,
-    FILTER_ALL        = 0xffff,
-    FILTER_NONE       = 0x0000
-  };
-
  public:
-  Entity(
+  ServerEntity(
     Controller* controller,
     uint32_t id,
-    const std::string& entity_name,
     Type type,
+    const std::string& entity_name,
     b2Vec2 position,
     uint16_t collision_category,
     uint16_t collision_mask);
-  virtual ~Entity();
+  virtual ~ServerEntity();
 
   Controller* GetController();
-
-  // FIXME(xairy): remove dynamic config from cfg files.
-
-  uint32_t GetId() const;
-  Type GetType() const;
-  bool IsStatic() const;
-
-  b2Vec2 GetPosition() const;
-  void SetPosition(const b2Vec2& position);
-
-  float GetRotation() const;
-  void SetRotation(float angle);
-
-  b2Vec2 GetVelocity() const;
-  void SetVelocity(const b2Vec2& velocity);
-
-  float GetMass() const;
-  void ApplyImpulse(const b2Vec2& impulse);
-  void SetImpulse(const b2Vec2& impulse);
 
   // FIXME(xairy): get rid of it.
   void SetUpdatedFlag(bool value);
@@ -95,7 +56,7 @@ class Entity {
 
   // Double dispatch. Collision handling.
 
-  virtual void Collide(Entity* entity) = 0;
+  virtual void Collide(ServerEntity* entity) = 0;
 
   virtual void Collide(Player* other) = 0;
   virtual void Collide(Critter* other) = 0;
@@ -134,13 +95,8 @@ class Entity {
  protected:
   Controller* controller_;
 
-  uint32_t _id;
-  Type type_;
-
-  bool _is_destroyed;
-  bool _is_updated;
-
-  Body* body_;
+  bool is_destroyed_;
+  bool is_updated_;
 };
 
 }  // namespace bm

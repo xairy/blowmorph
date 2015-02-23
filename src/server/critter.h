@@ -17,8 +17,8 @@ namespace bm {
 
 class Controller;
 
-class Critter : public Entity {
-  friend class Entity;
+class Critter : public ServerEntity {
+  friend class ServerEntity;
 
  public:
   enum Type {
@@ -42,9 +42,7 @@ class Critter : public Entity {
   void SetTarget(Entity* target);
 
   // Double dispatch. Collision detection.
-
-  virtual void Collide(Entity* entity);
-
+  virtual void Collide(ServerEntity* entity);
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
   virtual void Collide(Projectile* other);

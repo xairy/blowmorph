@@ -17,8 +17,8 @@ namespace bm {
 
 class Controller;
 
-class Wall : public Entity {
-  friend class Entity;
+class Wall : public ServerEntity {
+  friend class ServerEntity;
 
  public:
   enum Type {
@@ -38,9 +38,7 @@ class Wall : public Entity {
   virtual void Damage(int damage, uint32_t source_id);
 
   // Double dispatch. Collision detection.
-
-  virtual void Collide(Entity* entity);
-
+  virtual void Collide(ServerEntity* entity);
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
   virtual void Collide(Projectile* other);

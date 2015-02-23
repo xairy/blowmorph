@@ -17,8 +17,8 @@ namespace bm {
 
 class Controller;
 
-class Kit : public Entity {
-  friend class Entity;
+class Kit : public ServerEntity {
+  friend class ServerEntity;
 
  public:
   enum Type {
@@ -43,9 +43,7 @@ class Kit : public Entity {
   int GetEnergyRegeneration() const;
 
   // Double dispatch. Collision detection.
-
-  virtual void Collide(Entity* entity);
-
+  virtual void Collide(ServerEntity* entity);
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
   virtual void Collide(Projectile* other);

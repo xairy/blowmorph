@@ -54,7 +54,8 @@ class Server {
 
   bool OnClientStatus(uint32_t client_id);
 
-  bool BroadcastEntityRelatedMessage(Packet::Type packet_type, Entity* entity);
+  bool BroadcastEntityRelatedMessage(Packet::Type packet_type,
+      ServerEntity* entity);
 
   int64_t broadcast_timeout_;
   int64_t last_broadcast_;

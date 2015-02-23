@@ -25,8 +25,8 @@ Wall::Wall(
   uint32_t id,
   const b2Vec2& position,
   const std::string& entity_name
-) : Entity(controller, id, entity_name, Entity::TYPE_WALL, position,
-           Entity::FILTER_WALL, Entity::FILTER_ALL) {
+) : ServerEntity(controller, id, Entity::TYPE_WALL, entity_name, position,
+                 Entity::FILTER_WALL, Entity::FILTER_ALL) {
   auto config = Config::GetInstance()->GetWallsConfig();
   CHECK(config.count(entity_name) == 1);
   Config::WallConfig::Type type = config.at(entity_name).type;
@@ -46,10 +46,10 @@ Wall::~Wall() { }
 void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_WALL;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
   if (_type == TYPE_ORDINARY) {
     output->data[0] = EntitySnapshot::WALL_TYPE_ORDINARY;
   } else if (_type == TYPE_UNBREAKABLE) {
@@ -69,27 +69,27 @@ void Wall::Damage(int damage, uint32_t source_id) {
 
 // Double dispatch. Collision detection.
 
-void Wall::Collide(Entity* entity) {
+void Wall::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Wall::Collide(Player* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Wall::Collide(Critter* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Wall::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Wall::Collide(Wall* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Wall::Collide(Kit* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Wall::Collide(Activator* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 
 }  // namespace bm

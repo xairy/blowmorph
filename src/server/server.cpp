@@ -151,12 +151,8 @@ bool Server::Tick() {
 }
 
 bool Server::BroadcastDynamicEntities() {
-  std::map<uint32_t, Entity*>* _entities =
-    _entities = controller_.GetWorld()->GetDynamicEntities();
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _entities->end();
-  for (itr = _entities->begin(); itr != end; ++itr) {
-    Entity* entity = itr->second;
+  for (auto itr : *controller_.GetWorld()->GetDynamicEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(itr.second);
     bool rv = BroadcastEntityRelatedMessage(
         Packet::TYPE_ENTITY_UPDATED, entity);
     if (rv == false) {
@@ -167,12 +163,8 @@ bool Server::BroadcastDynamicEntities() {
 }
 
 bool Server::BroadcastStaticEntities(bool force) {
-  std::map<uint32_t, Entity*>* _entities =
-    _entities = controller_.GetWorld()->GetStaticEntities();
-  std::map<uint32_t, Entity*>::iterator itr, end;
-  end = _entities->end();
-  for (itr = _entities->begin(); itr != end; ++itr) {
-    Entity* entity = itr->second;
+  for (auto itr : *controller_.GetWorld()->GetStaticEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(itr.second);
     if (force || entity->IsUpdated()) {
       bool rv = BroadcastEntityRelatedMessage(
           Packet::TYPE_ENTITY_UPDATED, entity);
@@ -476,7 +468,7 @@ bool Server::OnClientStatus(uint32_t client_id) {
 }
 
 bool Server::BroadcastEntityRelatedMessage(Packet::Type packet_type,
-    Entity* entity) {
+    ServerEntity* entity) {
   CHECK(packet_type == Packet::TYPE_ENTITY_APPEARED ||
     packet_type == Packet::TYPE_ENTITY_UPDATED);
 

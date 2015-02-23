@@ -17,8 +17,8 @@ namespace bm {
 
 class Controller;
 
-class Player : public Entity {
-  friend class Entity;
+class Player : public ServerEntity {
+  friend class ServerEntity;
 
  public:
   struct KeyboardState {
@@ -83,9 +83,7 @@ class Player : public Entity {
   void RestoreEnergy();
 
   // Double dispatch. Collision detection.
-
-  virtual void Collide(Entity* entity);
-
+  virtual void Collide(ServerEntity* entity);
   virtual void Collide(Player* other);
   virtual void Collide(Critter* other);
   virtual void Collide(Projectile* other);

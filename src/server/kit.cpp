@@ -27,8 +27,8 @@ Kit::Kit(
   int health_regeneration,
   int energy_regeneration,
   const std::string& entity_name
-) : Entity(controller, id, entity_name, Entity::TYPE_KIT, position,
-          Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
+) : ServerEntity(controller, id, Entity::TYPE_KIT, entity_name, position,
+        Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
   _health_regeneration = health_regeneration;
   _energy_regeneration = energy_regeneration;
   auto config = Config::GetInstance()->GetKitsConfig();
@@ -50,10 +50,10 @@ Kit::~Kit() { }
 void Kit::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_KIT;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
   if (_type == TYPE_HEALTH) {
     output->data[0] = EntitySnapshot::KIT_TYPE_HEALTH;
   } else if (_type == TYPE_ENERGY) {
@@ -76,27 +76,27 @@ int Kit::GetEnergyRegeneration() const {
 
 // Double dispatch. Collision detection.
 
-void Kit::Collide(Entity* entity) {
+void Kit::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Kit::Collide(Player* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Kit::Collide(Critter* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Kit::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Kit::Collide(Wall* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Kit::Collide(Kit* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Kit::Collide(Activator* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 
 std::string Kit::TypeToEntityName(Kit::Type type) {

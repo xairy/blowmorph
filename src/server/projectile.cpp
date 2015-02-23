@@ -26,8 +26,8 @@ Projectile::Projectile(
   const b2Vec2& start,
   const b2Vec2& end,
   const std::string& entity_name
-) : Entity(controller, id, entity_name, Entity::TYPE_PROJECTILE, start,
-          Entity::FILTER_PROJECTILE, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
+) : ServerEntity(controller, id, Entity::TYPE_PROJECTILE, entity_name, start,
+        Entity::FILTER_PROJECTILE, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   auto config = Config::GetInstance()->GetProjectilesConfig();
   CHECK(config.count(entity_name) == 1);
   float speed = config.at(entity_name).speed;
@@ -63,10 +63,10 @@ Projectile::~Projectile() { }
 void Projectile::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PROJECTILE;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
   if (type_ == TYPE_ROCKET) {
     output->data[0] = EntitySnapshot::PROJECTILE_TYPE_ROCKET;
   } else if (type_ == TYPE_SLIME) {
@@ -102,27 +102,27 @@ int Projectile::GetSlimeExplosionRadius() const {
 
 // Double dispatch. Collision detection.
 
-void Projectile::Collide(Entity* entity) {
+void Projectile::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Projectile::Collide(Player* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Projectile::Collide(Critter* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Projectile::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Projectile::Collide(Wall* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Projectile::Collide(Kit* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Projectile::Collide(Activator* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 
 }  // namespace bm

@@ -25,7 +25,7 @@ Critter::Critter(
   uint32_t id,
   const b2Vec2& position,
   const std::string& entity_name
-) : Entity(controller, id, entity_name, Entity::TYPE_CRITTER, position,
+) : ServerEntity(controller, id, Entity::TYPE_CRITTER, entity_name, position,
            Entity::FILTER_CRITTER, Entity::FILTER_ALL & ~Entity::FILTER_KIT) {
   auto config = Config::GetInstance()->GetCrittersConfig();
   CHECK(config.count(entity_name) == 1);
@@ -44,10 +44,10 @@ Critter::~Critter() { }
 void Critter::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_CRITTER;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
 }
 
 void Critter::Damage(int damage, uint32_t source_id) {
@@ -66,27 +66,27 @@ void Critter::SetTarget(Entity* target) {
   _target = target;
 }
 
-void Critter::Collide(Entity* entity) {
+void Critter::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Critter::Collide(Player* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Critter* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Critter::Collide(Wall* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Kit* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Activator* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 
 }  // namespace bm

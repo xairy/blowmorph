@@ -318,18 +318,15 @@ void Controller::StepPhysics(int64_t time_delta) {
 
 void Controller::DestroyOutlyingEntities() {
   float bound = world_.GetBound();
-  std::map<uint32_t, Entity*>::iterator i, end;
-  end = world_.GetStaticEntities()->end();
-  for (i = world_.GetStaticEntities()->begin(); i != end; ++i) {
-    Entity* entity = i->second;
+  for (auto i: *world_.GetStaticEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     b2Vec2 position = entity->GetPosition();
     if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
       entity->Destroy();
     }
   }
-  end = world_.GetDynamicEntities()->end();
-  for (i = world_.GetDynamicEntities()->begin(); i != end; ++i) {
-    Entity* entity = i->second;
+  for (auto i: *world_.GetDynamicEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     b2Vec2 position = entity->GetPosition();
     if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
       if (entity->GetType() != Entity::TYPE_PLAYER) {
@@ -340,10 +337,8 @@ void Controller::DestroyOutlyingEntities() {
 }
 
 void Controller::RespawnDeadPlayers() {
-  std::map<uint32_t, Entity*>::iterator i, end;
-  end = world_.GetDynamicEntities()->end();
-  for (i = world_.GetDynamicEntities()->begin(); i != end; ++i) {
-    Entity* entity = i->second;
+  for (auto i: *world_.GetDynamicEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);
       if (player->GetHealth() <= 0) {
@@ -379,7 +374,7 @@ void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
   std::map<uint32_t, Entity*>::iterator itr, end;
   end = world_.GetStaticEntities()->end();
   for (itr = world_.GetStaticEntities()->begin(); itr != end;) {
-    Entity* entity = itr->second;
+    ServerEntity* entity = static_cast<ServerEntity*>(itr->second);
     ++itr;
     if (entity->IsDestroyed()) {
       GameEvent event;
@@ -395,7 +390,7 @@ void Controller::DeleteDestroyedEntities(int64_t time, int64_t time_delta) {
   }
   end = world_.GetDynamicEntities()->end();
   for (itr = world_.GetDynamicEntities()->begin(); itr != end;) {
-    Entity* entity = itr->second;
+    ServerEntity* entity = static_cast<ServerEntity*>(itr->second);
     ++itr;
     if (entity->IsDestroyed()) {
       GameEvent event;
@@ -435,18 +430,15 @@ void Controller::MakeRocketExplosion(const b2Vec2& location, float radius,
   // FIXME(xairy): can miss huge entities.
   radius += 13.0f;
 
-  std::map<uint32_t, Entity*>::iterator i, end;
-  end = world_.GetStaticEntities()->end();
-  for (i = world_.GetStaticEntities()->begin(); i != end; ++i) {
-    Entity* entity = i->second;
+  for (auto i: *world_.GetStaticEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {
       entity->Damage(damage, source_id);
     }
   }
-  end = world_.GetDynamicEntities()->end();
-  for (i = world_.GetDynamicEntities()->begin(); i != end; ++i) {
-    Entity* entity = i->second;
+  for (auto i: *world_.GetDynamicEntities()) {
+    ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {
       entity->Damage(damage, source_id);

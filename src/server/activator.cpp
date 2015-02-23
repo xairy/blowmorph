@@ -26,8 +26,8 @@ Activator::Activator(
   uint32_t id,
   const b2Vec2& position,
   const std::string& entity_name
-) : Entity(controller, id, entity_name, Entity::TYPE_ACTIVATOR, position,
-           Entity::FILTER_WALL, Entity::FILTER_ALL) {
+) : ServerEntity(controller, id, Entity::TYPE_ACTIVATOR, entity_name, position,
+                 Entity::FILTER_WALL, Entity::FILTER_ALL) {
   auto config = Config::GetInstance()->GetActivatorsConfig();
   CHECK(config.count(entity_name) == 1);
   activation_distance_ = config.at(entity_name).activation_distance;
@@ -44,10 +44,10 @@ Activator::~Activator() { }
 void Activator::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_ACTIVATOR;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
   // FIXME(xairy): set data[0] depending on activator type.
 }
 
@@ -66,27 +66,27 @@ void Activator::Activate(Entity* activator) {
 
 // Double dispatch. Collision detection.
 
-void Activator::Collide(Entity* entity) {
+void Activator::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Activator::Collide(Player* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Critter* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Wall* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Kit* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Activator* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 
 }  // namespace bm

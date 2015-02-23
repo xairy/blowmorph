@@ -25,13 +25,13 @@ Player::Player(
     std::string entity_name,
     uint32_t id,
     const b2Vec2& position
-) : Entity(controller, id, entity_name, Entity::TYPE_PLAYER, position,
-           Entity::FILTER_PLAYER, Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
+) : ServerEntity(controller, id, Entity::TYPE_PLAYER, entity_name, position,
+        Entity::FILTER_PLAYER, Entity::FILTER_ALL & ~Entity::FILTER_PLAYER) {
   auto config = Config::GetInstance()->GetPlayersConfig();
   CHECK(config.count(entity_name) == 1);
   _speed = config.at(entity_name).speed;
   _score = 0;
-  _killer_id = Entity::BAD_ID;
+  _killer_id = ServerEntity::BAD_ID;
   _max_health = config.at(entity_name).health_max;
   _health_regeneration = config.at(entity_name).health_regen;
   _health = _max_health;
@@ -45,10 +45,10 @@ Player::~Player() { }
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;
   output->time = time;
-  output->id = _id;
-  output->x = body_->GetPosition().x;
-  output->y = body_->GetPosition().y;
-  output->angle = body_->GetRotation();
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
   output->data[0] = _health;
   output->data[1] = _energy;
   output->data[2] = _score;
@@ -231,27 +231,27 @@ void Player::RestoreEnergy() {
   _energy = _energy_capacity;
 }
 
-void Player::Collide(Entity* entity) {
+void Player::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
 void Player::Collide(Player* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Player::Collide(Critter* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Player::Collide(Projectile* other) {
-  Entity::Collide(this, other);
+  ServerEntity::Collide(this, other);
 }
 void Player::Collide(Wall* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Player::Collide(Kit* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 void Player::Collide(Activator* other) {
-  Entity::Collide(other, this);
+  ServerEntity::Collide(other, this);
 }
 
 }  // namespace bm

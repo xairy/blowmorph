@@ -14,6 +14,8 @@
 
 namespace bm {
 
+// FIXME(xairy): remove dynamic config from cfg files.
+
 class Config : public Singleton<Config> {
  public:
   struct MasterServerConfig {
