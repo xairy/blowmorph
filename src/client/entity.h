@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef CLIENT_ENTITY_H_
 #define CLIENT_ENTITY_H_
@@ -12,36 +12,22 @@
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/entity.h"
 
 #include "client/sprite.h"
 
 namespace bm {
 
-// TODO(xairy): merge with server's Entity class.
-class Entity {
+class ClientEntity : public Entity {
  public:
-  enum Type {
-    TYPE_ACTIVATOR,
-    TYPE_CRITTER,
-    TYPE_KIT,
-    TYPE_PLAYER,
-    TYPE_PROJECTILE,
-    TYPE_WALL,
-  };
-
-  Entity(
-    const std::string& body_config,
+  ClientEntity(
+    b2World* world,
     uint32_t id,
     Type type,
-    b2World *world,
-    Sprite* sprite,
-    const b2Vec2& position);
-  ~Entity();
-
-  Type GetType() const;
-  uint32_t GetId() const;
-
-  Body* GetBody();
+    const std::string& entity_name,
+    b2Vec2 position,
+    Sprite* sprite);
+  ~ClientEntity();
 
   // Makes object to start moving towards 'position' to be there when
   // current time - 'interpolation_offset' == 'time'.
@@ -53,12 +39,8 @@ class Entity {
   void Render(sf::RenderWindow* render_window, int64_t time);
 
  private:
-  uint32_t id_;
-  Type type_;
-
   bool visible_;
   Sprite* sprite_;
-  Body body_;
 
   bool caption_visible_;
   sf::Text caption_text_;

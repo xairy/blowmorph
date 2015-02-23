@@ -119,13 +119,13 @@ bool Application::Run() {
   b2Vec2 position(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
-  player_ = new Entity("man", client_options_.id,
-    Entity::TYPE_PLAYER, world_, sprite, position);
+  player_ = new ClientEntity(world_, client_options_.id,
+    Entity::TYPE_PLAYER, "player", position, sprite);
   CHECK(player_ != NULL);
   const Config::ClientConfig& config =
     Config::GetInstance()->GetClientConfig();
   player_->EnableCaption(config.player_name, *font_);
-  player_->GetBody()->SetPosition(position);
+  player_->SetPosition(position);
 
   contact_listener_.SetPlayerId(client_options_.id);
 
@@ -503,9 +503,9 @@ bool Application::OnMouseButtonEvent(const sf::Event& event) {
   int screen_width = render_window_->getSize().x;
   int screen_height = render_window_->getSize().y;
   mouse_event.x = (event.mouseButton.x - screen_width / 2) +
-    player_->GetBody()->GetPosition().x;
+    player_->GetPosition().x;
   mouse_event.y = (event.mouseButton.y - screen_height / 2) +
-    player_->GetBody()->GetPosition().y;
+    player_->GetPosition().y;
 
   mouse_events_.push_back(mouse_event);
 
@@ -687,7 +687,9 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       std::string player_name(player_info.login);
       player_names_[player_info.id] = player_name;
       if (dynamic_entities_.count(player_info.id) == 1) {
-        dynamic_entities_[player_info.id]->EnableCaption(player_name, *font_);
+        ClientEntity* entity =
+            static_cast<ClientEntity*>(dynamic_entities_[player_info.id]);
+        entity->EnableCaption(player_name, *font_);
       }
     } break;
 
@@ -799,26 +801,26 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   Sprite* sprite = resource_manager_.CreateSprite(sprite_name);
   CHECK(sprite != NULL);
 
-  Entity* entity = NULL;
+  ClientEntity* entity = NULL;
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_WALL, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_WALL,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       static_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_PROJECTILE, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_PROJECTILE,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_PLAYER, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_PLAYER,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       if (player_names_.count(id) == 1) {
         entity->EnableCaption(player_names_[id], *font_);
@@ -827,22 +829,22 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_CRITTER, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_CRITTER,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_KIT, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_KIT,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity = new Entity(body_name, id,
-        Entity::TYPE_ACTIVATOR, world_, sprite, position);
+      entity = new ClientEntity(world_, id, Entity::TYPE_ACTIVATOR,
+          entity_name, position, sprite);
       CHECK(entity != NULL);
       static_entities_[id] = entity;
     } break;
@@ -851,7 +853,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       CHECK(false);  // Unreachable.
   }
 
-  entity->GetBody()->SetRotation(snapshot->angle);
+  entity->SetRotation(snapshot->angle);
 }
 
 void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
@@ -863,8 +865,8 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
   // FIXME(xairy): add is_static flag.
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL ||
       snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR) {
-    static_entities_[snapshot->id]->GetBody()->SetPosition(position);
-    static_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
+    static_entities_[snapshot->id]->SetPosition(position);
+    static_entities_[snapshot->id]->SetRotation(snapshot->angle);
   } else {
     int64_t server_time = GetServerTime();
     if (server_time - interpolation_offset_ >= snapshot->time) {
@@ -872,9 +874,11 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
       return;
     }
     CHECK(dynamic_entities_.count(snapshot->id) == 1);
-    dynamic_entities_[snapshot->id]->SetInterpolationPosition(position,
-        snapshot->time, interpolation_offset_, server_time);
-    dynamic_entities_[snapshot->id]->GetBody()->SetRotation(snapshot->angle);
+    ClientEntity* entity =
+            static_cast<ClientEntity*>(dynamic_entities_[snapshot->id]);
+    entity->SetInterpolationPosition(position, snapshot->time,
+        interpolation_offset_, server_time);
+    entity->SetRotation(snapshot->angle);
     // TODO(xairy): use SetInterpolationRotation.
     // dynamic_entities_[snapshot->id]->SetInterpolationRotation(
     //   snapshot->angle, snapshot->time, interpolation_offset_, server_time);
@@ -889,10 +893,10 @@ void Application::OnPlayerUpdate(const EntitySnapshot* snapshot) {
   player_energy_ = snapshot->data[1];
 
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
-  b2Vec2 distance = player_->GetBody()->GetPosition() - position;
+  b2Vec2 distance = player_->GetPosition() - position;
 
   if (Length(distance) > max_player_misposition_) {
-    player_->GetBody()->SetPosition(position);
+    player_->SetPosition(position);
   }
 }
 
@@ -928,7 +932,7 @@ void Application::SimulatePhysics() {
       + keyboard_state_.right * (client_options_.speed);
     velocity.y = keyboard_state_.up * (-client_options_.speed)
       + keyboard_state_.down * (client_options_.speed);
-    player_->GetBody()->SetImpulse(player_->GetBody()->GetMass() * velocity);
+    player_->SetImpulse(player_->GetMass() * velocity);
 
     int32_t velocity_iterations = 6;
     int32_t position_iterations = 2;
@@ -944,7 +948,7 @@ void Application::Render() {
 
   if (network_state_ == NETWORK_STATE_LOGGED_IN) {
     int64_t render_time = GetServerTime();
-    b2Vec2 position = player_->GetBody()->GetPosition();
+    b2Vec2 position = player_->GetPosition();
     view_.setCenter(Round(sf::Vector2f(position.x, position.y)));
     render_window_->setView(view_);
 
@@ -965,19 +969,20 @@ void Application::Render() {
       }
     }
 
-    std::map<uint32_t, Entity*>::iterator it;
-    for (it = static_entities_.begin() ; it != static_entities_.end(); ++it) {
-      it->second->Render(render_window_, render_time);
+    for (auto it: static_entities_) {
+      ClientEntity* entity = static_cast<ClientEntity*>(it.second);
+      entity->Render(render_window_, render_time);
     }
-    for (it = dynamic_entities_.begin() ; it != dynamic_entities_.end(); ++it) {
-      it->second->Render(render_window_, render_time);
+    for (auto it: dynamic_entities_) {
+      ClientEntity* entity = static_cast<ClientEntity*>(it.second);
+      entity->Render(render_window_, render_time);
     }
 
     // Set player rotation.
     b2Vec2 mouse_position = GetMousePosition();
-    b2Vec2 direction = mouse_position - player_->GetBody()->GetPosition();
+    b2Vec2 direction = mouse_position - player_->GetPosition();
     float angle = atan2f(-direction.x, direction.y);
-    player_->GetBody()->SetRotation(angle);
+    player_->SetRotation(angle);
 
     player_->Render(render_window_, render_time);
 
@@ -1081,8 +1086,8 @@ void Application::RenderHUD() {
   for (it = dynamic_entities_.begin(); it != dynamic_entities_.end(); ++it) {
     Entity* obj = it->second;
 
-    b2Vec2 obj_pos = obj->GetBody()->GetPosition();
-    b2Vec2 player_pos = player_->GetBody()->GetPosition();
+    b2Vec2 obj_pos = obj->GetPosition();
+    b2Vec2 player_pos = player_->GetPosition();
     b2Vec2 rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = (compass_radius / compass_range) * rel;
@@ -1096,8 +1101,8 @@ void Application::RenderHUD() {
   for (it = static_entities_.begin(); it != static_entities_.end(); ++it) {
     Entity* obj = it->second;
 
-    b2Vec2 obj_pos = obj->GetBody()->GetPosition();
-    b2Vec2 player_pos = player_->GetBody()->GetPosition();
+    b2Vec2 obj_pos = obj->GetPosition();
+    b2Vec2 player_pos = player_->GetPosition();
     b2Vec2 rel = obj_pos - player_pos;
     if (Length(rel) < compass_range) {
       rel = (compass_radius / compass_range) * rel;
@@ -1194,7 +1199,7 @@ bool Application::SendInputEvents() {
 }
 
 bool Application::OnActivateAction() {
-  b2Body* b = RayCast(world_, player_->GetBody()->GetPosition(),
+  b2Body* b = RayCast(world_, player_->GetPosition(),
     GetMousePosition());
   if (b == NULL) {
     return true;
@@ -1220,9 +1225,9 @@ b2Vec2 Application::GetMousePosition() const {
   int screen_width = render_window_->getSize().x;
   int screen_height = render_window_->getSize().y;
   mouse_position.x = (mouse_position.x - screen_width / 2) +
-    player_->GetBody()->GetPosition().x;
+    player_->GetPosition().x;
   mouse_position.y = (mouse_position.y - screen_height / 2) +
-    player_->GetBody()->GetPosition().y;
+    player_->GetPosition().y;
   return b2Vec2(mouse_position.x, mouse_position.y);
 }
 

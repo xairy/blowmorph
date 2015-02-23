@@ -99,7 +99,7 @@ class Application {
   int64_t last_tick_;
   int64_t last_physics_simulation_;
 
-  Entity* player_;
+  ClientEntity* player_;
   std::map<uint32_t, Entity*> dynamic_entities_;
   std::map<uint32_t, Entity*> static_entities_;
   std::list<Sprite*> explosions_;
