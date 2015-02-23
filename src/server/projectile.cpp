@@ -37,6 +37,9 @@ Projectile::Projectile(
   velocity *= speed;
   body_->ApplyImpulse(body_->GetMass() * velocity);
 
+  float angle = atan2f(-velocity.x, velocity.y);
+  SetRotation(angle);
+
   owner_id_ = owner_id;
 
   Config::ProjectileConfig::Type type = config.at(entity_name).type;
