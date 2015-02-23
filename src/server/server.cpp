@@ -444,7 +444,7 @@ bool Server::OnClientStatus(uint32_t client_id) {
   PlayerInfo player_info;
   Client* client = client_manager_.GetClient(client_id);
 
-  for (auto i: *client_manager_.GetClients()) {
+  for (auto i : *client_manager_.GetClients()) {
     player_info.id = i.second->entity->GetId();
     std::string& login = i.second->login;
     std::copy(login.c_str(), login.c_str() + login.size() + 1,

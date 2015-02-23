@@ -30,7 +30,7 @@ class Controller;
 // Updated by the 'Controller' class.
 class World {
  public:
-  World(Controller* controller);
+  explicit World(Controller* controller);
   ~World();
 
   b2World* GetBox2DWorld();

@@ -317,14 +317,14 @@ void Controller::StepPhysics(int64_t time_delta) {
 
 void Controller::DestroyOutlyingEntities() {
   float bound = world_.GetBound();
-  for (auto i: *world_.GetStaticEntities()) {
+  for (auto i : *world_.GetStaticEntities()) {
     ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     b2Vec2 position = entity->GetPosition();
     if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
       entity->Destroy();
     }
   }
-  for (auto i: *world_.GetDynamicEntities()) {
+  for (auto i : *world_.GetDynamicEntities()) {
     ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     b2Vec2 position = entity->GetPosition();
     if (std::abs(position.x) > bound || std::abs(position.y) > bound) {
@@ -336,7 +336,7 @@ void Controller::DestroyOutlyingEntities() {
 }
 
 void Controller::RespawnDeadPlayers() {
-  for (auto i: *world_.GetDynamicEntities()) {
+  for (auto i : *world_.GetDynamicEntities()) {
     ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     if (entity->GetType() == Entity::TYPE_PLAYER) {
       Player* player = static_cast<Player*>(entity);
@@ -429,14 +429,14 @@ void Controller::MakeRocketExplosion(const b2Vec2& location, float radius,
   // FIXME(xairy): can miss huge entities.
   radius += 13.0f;
 
-  for (auto i: *world_.GetStaticEntities()) {
+  for (auto i : *world_.GetStaticEntities()) {
     ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {
       entity->Damage(damage, source_id);
     }
   }
-  for (auto i: *world_.GetDynamicEntities()) {
+  for (auto i : *world_.GetDynamicEntities()) {
     ServerEntity* entity = static_cast<ServerEntity*>(i.second);
     float distance2 = (entity->GetPosition() - location).LengthSquared();
     if (distance2 <= radius * radius) {

@@ -969,11 +969,11 @@ void Application::Render() {
       }
     }
 
-    for (auto it: static_entities_) {
+    for (auto it : static_entities_) {
       ClientEntity* entity = static_cast<ClientEntity*>(it.second);
       entity->Render(render_window_, render_time);
     }
-    for (auto it: dynamic_entities_) {
+    for (auto it : dynamic_entities_) {
       ClientEntity* entity = static_cast<ClientEntity*>(it.second);
       entity->Render(render_window_, render_time);
     }

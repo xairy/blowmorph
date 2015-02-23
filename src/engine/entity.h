@@ -41,7 +41,7 @@ class Entity {
 
  public:
   Entity(
-  	b2World* world,
+    b2World* world,
     uint32_t id,
     Type type,
     const std::string& entity_name,

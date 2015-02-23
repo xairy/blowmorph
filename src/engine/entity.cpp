@@ -20,7 +20,7 @@
 namespace bm {
 
 Entity::Entity(
-	b2World* world,
+  b2World* world,
   uint32_t id,
   Type type,
   const std::string& entity_name,
@@ -29,8 +29,7 @@ Entity::Entity(
   uint16_t collision_mask
 ) : id_(id),
     type_(type),
-    body_(NULL)
-{
+    body_(NULL) {
   std::string body_name;
   switch (type) {
     case TYPE_ACTIVATOR: {
