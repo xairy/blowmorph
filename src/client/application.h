@@ -18,6 +18,7 @@
 #include "base/pstdint.h"
 
 #include "engine/config.h"
+#include "engine/world.h"
 
 #include "client/contact_listener.h"
 #include "client/entity.h"
@@ -100,11 +101,10 @@ class Application {
   int64_t last_physics_simulation_;
 
   ClientEntity* player_;
-  std::map<uint32_t, Entity*> dynamic_entities_;
-  std::map<uint32_t, Entity*> static_entities_;
+  World world_;
+
   std::list<Sprite*> explosions_;
 
-  b2World* world_;
   ContactListener contact_listener_;
 
   ClientOptions client_options_;

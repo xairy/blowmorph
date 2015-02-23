@@ -51,7 +51,6 @@ Application::Application()
     peer_(NULL),
     event_(NULL),
     player_(NULL),
-    world_(NULL),
     state_(STATE_FINALIZED),
     network_state_(NETWORK_STATE_DISCONNECTED) { }
 
@@ -119,7 +118,7 @@ bool Application::Run() {
   b2Vec2 position(client_options_.x, client_options_.y);
   Sprite* sprite = resource_manager_.CreateSprite("man");
   CHECK(sprite != NULL);
-  player_ = new ClientEntity(world_, client_options_.id,
+  player_ = new ClientEntity(world_.GetBox2DWorld(), client_options_.id,
     Entity::TYPE_PLAYER, "player", position, sprite);
   CHECK(player_ != NULL);
   const Config::ClientConfig& config =
@@ -157,22 +156,20 @@ bool Application::Run() {
 void Application::Finalize() {
   CHECK(state_ == STATE_INITIALIZED);
 
-  std::list<Sprite*>::iterator it2;
-  for (it2 = explosions_.begin(); it2 != explosions_.end(); ++it2) {
-    delete *it2;
+  for (auto i : explosions_) {
+    delete i;
   }
   explosions_.clear();
 
-  std::map<uint32_t, Entity*>::iterator it;
-  for (it = static_entities_.begin(); it != static_entities_.end(); ++it) {
-    delete it->second;
+  for (auto i : *world_.GetStaticEntities()) {
+    delete i.second;
   }
-  static_entities_.clear();
+  world_.GetStaticEntities()->clear();
 
-  for (it = dynamic_entities_.begin(); it != dynamic_entities_.end(); ++it) {
-    delete it->second;
+  for (auto i : *world_.GetDynamicEntities()) {
+    delete i.second;
   }
-  dynamic_entities_.clear();
+  world_.GetDynamicEntities()->clear();
 
   if (player_ != NULL) delete player_;
 
@@ -181,8 +178,6 @@ void Application::Finalize() {
 
   if (font_ != NULL) delete font_;
   if (render_window_ != NULL) delete render_window_;
-
-  if (world_ != NULL) delete world_;
 
   state_ = STATE_FINALIZED;
 }
@@ -216,11 +211,7 @@ bool Application::InitializeGraphics() {
 
 bool Application::InitializePhysics() {
   CHECK(state_ == STATE_FINALIZED);
-
-  world_ = new b2World(b2Vec2(0.0f, 0.0f));
-  CHECK(world_ != NULL);
-  world_->SetContactListener(&contact_listener_);
-
+  world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
   return true;
 }
 
@@ -643,8 +634,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
         OnPlayerUpdate(&snapshot);
         break;
       }
-      if (dynamic_entities_.count(snapshot.id) > 0 ||
-          static_entities_.count(snapshot.id) > 0) {
+      if (world_.GetEntity(snapshot.id) != NULL) {
         OnEntityUpdate(&snapshot);
       } else {
         OnEntityAppearance(&snapshot);
@@ -686,9 +676,9 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
 
       std::string player_name(player_info.login);
       player_names_[player_info.id] = player_name;
-      if (dynamic_entities_.count(player_info.id) == 1) {
-        ClientEntity* entity =
-            static_cast<ClientEntity*>(dynamic_entities_[player_info.id]);
+      ClientEntity* entity = static_cast<ClientEntity*>(
+          world_.GetEntity(player_info.id));
+      if (entity != NULL) {
         entity->EnableCaption(player_name, *font_);
       }
     } break;
@@ -805,48 +795,42 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_WALL,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_WALL, entity_name, position, sprite);
       CHECK(entity != NULL);
-      static_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_PROJECTILE,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_PROJECTILE, entity_name, position, sprite);
       CHECK(entity != NULL);
-      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_PLAYER,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_PLAYER, entity_name, position, sprite);
       CHECK(entity != NULL);
       if (player_names_.count(id) == 1) {
         entity->EnableCaption(player_names_[id], *font_);
       }
-      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_CRITTER,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_CRITTER, entity_name, position, sprite);
       CHECK(entity != NULL);
-      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_KIT,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_KIT, entity_name, position, sprite);
       CHECK(entity != NULL);
-      dynamic_entities_[id] = entity;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity = new ClientEntity(world_, id, Entity::TYPE_ACTIVATOR,
-          entity_name, position, sprite);
+      entity = new ClientEntity(world_.GetBox2DWorld(), id,
+          Entity::TYPE_ACTIVATOR, entity_name, position, sprite);
       CHECK(entity != NULL);
-      static_entities_[id] = entity;
     } break;
 
     default:
@@ -854,6 +838,7 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   }
 
   entity->SetRotation(snapshot->angle);
+  world_.AddEntity(id, entity);
 }
 
 void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
@@ -862,20 +847,24 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
 
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
 
+  ClientEntity* entity = static_cast<ClientEntity*>(
+      world_.GetEntity(snapshot->id));
+  CHECK(entity != NULL);
+
   // FIXME(xairy): add is_static flag.
-  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL ||
-      snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR) {
-    static_entities_[snapshot->id]->SetPosition(position);
-    static_entities_[snapshot->id]->SetRotation(snapshot->angle);
+  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_KIT ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
+    CHECK(entity->IsStatic() == true);
+    entity->SetPosition(position);
+    entity->SetRotation(snapshot->angle);
   } else {
+    CHECK(entity->IsStatic() == false);
     int64_t server_time = GetServerTime();
     if (server_time - interpolation_offset_ >= snapshot->time) {
       // Ignore snapshots that are too old.
       return;
     }
-    CHECK(dynamic_entities_.count(snapshot->id) == 1);
-    ClientEntity* entity =
-            static_cast<ClientEntity*>(dynamic_entities_[snapshot->id]);
     entity->SetInterpolationPosition(position, snapshot->time,
         interpolation_offset_, server_time);
     entity->SetRotation(snapshot->angle);
@@ -904,16 +893,16 @@ bool Application::OnEntityDisappearance(const EntitySnapshot* snapshot) {
   CHECK(state_ == STATE_INITIALIZED);
   CHECK(snapshot != NULL);
 
-  typedef std::map<uint32_t, Entity*>::iterator It;
-  It it = dynamic_entities_.find(snapshot->id);
-  if (it != dynamic_entities_.end()) {
-    delete it->second;
-    dynamic_entities_.erase(it);
+  auto i = world_.GetDynamicEntities()->find(snapshot->id);
+  if (i != world_.GetDynamicEntities()->end()) {
+    delete i->second;
+    world_.RemoveEntity(i->first);
   }
-  it = static_entities_.find(snapshot->id);
-  if (it != static_entities_.end()) {
-    delete it->second;
-    static_entities_.erase(it);
+
+  i = world_.GetStaticEntities()->find(snapshot->id);
+  if (i != world_.GetStaticEntities()->end()) {
+    delete i->second;
+    world_.RemoveEntity(i->first);
   }
 
   return true;
@@ -936,7 +925,7 @@ void Application::SimulatePhysics() {
 
     int32_t velocity_iterations = 6;
     int32_t position_iterations = 2;
-    world_->Step(static_cast<float>(delta_time) / 1000,
+    world_.GetBox2DWorld()->Step(static_cast<float>(delta_time) / 1000,
       velocity_iterations, position_iterations);
   }
 }
@@ -969,12 +958,12 @@ void Application::Render() {
       }
     }
 
-    for (auto it : static_entities_) {
-      ClientEntity* entity = static_cast<ClientEntity*>(it.second);
+    for (auto i : *world_.GetStaticEntities()) {
+      ClientEntity* entity = static_cast<ClientEntity*>(i.second);
       entity->Render(render_window_, render_time);
     }
-    for (auto it : dynamic_entities_) {
-      ClientEntity* entity = static_cast<ClientEntity*>(it.second);
+    for (auto i : *world_.GetDynamicEntities()) {
+      ClientEntity* entity = static_cast<ClientEntity*>(i.second);
       entity->Render(render_window_, render_time);
     }
 
@@ -1082,9 +1071,8 @@ void Application::RenderHUD() {
 
   int64_t render_time = GetServerTime();
 
-  std::map<uint32_t, Entity*>::const_iterator it;
-  for (it = dynamic_entities_.begin(); it != dynamic_entities_.end(); ++it) {
-    Entity* obj = it->second;
+  for (auto i : *world_.GetDynamicEntities()) {
+    Entity* obj = i.second;
 
     b2Vec2 obj_pos = obj->GetPosition();
     b2Vec2 player_pos = player_->GetPosition();
@@ -1098,8 +1086,8 @@ void Application::RenderHUD() {
     }
   }
 
-  for (it = static_entities_.begin(); it != static_entities_.end(); ++it) {
-    Entity* obj = it->second;
+  for (auto i : *world_.GetStaticEntities()) {
+    Entity* obj = i.second;
 
     b2Vec2 obj_pos = obj->GetPosition();
     b2Vec2 player_pos = player_->GetPosition();
@@ -1199,7 +1187,7 @@ bool Application::SendInputEvents() {
 }
 
 bool Application::OnActivateAction() {
-  b2Body* b = RayCast(world_, player_->GetPosition(),
+  b2Body* b = RayCast(world_.GetBox2DWorld(), player_->GetPosition(),
     GetMousePosition());
   if (b == NULL) {
     return true;
