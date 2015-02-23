@@ -5,8 +5,6 @@
 
 #include "base/macros.h"
 
-// WARNING: Singleton is NOT thread safe.
-
 template <typename T>
 class Singleton {
  public:
@@ -16,7 +14,9 @@ class Singleton {
   }
 
  protected:
- 	Singleton() { }
+  Singleton() { }
+
+ private:
   DISALLOW_COPY_AND_ASSIGN(Singleton);
 };
 
