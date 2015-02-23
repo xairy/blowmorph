@@ -28,7 +28,7 @@ namespace bm {
 
 class Controller {
  public:
-  explicit Controller(IdManager* id_manager);
+  explicit Controller();
   ~Controller();
 
   World* GetWorld();

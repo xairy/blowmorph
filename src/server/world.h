@@ -30,7 +30,7 @@ class Controller;
 // Updated by the 'Controller' class.
 class World {
  public:
-  World(Controller* controller, IdManager* id_manager);
+  World(Controller* controller);
   ~World();
 
   b2World* GetBox2DWorld();
@@ -97,7 +97,7 @@ class World {
 
   std::vector<b2Vec2> spawn_positions_;
 
-  IdManager* id_manager_;
+  IdManager id_manager_;
   Controller* controller_;  // !refactor
 };
 

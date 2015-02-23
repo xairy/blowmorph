@@ -38,7 +38,7 @@
 
 namespace bm {
 
-Server::Server() : controller_(&id_manager_),
+Server::Server() : controller_(),
   state_(STATE_FINALIZED), host_(NULL), event_(NULL) { }
 
 Server::~Server() {
@@ -405,7 +405,7 @@ bool Server::OnLogin(uint32_t client_id) {
   }
 
   PlayerInfo player_info;
-  player_info.id = client_id;
+  player_info.id = player->GetId();
   std::copy(login.c_str(), login.c_str() + login.size() + 1,
       &player_info.login[0]);
   rv = BroadcastPacket(host_, Packet::TYPE_PLAYER_INFO, player_info, true);
@@ -444,12 +444,9 @@ bool Server::OnClientStatus(uint32_t client_id) {
   PlayerInfo player_info;
   Client* client = client_manager_.GetClient(client_id);
 
-  std::map<uint32_t, Client*>* clients = client_manager_.GetClients();
-  std::map<uint32_t, Client*>::iterator i;
-
-  for (i = clients->begin(); i != clients->end(); i++) {
-    player_info.id = i->first;
-    std::string& login = i->second->login;
+  for (auto i: *client_manager_.GetClients()) {
+    player_info.id = i.second->entity->GetId();
+    std::string& login = i.second->login;
     std::copy(login.c_str(), login.c_str() + login.size() + 1,
         &player_info.login[0]);
     bool rv = SendPacket(client->peer, Packet::TYPE_PLAYER_INFO,

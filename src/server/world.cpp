@@ -25,10 +25,9 @@
 
 namespace bm {
 
-World::World(Controller* controller, IdManager* id_manager)
+World::World(Controller* controller)
     : world_(b2Vec2(0.0f, 0.0f)),
-      controller_(controller),
-      id_manager_(id_manager) { }
+      controller_(controller) { }
 
 World::~World() {
   std::map<uint32_t, Entity*>::iterator i, end;
@@ -88,7 +87,7 @@ Activator* World::CreateActivator(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Activator* activator = new Activator(controller_, id, position, entity_name);
   CHECK(activator != NULL);
   AddEntity(id, activator);
@@ -99,7 +98,7 @@ Critter* World::CreateCritter(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Critter* critter = new Critter(controller_, id, position, entity_name);
   CHECK(critter != NULL);
   AddEntity(id, critter);
@@ -112,7 +111,7 @@ Kit* World::CreateKit(
   int energy_regeneration,
   const std::string& entity_name
 ) {
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Kit* kit = new Kit(controller_, id, position,
       health_regeneration, energy_regeneration, entity_name);
   CHECK(kit != NULL);
@@ -124,7 +123,7 @@ Player* World::CreatePlayer(
     const b2Vec2& position,
     const std::string& entity_name
 ) {
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Player* player = new Player(controller_, entity_name, id, position);
   CHECK(player != NULL);
   AddEntity(id, player);
@@ -139,7 +138,7 @@ Projectile* World::CreateProjectile(
 ) {
   CHECK(static_entities_.count(owner_id) +
     dynamic_entities_.count(owner_id) == 1);
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Projectile* projectile = new Projectile(controller_,
     id, owner_id, start, end, entity_name);
   CHECK(projectile != NULL);
@@ -151,7 +150,7 @@ Wall* World::CreateWall(
   const b2Vec2& position,
   const std::string& entity_name
 ) {
-  uint32_t id = id_manager_->NewId();
+  uint32_t id = id_manager_.NewId();
   Wall* wall = new Wall(controller_, id, position, entity_name);
   CHECK(wall != NULL);
   AddEntity(id, wall);

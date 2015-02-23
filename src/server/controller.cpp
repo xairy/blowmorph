@@ -20,7 +20,6 @@
 #include "base/utils.h"
 
 #include "engine/config.h"
-#include "base/id_manager.h"
 #include "engine/utils.h"
 
 #include "server/entity.h"
@@ -34,7 +33,7 @@
 
 namespace bm {
 
-Controller::Controller(IdManager* id_manager) : world_(this, id_manager) {
+Controller::Controller() : world_(this) {
   world_.GetBox2DWorld()->SetContactListener(&contact_listener_);
 }
 
