@@ -81,17 +81,15 @@ void RenderWindow::SetViewCenter(sf::Vector2f location) {
   render_window_->setView(view_);
 }
 
-void RenderWindow::RenderTerrain() {
+// FIXME(xairy): temporary.
+void RenderWindow::RenderTerrain(Sprite* sprite) {
   CHECK(state_ == STATE_INITIALIZED);
-  // FIXME(xairy): temporary.
-  /*static Sprite* sprite = resource_manager_.CreateSprite("grass");
-  CHECK(sprite != NULL);
   for (int x = -16; x <= 16; x++) {
     for (int y = -16; y <= 16; y++) {
       sprite->SetPosition(sf::Vector2f(x * 100.0f, y * 100.0f));
       RenderSprite(sprite);
     }
-  }*/
+  }
 }
 
 void RenderWindow::RenderSprite(Sprite* sprite) {

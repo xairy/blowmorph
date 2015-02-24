@@ -100,6 +100,7 @@ class Application {
 
   RenderWindow render_window_;
   std::list<Sprite*> explosions_;
+  Sprite* grass_;
 
   bool show_score_table_;
   std::map<uint32_t, int> player_scores_;

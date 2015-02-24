@@ -70,6 +70,7 @@ bool Application::Initialize() {
   }
 
   render_window_.Initialize();
+  grass_ = resource_manager_.CreateSprite("grass");
 
   if (!InitializePhysics()) {
     return false;
@@ -909,7 +910,7 @@ void Application::Render() {
     b2Vec2 position = player_->GetPosition();
     render_window_.SetViewCenter(sf::Vector2f(position.x, position.y));
 
-    render_window_.RenderTerrain();
+    render_window_.RenderTerrain(grass_);
 
     // FIXME(xairy): madness.
     std::list<Sprite*>::iterator it2;

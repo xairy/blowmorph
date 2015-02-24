@@ -32,7 +32,7 @@ class RenderWindow {
 
   void SetViewCenter(sf::Vector2f location);
 
-  void RenderTerrain();
+  void RenderTerrain(Sprite* sprite);
 
   void RenderSprite(Sprite* sprite);
   void RenderEntity(ClientEntity* entity);
