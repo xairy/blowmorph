@@ -33,15 +33,7 @@
 #include "client/render_window.h"
 #include "client/resource_manager.h"
 #include "client/sprite.h"
-
-namespace {
-
-// TODO(xairy): move to sfml_utils.
-sf::Vector2f Round(const sf::Vector2f& vector) {
-  return sf::Vector2f(floor(vector.x), floor(vector.y));
-}
-
-}  // anonymous namespace
+#include "client/utils.h"
 
 namespace bm {
 
