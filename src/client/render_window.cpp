@@ -128,57 +128,53 @@ void RenderWindow::RenderPlayerStats(int health, int max_health,
 
   // Initialize transforms for drawing in different corners of the screen.
 
-  sf::Transform top_left_transform;
-  top_left_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.x = -size.x;
-  sf::Transform top_right_transform;
-  top_right_transform.translate(view_.getCenter() - size / 2.0f);
-
   size.y = -size.y;
-  sf::Transform bottom_right_transform;
-  bottom_right_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.x = -size.x;
   sf::Transform bottom_left_transform;
   bottom_left_transform.translate(view_.getCenter() - size / 2.0f);
 
+  size.x = -size.x;
+  sf::Transform bottom_right_transform;
+  bottom_right_transform.translate(view_.getCenter() - size / 2.0f);
+
+  size.x = 0.0f;
+  sf::Transform bottom_center_transform;
+  bottom_center_transform.translate(view_.getCenter() - size / 2.0f);
+
   // Draw health and energy bars.
 
-  float health_rect_width = 200.0f * health / max_health;
-  float health_rect_height = 10.0f;
+  float health_rect_width = 300.0f * health / max_health;
+  float health_rect_height = 15.0f;
   sf::Vector2f health_rect_size(health_rect_width, health_rect_height);
   sf::RectangleShape health_rect;
   health_rect.setSize(health_rect_size);
-  health_rect.setPosition(sf::Vector2f(20.0f, -50.0f));
+  health_rect.setPosition(sf::Vector2f(-320.0f, -60.0f));
   health_rect.setFillColor(sf::Color(0xFF, 0x00, 0xFF, 0xBB));
-  render_window_->draw(health_rect, bottom_left_transform);
+  render_window_->draw(health_rect, bottom_right_transform);
 
-  float energy_rect_width = 200.0f * energy / max_energy;
-  float energy_rect_height = 10.0f;
+  float energy_rect_width = 300.0f * energy / max_energy;
+  float energy_rect_height = 15.0f;
   sf::Vector2f energy_rect_size(energy_rect_width, energy_rect_height);
   sf::RectangleShape energy_charge_rect;
   energy_charge_rect.setSize(energy_rect_size);
-  energy_charge_rect.setPosition(sf::Vector2f(20.0f, -30.0f));
+  energy_charge_rect.setPosition(sf::Vector2f(-320.0f, -30.0f));
   energy_charge_rect.setFillColor(sf::Color(0x00, 0xFF, 0xFF, 0xBB));
-  render_window_->draw(energy_charge_rect, bottom_left_transform);
+  render_window_->draw(energy_charge_rect, bottom_right_transform);
 
   // Draw gun slots.
 
-  sf::Vector2f gun_slot_rect_size(30.0f, 30.0f);
+  sf::Vector2f gun_slot_rect_size(50.0f, 50.0f);
   sf::RectangleShape gun_slot_rect;
   gun_slot_rect.setSize(gun_slot_rect_size);
-  gun_slot_rect.setPosition(sf::Vector2f(-50.0f, -50.0f));
+  gun_slot_rect.setPosition(sf::Vector2f(-60.0f, -70.0f));
   gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
   gun_slot_rect.setOutlineColor(sf::Color(0xFF, 0x00, 0x00, 0xBB));
   gun_slot_rect.setOutlineThickness(3.0f);
-  render_window_->draw(gun_slot_rect, bottom_right_transform);
+  render_window_->draw(gun_slot_rect, bottom_center_transform);
 
-  gun_slot_rect.setPosition(sf::Vector2f(-110.0f, -50.0f));
+  gun_slot_rect.setPosition(sf::Vector2f(10.0f, -70.0f));
   gun_slot_rect.setFillColor(sf::Color(0xFF, 0xFF, 0xFF, 0x00));
   gun_slot_rect.setOutlineColor(sf::Color(0x00, 0xFF, 0x00, 0xBB));
-  gun_slot_rect.setOutlineThickness(3.0f);
-  render_window_->draw(gun_slot_rect, bottom_right_transform);
+  render_window_->draw(gun_slot_rect, bottom_center_transform);
 }
 
 void RenderWindow::RenderMinimap(World* world, ClientEntity* player) {
@@ -187,20 +183,9 @@ void RenderWindow::RenderMinimap(World* world, ClientEntity* player) {
 
   // Initialize transforms for drawing in different corners of the screen.
 
-  sf::Transform top_left_transform;
-  top_left_transform.translate(view_.getCenter() - size / 2.0f);
-
   size.x = -size.x;
   sf::Transform top_right_transform;
   top_right_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.y = -size.y;
-  sf::Transform bottom_right_transform;
-  bottom_right_transform.translate(view_.getCenter() - size / 2.0f);
-
-  size.x = -size.x;
-  sf::Transform bottom_left_transform;
-  bottom_left_transform.translate(view_.getCenter() - size / 2.0f);
 
   // Draw minimap.
 
