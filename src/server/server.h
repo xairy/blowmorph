@@ -41,8 +41,6 @@ class Server {
 
   bool BroadcastGameEvents();
 
-  bool UpdateWorld();
-
   bool PumpEvents();
 
   void OnConnect();
