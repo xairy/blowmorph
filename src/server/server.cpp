@@ -109,8 +109,8 @@ void Server::Finalize() {
 bool Server::Tick() {
   CHECK(state_ == STATE_INITIALIZED);
 
-  if (Timestamp() - last_broadcast_ >= broadcast_timeout_) {
-    last_broadcast_ = Timestamp();
+  int64_t current_time = Timestamp();
+  if (current_time - last_broadcast_ >= broadcast_timeout_) {
     if (!BroadcastDynamicEntities()) {
       return false;
     }
@@ -120,13 +120,13 @@ bool Server::Tick() {
     if (!BroadcastGameEvents()) {
       return false;
     }
+    last_broadcast_ = current_time;
   }
 
-  if (Timestamp() - last_update_ >= update_timeout_) {
-    last_update_ = Timestamp();
-    if (!UpdateWorld()) {
-      return false;
-    }
+  current_time = Timestamp();
+  if (current_time - last_update_ >= update_timeout_) {
+    controller_.Update(current_time, current_time - last_update_);
+    last_update_ = current_time;
   }
 
   if (!PumpEvents()) {
@@ -136,7 +136,7 @@ bool Server::Tick() {
   int64_t next_broadcast = last_broadcast_ + broadcast_timeout_;
   int64_t next_update = last_update_ + update_timeout_;
   int64_t sleep_until = std::min(next_broadcast, next_update);
-  int64_t current_time = Timestamp();
+  current_time = Timestamp();
 
   if (current_time <= sleep_until) {
     uint32_t timeout = static_cast<uint32_t>(sleep_until - current_time);
@@ -189,11 +189,6 @@ bool Server::BroadcastGameEvents() {
     }
   }
   events->clear();
-  return true;
-}
-
-bool Server::UpdateWorld() {
-  controller_.Update(Timestamp(), update_timeout_);
   return true;
 }
 
