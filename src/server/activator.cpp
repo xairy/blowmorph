@@ -34,6 +34,7 @@ Activator::Activator(
   Config::ActivatorConfig::Type type = config.at(entity_name).type;
   if (type == Config::ActivatorConfig::TYPE_DOOR) {
     type_ = TYPE_DOOR;
+    door_closed_ = true;
   } else {
     CHECK(false);  // Unreachable.
   }
@@ -58,10 +59,19 @@ float Activator::GetActivationDistance() const {
 }
 
 void Activator::Activate(Entity* activator) {
-  printf("Player %d activated %d\n",
-      activator->GetId(), GetId());
-  SetRotation(GetRotation() + M_PI / 2);
-  SetUpdatedFlag(true);
+  printf("Player %d activated %d\n", activator->GetId(), GetId());
+  if (type_ == TYPE_DOOR) {
+    if (door_closed_) {
+      SetPosition(GetPosition() + b2Vec2(37.5f, 37.5f));
+      SetRotation(M_PI / 2);
+      door_closed_ = false;
+    } else {
+      SetPosition(GetPosition() - b2Vec2(37.5f, 37.5f));
+      SetRotation(0.0f);
+      door_closed_ = true;
+    }
+    SetUpdatedFlag(true);
+  }
 }
 
 // Double dispatch. Collision detection.

@@ -55,6 +55,8 @@ class Activator : public ServerEntity {
   float activation_distance_;
   Type type_;
 
+  bool door_closed_;
+
   DISALLOW_COPY_AND_ASSIGN(Activator);
 };
 
