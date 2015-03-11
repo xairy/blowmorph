@@ -8,7 +8,6 @@
 #include <string>
 
 #include <Box2D/Box2D.h>
-#include <pugixml.hpp>
 
 #include "base/id_manager.h"
 #include "base/pstdint.h"

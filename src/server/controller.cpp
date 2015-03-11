@@ -10,8 +10,6 @@
 #include <vector>
 #include <utility>
 
-#include <pugixml.hpp>
-
 #include <Box2D/Box2D.h>
 
 #include "base/error.h"
