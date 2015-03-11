@@ -24,13 +24,9 @@ Kit::Kit(
   Controller* controller,
   uint32_t id,
   const b2Vec2& position,
-  int health_regeneration,
-  int energy_regeneration,
   const std::string& entity_name
 ) : ServerEntity(controller, id, Entity::TYPE_KIT, entity_name, position,
         Entity::FILTER_KIT, Entity::FILTER_ALL & ~Entity::FILTER_PROJECTILE) {
-  _health_regeneration = health_regeneration;
-  _energy_regeneration = energy_regeneration;
   auto config = Config::GetInstance()->GetKitsConfig();
   CHECK(config.count(entity_name) == 1);
   Config::KitConfig::Type type = config.at(entity_name).type;
@@ -43,6 +39,8 @@ Kit::Kit(
   } else {
     CHECK(false);  // Unreachable.
   }
+  _health_regeneration = config.at(entity_name).health_regen;
+  _energy_regeneration = config.at(entity_name).energy_regen;
 }
 
 Kit::~Kit() { }

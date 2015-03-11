@@ -179,13 +179,11 @@ solution "blowmorph"
     configuration "windows"
       resource("data", "data")
 
-    -- PugiXML
+    -- JsonCpp
     configuration "windows"
-      includedirs { "third-party/pugixml/include" }
-      windows_libdir("third-party/pugixml/bin")
-      links { "pugixml" }
+      -- TODO
     configuration "linux"
-      links { "pugixml" }
+      links { "jsoncpp" }
 
     -- ENetPlus
     configuration "windows"
@@ -210,6 +208,12 @@ solution "blowmorph"
     includedirs { "src" }
     files { "src/base/**.cpp",
             "src/base/**.h" }
+
+    -- JsonCpp
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "jsoncpp" }
 
     -- libconfig
     configuration "windows"

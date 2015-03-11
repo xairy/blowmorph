@@ -539,6 +539,17 @@ bool Config::LoadKitsConfig() {
       THROW_ERROR("Kit type must be 'health', 'energy' or 'composite'.");
       return false;
     }
+
+    config = name + ".health_regeneration";
+    if (!reader.LookupInt32(config, &kits_[name].health_regen)) {
+      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      return false;
+    }
+    config = name + ".energy_regeneration";
+    if (!reader.LookupInt32(config, &kits_[name].energy_regen)) {
+      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      return false;
+    }
   }
   return true;
 }

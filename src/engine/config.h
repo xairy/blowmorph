@@ -136,8 +136,8 @@ class Config : public Singleton<Config> {
     std::string body_name;
     std::string sprite_name;
     Type type;
-
-    // TODO(xairy): regeneration.
+    int32_t health_regen;
+    int32_t energy_regen;
   };
 
   struct PlayerConfig {
