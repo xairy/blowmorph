@@ -1,4 +1,4 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #ifndef BASE_ERROR_H_
 #define BASE_ERROR_H_
@@ -31,7 +31,8 @@ class Error {
     }
   }
 
-  static void Throw(const char* file, unsigned int line, const char* fmt, ...) {
+  static void Report(const char* file, unsigned int line,
+                     const char* fmt, ...) {
     static char buf[1024];
 
     va_list args;
@@ -51,10 +52,10 @@ class Error {
   DISALLOW_IMPLICIT_CONSTRUCTORS(Error);
 };
 
-#define THROW_ERROR(msg, ...) \
-  bm::Error::Throw(__FILE__, __LINE__, msg, ##__VA_ARGS__)
+#define REPORT_ERROR(msg, ...) \
+  bm::Error::Report(__FILE__, __LINE__, msg, ##__VA_ARGS__)
 
-#define THROW_WARNING(msg, ...) \
+#define REPORT_WARNING(msg, ...) \
   fprintf(stderr, "Warning: " msg "\n", ##__VA_ARGS__)
 
 }  // namespace bm

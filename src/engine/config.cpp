@@ -118,7 +118,7 @@ bool Config::LoadMasterServerConfig() {
     return false;
   }
   if (!reader.LookupUInt16("master-server.port", &master_server_.port)) {
-    THROW_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
     return false;
   }
   return true;
@@ -131,31 +131,31 @@ bool Config::LoadServerConfig() {
     return false;
   }
   if (!reader.LookupUInt16("server.port", &server_.port)) {
-    THROW_ERROR("Unable to load 'server.port' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.port' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("server.broadcast_rate", &server_.broadcast_rate)) {
-    THROW_ERROR("Unable to load 'server.broadcast_rate' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.broadcast_rate' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("server.tick_rate", &server_.tick_rate)) {
-    THROW_ERROR("Unable to load 'server.tick_rate' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.tick_rate' from '%s'.", file);
     return false;
   }
   if (!reader.LookupString("server.map", &server_.map)) {
-    THROW_ERROR("Unable to load 'server.map' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.map' from '%s'.", file);
     return false;
   }
   if (!reader.LookupString("server.name", &server_.name)) {
-    THROW_ERROR("Unable to load 'server.name' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.name' from '%s'.", file);
     return false;
   }
   if (!reader.LookupString("master-server.host", &server_.master_server_host)) {
-    THROW_ERROR("Unable to load 'master-server.host' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'master-server.host' from '%s'.", file);
     return false;
   }
   if (!reader.LookupUInt16("master-server.port", &server_.master_server_port)) {
-    THROW_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
     return false;
   }
   return true;
@@ -168,58 +168,58 @@ bool Config::LoadClientConfig() {
     return false;
   }
   if (!reader.LookupString("server.host", &client_.server_host)) {
-    THROW_ERROR("Unable to load 'server.host' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.host' from '%s'.", file);
     return false;
   }
   if (!reader.LookupUInt16("server.port", &client_.server_port)) {
-    THROW_ERROR("Unable to load 'server.port' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'server.port' from '%s'.", file);
     return false;
   }
   if (!reader.LookupString("master-server.host", &client_.master_server_host)) {
-    THROW_ERROR("Unable to load 'master-server.host' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'master-server.host' from '%s'.", file);
     return false;
   }
   if (!reader.LookupUInt16("master-server.port", &client_.master_server_port)) {
-    THROW_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
     return false;
   }
   if (!reader.LookupString("player.login", &client_.player_name)) {
-    THROW_ERROR("Unable to load 'player.login' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'player.login' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("graphics.width", &client_.screen_width)) {
-    THROW_ERROR("Unable to load 'graphics.width' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'graphics.width' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("graphics.height", &client_.screen_height)) {
-    THROW_ERROR("Unable to load 'graphics.height' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'graphics.height' from '%s'.", file);
     return false;
   }
   if (!reader.LookupBool("graphics.fullscreen", &client_.fullscreen)) {
-    THROW_ERROR("Unable to load 'fullscreen' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'fullscreen' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("client.tick_rate", &client_.tick_rate)) {
-    THROW_ERROR("Unable to load 'client.tick_rate' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'client.tick_rate' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("client.connect_timeout", &client_.connect_timeout)) {
-    THROW_ERROR("Unable to load 'client.connect_timeout' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'client.connect_timeout' from '%s'.", file);
     return false;
   }
   if (!reader.LookupInt32("client.sync_timeout", &client_.sync_timeout)) {
-    THROW_ERROR("Unable to load 'client.sync_timeout' from '%s'.", file);
+    REPORT_ERROR("Unable to load 'client.sync_timeout' from '%s'.", file);
     return false;
   }
   if (!reader.LookupFloat("client.max_player_misposition",
         &client_.max_player_misposition)) {
-    THROW_ERROR("Unable to load 'client.max_player_misposition' from '%s'.",
+    REPORT_ERROR("Unable to load 'client.max_player_misposition' from '%s'.",
                 file);
     return false;
   }
   if (!reader.LookupInt32("client.interpolation_offset",
         &client_.interpolation_offset)) {
-    THROW_ERROR("Unable to load 'client.interpolation_offset' from '%s'.",
+    REPORT_ERROR("Unable to load 'client.interpolation_offset' from '%s'.",
                 file);
     return false;
   }
@@ -239,36 +239,36 @@ bool Config::LoadBodiesConfig() {
     bodies_[name].name = name;
     std::string config = name + ".dynamic";
     if (!reader.LookupBool(config, &bodies_[name].dynamic)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     std::string type;
     config = name + ".shape.type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "box") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_BOX;
       config = name + ".shape.width";
       if (!reader.LookupFloat(config, &bodies_[name].box_config.width)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
       config = name + ".shape.height";
       if (!reader.LookupFloat(config, &bodies_[name].box_config.height)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
     } else if (type == "circle") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_CIRCLE;
       config = name + ".shape.radius";
       if (!reader.LookupFloat(config, &bodies_[name].circle_config.radius)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
     } else {
-      THROW_ERROR("Body shape type must be 'box' or 'circle'.");
+      REPORT_ERROR("Body shape type must be 'box' or 'circle'.");
       return false;
     }
   }
@@ -287,7 +287,7 @@ bool Config::LoadTexturesConfig() {
     textures_[name].name = name;
     std::string config = name + ".image";
     if (!reader.LookupString(config, &textures_[name].image)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".transparent_color";
@@ -300,32 +300,32 @@ bool Config::LoadTexturesConfig() {
     }
     config = name + ".tile.start.x";
     if (!reader.LookupInt32(config, &textures_[name].tile_start_x)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".tile.start.y";
     if (!reader.LookupInt32(config, &textures_[name].tile_start_y)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".tile.step.horizontal";
     if (!reader.LookupInt32(config, &textures_[name].tile_step_x)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".tile.step.vertical";
     if (!reader.LookupInt32(config, &textures_[name].tile_step_y)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".tile.width";
     if (!reader.LookupInt32(config, &textures_[name].tile_width)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".tile.height";
     if (!reader.LookupInt32(config, &textures_[name].tile_height)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
   }
@@ -344,11 +344,11 @@ bool Config::LoadSpritesConfig() {
     sprites_[name].name = name;
     std::string config = name + ".texture";
     if (!reader.LookupString(config, &sprites_[name].texture_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (textures_.count(sprites_[name].texture_name) == 0) {
-      THROW_ERROR("Texture '%s' used by sprite '%s' not defined.",
+      REPORT_ERROR("Texture '%s' used by sprite '%s' not defined.",
         sprites_[name].texture_name.c_str(), name.c_str());
       return false;
     }
@@ -360,7 +360,7 @@ bool Config::LoadSpritesConfig() {
     }
     config = name + ".mode.tiles";
     if (!reader.LookupInt32List(config, &sprites_[name].mode.tiles)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".mode.timeout";
@@ -388,42 +388,42 @@ bool Config::LoadActivatorsConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &activators_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(activators_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by activator '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by activator '%s' not defined.",
         activators_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &activators_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(activators_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by activator '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by activator '%s' not defined.",
         activators_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".activation_distance";
     if (!reader.LookupFloat(config, &activators_[name].activation_distance)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
 
     std::string type;
     config = name + ".type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "door") {
       activators_[name].type = ActivatorConfig::TYPE_DOOR;
     } else {
-      THROW_ERROR("Activator type must be 'door'.");
+      REPORT_ERROR("Activator type must be 'door'.");
       return false;
     }
   }
@@ -443,47 +443,47 @@ bool Config::LoadCrittersConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &critters_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(critters_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by critter '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by critter '%s' not defined.",
         critters_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &critters_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(critters_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by critter '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by critter '%s' not defined.",
         critters_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".speed";
     if (!reader.LookupFloat(config, &critters_[name].speed)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".damage";
     if (!reader.LookupInt32(config, &critters_[name].damage)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
 
     std::string type;
     config = name + ".type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "zombie") {
       critters_[name].type = CritterConfig::TYPE_ZOMBIE;
     } else {
-      THROW_ERROR("Critter type must be 'zombie'.");
+      REPORT_ERROR("Critter type must be 'zombie'.");
       return false;
     }
   }
@@ -503,22 +503,22 @@ bool Config::LoadKitsConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &kits_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(kits_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by kit '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by kit '%s' not defined.",
         kits_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &kits_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(kits_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by kit '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by kit '%s' not defined.",
         kits_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
@@ -526,7 +526,7 @@ bool Config::LoadKitsConfig() {
     std::string type;
     config = name + ".type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "health") {
@@ -536,18 +536,18 @@ bool Config::LoadKitsConfig() {
     } else if (type == "composite") {
       kits_[name].type = KitConfig::TYPE_COMPOSITE;
     } else {
-      THROW_ERROR("Kit type must be 'health', 'energy' or 'composite'.");
+      REPORT_ERROR("Kit type must be 'health', 'energy' or 'composite'.");
       return false;
     }
 
     config = name + ".health_regeneration";
     if (!reader.LookupInt32(config, &kits_[name].health_regen)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".energy_regeneration";
     if (!reader.LookupInt32(config, &kits_[name].energy_regen)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
   }
@@ -567,49 +567,49 @@ bool Config::LoadPlayersConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &players_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(players_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by player '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by player '%s' not defined.",
         players_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &players_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(players_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by player '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by player '%s' not defined.",
         players_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".speed";
     if (!reader.LookupFloat(config, &players_[name].speed)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".max_health";
     if (!reader.LookupInt32(config, &players_[name].health_max)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".health_regeneration";
     if (!reader.LookupInt32(config, &players_[name].health_regen)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".energy_capacity";
     if (!reader.LookupInt32(config, &players_[name].energy_max)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     config = name + ".energy_regeneration";
     if (!reader.LookupInt32(config, &players_[name].energy_regen)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
   }
@@ -629,36 +629,36 @@ bool Config::LoadProjectilesConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &projectiles_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(projectiles_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by projectile '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by projectile '%s' not defined.",
         projectiles_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &projectiles_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(projectiles_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by projectile '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by projectile '%s' not defined.",
         projectiles_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".speed";
     if (!reader.LookupFloat(config, &projectiles_[name].speed)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
 
     std::string type;
     config = name + ".type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "rocket") {
@@ -666,13 +666,13 @@ bool Config::LoadProjectilesConfig() {
       config = name + ".explosion_radius";
       if (!reader.LookupFloat(config,
             &projectiles_[name].rocket_config.explosion_radius)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
       config = name + ".explosion_damage";
       if (!reader.LookupInt32(config,
             &projectiles_[name].rocket_config.explosion_damage)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
     } else if (type == "slime") {
@@ -680,11 +680,11 @@ bool Config::LoadProjectilesConfig() {
       config = name + ".explosion_radius";
       if (!reader.LookupInt32(config,
             &projectiles_[name].slime_config.explosion_radius)) {
-        THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
         return false;
       }
     } else {
-      THROW_ERROR("Projectile type must be 'rocket' or 'slime'.");
+      REPORT_ERROR("Projectile type must be 'rocket' or 'slime'.");
       return false;
     }
   }
@@ -704,22 +704,22 @@ bool Config::LoadWallsConfig() {
 
     std::string config = name + ".body";
     if (!reader.LookupString(config, &walls_[name].body_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (bodies_.count(walls_[name].body_name) == 0) {
-      THROW_ERROR("Body '%s' used by wall '%s' not defined.",
+      REPORT_ERROR("Body '%s' used by wall '%s' not defined.",
         walls_[name].body_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".sprite";
     if (!reader.LookupString(config, &walls_[name].sprite_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (sprites_.count(walls_[name].sprite_name) == 0) {
-      THROW_ERROR("Sprite '%s' used by wall '%s' not defined.",
+      REPORT_ERROR("Sprite '%s' used by wall '%s' not defined.",
         walls_[name].sprite_name.c_str(), name.c_str());
       return false;
     }
@@ -727,7 +727,7 @@ bool Config::LoadWallsConfig() {
     std::string type;
     config = name + ".type";
     if (!reader.LookupString(config, &type)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (type == "ordinary") {
@@ -737,7 +737,7 @@ bool Config::LoadWallsConfig() {
     } else if (type == "morphed") {
       walls_[name].type = WallConfig::TYPE_MORPHED;
     } else {
-      THROW_ERROR("Wall type must be 'ordinary', 'unbreakable' or 'morphed'.");
+      REPORT_ERROR("Wall type must be 'ordinary', 'unbreakable' or 'morphed'.");
       return false;
     }
   }
@@ -757,18 +757,18 @@ bool Config::LoadGunsConfig() {
 
     std::string config = name + ".projectile";
     if (!reader.LookupString(config, &guns_[name].projectile_name)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
     if (projectiles_.count(guns_[name].projectile_name) == 0) {
-      THROW_ERROR("Projectile '%s' used by gun '%s' not defined.",
+      REPORT_ERROR("Projectile '%s' used by gun '%s' not defined.",
         guns_[name].projectile_name.c_str(), name.c_str());
       return false;
     }
 
     config = name + ".energy_consumption";
     if (!reader.LookupInt32(config, &guns_[name].energy_consumption)) {
-      THROW_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
       return false;
     }
   }

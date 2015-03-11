@@ -33,7 +33,7 @@ bool ConfigReader::Open(const std::string& path) {
   config_init(cfg_);
   if (!config_read_file(cfg_, path.c_str())) {
     config_destroy(cfg_);
-    THROW_ERROR("Unable to read config \"%s\"!", path.c_str());
+    REPORT_ERROR("Unable to read config \"%s\"!", path.c_str());
     return false;
   }
   state_ = STATE_OPENED;

@@ -116,7 +116,7 @@ std::vector<b2Vec2>* ServerWorld::GetSpawnPositions() {
 bool ServerWorld::LoadMap(const std::string& file) {
   std::fstream stream(file);
   if (!stream.is_open()) {
-    THROW_ERROR("Can't open file '%s'.", file.c_str());
+    REPORT_ERROR("Can't open file '%s'.", file.c_str());
     return false;
   }
 
@@ -126,20 +126,20 @@ bool ServerWorld::LoadMap(const std::string& file) {
   bool success = reader.parse(stream, root, false);
   if (!success) {
       std::string error = reader.getFormatedErrorMessages();
-      THROW_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
+      REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
       return false;
   }
 
   // Load globals.
 
   if (!GetFloat32(root["block_size"], &block_size_)) {
-    THROW_ERROR("Config '%s' of type '%s' not found in '%s'.",
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "block_size", "float", file.c_str());
     return false;
   }
 
   if (!GetFloat32(root["bound"], &bound_)) {
-    THROW_ERROR("Config '%s' of type '%s' not found in '%s'.",
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "bound", "float", file.c_str());
     return false;
   }
@@ -148,24 +148,24 @@ bool ServerWorld::LoadMap(const std::string& file) {
 
   Json::Value spawns = root["spawns"];
   if (spawns == Json::Value::null) {
-    THROW_ERROR("Config '%s' of type '%s' not found in '%s'.",
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "spawns", "array", file.c_str());
     return false;
   }
   if (spawns.size() == 0) {
-    THROW_ERROR("Array '%s' is empty in '%s'.", "spawns", file.c_str());
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "spawns", file.c_str());
     return false;
   }
 
   for (int i = 0; i < spawns.size(); i++) {
     b2Vec2 spawn;
     if (!GetFloat32(spawns[i]["x"], &spawn.x)) {
-      THROW_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
           i, "float", file.c_str());
       return false;
     }
     if (!GetFloat32(spawns[i]["y"], &spawn.y)) {
-      THROW_ERROR("Config 'spawns[%d].y' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'spawns[%d].y' of type '%s' not found in '%s'.",
           i, "float", file.c_str());
       return false;
     }
@@ -176,12 +176,12 @@ bool ServerWorld::LoadMap(const std::string& file) {
 
   Json::Value chunks = root["chunks"];
   if (chunks == Json::Value::null) {
-    THROW_ERROR("Config '%s' of type '%s' not found in '%s'.",
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "chunks", "array", file.c_str());
     return false;
   }
   if (chunks.size() == 0) {
-    THROW_ERROR("Array '%s' is empty in '%s'.", "chunks", file.c_str());
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "chunks", file.c_str());
     return false;
   }
 
@@ -191,27 +191,27 @@ bool ServerWorld::LoadMap(const std::string& file) {
     std::string entity;
 
     if (!GetInt32(chunks[i]["x"], &x)) {
-      THROW_ERROR("Config 'chunks[%d].x' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'chunks[%d].x' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
     if (!GetInt32(chunks[i]["y"], &y)) {
-      THROW_ERROR("Config 'chunks[%d].y' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'chunks[%d].y' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
     if (!GetInt32(chunks[i]["width"], &width)) {
-      THROW_ERROR("Config 'chunks[%d].width' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'chunks[%d].width' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
     if (!GetInt32(chunks[i]["height"], &height)) {
-      THROW_ERROR("Config 'chunks[%d].height' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'chunks[%d].height' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
     if (!GetString(chunks[i]["entity"], &entity)) {
-      THROW_ERROR("Config 'chunks[%d].entity' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'chunks[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }
@@ -228,12 +228,12 @@ bool ServerWorld::LoadMap(const std::string& file) {
 
   Json::Value kits = root["kits"];
   if (kits == Json::Value::null) {
-    THROW_ERROR("Config '%s' of type '%s' not found in '%s'.",
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "kits", "array", file.c_str());
     return false;
   }
   if (kits.size() == 0) {
-    THROW_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
     return false;
   }
 
@@ -242,17 +242,17 @@ bool ServerWorld::LoadMap(const std::string& file) {
     std::string entity;
 
     if (!GetFloat32(kits[i]["x"], &x)) {
-      THROW_ERROR("Config 'kits[%d].x' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'kits[%d].x' of type '%s' not found in '%s'.",
           i, "float", file.c_str());
       return false;
     }
     if (!GetFloat32(kits[i]["y"], &y)) {
-      THROW_ERROR("Config 'kits[%d].y' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'kits[%d].y' of type '%s' not found in '%s'.",
           i, "float", file.c_str());
       return false;
     }
     if (!GetString(kits[i]["entity"], &entity)) {
-      THROW_ERROR("Config 'kits[%d].entity' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config 'kits[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }

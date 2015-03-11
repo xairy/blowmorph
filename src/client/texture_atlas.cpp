@@ -28,7 +28,7 @@ bool TextureAtlas::LoadTexture(
 
   sf::Image image;
   if (!image.loadFromFile(path)) {
-    THROW_ERROR("Unable to load texture '%s'.", path.c_str());
+    REPORT_ERROR("Unable to load texture '%s'.", path.c_str());
     return false;
   }
 

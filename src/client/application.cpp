@@ -217,7 +217,7 @@ bool Application::Connect() {
     return false;
   }
   if (event_->GetType() != enet::Event::TYPE_CONNECT) {
-    THROW_ERROR("Could not connect to server %s:%d.",
+    REPORT_ERROR("Could not connect to server %s:%d.",
         config.server_host.c_str(), static_cast<int>(config.server_port));
     return false;
   }
@@ -260,7 +260,7 @@ bool Application::Synchronize() {
   while (true) {
     int64_t time = Timestamp();
     if (time - start_time > sync_timeout) {
-      THROW_ERROR("Synchronization failed: time's out.");
+      REPORT_ERROR("Synchronization failed: time's out.");
       return false;
     }
 
@@ -280,7 +280,7 @@ bool Application::Synchronize() {
     Packet::Type type;
     rv = ExtractPacketType(buffer, &type);
     if (rv == false) {
-      THROW_ERROR("Incorrect client options packet format.");
+      REPORT_ERROR("Incorrect client options packet format.");
       return false;
     }
     if (type != Packet::TYPE_CLIENT_OPTIONS) {
@@ -290,7 +290,7 @@ bool Application::Synchronize() {
     rv = ExtractPacketData<Packet::Type, ClientOptions>(
             buffer, &client_options_);
     if (rv == false) {
-      THROW_ERROR("Incorrect client options packet format.");
+      REPORT_ERROR("Incorrect client options packet format.");
       return false;
     }
 
@@ -314,7 +314,7 @@ bool Application::Synchronize() {
   while (true) {
     int64_t time = Timestamp();
     if (time - start_time > sync_timeout) {
-      THROW_ERROR("Synchronization failed: time's out.");
+      REPORT_ERROR("Synchronization failed: time's out.");
       return false;
     }
 
@@ -410,7 +410,7 @@ bool Application::OnQuitEvent() {
     Config::GetInstance()->GetClientConfig();
 
   if (!DisconnectPeer(peer_, event_, client_, config.connect_timeout)) {
-    THROW_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
+    REPORT_ERROR("Didn't receive EVENT_DISCONNECT event while disconnecting.");
     return false;
   } else {
     printf("Disconnected.\n");
@@ -551,12 +551,12 @@ bool Application::PumpPackets() {
       } break;
 
       case enet::Event::TYPE_CONNECT: {
-        THROW_WARNING("Got EVENT_CONNECT while being already connected.");
+        REPORT_WARNING("Got EVENT_CONNECT while being already connected.");
       } break;
 
       case enet::Event::TYPE_DISCONNECT: {
         network_state_ = NETWORK_STATE_DISCONNECTED;
-        THROW_ERROR("Connection lost.");
+        REPORT_ERROR("Connection lost.");
         return false;
       } break;
 
@@ -575,7 +575,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
   Packet::Type type;
   bool rv = ExtractPacketType(buffer, &type);
   if (rv == false) {
-    THROW_ERROR("Incorrect packet format!");
+    REPORT_ERROR("Incorrect packet format!");
     return false;
   }
 
@@ -586,7 +586,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       bool rv = ExtractPacketData<Packet::Type, EntitySnapshot>(
                   buffer, &snapshot);
       if (rv == false) {
-        THROW_ERROR("Incorrect entity packet format!");
+        REPORT_ERROR("Incorrect entity packet format!");
         return false;
       }
       if (snapshot.type == EntitySnapshot::ENTITY_TYPE_PLAYER) {
@@ -607,7 +607,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       GameEvent event;
       bool rv = ExtractPacketData<Packet::Type, GameEvent>(buffer, &event);
       if (rv == false) {
-        THROW_ERROR("Incorrect game event packet format!");
+        REPORT_ERROR("Incorrect game event packet format!");
         return false;
       }
       if (event.type == GameEvent::TYPE_EXPLOSION) {
@@ -633,7 +633,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       bool rv = ExtractPacketData<Packet::Type, PlayerInfo>(
                   buffer, &player_info);
       if (rv == false) {
-        THROW_ERROR("Incorrect player info packet format!");
+        REPORT_ERROR("Incorrect player info packet format!");
         return false;
       }
 
