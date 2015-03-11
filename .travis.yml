@@ -50,7 +50,7 @@ install:
   - sudo dpkg -i libenet-plus-dev_0.1-1_amd64.deb
 
   # libjsoncpp
-  - sudo apt-get install libjsoncpp
+  - sudo apt-get install libjsoncpp-dev
 
   # libconfig
   - sudo apt-get install libconfig-dev libconfig++-dev
