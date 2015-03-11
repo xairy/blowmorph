@@ -142,14 +142,6 @@ solution "blowmorph"
       links { "sfml-graphics" }
       links { "sfml-audio" }
 
-    -- PugiXML
-    configuration "windows"
-      includedirs { "third-party/pugixml/include" }
-      windows_libdir("third-party/pugixml/bin")
-      links { "pugixml" }
-    configuration "linux"
-      links { "pugixml" }
-
     -- ENetPlus
     configuration "windows"
       includedirs { "third-party/enet-plus/include" }
