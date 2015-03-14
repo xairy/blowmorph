@@ -8,7 +8,6 @@
 #include <string>
 
 #include <Box2D/Box2D.h>
-#include <pugixml.hpp>
 
 #include "base/id_manager.h"
 #include "base/pstdint.h"
@@ -38,7 +37,6 @@ class ServerWorld : public World {
   float GetBound() const;
   float GetBlockSize() const;
 
-  // TODO(xairy): use json as map file format.
   bool LoadMap(const std::string& file);
 
   Activator* CreateActivator(
@@ -51,8 +49,6 @@ class ServerWorld : public World {
 
   Kit* CreateKit(
     const b2Vec2& position,
-    int health_regeneration,
-    int energy_regeneration,
     const std::string& entity_name);
 
   Player* CreatePlayer(
@@ -72,13 +68,6 @@ class ServerWorld : public World {
   std::vector<b2Vec2>* GetSpawnPositions();
 
  private:
-  bool LoadWall(const pugi::xml_node& node);
-  bool LoadChunk(const pugi::xml_node& node);
-  bool LoadSpawn(const pugi::xml_node& node);
-  bool LoadKit(const pugi::xml_node& node);
-
-  bool LoadKitType(const pugi::xml_attribute& attr, Kit::Type* output);
-
   float block_size_;
   float bound_;
 

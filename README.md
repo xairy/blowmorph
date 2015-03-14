@@ -36,11 +36,10 @@ To run the master server configure blowmorph/data/master-server.cfg and run:
 
 3. Install ENetPlus from https://github.com/xairy/enet-plus.
 
-4. Install pugixml-1.2:
+4. Install libjsoncpp:
     ```
-    sudo apt-get install libpugixml-dev
+    sudo apt-get install libjsoncpp-dev
     ```
-If the packet is not available, see the instructions below
 
 5. Install wxWidgets for Python:
     ```
@@ -131,18 +130,6 @@ On x64 system:
     ```
     cd Box2D/
     cmake -DBOX2D_INSTALL=ON -DBOX2D_BUILD_SHARED=ON .
-    make
-    sudo make install
-    ```
-
-### pugixml-1.2
-
-1. Download pugixml-1.2.tar.gz from https://github.com/zeux/pugixml/releases and extract.
-
-2. Build pugixml-1.2:
-    ```
-    cd pugixml-1.2/scripts
-    cmake .
     make
     sudo make install
     ```

@@ -32,8 +32,6 @@ class Kit : public ServerEntity {
     Controller* controller,
     uint32_t id,
     const b2Vec2& position,
-    int health_regeneration,
-    int energy_regeneration,
     const std::string& entity_name);
   virtual ~Kit();
 

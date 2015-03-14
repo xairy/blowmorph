@@ -2,15 +2,16 @@
 
 #include "server/world.h"
 
+#include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 
 #include <Box2D/Box2D.h>
-#include <pugixml.hpp>
 
 #include "base/error.h"
 #include "base/id_manager.h"
+#include "base/json.h"
 #include "base/pstdint.h"
 
 #include "engine/world.h"
@@ -62,13 +63,10 @@ Critter* ServerWorld::CreateCritter(
 
 Kit* ServerWorld::CreateKit(
   const b2Vec2& position,
-  int health_regeneration,
-  int energy_regeneration,
   const std::string& entity_name
 ) {
   uint32_t id = id_manager_.NewId();
-  Kit* kit = new Kit(controller_, id, position,
-      health_regeneration, energy_regeneration, entity_name);
+  Kit* kit = new Kit(controller_, id, position, entity_name);
   CHECK(kit != NULL);
   AddEntity(id, kit);
   return kit;
@@ -116,140 +114,150 @@ std::vector<b2Vec2>* ServerWorld::GetSpawnPositions() {
 }
 
 bool ServerWorld::LoadMap(const std::string& file) {
-  pugi::xml_document document;
-  pugi::xml_parse_result parse_result = document.load_file(file.c_str());
-  if (!parse_result) {
-    Error::Throw(__FILE__, __LINE__, "Unable to parse %s!\n", file.c_str());
-    return false;
-  }
-  pugi::xml_node map_node = document.child("map");
-  if (!map_node) {
-    Error::Throw(__FILE__, __LINE__,
-      "Tag 'map' not found in %s!\n", file.c_str());
+  std::fstream stream(file);
+  if (!stream.is_open()) {
+    REPORT_ERROR("Can't open file '%s'.", file.c_str());
     return false;
   }
 
-  pugi::xml_attribute block_size = map_node.attribute("block_size");
-  if (!block_size) {
-    Error::Throw(__FILE__, __LINE__,
-      "Tag 'map' does not have attribute 'block_size' in %s!\n", file.c_str());
+  Json::Value root;
+  Json::Reader reader;
+
+  bool success = reader.parse(stream, root, false);
+  if (!success) {
+      std::string error = reader.getFormatedErrorMessages();
+      REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
+      return false;
+  }
+
+  // Load globals.
+
+  if (!GetFloat32(root["block_size"], &block_size_)) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "block_size", "float", file.c_str());
     return false;
   }
-  block_size_ = block_size.as_float();
 
-  pugi::xml_attribute bound = map_node.attribute("bound");
-  if (!bound) {
-    Error::Throw(__FILE__, __LINE__,
-      "Tag 'map' does not have attribute 'bound' in %s!\n", file.c_str());
+  if (!GetFloat32(root["bound"], &bound_)) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "bound", "float", file.c_str());
     return false;
   }
-  bound_ = bound.as_float();
 
-  pugi::xml_node node;
-  for (node = map_node.first_child(); node; node = node.next_sibling()) {
-    if (std::string(node.name()) == "wall") {
-      if (!LoadWall(node)) {
-        return false;
-      }
-    } else if (std::string(node.name()) == "chunk") {
-      if (!LoadChunk(node)) {
-        return false;
-      }
-    } else if (std::string(node.name()) == "spawn") {
-      if (!LoadSpawn(node)) {
-        return false;
-      }
-    } else if (std::string(node.name()) == "kit") {
-      if (!LoadKit(node)) {
-        return false;
+  // Load spawns.
+
+  Json::Value spawns = root["spawns"];
+  if (spawns == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "spawns", "array", file.c_str());
+    return false;
+  }
+  if (spawns.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "spawns", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < spawns.size(); i++) {
+    b2Vec2 spawn;
+    if (!GetFloat32(spawns[i]["x"], &spawn.x)) {
+      REPORT_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
+          i, "float", file.c_str());
+      return false;
+    }
+    if (!GetFloat32(spawns[i]["y"], &spawn.y)) {
+      REPORT_ERROR("Config 'spawns[%d].y' of type '%s' not found in '%s'.",
+          i, "float", file.c_str());
+      return false;
+    }
+    spawn_positions_.push_back(spawn);
+  }
+
+  // Load walls.
+
+  Json::Value chunks = root["chunks"];
+  if (chunks == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "chunks", "array", file.c_str());
+    return false;
+  }
+  if (chunks.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "chunks", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < chunks.size(); i++) {
+    int x, y;
+    int width, height;
+    std::string entity;
+
+    if (!GetInt32(chunks[i]["x"], &x)) {
+      REPORT_ERROR("Config 'chunks[%d].x' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    if (!GetInt32(chunks[i]["y"], &y)) {
+      REPORT_ERROR("Config 'chunks[%d].y' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    if (!GetInt32(chunks[i]["width"], &width)) {
+      REPORT_ERROR("Config 'chunks[%d].width' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    if (!GetInt32(chunks[i]["height"], &height)) {
+      REPORT_ERROR("Config 'chunks[%d].height' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    if (!GetString(chunks[i]["entity"], &entity)) {
+      REPORT_ERROR("Config 'chunks[%d].entity' of type '%s' not found in '%s'.",
+          i, "string", file.c_str());
+      return false;
+    }
+
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < height; j++) {
+        CreateWall(b2Vec2((x + i) * block_size_, (y + j) * block_size_),
+            entity);
       }
     }
   }
 
-  return true;
-}
+  // Load kits.
 
-bool ServerWorld::LoadWall(const pugi::xml_node& node) {
-  CHECK(std::string(node.name()) == "wall");
-
-  pugi::xml_attribute x = node.attribute("x");
-  pugi::xml_attribute y = node.attribute("y");
-  pugi::xml_attribute type = node.attribute("type");
-  if (!x || !y || !type) {
-    THROW_ERROR("Incorrect format of 'wall' in map file!\n");
+  Json::Value kits = root["kits"];
+  if (kits == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "kits", "array", file.c_str());
     return false;
-  } else {
-    CHECK(std::string(type.name()) == "type");
-    CreateWall(b2Vec2(x.as_int() * block_size_, y.as_int() * block_size_),
-        std::string(type.value()) + "_wall");
+  }
+  if (kits.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
+    return false;
   }
 
-  return true;
-}
+  for (int i = 0; i < kits.size(); i++) {
+    float x, y;
+    std::string entity;
 
-bool ServerWorld::LoadChunk(const pugi::xml_node& node) {
-  CHECK(std::string(node.name()) == "chunk");
-
-  pugi::xml_attribute x = node.attribute("x");
-  pugi::xml_attribute y = node.attribute("y");
-  pugi::xml_attribute width = node.attribute("width");
-  pugi::xml_attribute height = node.attribute("height");
-  pugi::xml_attribute type = node.attribute("type");
-  if (!x || !y || !width || !height || !type) {
-    THROW_ERROR("Incorrect format of 'chunk' in map file!\n");
-    return false;
-  } else {
-    int xv = x.as_int();
-    int yv = y.as_int();
-    int wv = width.as_int();
-    int hv = height.as_int();
-    CHECK(std::string(type.name()) == "type");
-    for (int i = 0; i < wv; i++) {
-      for (int j = 0; j < hv; j++) {
-        CreateWall(b2Vec2((xv + i) * block_size_, (yv + j) * block_size_),
-            std::string(type.value()) + "_wall");
-      }
+    if (!GetFloat32(kits[i]["x"], &x)) {
+      REPORT_ERROR("Config 'kits[%d].x' of type '%s' not found in '%s'.",
+          i, "float", file.c_str());
+      return false;
     }
-  }
+    if (!GetFloat32(kits[i]["y"], &y)) {
+      REPORT_ERROR("Config 'kits[%d].y' of type '%s' not found in '%s'.",
+          i, "float", file.c_str());
+      return false;
+    }
+    if (!GetString(kits[i]["entity"], &entity)) {
+      REPORT_ERROR("Config 'kits[%d].entity' of type '%s' not found in '%s'.",
+          i, "string", file.c_str());
+      return false;
+    }
 
-  return true;
-}
-
-bool ServerWorld::LoadSpawn(const pugi::xml_node& node) {
-  CHECK(std::string(node.name()) == "spawn");
-
-  pugi::xml_attribute x_attr = node.attribute("x");
-  pugi::xml_attribute y_attr = node.attribute("y");
-  if (!x_attr || !y_attr) {
-    THROW_ERROR("Incorrect format of 'spawn' in map file!\n");
-    return false;
-  } else {
-    float x = x_attr.as_float();
-    float y = y_attr.as_float();
-    spawn_positions_.push_back(b2Vec2(x, y));
-  }
-
-  return true;
-}
-
-bool ServerWorld::LoadKit(const pugi::xml_node& node) {
-  CHECK(std::string(node.name()) == "kit");
-
-  pugi::xml_attribute x_attr = node.attribute("x");
-  pugi::xml_attribute y_attr = node.attribute("y");
-  pugi::xml_attribute hr_attr = node.attribute("health_regeneration");
-  pugi::xml_attribute er_attr = node.attribute("energy_regeneration");
-  pugi::xml_attribute type_attr = node.attribute("type");
-  if (!x_attr || !y_attr || !hr_attr || !er_attr || !type_attr) {
-    THROW_ERROR("Incorrect format of 'kit' in map file!\n");
-    return false;
-  } else {
-    float x = x_attr.as_float();
-    float y = y_attr.as_float();
-    int hr = hr_attr.as_int();
-    int er = er_attr.as_int();
-    CHECK(std::string(type_attr.name()) == "type");
-    CreateKit(b2Vec2(x, y), hr, er, std::string(type_attr.value()) + "_kit");
+    CreateKit(b2Vec2(x, y), entity);
   }
 
   return true;

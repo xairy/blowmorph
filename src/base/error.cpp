@@ -1,10 +1,7 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
 #include "base/error.h"
 
-#include <cstdarg>
-
-#include <sstream>
 #include <string>
 #include <vector>
 

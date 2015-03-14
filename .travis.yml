@@ -49,15 +49,8 @@ install:
   - sudo dpkg -i libenet-plus_0.1-1_amd64.deb
   - sudo dpkg -i libenet-plus-dev_0.1-1_amd64.deb
 
-  # pugixml 1.5
-  - wget https://github.com/zeux/pugixml/releases/download/v1.5/pugixml-1.5.zip
-  - unzip pugixml-1.5.zip
-  - cd pugixml-1.5/scripts/
-  - mkdir build && cd build/
-  - cmake ..
-  - make
-  - sudo make install
-  - cd ../../../
+  # libjsoncpp
+  - sudo apt-get install libjsoncpp-dev
 
   # libconfig
   - sudo apt-get install libconfig-dev libconfig++-dev

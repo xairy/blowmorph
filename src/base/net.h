@@ -65,7 +65,7 @@ bool SendPacket(
 
   bool rv = peer->Send(&buffer[0], buffer.size(), reliable);
   if (rv == false) {
-    THROW_ERROR("Couldn't send packet.");
+    REPORT_ERROR("Couldn't send packet.");
     return false;
   }
   return true;
@@ -83,7 +83,7 @@ bool BroadcastPacket(
 
   bool rv = host->Broadcast(&buffer[0], buffer.size(), reliable);
   if (rv == false) {
-    THROW_ERROR("Couldn't broadcast packet.");
+    REPORT_ERROR("Couldn't broadcast packet.");
     return false;
   }
   return true;
