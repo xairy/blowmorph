@@ -138,11 +138,13 @@ bool ServerWorld::LoadMap(const std::string& file) {
     return false;
   }
 
-  if (!GetFloat32(root["bound"], &bound_)) {
+  int map_size;
+  if (!GetInt32(root["map_size"], &map_size)) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "bound", "float", file.c_str());
+        "map_size", "int", file.c_str());
     return false;
   }
+  bound_ = map_size * block_size_;
 
   // Load spawns.
 
@@ -158,18 +160,18 @@ bool ServerWorld::LoadMap(const std::string& file) {
   }
 
   for (int i = 0; i < spawns.size(); i++) {
-    b2Vec2 spawn;
-    if (!GetFloat32(spawns[i]["x"], &spawn.x)) {
+    int x, y;
+    if (!GetInt32(spawns[i]["x"], &x)) {
       REPORT_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
-          i, "float", file.c_str());
+          i, "int", file.c_str());
       return false;
     }
-    if (!GetFloat32(spawns[i]["y"], &spawn.y)) {
+    if (!GetInt32(spawns[i]["y"], &y)) {
       REPORT_ERROR("Config 'spawns[%d].y' of type '%s' not found in '%s'.",
-          i, "float", file.c_str());
+          i, "int", file.c_str());
       return false;
     }
-    spawn_positions_.push_back(spawn);
+    spawn_positions_.push_back(b2Vec2(x * block_size_, y * block_size_));
   }
 
   // Load walls.
@@ -238,17 +240,17 @@ bool ServerWorld::LoadMap(const std::string& file) {
   }
 
   for (int i = 0; i < kits.size(); i++) {
-    float x, y;
+    int x, y;
     std::string entity;
 
-    if (!GetFloat32(kits[i]["x"], &x)) {
+    if (!GetInt32(kits[i]["x"], &x)) {
       REPORT_ERROR("Config 'kits[%d].x' of type '%s' not found in '%s'.",
-          i, "float", file.c_str());
+          i, "int", file.c_str());
       return false;
     }
-    if (!GetFloat32(kits[i]["y"], &y)) {
+    if (!GetInt32(kits[i]["y"], &y)) {
       REPORT_ERROR("Config 'kits[%d].y' of type '%s' not found in '%s'.",
-          i, "float", file.c_str());
+          i, "int", file.c_str());
       return false;
     }
     if (!GetString(kits[i]["entity"], &entity)) {
@@ -257,7 +259,7 @@ bool ServerWorld::LoadMap(const std::string& file) {
       return false;
     }
 
-    CreateKit(b2Vec2(x, y), entity);
+    CreateKit(b2Vec2(x * block_size_, y * block_size_), entity);
   }
 
   return true;

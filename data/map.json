@@ -3,13 +3,13 @@
 
 {
   "block_size": 16.0,
-  "bound": 3000.0,
+  "map_size": 200,
 
   "spawns": [
-    {"x": -700.0, "y": -700.0},
-    {"x": -700.0, "y": 700.0},
-    {"x": 700.0, "y": -700.0},
-    {"x": 700.0, "y": 700.0}
+    {"x": 44, "y": 44},
+    {"x": -44, "y": 44},
+    {"x": 44, "y": -44},
+    {"x": -44, "y": -44}
   ],
 
   "chunks": [
@@ -82,21 +82,21 @@
 
   "kits": [
     // Central building:
-    {"x": 272.0, "y": 272.0, "entity": "health_kit"},
-    {"x": -272.0, "y": -272.0, "entity": "health_kit"},
-    {"x": 272.0, "y": -272.0, "entity": "energy_kit"},
-    {"x": -272.0, "y": 272.0, "entity": "energy_kit"},
+    {"x": 17, "y": 17, "entity": "health_kit"},
+    {"x": -17, "y": -17, "entity": "health_kit"},
+    {"x": 17, "y": -17, "entity": "energy_kit"},
+    {"x": -17, "y": 17, "entity": "energy_kit"},
 
     // Right building:
-    {"x": 960.0, "y": 0.0, "entity": "composite_kit"},
+    {"x": 60, "y": 0, "entity": "composite_kit"},
 
     // Bottom building:
-    {"x": 0.0, "y": 960.0, "entity": "composite_kit"},
+    {"x": 0, "y": 60, "entity": "composite_kit"},
 
     // Top building:
-    {"x": 0.0, "y": -960.0, "entity": "composite_kit"},
+    {"x": 0, "y": -60, "entity": "composite_kit"},
 
     // Left building:
-    {"x": -960.0, "y": 0.0, "entity": "composite_kit"}
+    {"x": -60, "y": 0, "entity": "composite_kit"}
   ]
 }
