@@ -2,7 +2,6 @@
 
 #include "server/world.h"
 
-#include <fstream>
 #include <map>
 #include <vector>
 #include <string>
@@ -11,9 +10,9 @@
 
 #include "base/error.h"
 #include "base/id_manager.h"
-#include "base/json.h"
 #include "base/pstdint.h"
 
+#include "engine/map.h"
 #include "engine/world.h"
 
 #include "server/entity.h"
@@ -114,152 +113,35 @@ std::vector<b2Vec2>* ServerWorld::GetSpawnPositions() {
 }
 
 bool ServerWorld::LoadMap(const std::string& file) {
-  std::fstream stream(file);
-  if (!stream.is_open()) {
-    REPORT_ERROR("Can't open file '%s'.", file.c_str());
+  Map map;
+  if (!map.Load(file)) {
+    REPORT_ERROR("Can't load map '%s'.", file.c_str());
     return false;
   }
 
-  Json::Value root;
-  Json::Reader reader;
+  block_size_ = map.GetBlockSize();
+  bound_ = map.GetSize() * block_size_;
 
-  bool success = reader.parse(stream, root, false);
-  if (!success) {
-      std::string error = reader.getFormatedErrorMessages();
-      REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
-      return false;
+  for (auto spawn : map.GetSpawns()) {
+    float x = spawn.x * block_size_;
+    float y = spawn.y * block_size_;
+    spawn_positions_.push_back(b2Vec2(x, y));
   }
 
-  // Load globals.
-
-  if (!GetFloat32(root["block_size"], &block_size_)) {
-    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "block_size", "float", file.c_str());
-    return false;
-  }
-
-  int map_size;
-  if (!GetInt32(root["map_size"], &map_size)) {
-    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "map_size", "int", file.c_str());
-    return false;
-  }
-  bound_ = map_size * block_size_;
-
-  // Load spawns.
-
-  Json::Value spawns = root["spawns"];
-  if (spawns == Json::Value::null) {
-    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "spawns", "array", file.c_str());
-    return false;
-  }
-  if (spawns.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "spawns", file.c_str());
-    return false;
-  }
-
-  for (int i = 0; i < spawns.size(); i++) {
-    int x, y;
-    if (!GetInt32(spawns[i]["x"], &x)) {
-      REPORT_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(spawns[i]["y"], &y)) {
-      REPORT_ERROR("Config 'spawns[%d].y' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    spawn_positions_.push_back(b2Vec2(x * block_size_, y * block_size_));
-  }
-
-  // Load walls.
-
-  Json::Value chunks = root["chunks"];
-  if (chunks == Json::Value::null) {
-    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "chunks", "array", file.c_str());
-    return false;
-  }
-  if (chunks.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "chunks", file.c_str());
-    return false;
-  }
-
-  for (int i = 0; i < chunks.size(); i++) {
-    int x, y;
-    int width, height;
-    std::string entity;
-
-    if (!GetInt32(chunks[i]["x"], &x)) {
-      REPORT_ERROR("Config 'chunks[%d].x' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(chunks[i]["y"], &y)) {
-      REPORT_ERROR("Config 'chunks[%d].y' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(chunks[i]["width"], &width)) {
-      REPORT_ERROR("Config 'chunks[%d].width' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(chunks[i]["height"], &height)) {
-      REPORT_ERROR("Config 'chunks[%d].height' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetString(chunks[i]["entity"], &entity)) {
-      REPORT_ERROR("Config 'chunks[%d].entity' of type '%s' not found in '%s'.",
-          i, "string", file.c_str());
-      return false;
-    }
-
-    for (int i = 0; i < width; i++) {
-      for (int j = 0; j < height; j++) {
-        CreateWall(b2Vec2((x + i) * block_size_, (y + j) * block_size_),
-            entity);
+  for (auto chunk : map.GetChunks()) {
+    for (int i = 0; i < chunk.width; i++) {
+      for (int j = 0; j < chunk.height; j++) {
+        float x = (chunk.x + i) * block_size_;
+        float y = (chunk.y + j) * block_size_;
+        CreateWall(b2Vec2(x, y), chunk.entity_name);
       }
     }
   }
 
-  // Load kits.
-
-  Json::Value kits = root["kits"];
-  if (kits == Json::Value::null) {
-    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "kits", "array", file.c_str());
-    return false;
-  }
-  if (kits.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
-    return false;
-  }
-
-  for (int i = 0; i < kits.size(); i++) {
-    int x, y;
-    std::string entity;
-
-    if (!GetInt32(kits[i]["x"], &x)) {
-      REPORT_ERROR("Config 'kits[%d].x' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(kits[i]["y"], &y)) {
-      REPORT_ERROR("Config 'kits[%d].y' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetString(kits[i]["entity"], &entity)) {
-      REPORT_ERROR("Config 'kits[%d].entity' of type '%s' not found in '%s'.",
-          i, "string", file.c_str());
-      return false;
-    }
-
-    CreateKit(b2Vec2(x * block_size_, y * block_size_), entity);
+  for (auto kit : map.GetKits()) {
+    float x = kit.x * block_size_;
+    float y = kit.y * block_size_;
+    CreateKit(b2Vec2(x, y), kit.entity_name);
   }
 
   return true;

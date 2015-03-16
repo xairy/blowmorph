@@ -171,12 +171,6 @@ solution "blowmorph"
     configuration "windows"
       resource("data", "data")
 
-    -- JsonCpp
-    configuration "windows"
-      -- TODO
-    configuration "linux"
-      links { "jsoncpp" }
-
     -- ENetPlus
     configuration "windows"
       includedirs { "third-party/enet-plus/include" }
@@ -238,6 +232,12 @@ solution "blowmorph"
             "src/engine/**.h" }
 
     links { "base" }
+
+    -- JsonCpp
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "jsoncpp" }
 
     -- Box2D
     configuration "windows"

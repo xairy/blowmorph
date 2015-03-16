@@ -4,6 +4,7 @@
 
 #include <cmath>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 
