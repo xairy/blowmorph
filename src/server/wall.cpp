@@ -44,12 +44,8 @@ Wall::Wall(
 Wall::~Wall() { }
 
 void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_WALL;
-  output->time = time;
-  output->id = GetId();
-  output->x = GetPosition().x;
-  output->y = GetPosition().y;
-  output->angle = GetRotation();
   if (_type == TYPE_ORDINARY) {
     output->data[0] = EntitySnapshot::WALL_TYPE_ORDINARY;
   } else if (_type == TYPE_UNBREAKABLE) {

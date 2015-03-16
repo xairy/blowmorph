@@ -43,12 +43,8 @@ Player::Player(
 Player::~Player() { }
 
 void Player::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_PLAYER;
-  output->time = time;
-  output->id = GetId();
-  output->x = GetPosition().x;
-  output->y = GetPosition().y;
-  output->angle = GetRotation();
   output->data[0] = _health;
   output->data[1] = _energy;
   output->data[2] = _score;

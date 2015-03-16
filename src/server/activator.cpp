@@ -43,12 +43,8 @@ Activator::Activator(
 Activator::~Activator() { }
 
 void Activator::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_ACTIVATOR;
-  output->time = time;
-  output->id = GetId();
-  output->x = GetPosition().x;
-  output->y = GetPosition().y;
-  output->angle = GetRotation();
   // FIXME(xairy): set data[0] depending on activator type.
 }
 

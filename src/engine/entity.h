@@ -71,6 +71,7 @@ class Entity {
   uint32_t id_;
   Type type_;
   Body* body_;
+  std::string name_;
 };
 
 }  // namespace bm

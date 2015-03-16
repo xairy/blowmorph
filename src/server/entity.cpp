@@ -63,6 +63,20 @@ bool ServerEntity::IsDestroyed() const {
   return is_destroyed_;
 }
 
+void ServerEntity::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  output->time = time;
+  output->id = GetId();
+  output->x = GetPosition().x;
+  output->y = GetPosition().y;
+  output->angle = GetRotation();
+
+  CHECK(name_.size() <= EntitySnapshot::MAX_NAME_LENGTH);
+  std::copy(name_.begin(), name_.end(), &output->name[0]);
+  output->name[name_.size()] = '\0';
+}
+
+void ServerEntity::Damage(int damage, uint32_t source_id) { }
+
 // Double dispatch.
 
 void ServerEntity::Collide(Activator* first, Activator* second) {

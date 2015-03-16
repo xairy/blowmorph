@@ -50,8 +50,8 @@ class ServerEntity : public Entity {
   void Destroy();
   bool IsDestroyed() const;
 
-  virtual void GetSnapshot(int64_t time, EntitySnapshot* output) = 0;
-  virtual void Damage(int damage, uint32_t source_id) = 0;
+  virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
+  virtual void Damage(int damage, uint32_t source_id);
 
   // Double dispatch. Collision handling.
 

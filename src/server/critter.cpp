@@ -42,12 +42,8 @@ Critter::Critter(
 Critter::~Critter() { }
 
 void Critter::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_CRITTER;
-  output->time = time;
-  output->id = GetId();
-  output->x = GetPosition().x;
-  output->y = GetPosition().y;
-  output->angle = GetRotation();
 }
 
 void Critter::Damage(int damage, uint32_t source_id) {

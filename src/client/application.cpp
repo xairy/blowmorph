@@ -658,93 +658,47 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   CHECK(snapshot != NULL);
 
   uint32_t id = snapshot->id;
-  EntitySnapshot::EntityType type = snapshot->type;
   b2Vec2 position = b2Vec2(snapshot->x, snapshot->y);
+  std::string entity_name = std::string(&snapshot->name[0]);
 
-  std::string entity_name;
+  Entity::Type type;
   std::string sprite_name;
-  std::string body_name;
-
-  // FIXME(xairy): code below is terrible.
 
   switch (snapshot->type) {
     case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity_name = "door";
+      type = Entity::TYPE_ACTIVATOR;
       sprite_name = Config::GetInstance()->
         GetActivatorsConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetActivatorsConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity_name = "zombie";
+      type = Entity::TYPE_CRITTER;
       sprite_name = Config::GetInstance()->
         GetCrittersConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetCrittersConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_KIT: {
-      switch (snapshot->data[0]) {
-        case EntitySnapshot::KIT_TYPE_HEALTH: {
-          entity_name = "health_kit";
-        } break;
-        case EntitySnapshot::KIT_TYPE_ENERGY: {
-          entity_name = "energy_kit";
-        } break;
-        case EntitySnapshot::KIT_TYPE_COMPOSITE: {
-          entity_name = "composite_kit";
-        } break;
-        default: {
-          CHECK(false);  // Unreachable.
-        }
-      }
+      type = Entity::TYPE_KIT;
       sprite_name = Config::GetInstance()->
         GetKitsConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetKitsConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_WALL: {
-      if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_ORDINARY) {
-        entity_name = "ordinary_wall";
-      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_UNBREAKABLE) {
-        entity_name = "unbreakable_wall";
-      } else if (snapshot->data[0] == EntitySnapshot::WALL_TYPE_MORPHED) {
-        entity_name = "morphed_wall";
-      } else {
-        CHECK(false);  // Unreachable.
-      }
+      type = Entity::TYPE_WALL;
       sprite_name = Config::GetInstance()->
         GetWallsConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetWallsConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      switch (snapshot->data[0]) {
-        case EntitySnapshot::PROJECTILE_TYPE_ROCKET: {
-          entity_name = "rocket";
-        } break;
-        case EntitySnapshot::PROJECTILE_TYPE_SLIME: {
-          entity_name = "slime";
-        } break;
-        default: {
-          CHECK(false);  // Unreachable.
-        }
-      }
+      type = Entity::TYPE_PROJECTILE;
       sprite_name = Config::GetInstance()->
         GetProjectilesConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetProjectilesConfig().at(entity_name).body_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity_name = "player";
+      type = Entity::TYPE_PLAYER;
       sprite_name = Config::GetInstance()->
         GetPlayersConfig().at(entity_name).sprite_name;
-      body_name = Config::GetInstance()->
-        GetPlayersConfig().at(entity_name).body_name;
     } break;
 
     default:
@@ -754,51 +708,9 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
   Sprite* sprite = resource_manager_.CreateSprite(sprite_name);
   CHECK(sprite != NULL);
 
-  ClientEntity* entity = NULL;
-
-  switch (snapshot->type) {
-    case EntitySnapshot::ENTITY_TYPE_WALL: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_WALL, entity_name, position, sprite);
-      CHECK(entity != NULL);
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_PROJECTILE, entity_name, position, sprite);
-      CHECK(entity != NULL);
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_PLAYER: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_PLAYER, entity_name, position, sprite);
-      CHECK(entity != NULL);
-      if (player_names_.count(id) == 1) {
-        entity->EnableCaption(player_names_[id], *render_window_.GetFont());
-      }
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_CRITTER: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_CRITTER, entity_name, position, sprite);
-      CHECK(entity != NULL);
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_KIT: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_KIT, entity_name, position, sprite);
-      CHECK(entity != NULL);
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_ACTIVATOR: {
-      entity = new ClientEntity(world_.GetBox2DWorld(), id,
-          Entity::TYPE_ACTIVATOR, entity_name, position, sprite);
-      CHECK(entity != NULL);
-    } break;
-
-    default:
-      CHECK(false);  // Unreachable.
-  }
+  ClientEntity* entity = new ClientEntity(world_.GetBox2DWorld(),
+      id, type, entity_name, position, sprite);
+  CHECK(entity != NULL);
 
   entity->SetRotation(snapshot->angle);
   world_.AddEntity(id, entity);

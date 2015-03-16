@@ -29,7 +29,8 @@ Entity::Entity(
   uint16_t collision_mask
 ) : id_(id),
     type_(type),
-    body_(NULL) {
+    body_(NULL),
+    name_(entity_name) {
   std::string body_name;
   switch (type) {
     case TYPE_ACTIVATOR: {

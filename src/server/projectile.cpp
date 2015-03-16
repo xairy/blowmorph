@@ -61,12 +61,8 @@ Projectile::Projectile(
 Projectile::~Projectile() { }
 
 void Projectile::GetSnapshot(int64_t time, EntitySnapshot* output) {
+  ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_PROJECTILE;
-  output->time = time;
-  output->id = GetId();
-  output->x = GetPosition().x;
-  output->y = GetPosition().y;
-  output->angle = GetRotation();
   if (type_ == TYPE_ROCKET) {
     output->data[0] = EntitySnapshot::PROJECTILE_TYPE_ROCKET;
   } else if (type_ == TYPE_SLIME) {

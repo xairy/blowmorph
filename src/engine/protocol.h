@@ -137,11 +137,16 @@ struct EntitySnapshot {
     KIT_TYPE_MAX_VALUE
   };
 
+  static const size_t MAX_NAME_LENGTH = 16;
+
   int64_t time;
   uint32_t id;
-  EntityType type;
   float32_t x, y;
   float32_t angle;
+
+  // FIXME(xairy): use numerical id instead.
+  char name[MAX_NAME_LENGTH + 1];
+  EntityType type;
   int32_t data[4];
 };
 
