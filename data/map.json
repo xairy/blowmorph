@@ -2,7 +2,7 @@
 // Map size is 160 x 160.
 
 {
-  "block_size": 16.0,
+  "block_size": 96.0,
   "map_size": 200,
 
   "spawns": [

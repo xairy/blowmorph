@@ -77,8 +77,8 @@ void RenderWindow::SetViewCenter(sf::Vector2f location) {
 // FIXME(xairy): temporary.
 void RenderWindow::RenderTerrain(Sprite* sprite) {
   CHECK(state_ == STATE_INITIALIZED);
-  for (int x = -16; x <= 16; x++) {
-    for (int y = -16; y <= 16; y++) {
+  for (int x = -100; x <= 100; x++) {
+    for (int y = -100; y <= 100; y++) {
       sprite->SetPosition(sf::Vector2f(x * 100.0f, y * 100.0f));
       RenderSprite(sprite);
     }
