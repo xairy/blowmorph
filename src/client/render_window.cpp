@@ -79,7 +79,7 @@ void RenderWindow::RenderTerrain(Sprite* sprite) {
   CHECK(state_ == STATE_INITIALIZED);
   for (int x = -100; x <= 100; x++) {
     for (int y = -100; y <= 100; y++) {
-      sprite->SetPosition(sf::Vector2f(x * 100.0f, y * 100.0f));
+      sprite->SetPosition(sf::Vector2f(x * 96.0f, y * 96.0f));
       RenderSprite(sprite);
     }
   }
