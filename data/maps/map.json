@@ -2,10 +2,11 @@
 
 {
   "block_size": 96.0,
-  "map_size": 5,
+  "width": 11,
+  "height": 11,
 
   "spawns": [
-    {"x": 0, "y": 0}
+    {"x": 5, "y": 5}
   ],
 
   "walls": [
@@ -13,7 +14,7 @@
   ],
 
   "kits": [
-    {"x": -1, "y": -1, "entity": "health_kit"}
+    {"x": 3, "y": 3, "entity": "health_kit"}
   ],
 
   "terrain": [

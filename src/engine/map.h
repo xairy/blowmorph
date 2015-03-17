@@ -35,8 +35,9 @@ class Map {
 
   bool Load(const std::string& file);
 
-  int32_t GetSize() const;
   float32_t GetBlockSize() const;
+  int32_t GetWidth() const;
+  int32_t GetHeight() const;
 
   const std::vector<Spawn>& GetSpawns() const;
 
@@ -46,8 +47,9 @@ class Map {
   const Terrain& GetTerrain() const;
 
  private:
-  int32_t size_;
   float32_t block_size_;
+  int32_t width_;
+  int32_t height_;
 
   std::vector<Spawn> spawns_;
   std::vector<Wall> walls_;

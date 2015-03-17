@@ -120,7 +120,7 @@ bool ServerWorld::LoadMap(const std::string& file) {
   }
 
   block_size_ = map.GetBlockSize();
-  bound_ = (map.GetSize() + 1) * block_size_;
+  bound_ = (std::max(map.GetWidth(), map.GetHeight()) + 1) * block_size_;
 
   for (auto spawn : map.GetSpawns()) {
     float x = spawn.x * block_size_;

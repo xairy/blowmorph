@@ -185,15 +185,15 @@ bool Application::InitializeGraphics() {
     terrain_.push_back(sprite);
   }
 
-  int map_size = map_.GetSize();
   float block_size = map_.GetBlockSize();
+  int width = map_.GetWidth();
+  int height = map_.GetHeight();
 
-  CHECK(terrain_.size() == (2 * map_size + 1) * (2 * map_size + 1));
+  CHECK(terrain_.size() == width * height);
 
-  for (int y = -map_size; y <= map_size; y++) {
-    for (int x = -map_size; x <= map_size; x++) {
-      int index = (y + map_size) * (2 * map_size + 1) + (x + map_size);
-      Sprite* sprite = terrain_[index];
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      Sprite* sprite = terrain_[y * width + x];
       sprite->SetPosition(sf::Vector2f(x * block_size, y * block_size));
     }
   }

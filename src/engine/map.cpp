@@ -40,9 +40,15 @@ bool Map::Load(const std::string& file) {
     return false;
   }
 
-  if (!GetInt32(root["map_size"], &size_)) {
+  if (!GetInt32(root["width"], &width_)) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "map_size", "int", file.c_str());
+        "width", "int", file.c_str());
+    return false;
+  }
+
+  if (!GetInt32(root["height"], &height_)) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "height", "int", file.c_str());
     return false;
   }
 
@@ -154,9 +160,9 @@ bool Map::Load(const std::string& file) {
         "terrain", "array", file.c_str());
     return false;
   }
-  if (terrain.size() != (2 * size_ + 1) * (2 * size_ + 1)) {
+  if (terrain.size() != width_ * height_) {
     REPORT_ERROR("Size of array '%s' must be '%d' in %s'.",
-      "terrain", (2 * size_ + 1) * (2 * size_ + 1), file.c_str());
+      "terrain", width_ * height_, file.c_str());
     return false;
   }
 
@@ -175,12 +181,16 @@ bool Map::Load(const std::string& file) {
   return true;
 }
 
-int32_t Map::GetSize() const {
-  return size_;
-}
-
 float32_t Map::GetBlockSize() const {
   return block_size_;
+}
+
+int32_t Map::GetWidth() const {
+  return width_;
+}
+
+int32_t Map::GetHeight() const {
+  return height_;
 }
 
 const std::vector<Map::Spawn>& Map::GetSpawns() const {
