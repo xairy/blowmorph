@@ -128,14 +128,10 @@ bool ServerWorld::LoadMap(const std::string& file) {
     spawn_positions_.push_back(b2Vec2(x, y));
   }
 
-  for (auto chunk : map.GetChunks()) {
-    for (int i = 0; i < chunk.width; i++) {
-      for (int j = 0; j < chunk.height; j++) {
-        float x = (chunk.x + i) * block_size_;
-        float y = (chunk.y + j) * block_size_;
-        CreateWall(b2Vec2(x, y), chunk.entity_name);
-      }
-    }
+  for (auto wall : map.GetWalls()) {
+    float x = wall.x * block_size_;
+    float y = wall.y * block_size_;
+    CreateWall(b2Vec2(x, y), wall.entity_name);
   }
 
   for (auto kit : map.GetKits()) {

@@ -76,49 +76,38 @@ bool Map::Load(const std::string& file) {
 
   // Load walls.
 
-  Json::Value chunks = root["chunks"];
-  if (chunks == Json::Value::null) {
+  Json::Value walls = root["walls"];
+  if (walls == Json::Value::null) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
-        "chunks", "array", file.c_str());
+        "walls", "array", file.c_str());
     return false;
   }
-  if (chunks.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "chunks", file.c_str());
+  if (walls.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "walls", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < chunks.size(); i++) {
+  for (int i = 0; i < walls.size(); i++) {
     int32_t x, y;
-    int32_t width, height;
     std::string entity_name;
 
-    if (!GetInt32(chunks[i]["x"], &x)) {
-      REPORT_ERROR("Config 'chunks[%d].x' of type '%s' not found in '%s'.",
+    if (!GetInt32(walls[i]["x"], &x)) {
+      REPORT_ERROR("Config 'walls[%d].x' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
-    if (!GetInt32(chunks[i]["y"], &y)) {
-      REPORT_ERROR("Config 'chunks[%d].y' of type '%s' not found in '%s'.",
+    if (!GetInt32(walls[i]["y"], &y)) {
+      REPORT_ERROR("Config 'walls[%d].y' of type '%s' not found in '%s'.",
           i, "int", file.c_str());
       return false;
     }
-    if (!GetInt32(chunks[i]["width"], &width)) {
-      REPORT_ERROR("Config 'chunks[%d].width' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetInt32(chunks[i]["height"], &height)) {
-      REPORT_ERROR("Config 'chunks[%d].height' of type '%s' not found in '%s'.",
-          i, "int", file.c_str());
-      return false;
-    }
-    if (!GetString(chunks[i]["entity"], &entity_name)) {
-      REPORT_ERROR("Config 'chunks[%d].entity' of type '%s' not found in '%s'.",
+    if (!GetString(walls[i]["entity"], &entity_name)) {
+      REPORT_ERROR("Config 'walls[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }
 
-    chunks_.push_back(Chunk{x, y, width, height, entity_name});
+    walls_.push_back(Wall{x, y, entity_name});
   }
 
   // Load kits.
@@ -198,8 +187,8 @@ const std::vector<Map::Spawn>& Map::GetSpawns() const {
   return spawns_;
 }
 
-const std::vector<Map::Chunk>& Map::GetChunks() const {
-  return chunks_;
+const std::vector<Map::Wall>& Map::GetWalls() const {
+  return walls_;
 }
 
 const std::vector<Map::Kit>& Map::GetKits() const {

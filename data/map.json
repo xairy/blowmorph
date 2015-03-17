@@ -8,8 +8,8 @@
     {"x": 0, "y": 0}
   ],
 
-  "chunks": [
-    {"x": 1, "y": 1, "width": 1, "height": 2, "entity": "unbreakable_wall"}
+  "walls": [
+    {"x": 1, "y": 1, "entity": "unbreakable_wall"}
   ],
 
   "kits": [

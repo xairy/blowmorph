@@ -16,9 +16,8 @@ class Map {
     int32_t x, y;
   };
 
-  struct Chunk {
+  struct Wall {
     int32_t x, y;
-    int32_t width, height;
     std::string entity_name;
   };
 
@@ -40,7 +39,8 @@ class Map {
   float32_t GetBlockSize() const;
 
   const std::vector<Spawn>& GetSpawns() const;
-  const std::vector<Chunk>& GetChunks() const;
+
+  const std::vector<Wall>& GetWalls() const;
   const std::vector<Kit>& GetKits() const;
 
   const Terrain& GetTerrain() const;
@@ -50,7 +50,7 @@ class Map {
   float32_t block_size_;
 
   std::vector<Spawn> spawns_;
-  std::vector<Chunk> chunks_;
+  std::vector<Wall> walls_;
   std::vector<Kit> kits_;
 
   Terrain terrain_;
