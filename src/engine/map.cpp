@@ -16,19 +16,11 @@ Map::Map() { }
 Map::~Map() { }
 
 bool Map::Load(const std::string& file) {
-  std::fstream stream(file);
-  if (!stream.is_open()) {
-    REPORT_ERROR("Can't open file '%s'.", file.c_str());
-    return false;
-  }
-
-  Json::Value root;
   Json::Reader reader;
+  Json::Value root;
 
-  bool success = reader.parse(stream, root, false);
-  if (!success) {
-      std::string error = reader.getFormatedErrorMessages();
-      REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
       return false;
   }
 

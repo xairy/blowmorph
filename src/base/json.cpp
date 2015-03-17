@@ -2,11 +2,33 @@
 
 #include "base/json.h"
 
+#include <fstream>  // NOLINT
 #include <string>
 
 #include <jsoncpp/json/json.h>
 
 #include "base/pstdint.h"
+#include "base/error.h"
+
+namespace bm {
+
+bool ParseFile(const std::string& file,
+      Json::Reader* reader, Json::Value* root) {
+  std::fstream stream(file);
+  if (!stream.is_open()) {
+    REPORT_ERROR("Can't open file '%s'.", file.c_str());
+    return false;
+  }
+
+  bool success = reader->parse(stream, *root, false);
+  if (!success) {
+      std::string error = reader->getFormatedErrorMessages();
+      REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
+      return false;
+  }
+
+  return true;
+}
 
 bool GetInt32(const Json::Value& value, int32_t* out) {
   if (value == Json::Value::null) {
@@ -73,3 +95,5 @@ bool GetBool(const Json::Value& value, bool* out) {
   *out = value.asBool();
   return true;
 }
+
+}  // namespace bm

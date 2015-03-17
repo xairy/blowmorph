@@ -4,10 +4,12 @@
 
 #include <map>
 #include <string>
+#include <fstream>  // NOLINT
 #include <vector>
 
 #include "base/config_reader.h"
 #include "base/error.h"
+#include "base/json.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/singleton.h"
@@ -745,33 +747,55 @@ bool Config::LoadWallsConfig() {
 }
 
 bool Config::LoadGunsConfig() {
-  ConfigReader reader;
-  const char* file = "data/guns.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/guns.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value guns = root["guns"];
+  if (guns == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "guns", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
-    guns_[name].name = name;
-
-    std::string config = name + ".projectile";
-    if (!reader.LookupString(config, &guns_[name].projectile_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    if (projectiles_.count(guns_[name].projectile_name) == 0) {
-      REPORT_ERROR("Projectile '%s' used by gun '%s' not defined.",
-        guns_[name].projectile_name.c_str(), name.c_str());
-      return false;
-    }
-
-    config = name + ".energy_consumption";
-    if (!reader.LookupInt32(config, &guns_[name].energy_consumption)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
+  if (guns.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "guns", file.c_str());
+    return false;
   }
+
+  for (int i = 0; i < guns.size(); i++) {
+    std::string name;
+    std::string projectile_name;
+    int32_t energy_consumption;
+    if (!GetString(guns[i]["name"], &name)) {
+      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (!GetString(guns[i]["projectile"], &projectile_name)) {
+      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
+          i, "projectile", "string", file.c_str());
+      return false;
+    }
+    if (!GetInt32(guns[i]["energy_consumption"], &energy_consumption)) {
+      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
+          i, "energy_consumption", "int", file.c_str());
+      return false;
+    }
+    if (guns_.count(name) != 0) {
+      REPORT_ERROR("Gun '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
+    guns_[name].name = name;
+    guns_[name].projectile_name = projectile_name;
+    guns_[name].energy_consumption = energy_consumption;
+  }
+
   return true;
 }
 

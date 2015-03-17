@@ -1,0 +1,14 @@
+{
+  "guns": [
+    {
+      "name": "bazooka",      
+      "projectile": "rocket",
+      "energy_consumption": 250
+    },
+    {
+      "name": "morpher",
+      "projectile": "slime",
+      "energy_consumption": 500
+    }
+  ]
+}
