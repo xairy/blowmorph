@@ -74,20 +74,16 @@ void RenderWindow::SetViewCenter(sf::Vector2f location) {
   render_window_->setView(view_);
 }
 
-// FIXME(xairy): temporary.
-void RenderWindow::RenderTerrain(Sprite* sprite) {
-  CHECK(state_ == STATE_INITIALIZED);
-  for (int x = -100; x <= 100; x++) {
-    for (int y = -100; y <= 100; y++) {
-      sprite->SetPosition(sf::Vector2f(x * 96.0f, y * 96.0f));
-      RenderSprite(sprite);
-    }
-  }
-}
-
 void RenderWindow::RenderSprite(Sprite* sprite) {
   CHECK(state_ == STATE_INITIALIZED);
   sprite->Render(render_window_);
+}
+
+void RenderWindow::RenderSprites(const std::vector<Sprite*>& sprites) {
+  CHECK(state_ == STATE_INITIALIZED);
+  for (auto sprite : sprites) {
+    RenderSprite(sprite);
+  }
 }
 
 void RenderWindow::RenderEntity(ClientEntity* entity) {

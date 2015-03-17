@@ -27,6 +27,10 @@ class Map {
     std::string entity_name;
   };
 
+  struct Terrain {
+    std::vector<std::string> sprite_names;
+  };
+
   Map();
   ~Map();
 
@@ -39,6 +43,8 @@ class Map {
   const std::vector<Chunk>& GetChunks() const;
   const std::vector<Kit>& GetKits() const;
 
+  const Terrain& GetTerrain() const;
+
  private:
   int32_t size_;
   float32_t block_size_;
@@ -46,6 +52,8 @@ class Map {
   std::vector<Spawn> spawns_;
   std::vector<Chunk> chunks_;
   std::vector<Kit> kits_;
+
+  Terrain terrain_;
 };
 
 }  // namespace bm

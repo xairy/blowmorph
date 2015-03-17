@@ -157,6 +157,32 @@ bool Map::Load(const std::string& file) {
     kits_.push_back(Kit{x, y, entity_name});
   }
 
+  // Load terrain.
+
+  Json::Value terrain = root["terrain"];
+  if (terrain == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "terrain", "array", file.c_str());
+    return false;
+  }
+  if (terrain.size() != (2 * size_ + 1) * (2 * size_ + 1)) {
+    REPORT_ERROR("Size of array '%s' must be '%d' in %s'.",
+      "terrain", (2 * size_ + 1) * (2 * size_ + 1), file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < terrain.size(); i++) {
+    std::string sprite_name;
+
+    if (!GetString(terrain[i], &sprite_name)) {
+      REPORT_ERROR("Config 'terrain[%d]' of type '%s' not found in '%s'.",
+          i, "string", file.c_str());
+      return false;
+    }
+
+    terrain_.sprite_names.push_back(sprite_name);
+  }
+
   return true;
 }
 
@@ -178,6 +204,10 @@ const std::vector<Map::Chunk>& Map::GetChunks() const {
 
 const std::vector<Map::Kit>& Map::GetKits() const {
   return kits_;
+}
+
+const Map::Terrain& Map::GetTerrain() const {
+  return terrain_;
 }
 
 }  // namespace bm

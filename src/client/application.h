@@ -17,6 +17,7 @@
 #include "base/pstdint.h"
 
 #include "engine/config.h"
+#include "engine/map.h"
 #include "engine/protocol.h"
 #include "engine/world.h"
 
@@ -38,6 +39,7 @@ class Application {
   void Finalize();
 
  private:
+  bool InitializeGraphics();
   bool InitializePhysics();
   bool InitializeNetwork();
 
@@ -100,7 +102,9 @@ class Application {
 
   RenderWindow render_window_;
   std::list<Sprite*> explosions_;
-  Sprite* grass_;
+
+  Map map_;
+  std::vector<Sprite*> terrain_;
 
   bool show_score_table_;
   std::map<uint32_t, int> player_scores_;

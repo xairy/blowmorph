@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
@@ -32,9 +33,9 @@ class RenderWindow {
 
   void SetViewCenter(sf::Vector2f location);
 
-  void RenderTerrain(Sprite* sprite);
-
   void RenderSprite(Sprite* sprite);
+  void RenderSprites(const std::vector<Sprite*>& sprites);
+
   void RenderEntity(ClientEntity* entity);
   void RenderWorld(World* world);
 

@@ -25,6 +25,7 @@
 #include "base/utils.h"
 
 #include "engine/config.h"
+#include "engine/map.h"
 #include "engine/protocol.h"
 #include "engine/utils.h"
 
@@ -61,8 +62,9 @@ bool Application::Initialize() {
     return false;
   }
 
-  render_window_.Initialize();
-  grass_ = resource_manager_.CreateSprite("grass");
+  if (!InitializeGraphics()) {
+    return false;
+  }
 
   if (!InitializePhysics()) {
     return false;
@@ -167,6 +169,36 @@ void Application::Finalize() {
   if (event_ != NULL) delete event_;
 
   state_ = STATE_FINALIZED;
+}
+
+bool Application::InitializeGraphics() {
+  render_window_.Initialize();
+
+  // FIXME(xairy): receive map name from server.
+  if (!map_.Load("data/map.json")) {
+    return false;
+  }
+
+  for (auto sprite_name : map_.GetTerrain().sprite_names) {
+    Sprite* sprite = resource_manager_.CreateSprite(sprite_name);
+    CHECK(sprite != NULL);
+    terrain_.push_back(sprite);
+  }
+
+  int map_size = map_.GetSize();
+  float block_size = map_.GetBlockSize();
+
+  CHECK(terrain_.size() == (2 * map_size + 1) * (2 * map_size + 1));
+
+  for (int y = -map_size; y <= map_size; y++) {
+    for (int x = -map_size; x <= map_size; x++) {
+      int index = (y + map_size) * (2 * map_size + 1) + (x + map_size);
+      Sprite* sprite = terrain_[index];
+      sprite->SetPosition(sf::Vector2f(x * block_size, y * block_size));
+    }
+  }
+
+  return true;
 }
 
 bool Application::InitializePhysics() {
@@ -814,7 +846,7 @@ void Application::Render() {
     b2Vec2 position = player_->GetPosition();
     render_window_.SetViewCenter(sf::Vector2f(position.x, position.y));
 
-    render_window_.RenderTerrain(grass_);
+    render_window_.RenderSprites(terrain_);
 
     // FIXME(xairy): madness.
     std::list<Sprite*>::iterator it2;

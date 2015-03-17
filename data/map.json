@@ -1,102 +1,32 @@
 // X axis is pointing to the right, Y axis is pointing down.
-// Map size is 160 x 160.
 
 {
   "block_size": 96.0,
-  "map_size": 200,
+  "map_size": 5,
 
   "spawns": [
-    {"x": 44, "y": 44},
-    {"x": -44, "y": 44},
-    {"x": 44, "y": -44},
-    {"x": -44, "y": -44}
+    {"x": 0, "y": 0}
   ],
 
   "chunks": [
-    // Borders:
-    {"x": -79, "y": -79, "width": 1, "height": 160, "entity": "unbreakable_wall"},
-    {"x": -79, "y": -79, "width": 160, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 80, "y": -79, "width": 1, "height": 160, "entity": "unbreakable_wall"},
-    {"x": -79, "y": 80, "width": 160, "height": 1, "entity": "unbreakable_wall"},
-
-    // Central building:
-    {"x": 15, "y": 15, "width": 15, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 15, "y": 15, "width": 1, "height": 15, "entity": "unbreakable_wall"},
-    {"x": -29, "y": 15, "width": 15, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": 15, "width": 1, "height": 15, "entity": "unbreakable_wall"},
-    {"x": 15, "y": -29, "width": 1, "height": 15, "entity": "unbreakable_wall"},
-    {"x": 15, "y": -15, "width": 15, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": -29, "width": 1, "height": 15, "entity": "unbreakable_wall"},
-    {"x": -29, "y": -15, "width": 15, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 30, "y": -15, "width": 1, "height": 12, "entity": "unbreakable_wall"},
-    {"x": 30, "y": 4, "width": 1, "height": 12, "entity": "unbreakable_wall"},
-    {"x": -15, "y": 30, "width": 12, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 4, "y": 30, "width": 12, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": -29, "width": 12, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 4, "y": -29, "width": 12, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -29, "y": -15, "width": 1, "height": 12, "entity": "unbreakable_wall"},
-    {"x": -29, "y": 4, "width": 1, "height": 12, "entity": "unbreakable_wall"},
-
-    // Right building:
-    {"x": 50, "y": -15, "width": 1, "height": 31, "entity": "unbreakable_wall"},
-    {"x": 70, "y": -15, "width": 1, "height": 31, "entity": "unbreakable_wall"},
-    {"x": 50, "y": 15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 63, "y": 15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 50, "y": -15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 63, "y": -15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-
-    // Bottom building:
-    {"x": -15, "y": 50, "width": 31, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": 70, "width": 31, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 15, "y": 50, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": 15, "y": 63, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": -15, "y": 50, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": -15, "y": 63, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-
-    // Top building:
-    {"x": -15, "y": -50, "width": 31, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": -70, "width": 31, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -15, "y": -70, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": -15, "y": -57, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": 15, "y": -70, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-    {"x": 15, "y": -57, "width": 1, "height": 8, "entity": "unbreakable_wall"},
-
-    // Left building:
-    {"x": -50, "y": -15, "width": 1, "height": 31, "entity": "unbreakable_wall"},
-    {"x": -70, "y": -15, "width": 1, "height": 31, "entity": "unbreakable_wall"},
-    {"x": -70, "y": -15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -57, "y": -15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -70, "y": 15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -57, "y": 15, "width": 8, "height": 1, "entity": "unbreakable_wall"},
-
-    // Around spawns:
-    {"x": 40, "y": 40, "width": 1, "height": 20, "entity": "unbreakable_wall"},
-    {"x": 40, "y": 40, "width": 20, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -40, "y": -59, "width": 1, "height": 20, "entity": "unbreakable_wall"},
-    {"x": -59, "y": -40, "width": 20, "height": 1, "entity": "unbreakable_wall"},
-    {"x": 40, "y": -59, "width": 1, "height": 20, "entity": "unbreakable_wall"},
-    {"x": 40, "y": -40, "width": 20, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -59, "y": 40, "width": 20, "height": 1, "entity": "unbreakable_wall"},
-    {"x": -40, "y": 40, "width": 1, "height": 20, "entity": "unbreakable_wall"}
+    {"x": 1, "y": 1, "width": 1, "height": 2, "entity": "unbreakable_wall"}
   ],
 
   "kits": [
-    // Central building:
-    {"x": 17, "y": 17, "entity": "health_kit"},
-    {"x": -17, "y": -17, "entity": "health_kit"},
-    {"x": 17, "y": -17, "entity": "energy_kit"},
-    {"x": -17, "y": 17, "entity": "energy_kit"},
+    {"x": -1, "y": -1, "entity": "health_kit"}
+  ],
 
-    // Right building:
-    {"x": 60, "y": 0, "entity": "composite_kit"},
-
-    // Bottom building:
-    {"x": 0, "y": 60, "entity": "composite_kit"},
-
-    // Top building:
-    {"x": 0, "y": -60, "entity": "composite_kit"},
-
-    // Left building:
-    {"x": -60, "y": 0, "entity": "composite_kit"}
+  "terrain": [
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass"
   ]
 }
