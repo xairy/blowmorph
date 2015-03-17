@@ -1,0 +1,54 @@
+{ "height":11,
+ "layers":[
+        {
+         "data":[8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+         "height":11,
+         "name":"Terrain",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":11,
+         "x":0,
+         "y":0
+        }],
+ "orientation":"orthogonal",
+ "properties":
+    {
+
+    },
+ "tileheight":96,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "image":"..\/images\/terrain\/land.png",
+         "imageheight":96,
+         "imagewidth":384,
+         "margin":0,
+         "name":"land",
+         "properties":
+            {
+
+            },
+         "spacing":0,
+         "tileheight":96,
+         "tilewidth":96
+        }, 
+        {
+         "firstgid":5,
+         "image":"..\/images\/terrain\/hitech.png",
+         "imageheight":480,
+         "imagewidth":480,
+         "margin":0,
+         "name":"hitech",
+         "properties":
+            {
+
+            },
+         "spacing":0,
+         "tileheight":96,
+         "tilewidth":96
+        }],
+ "tilewidth":96,
+ "version":1,
+ "width":11
+}

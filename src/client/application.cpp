@@ -175,7 +175,7 @@ bool Application::InitializeGraphics() {
   render_window_.Initialize();
 
   // FIXME(xairy): receive map name from server.
-  if (!map_.Load("data/map.json")) {
+  if (!map_.Load("data/maps/map.json")) {
     return false;
   }
 
