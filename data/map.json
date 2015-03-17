@@ -18,15 +18,15 @@
 
   "terrain": [
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "concrete", "concrete", "grass", "grass", "grass", "grass", "grass", "concrete", "concrete", "grass", 
+    "grass", "concrete", "concrete", "grass", "grass", "grass", "grass", "grass", "concrete", "concrete", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
-    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
-    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
-    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
-    "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", 
+    "grass", "concrete", "concrete", "grass", "grass", "grass", "grass", "grass", "concrete", "concrete", "grass", 
+    "grass", "concrete", "concrete", "grass", "grass", "grass", "grass", "grass", "concrete", "concrete", "grass", 
     "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass"
   ]
 }
