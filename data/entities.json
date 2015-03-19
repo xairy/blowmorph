@@ -57,5 +57,26 @@
       "energy_max": 10000,
       "energy_regen": 1
     }
+  ],
+
+  // Available types: rocket, slime.
+  "projectiles": [
+    {
+      "name": "rocket",
+      "body": "rocket",
+      "sprite": "rocket",
+      "speed": 800.0,
+      "type": "rocket",
+      "explosion_radius": 200.0,
+      "explosion_damage": 30
+    },
+    {
+      "name": "slime",
+      "body": "rocket",
+      "sprite": "slime",
+      "speed": 400.0,
+      "type": "slime",
+      "explosion_radius": 2
+    }
   ]
 }

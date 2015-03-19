@@ -17,7 +17,7 @@
       "dynamic": true
     },
     {
-      "name": "bullet",
+      "name": "rocket",
       "shape": {
         "type": "circle",
         "radius": 5.0

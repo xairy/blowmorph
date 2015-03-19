@@ -767,77 +767,90 @@ bool Config::LoadPlayersConfig() {
 }
 
 bool Config::LoadProjectilesConfig() {
-  ConfigReader reader;
-  const char* file = "data/projectiles.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value projectiles = root["projectiles"];
+  if (projectiles == Json::Value::null || !projectiles.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "projectiles", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (projectiles.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "projectiles", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < projectiles.size(); i++) {
+    std::string name;
+    if (!GetString(projectiles[i]["name"], &name)) {
+      REPORT_ERROR("Config 'projectiles[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (projectiles_.count(name) != 0) {
+      REPORT_ERROR("Projectile '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     projectiles_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &projectiles_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(projectiles[i]["body"], &projectiles_[name].body_name)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "projectiles", i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(projectiles_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by projectile '%s' not defined.",
-        projectiles_[name].body_name.c_str(), name.c_str());
+    if (!GetString(projectiles[i]["sprite"], &projectiles_[name].sprite_name)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "projectiles", i, "sprite", "string", file.c_str());
       return false;
     }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &projectiles_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    if (sprites_.count(projectiles_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by projectile '%s' not defined.",
-        projectiles_[name].sprite_name.c_str(), name.c_str());
-      return false;
-    }
-
-    config = name + ".speed";
-    if (!reader.LookupFloat(config, &projectiles_[name].speed)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetFloat32(projectiles[i]["speed"], &projectiles_[name].speed)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "projectiles", i, "speed", "float", file.c_str());
       return false;
     }
 
     std::string type;
-    config = name + ".type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(projectiles[i]["type"], &type)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "projectiles", i, "type", "string", file.c_str());
       return false;
     }
     if (type == "rocket") {
       projectiles_[name].type = ProjectileConfig::TYPE_ROCKET;
-      config = name + ".explosion_radius";
-      if (!reader.LookupFloat(config,
-            &projectiles_[name].rocket_config.explosion_radius)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      if (!GetFloat32(projectiles[i]["explosion_radius"],
+                      &projectiles_[name].rocket_config.explosion_radius)) {
+        REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+            "projectiles", i, "explosion_radius", "float", file.c_str());
         return false;
       }
-      config = name + ".explosion_damage";
-      if (!reader.LookupInt32(config,
-            &projectiles_[name].rocket_config.explosion_damage)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      if (!GetInt32(projectiles[i]["explosion_damage"],
+                      &projectiles_[name].rocket_config.explosion_damage)) {
+        REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+            "projectiles", i, "explosion_damage", "int", file.c_str());
         return false;
       }
     } else if (type == "slime") {
       projectiles_[name].type = ProjectileConfig::TYPE_SLIME;
-      config = name + ".explosion_radius";
-      if (!reader.LookupInt32(config,
-            &projectiles_[name].slime_config.explosion_radius)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-        return false;
+      if (!GetInt32(projectiles[i]["explosion_radius"],
+                      &projectiles_[name].slime_config.explosion_radius)) {
+        REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+            "projectiles", i, "explosion_radius", "int", file.c_str());
       }
     } else {
-      REPORT_ERROR("Projectile type must be 'rocket' or 'slime'.");
+      REPORT_ERROR("Config %s[%d].%s must be 'rocket' or 'slime' in %s.",
+          "projectiles", i, "type", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 
