@@ -1,0 +1,13 @@
+// Available types: door.
+
+{
+  "activators": [
+    {
+      "name": "door",
+      "body": "door",
+      "sprite": "door",
+      "activation_distance": 150.0,
+      "type": "door"
+    }
+  ]
+}

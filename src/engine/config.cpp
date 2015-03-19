@@ -428,7 +428,7 @@ bool Config::LoadSpritesConfig() {
       return false;
     }
     if (sprites_.count(name) != 0) {
-      REPORT_ERROR("Texture '%s' defined twice in '%s'.",
+      REPORT_ERROR("Sprite '%s' defined twice in '%s'.",
           name.c_str(), file.c_str());
       return false;
     }
@@ -483,57 +483,72 @@ bool Config::LoadSpritesConfig() {
 }
 
 bool Config::LoadActivatorsConfig() {
-  ConfigReader reader;
-  const char* file = "data/activators.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/activators.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value activators = root["activators"];
+  if (activators == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "activators", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (activators.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "activators", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < activators.size(); i++) {
+    std::string name;
+    if (!GetString(activators[i]["name"], &name)) {
+      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (activators_.count(name) != 0) {
+      REPORT_ERROR("Activator '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     activators_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &activators_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(activators[i]["body"], &activators_[name].body_name)) {
+      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
+          i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(activators_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by activator '%s' not defined.",
-        activators_[name].body_name.c_str(), name.c_str());
+    if (!GetString(activators[i]["sprite"], &activators_[name].sprite_name)) {
+      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
+          i, "sprite", "string", file.c_str());
       return false;
     }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &activators_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    if (sprites_.count(activators_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by activator '%s' not defined.",
-        activators_[name].sprite_name.c_str(), name.c_str());
-      return false;
-    }
-
-    config = name + ".activation_distance";
-    if (!reader.LookupFloat(config, &activators_[name].activation_distance)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetFloat32(activators[i]["activation_distance"],
+                    &activators_[name].activation_distance)) {
+      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
+          i, "activation_distance", "float", file.c_str());
       return false;
     }
 
     std::string type;
-    config = name + ".type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(activators[i]["type"], &type)) {
+      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
+          i, "type", "string", file.c_str());
       return false;
     }
     if (type == "door") {
       activators_[name].type = ActivatorConfig::TYPE_DOOR;
     } else {
-      REPORT_ERROR("Activator type must be 'door'.");
+      REPORT_ERROR("Config activators[%d].%s must be 'door' in %s.",
+          i, "type", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 
