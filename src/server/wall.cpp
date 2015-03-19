@@ -34,8 +34,6 @@ Wall::Wall(
     _type = TYPE_ORDINARY;
   } else if (type == Config::WallConfig::TYPE_UNBREAKABLE) {
     _type = TYPE_UNBREAKABLE;
-  } else if (type == Config::WallConfig::TYPE_MORPHED) {
-    _type = TYPE_MORPHED;
   } else {
     CHECK(false);  // Unreachable.
   }
@@ -50,8 +48,6 @@ void Wall::GetSnapshot(int64_t time, EntitySnapshot* output) {
     output->data[0] = EntitySnapshot::WALL_TYPE_ORDINARY;
   } else if (_type == TYPE_UNBREAKABLE) {
     output->data[0] = EntitySnapshot::WALL_TYPE_UNBREAKABLE;
-  } else if (_type == TYPE_MORPHED) {
-    output->data[0] = EntitySnapshot::WALL_TYPE_MORPHED;
   } else {
     CHECK(false);
   }

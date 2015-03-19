@@ -172,7 +172,6 @@ class Config : public Singleton<Config> {
     enum Type {
       TYPE_ORDINARY,
       TYPE_UNBREAKABLE,
-      TYPE_MORPHED,
     };
 
     std::string name;

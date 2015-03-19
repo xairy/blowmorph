@@ -855,55 +855,68 @@ bool Config::LoadProjectilesConfig() {
 }
 
 bool Config::LoadWallsConfig() {
-  ConfigReader reader;
-  const char* file = "data/walls.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value walls = root["walls"];
+  if (walls == Json::Value::null || !walls.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "walls", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (walls.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "walls", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < walls.size(); i++) {
+    std::string name;
+    if (!GetString(walls[i]["name"], &name)) {
+      REPORT_ERROR("Config 'walls[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (walls_.count(name) != 0) {
+      REPORT_ERROR("Wall '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     walls_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &walls_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(walls[i]["body"], &walls_[name].body_name)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "walls", i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(walls_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by wall '%s' not defined.",
-        walls_[name].body_name.c_str(), name.c_str());
-      return false;
-    }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &walls_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    if (sprites_.count(walls_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by wall '%s' not defined.",
-        walls_[name].sprite_name.c_str(), name.c_str());
+    if (!GetString(walls[i]["sprite"], &walls_[name].sprite_name)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "walls", i, "sprite", "string", file.c_str());
       return false;
     }
 
     std::string type;
-    config = name + ".type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(walls[i]["type"], &type)) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "walls", i, "type", "string", file.c_str());
       return false;
     }
     if (type == "ordinary") {
       walls_[name].type = WallConfig::TYPE_ORDINARY;
     } else if (type == "unbreakable") {
       walls_[name].type = WallConfig::TYPE_UNBREAKABLE;
-    } else if (type == "morphed") {
-      walls_[name].type = WallConfig::TYPE_MORPHED;
     } else {
-      REPORT_ERROR("Wall type must be 'ordinary', 'unbreakable' or 'morphed'.");
+      REPORT_ERROR("Config %s[%d].%s must be '%s' or '%s' in %s.",
+          "walls", i, "type", "ordinary", "unbreakable", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 

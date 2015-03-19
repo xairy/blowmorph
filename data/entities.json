@@ -78,5 +78,27 @@
       "type": "slime",
       "explosion_radius": 2
     }
+  ],
+
+  // Available types: ordinary, unbreakable.
+  "walls": [
+    {
+      "name": "ordinary_wall",
+      "body": "wall",
+      "sprite": "ordinary_wall",
+      "type": "ordinary"
+    },
+    {
+      "name": "unbreakable_wall",
+      "body": "wall",
+      "sprite": "unbreakable_wall",
+      "type": "unbreakable"
+    },
+    {
+      "name": "morphed_wall",
+      "body": "wall",
+      "sprite": "morphed_wall",
+      "type": "ordinary"
+    }
   ]
 }

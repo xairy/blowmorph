@@ -25,7 +25,6 @@ class Wall : public ServerEntity {
   enum Type {
     TYPE_ORDINARY,
     TYPE_UNBREAKABLE,
-    TYPE_MORPHED
   };
 
   Wall(
