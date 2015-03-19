@@ -349,7 +349,7 @@ bool Config::LoadTexturesConfig() {
 
     if (!GetString(textures[i]["image"], &textures_[name].image)) {
       REPORT_ERROR("Config 'textures[%d].%s' of type '%s' not found in '%s'.",
-          i, "dynamic", "string", file.c_str());
+          i, "image", "string", file.c_str());
       return false;
     }
     if (!GetUInt32(textures[i]["transparent_color"],
@@ -400,45 +400,85 @@ bool Config::LoadTexturesConfig() {
 }
 
 bool Config::LoadSpritesConfig() {
-  ConfigReader reader;
-  const char* file = "data/sprites.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/sprites.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value sprites = root["sprites"];
+  if (sprites == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "sprites", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (sprites.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "sprites", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < sprites.size(); i++) {
+    std::string name;
+    if (!GetString(sprites[i]["name"], &name)) {
+      REPORT_ERROR("Config 'sprites[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (sprites_.count(name) != 0) {
+      REPORT_ERROR("Texture '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     sprites_[name].name = name;
-    std::string config = name + ".texture";
-    if (!reader.LookupString(config, &sprites_[name].texture_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+
+    if (!GetString(sprites[i]["texture"], &sprites_[name].texture_name)) {
+      REPORT_ERROR("Config 'sprites[%d].%s' of type '%s' not found in '%s'.",
+          i, "texture", "string", file.c_str());
       return false;
     }
-    if (textures_.count(sprites_[name].texture_name) == 0) {
-      REPORT_ERROR("Texture '%s' used by sprite '%s' not defined.",
-        sprites_[name].texture_name.c_str(), name.c_str());
-      return false;
-    }
-    sprites_[name].has_modes = reader.HasSetting(name + ".mode");
-    if (!sprites_[name].has_modes) {
+
+    Json::Value mode = sprites[i]["mode"];
+    if (mode == Json::Value::null) {
+      sprites_[name].has_modes = false;
       sprites_[name].mode.timeout = 0;
       sprites_[name].mode.cyclic = false;
       continue;
     }
-    config = name + ".mode.tiles";
-    if (!reader.LookupInt32List(config, &sprites_[name].mode.tiles)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!mode.isObject()) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "sprites", i, "mode", "object", file.c_str());
       return false;
     }
-    config = name + ".mode.timeout";
-    if (!reader.LookupInt64(config, &sprites_[name].mode.timeout)) {
+    sprites_[name].has_modes = true;
+
+    Json::Value tiles = mode["tiles"];
+    if (tiles == Json::Value::null || !tiles.isArray()) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "sprites", i, "mode", "tiles", "array", file.c_str());
+      return false;
+    }
+    for (int j = 0; j < tiles.size(); j++) {
+      int tile;
+      if (!GetInt32(tiles[j], &tile)) {
+        REPORT_ERROR(
+            "Config '%s[%d][%s][%s][%d]' of type '%s' not found in '%s'.",
+            "textures", i, "mode", "tiles", j, "int", file.c_str());
+        return false;
+      }
+      sprites_[name].mode.tiles.push_back(tile);
+    }
+
+    if (!GetInt32(mode["timeout"], &sprites_[name].mode.timeout)) {
       sprites_[name].mode.timeout = 0;
     }
-    config = name + ".mode.cyclic";
-    if (!reader.LookupBool(config, &sprites_[name].mode.cyclic)) {
+    if (!GetBool(mode["cyclic"], &sprites_[name].mode.cyclic)) {
       sprites_[name].mode.cyclic = false;
     }
   }
+
   return true;
 }
 

@@ -1,0 +1,115 @@
+{
+  "sprites": [
+    // Entities.
+
+    {
+      "name": "man",
+      "texture": "man"
+    },
+    {
+      "name": "rocket",
+      "texture": "rocket"
+    },
+    {
+      "name": "slime",
+      "texture": "slime"
+    },
+    {
+      "name": "zombie",
+      "texture": "zombie"
+    },
+    {
+      "name": "explosion",
+      "texture": "explosion",
+      "mode": {
+        "tiles": [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0],
+        "timeout": 30,
+        "cyclic": false
+      }
+    },
+    {
+      "name": "health_kit",
+      "texture": "kits",
+      "mode": {
+        "tiles": [0]
+      }
+    },
+    {
+      "name": "energy_kit",
+      "texture": "kits",
+      "mode": {
+        "tiles": [2]
+      }
+    },
+    {
+      "name": "composite_kit",
+      "texture": "kits",
+      "mode": {
+        "tiles": [3]
+      }
+    },
+    {
+      "name": "ordinary_wall",
+      "texture": "walls",
+      "mode": {
+        "tiles": [3]
+      }
+    },
+    {
+      "name": "unbreakable_wall",
+      "texture": "walls",
+      "mode": {
+        "tiles": [2]
+      }
+    },
+    {
+      "name": "morphed_wall",
+      "texture": "walls",
+      "mode": {
+        "tiles": [1]
+      }
+    },
+    {
+      "name": "door",
+      "texture": "door"
+    },
+
+    // Terrain.
+
+    {
+      "name": "land_grass",
+      "texture": "land",
+      "mode": {
+        "tiles": [0]
+      }
+    },
+    {
+      "name": "land_concrete",
+      "texture": "land",
+      "mode": {
+        "tiles": [1]
+      }
+    },
+    {
+      "name": "land_brick",
+      "texture": "land",
+      "mode": {
+        "tiles": [2]
+      }
+    },
+    {
+      "name": "land_wood",
+      "texture": "land",
+      "mode": {
+        "tiles": [3]
+      }
+    },
+    {
+      "name": "hitech_plate",
+      "texture": "hitech",
+      "mode": {
+        "tiles": [3]
+      }
+    }
+  ]
+}

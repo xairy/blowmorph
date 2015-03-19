@@ -89,7 +89,7 @@ class Config : public Singleton<Config> {
   struct SpriteConfig {
     struct Mode {
       std::vector<int32_t> tiles;
-      int64_t timeout;
+      int32_t timeout;
       bool cyclic;
     };
 
