@@ -1,0 +1,55 @@
+{
+  "bodies": [
+    {
+      "name": "man",
+      "shape": {
+        "type": "circle",
+        "radius": 15.0
+      },
+      "dynamic": true
+    },
+    {
+      "name": "zombie",
+      "shape": {
+        "type": "circle",
+        "radius": 15.0
+      },
+      "dynamic": true
+    },
+    {
+      "name": "bullet",
+      "shape": {
+        "type": "circle",
+        "radius": 5.0
+      },
+      "dynamic": true
+    },
+    {
+      "name": "wall",
+      "shape": {
+        "type": "box",
+        "width": 96.0,
+        "height": 96.0
+      },
+      "dynamic": false
+    },
+    {
+      "name": "kit",
+      "shape": {
+        "type": "box",
+        "width": 30.0,
+        "height": 30.0
+      },
+      "dynamic": false
+    },
+    {
+      "name": "door",
+      "shape": {
+        "type": "box",
+        "width": 15.0,
+        "height": 90.0
+      },
+      "dynamic": false
+    }
+  ]
+}

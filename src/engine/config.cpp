@@ -230,50 +230,85 @@ bool Config::LoadClientConfig() {
 }
 
 bool Config::LoadBodiesConfig() {
-  ConfigReader reader;
-  const char* file = "data/bodies.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/bodies.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value bodies = root["bodies"];
+  if (bodies == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "bodies", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
-    bodies_[name].name = name;
-    std::string config = name + ".dynamic";
-    if (!reader.LookupBool(config, &bodies_[name].dynamic)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+  if (bodies.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "bodies", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < bodies.size(); i++) {
+    std::string name;
+    if (!GetString(bodies[i]["name"], &name)) {
+      REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "int", file.c_str());
       return false;
     }
+    if (bodies_.count(name) != 0) {
+      REPORT_ERROR("Body '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
+    bodies_[name].name = name;
+
+    if (!GetBool(bodies[i]["dynamic"], &bodies_[name].dynamic)) {
+      REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
+          i, "dynamic", "bool", file.c_str());
+      return false;
+    }
+
+    Json::Value shape = bodies[i]["shape"];
+    if (shape == Json::Value::null) {
+      REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
+          i, "shape", "array", file.c_str());
+      return false;
+    }
+
     std::string type;
-    config = name + ".shape.type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(shape["type"], &type)) {
+      REPORT_ERROR("Config 'bodies[%d][%s].%s' of type '%s' not found in '%s'.",
+          i, "shape", "type", "string", file.c_str());
       return false;
     }
     if (type == "box") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_BOX;
-      config = name + ".shape.width";
-      if (!reader.LookupFloat(config, &bodies_[name].box_config.width)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      if (!GetFloat32(shape["width"], &bodies_[name].box_config.width)) {
+        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+            "bodies", i, "shape", "width", "float", file.c_str());
         return false;
       }
-      config = name + ".shape.height";
-      if (!reader.LookupFloat(config, &bodies_[name].box_config.height)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      if (!GetFloat32(shape["height"], &bodies_[name].box_config.height)) {
+        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+            "bodies", i, "shape", "height", "float", file.c_str());
         return false;
       }
     } else if (type == "circle") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_CIRCLE;
-      config = name + ".shape.radius";
-      if (!reader.LookupFloat(config, &bodies_[name].circle_config.radius)) {
-        REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+      if (!GetFloat32(shape["radius"], &bodies_[name].circle_config.radius)) {
+        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+            "bodies", i, "shape", "radius", "float", file.c_str());
         return false;
       }
     } else {
-      REPORT_ERROR("Body shape type must be 'box' or 'circle'.");
+      REPORT_ERROR("Config bodies[%d][%s].%s must be 'box' or 'circle' in %s.",
+          i, "shape", "type", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 
@@ -769,21 +804,9 @@ bool Config::LoadGunsConfig() {
 
   for (int i = 0; i < guns.size(); i++) {
     std::string name;
-    std::string projectile_name;
-    int32_t energy_consumption;
     if (!GetString(guns[i]["name"], &name)) {
       REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
           i, "name", "string", file.c_str());
-      return false;
-    }
-    if (!GetString(guns[i]["projectile"], &projectile_name)) {
-      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
-          i, "projectile", "string", file.c_str());
-      return false;
-    }
-    if (!GetInt32(guns[i]["energy_consumption"], &energy_consumption)) {
-      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
-          i, "energy_consumption", "int", file.c_str());
       return false;
     }
     if (guns_.count(name) != 0) {
@@ -792,8 +815,18 @@ bool Config::LoadGunsConfig() {
       return false;
     }
     guns_[name].name = name;
-    guns_[name].projectile_name = projectile_name;
-    guns_[name].energy_consumption = energy_consumption;
+
+    if (!GetString(guns[i]["projectile"], &guns_[name].projectile_name)) {
+      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
+          i, "projectile", "string", file.c_str());
+      return false;
+    }
+    if (!GetInt32(guns[i]["energy_consumption"],
+                  &guns_[name].energy_consumption)) {
+      REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",
+          i, "energy_consumption", "int", file.c_str());
+      return false;
+    }
   }
 
   return true;
