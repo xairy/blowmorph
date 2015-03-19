@@ -254,7 +254,7 @@ bool Config::LoadBodiesConfig() {
     std::string name;
     if (!GetString(bodies[i]["name"], &name)) {
       REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
-          i, "name", "int", file.c_str());
+          i, "name", "string", file.c_str());
       return false;
     }
     if (bodies_.count(name) != 0) {
@@ -313,59 +313,89 @@ bool Config::LoadBodiesConfig() {
 }
 
 bool Config::LoadTexturesConfig() {
-  ConfigReader reader;
-  const char* file = "data/textures.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/textures.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value textures = root["textures"];
+  if (textures == Json::Value::null) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "textures", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
-    textures_[name].name = name;
-    std::string config = name + ".image";
-    if (!reader.LookupString(config, &textures_[name].image)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+  if (textures.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "textures", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < textures.size(); i++) {
+    std::string name;
+    if (!GetString(textures[i]["name"], &name)) {
+      REPORT_ERROR("Config 'textures[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
       return false;
     }
-    config = name + ".transparent_color";
-    if (!reader.LookupUInt32(config, &textures_[name].transparent_color)) {
+    if (textures_.count(name) != 0) {
+      REPORT_ERROR("Texture '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
+    textures_[name].name = name;
+
+    if (!GetString(textures[i]["image"], &textures_[name].image)) {
+      REPORT_ERROR("Config 'textures[%d].%s' of type '%s' not found in '%s'.",
+          i, "dynamic", "string", file.c_str());
+      return false;
+    }
+    if (!GetUInt32(textures[i]["transparent_color"],
+                   &textures_[name].transparent_color)) {
       textures_[name].transparent_color = 0xFFFFFFFF;
     }
-    textures_[name].tiled = reader.HasSetting(name + ".tile");
-    if (!textures_[name].tiled) {
+
+    Json::Value tile = textures[i]["tile"];
+    if (tile == Json::Value::null) {
+      textures_[name].tiled = false;
       continue;
     }
-    config = name + ".tile.start.x";
-    if (!reader.LookupInt32(config, &textures_[name].tile_start_x)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    textures_[name].tiled = true;
+
+    if (!GetInt32(tile["start_x"], &textures_[name].tile_start_x)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "start_x", "int", file.c_str());
       return false;
     }
-    config = name + ".tile.start.y";
-    if (!reader.LookupInt32(config, &textures_[name].tile_start_y)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(tile["start_y"], &textures_[name].tile_start_y)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "start_y", "int", file.c_str());
       return false;
     }
-    config = name + ".tile.step.horizontal";
-    if (!reader.LookupInt32(config, &textures_[name].tile_step_x)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(tile["step_x"], &textures_[name].tile_step_x)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "step_x", "int", file.c_str());
       return false;
     }
-    config = name + ".tile.step.vertical";
-    if (!reader.LookupInt32(config, &textures_[name].tile_step_y)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(tile["step_y"], &textures_[name].tile_step_y)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "step_y", "int", file.c_str());
       return false;
     }
-    config = name + ".tile.width";
-    if (!reader.LookupInt32(config, &textures_[name].tile_width)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(tile["width"], &textures_[name].tile_width)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "width", "int", file.c_str());
       return false;
     }
-    config = name + ".tile.height";
-    if (!reader.LookupInt32(config, &textures_[name].tile_height)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(tile["height"], &textures_[name].tile_height)) {
+      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "height", "int", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 

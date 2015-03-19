@@ -45,7 +45,7 @@ bool GetUInt32(const Json::Value& value, uint32_t* out) {
   if (value == Json::Value::null) {
     return false;
   }
-  if (!value.isUInt()) {
+  if (!(value.isInt() || value.isUInt())) {
     return false;
   }
   *out = value.asUInt();

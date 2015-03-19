@@ -1,0 +1,94 @@
+{
+  "textures": [
+    // Entities.
+
+    {
+      "name": "man",
+      "image": "data/images/man.png"
+    },
+    {
+      "name": "rocket",
+      "image": "data/images/rocket.png"
+    },
+    {
+      "name": "slime",
+      "image": "data/images/slime.png",
+      "transparent_color": 538241
+    },
+    {
+      "name": "zombie",
+      "image": "data/images/zombie.png",
+      "transparent_color": 0
+    },
+    {
+      "name": "explosion",
+      "image": "data/images/explosion.png",
+      "transparent_color": 0,
+      "tile": {
+        "start_x": 1,
+        "start_y": 1,
+        "step_x": 61,
+        "step_y": 61,
+        "width": 60,
+        "height": 60
+      }
+    },
+    {
+      "name": "kits",
+      "image": "data/images/kits.png",
+      "transparent_color": 0,
+      "tile": {
+        "start_x": 1,
+        "start_y": 1,
+        "step_x": 31,
+        "step_y": 31,
+        "width": 30,
+        "height": 30
+      }
+    },
+    {
+      "name": "walls",
+      "image": "data/images/walls.png",
+      "transparent_color": 0,
+      "tile": {
+        "start_x": 0,
+        "start_y": 0,
+        "step_x": 96,
+        "step_y": 96,
+        "width": 96,
+        "height": 96
+      }
+    },
+    {
+      "name": "door",
+      "image": "data/images/small_door.png"
+    },
+
+    // Terrain.
+
+    {
+      "name": "land",
+      "image": "data/images/terrain/land.png",
+      "tile": {
+        "start_x": 0,
+        "start_y": 0,
+        "step_x": 96,
+        "step_y": 96,
+        "width": 96,
+        "height": 96
+      }
+    },
+    {
+      "name": "hitech",
+      "image": "data/images/terrain/hitech.png",
+      "tile": {
+        "start_x": 0,
+        "start_y": 0,
+        "step_x": 96,
+        "step_y": 96,
+        "width": 96,
+        "height": 96
+      }
+    }
+  ]
+}
