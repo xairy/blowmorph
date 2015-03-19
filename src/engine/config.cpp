@@ -632,66 +632,62 @@ bool Config::LoadCrittersConfig() {
 }
 
 bool Config::LoadKitsConfig() {
-  ConfigReader reader;
-  const char* file = "data/kits.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value kits = root["kits"];
+  if (kits == Json::Value::null || !kits.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "kits", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (kits.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < kits.size(); i++) {
+    std::string name;
+    if (!GetString(kits[i]["name"], &name)) {
+      REPORT_ERROR("Config 'kits[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (kits_.count(name) != 0) {
+      REPORT_ERROR("Critter '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     kits_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &kits_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(kits[i]["body"], &kits_[name].body_name)) {
+      REPORT_ERROR("Config 'kits[%d].%s' of type '%s' not found in '%s'.",
+          i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(kits_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by kit '%s' not defined.",
-        kits_[name].body_name.c_str(), name.c_str());
+    if (!GetString(kits[i]["sprite"], &kits_[name].sprite_name)) {
+      REPORT_ERROR("Config 'kits[%d].%s' of type '%s' not found in '%s'.",
+          i, "sprite", "string", file.c_str());
       return false;
     }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &kits_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(kits[i]["health_regen"], &kits_[name].health_regen)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "health_regen", "int", file.c_str());
       return false;
     }
-    if (sprites_.count(kits_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by kit '%s' not defined.",
-        kits_[name].sprite_name.c_str(), name.c_str());
-      return false;
-    }
-
-    std::string type;
-    config = name + ".type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    if (type == "health") {
-      kits_[name].type = KitConfig::TYPE_HEALTH;
-    } else if (type == "energy") {
-      kits_[name].type = KitConfig::TYPE_ENERGY;
-    } else if (type == "composite") {
-      kits_[name].type = KitConfig::TYPE_COMPOSITE;
-    } else {
-      REPORT_ERROR("Kit type must be 'health', 'energy' or 'composite'.");
-      return false;
-    }
-
-    config = name + ".health_regeneration";
-    if (!reader.LookupInt32(config, &kits_[name].health_regen)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    config = name + ".energy_regeneration";
-    if (!reader.LookupInt32(config, &kits_[name].energy_regen)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(kits[i]["energy_regen"], &kits_[name].energy_regen)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "energy_regen", "int", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 

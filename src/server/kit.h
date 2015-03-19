@@ -22,12 +22,6 @@ class Kit : public ServerEntity {
   friend class ServerEntity;
 
  public:
-  enum Type {
-    TYPE_HEALTH,
-    TYPE_ENERGY,
-    TYPE_COMPOSITE
-  };
-
   Kit(
     Controller* controller,
     uint32_t id,
@@ -54,11 +48,7 @@ class Kit : public ServerEntity {
   int _health_regeneration;
   int _energy_regeneration;
 
-  Type _type;
-
  private:
-  std::string TypeToEntityName(Type type);
-
   DISALLOW_COPY_AND_ASSIGN(Kit);
 };
 

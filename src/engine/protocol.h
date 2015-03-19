@@ -92,8 +92,6 @@ struct PlayerInfo {
 //    data[0] - projectile type
 // type == EntitySnapshot::ENTITY_TYPE_WALL:
 //    data[0] - wall type
-// type == EntitySnapshot::ENTITY_TYPE_KIT:
-//    data[0] - kit type
 struct EntitySnapshot {
   enum EntityType {
     ENTITY_TYPE_UNKNOWN = 0,

@@ -126,16 +126,9 @@ class Config : public Singleton<Config> {
   };
 
   struct KitConfig {
-    enum Type {
-      TYPE_HEALTH,
-      TYPE_ENERGY,
-      TYPE_COMPOSITE,
-    };
-
     std::string name;
     std::string body_name;
     std::string sprite_name;
-    Type type;
     int32_t health_regen;
     int32_t energy_regen;
   };

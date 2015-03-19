@@ -20,5 +20,29 @@
       "damage": 10,
       "type": "zombie"
     }
+  ],
+
+  "kits": [
+    {
+      "name": "health_kit",
+      "body": "kit",
+      "sprite": "health_kit",
+      "health_regen": 100,
+      "energy_regen": 0
+    },
+    {
+      "name": "energy_kit",
+      "body": "kit",
+      "sprite": "energy_kit",
+      "health_regen": 0,
+      "energy_regen": 10000
+    },
+    {
+      "name": "composite_kit",
+      "body": "kit",
+      "sprite": "composite_kit",
+      "health_regen": 100,
+      "energy_regen": 10000
+    }
   ]
 }
