@@ -692,64 +692,77 @@ bool Config::LoadKitsConfig() {
 }
 
 bool Config::LoadPlayersConfig() {
-  ConfigReader reader;
-  const char* file = "data/players.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value players = root["players"];
+  if (players == Json::Value::null || !players.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "players", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (players.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "players", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < players.size(); i++) {
+    std::string name;
+    if (!GetString(players[i]["name"], &name)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (players_.count(name) != 0) {
+      REPORT_ERROR("Player '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     players_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &players_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(players[i]["body"], &players_[name].body_name)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(players_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by player '%s' not defined.",
-        players_[name].body_name.c_str(), name.c_str());
+    if (!GetString(players[i]["sprite"], &players_[name].sprite_name)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "sprite", "string", file.c_str());
       return false;
     }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &players_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetFloat32(players[i]["speed"], &players_[name].speed)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "speed", "int", file.c_str());
       return false;
     }
-    if (sprites_.count(players_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by player '%s' not defined.",
-        players_[name].sprite_name.c_str(), name.c_str());
+    if (!GetInt32(players[i]["health_max"], &players_[name].health_max)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "health_max", "int", file.c_str());
       return false;
     }
-
-    config = name + ".speed";
-    if (!reader.LookupFloat(config, &players_[name].speed)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(players[i]["health_regen"], &players_[name].health_regen)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "health_regen", "int", file.c_str());
       return false;
     }
-    config = name + ".max_health";
-    if (!reader.LookupInt32(config, &players_[name].health_max)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(players[i]["energy_max"], &players_[name].energy_max)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "energy_max", "int", file.c_str());
       return false;
     }
-    config = name + ".health_regeneration";
-    if (!reader.LookupInt32(config, &players_[name].health_regen)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    config = name + ".energy_capacity";
-    if (!reader.LookupInt32(config, &players_[name].energy_max)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    config = name + ".energy_regeneration";
-    if (!reader.LookupInt32(config, &players_[name].energy_regen)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(players[i]["energy_regen"], &players_[name].energy_regen)) {
+      REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
+          i, "energy_regen", "int", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 

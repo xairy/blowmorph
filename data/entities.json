@@ -44,5 +44,18 @@
       "health_regen": 100,
       "energy_regen": 10000
     }
+  ],
+
+  "players": [
+    {
+      "name": "player",
+      "body": "man",
+      "sprite": "man",
+      "speed": 150.0,
+      "health_max": 100,
+      "health_regen": 0,
+      "energy_max": 10000,
+      "energy_regen": 1
+    }
   ]
 }
