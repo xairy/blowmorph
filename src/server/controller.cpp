@@ -63,7 +63,7 @@ void Controller::Update(int64_t time, int64_t time_delta) {
 
 Player* Controller::OnPlayerConnected() {
   // FIXME(xairy): Temporary.
-  world_.CreateActivator(b2Vec2(-800.0f, 800.0f), "door");
+  world_.CreateActivator(b2Vec2(400.0f, 400.0f), "door");
 
   Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f), "player");
   RespawnPlayer(player);

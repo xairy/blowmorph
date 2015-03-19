@@ -240,7 +240,7 @@ bool Config::LoadBodiesConfig() {
   }
 
   Json::Value bodies = root["bodies"];
-  if (bodies == Json::Value::null) {
+  if (bodies == Json::Value::null || !bodies.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "bodies", "array", file.c_str());
     return false;
@@ -323,7 +323,7 @@ bool Config::LoadTexturesConfig() {
   }
 
   Json::Value textures = root["textures"];
-  if (textures == Json::Value::null) {
+  if (textures == Json::Value::null || !textures.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "textures", "array", file.c_str());
     return false;
@@ -361,6 +361,11 @@ bool Config::LoadTexturesConfig() {
     if (tile == Json::Value::null) {
       textures_[name].tiled = false;
       continue;
+    }
+    if (!tile.isObject()) {
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "textures", i, "tile", "object", file.c_str());
+      return false;
     }
     textures_[name].tiled = true;
 
@@ -410,7 +415,7 @@ bool Config::LoadSpritesConfig() {
   }
 
   Json::Value sprites = root["sprites"];
-  if (sprites == Json::Value::null) {
+  if (sprites == Json::Value::null || !sprites.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "sprites", "array", file.c_str());
     return false;
@@ -493,7 +498,7 @@ bool Config::LoadActivatorsConfig() {
   }
 
   Json::Value activators = root["activators"];
-  if (activators == Json::Value::null) {
+  if (activators == Json::Value::null || !activators.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "activators", "array", file.c_str());
     return false;
