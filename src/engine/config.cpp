@@ -488,7 +488,7 @@ bool Config::LoadSpritesConfig() {
 }
 
 bool Config::LoadActivatorsConfig() {
-  std::string file = "data/activators.json";
+  std::string file = "data/entities.json";
   Json::Reader reader;
   Json::Value root;
 
@@ -558,62 +558,76 @@ bool Config::LoadActivatorsConfig() {
 }
 
 bool Config::LoadCrittersConfig() {
-  ConfigReader reader;
-  const char* file = "data/critters.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value critters = root["critters"];
+  if (critters == Json::Value::null || !critters.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "critters", "array", file.c_str());
     return false;
   }
-  std::vector<std::string> names;
-  reader.GetRootConfigs(&names);
-  for (auto name : names) {
+  if (critters.size() == 0) {
+    REPORT_ERROR("Array '%s' is empty in '%s'.", "critters", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < critters.size(); i++) {
+    std::string name;
+    if (!GetString(critters[i]["name"], &name)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (critters_.count(name) != 0) {
+      REPORT_ERROR("Critter '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
     critters_[name].name = name;
 
-    std::string config = name + ".body";
-    if (!reader.LookupString(config, &critters_[name].body_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(critters[i]["body"], &critters_[name].body_name)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "body", "string", file.c_str());
       return false;
     }
-    if (bodies_.count(critters_[name].body_name) == 0) {
-      REPORT_ERROR("Body '%s' used by critter '%s' not defined.",
-        critters_[name].body_name.c_str(), name.c_str());
+    if (!GetString(critters[i]["sprite"], &critters_[name].sprite_name)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "sprite", "string", file.c_str());
       return false;
     }
-
-    config = name + ".sprite";
-    if (!reader.LookupString(config, &critters_[name].sprite_name)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetFloat32(critters[i]["speed"], &critters_[name].speed)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "speed", "float", file.c_str());
       return false;
     }
-    if (sprites_.count(critters_[name].sprite_name) == 0) {
-      REPORT_ERROR("Sprite '%s' used by critter '%s' not defined.",
-        critters_[name].sprite_name.c_str(), name.c_str());
-      return false;
-    }
-
-    config = name + ".speed";
-    if (!reader.LookupFloat(config, &critters_[name].speed)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
-      return false;
-    }
-    config = name + ".damage";
-    if (!reader.LookupInt32(config, &critters_[name].damage)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetInt32(critters[i]["damage"], &critters_[name].damage)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "damage", "int", file.c_str());
       return false;
     }
 
     std::string type;
-    config = name + ".type";
-    if (!reader.LookupString(config, &type)) {
-      REPORT_ERROR("Unable to load '%s' from '%s'.", config.c_str(), file);
+    if (!GetString(critters[i]["type"], &type)) {
+      REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
+          i, "type", "string", file.c_str());
       return false;
     }
     if (type == "zombie") {
       critters_[name].type = CritterConfig::TYPE_ZOMBIE;
     } else {
-      REPORT_ERROR("Critter type must be 'zombie'.");
+      REPORT_ERROR("Config critters[%d].%s must be 'zombie' in %s.",
+          i, "type", file.c_str());
       return false;
     }
   }
+
   return true;
 }
 

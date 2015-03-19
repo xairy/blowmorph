@@ -141,8 +141,6 @@ class Config : public Singleton<Config> {
   };
 
   struct PlayerConfig {
-    // TODO(xairy): types.
-
     std::string name;
     std::string body_name;
     std::string sprite_name;
