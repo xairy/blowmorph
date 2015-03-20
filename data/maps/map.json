@@ -1,23 +1,1042 @@
-// X axis is pointing to the right, Y axis is pointing down.
-
 {
-  "block_size": 96.0,
-  "width": 11,
-  "height": 11,
-
-  "spawns": [
-    {"x": 5, "y": 5}
-  ],
-
-  "walls": [
-    {"x": 1, "y": 1, "entity": "unbreakable_wall"}
-  ],
-
-  "kits": [
-    {"x": 3, "y": 3, "entity": "health_kit"}
-  ],
-
-  "terrain": [
-    "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate", "hitech_plate"
-  ]
+    "terrain": [
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "hitech_plate",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass",
+        "land_grass"
+    ],
+    "height": 20,
+    "width": 20,
+    "walls": [
+        {
+            "y": 0,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 1,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 2,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 3,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 4,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 5,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 6,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 7,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 8,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 9,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 10,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 11,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 12,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 13,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 14,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 15,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 16,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 17,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 18,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 0,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 1,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 1,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 2,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 2,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 3,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 3,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 4,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 6,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 13,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 15,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 3,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 4,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 4,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 4,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 4,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 4,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 4,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 5,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 5,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 6,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 6,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 6,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 6,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 6,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 6,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 7,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 7,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 4,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 6,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 13,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 15,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 7,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 8,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 8,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 9,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 9,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 10,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 10,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 11,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 11,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 12,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 12,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 4,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 6,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 13,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 15,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 12,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 13,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 13,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 13,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 13,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 13,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 13,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 14,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 14,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 15,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 15,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 15,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 15,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 15,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 15,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 16,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 16,
+            "x": 3,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 4,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 6,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 7,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 12,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 13,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 15,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 16,
+            "entity": "ordinary_wall"
+        },
+        {
+            "y": 16,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 17,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 17,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 18,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 18,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 0,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 1,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 2,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 3,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 4,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 5,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 6,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 7,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 8,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 9,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 10,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 11,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 12,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 13,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 14,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 15,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 16,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 17,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 18,
+            "entity": "unbreakable_wall"
+        },
+        {
+            "y": 19,
+            "x": 19,
+            "entity": "unbreakable_wall"
+        }
+    ],
+    "kits": [
+        {
+            "y": 1,
+            "x": 1,
+            "entity": "health_kit"
+        }
+    ],
+    "spawns": [
+        {
+            "y": 10,
+            "x": 10
+        }
+    ],
+    "block_size": 96.0
 }

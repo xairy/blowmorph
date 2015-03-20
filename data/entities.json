@@ -86,7 +86,7 @@
       "name": "ordinary_wall",
       "body": "wall",
       "sprite": "ordinary_wall",
-      "type": "ordinary"
+      "type": "unbreakable"
     },
     {
       "name": "unbreakable_wall",
