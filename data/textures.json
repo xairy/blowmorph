@@ -61,7 +61,7 @@
     },
     {
       "name": "door",
-      "image": "data/images/small_door.png"
+      "image": "data/images/door.png"
     },
 
     // Terrain.

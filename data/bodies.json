@@ -46,8 +46,8 @@
       "name": "door",
       "shape": {
         "type": "box",
-        "width": 15.0,
-        "height": 90.0
+        "width": 16.0,
+        "height": 96.0
       },
       "dynamic": false
     }

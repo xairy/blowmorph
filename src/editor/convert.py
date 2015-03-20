@@ -25,7 +25,7 @@ def terrain_tile_to_sprite(tileset_name, tile_id):
 
 def entity_tile_to_entity(tileset_name, tile_id):
   m = {
-    'walls': [None, 'morphed_wall', 'unbreakable_wall', 'ordinary_wall'],
+    'walls': [None, 'morphed_wall', 'unbreakable_wall', 'ordinary_wall']
   }
   return m[tileset_name][tile_id]
 

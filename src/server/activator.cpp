@@ -58,11 +58,9 @@ void Activator::Activate(Entity* activator) {
   printf("Player %d activated %d\n", activator->GetId(), GetId());
   if (type_ == TYPE_DOOR) {
     if (door_closed_) {
-      SetPosition(GetPosition() + b2Vec2(37.5f, 37.5f));
       SetRotation(M_PI / 2);
       door_closed_ = false;
     } else {
-      SetPosition(GetPosition() - b2Vec2(37.5f, 37.5f));
       SetRotation(0.0f);
       door_closed_ = true;
     }
