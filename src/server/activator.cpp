@@ -31,13 +31,6 @@ Activator::Activator(
   auto config = Config::GetInstance()->GetActivatorsConfig();
   CHECK(config.count(entity_name) == 1);
   activation_distance_ = config.at(entity_name).activation_distance;
-  Config::ActivatorConfig::Type type = config.at(entity_name).type;
-  if (type == Config::ActivatorConfig::TYPE_DOOR) {
-    type_ = TYPE_DOOR;
-    door_closed_ = true;
-  } else {
-    CHECK(false);  // Unreachable.
-  }
 }
 
 Activator::~Activator() { }
@@ -45,7 +38,6 @@ Activator::~Activator() { }
 void Activator::GetSnapshot(int64_t time, EntitySnapshot* output) {
   ServerEntity::GetSnapshot(time, output);
   output->type = EntitySnapshot::ENTITY_TYPE_ACTIVATOR;
-  // FIXME(xairy): set data[0] depending on activator type.
 }
 
 void Activator::Damage(int damage, uint32_t source_id) { }
@@ -56,16 +48,6 @@ float Activator::GetActivationDistance() const {
 
 void Activator::Activate(Entity* activator) {
   printf("Player %d activated %d\n", activator->GetId(), GetId());
-  if (type_ == TYPE_DOOR) {
-    if (door_closed_) {
-      SetRotation(M_PI / 2);
-      door_closed_ = false;
-    } else {
-      SetRotation(0.0f);
-      door_closed_ = true;
-    }
-    SetUpdatedFlag(true);
-  }
 }
 
 // Double dispatch. Collision detection.

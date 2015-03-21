@@ -22,11 +22,6 @@ class Activator : public ServerEntity {
   friend class ServerEntity;
 
  public:
-  enum Type {
-    TYPE_DOOR
-  };
-
- public:
   Activator(
     Controller* controller,
     uint32_t id,
@@ -53,9 +48,6 @@ class Activator : public ServerEntity {
 
  private:
   float activation_distance_;
-  Type type_;
-
-  bool door_closed_;
 
   DISALLOW_COPY_AND_ASSIGN(Activator);
 };

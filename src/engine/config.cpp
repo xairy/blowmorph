@@ -538,20 +538,6 @@ bool Config::LoadActivatorsConfig() {
           i, "activation_distance", "float", file.c_str());
       return false;
     }
-
-    std::string type;
-    if (!GetString(activators[i]["type"], &type)) {
-      REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
-          i, "type", "string", file.c_str());
-      return false;
-    }
-    if (type == "door") {
-      activators_[name].type = ActivatorConfig::TYPE_DOOR;
-    } else {
-      REPORT_ERROR("Config activators[%d].%s must be 'door' in %s.",
-          i, "type", file.c_str());
-      return false;
-    }
   }
 
   return true;

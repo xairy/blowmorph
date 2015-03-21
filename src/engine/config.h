@@ -101,15 +101,10 @@ class Config : public Singleton<Config> {
   };
 
   struct ActivatorConfig {
-    enum Type {
-      TYPE_DOOR,
-    };
-
     std::string name;
     std::string body_name;
     std::string sprite_name;
     float32_t activation_distance;
-    Type type;
   };
 
   struct CritterConfig {
