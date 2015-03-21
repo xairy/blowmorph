@@ -2,6 +2,8 @@
 ==========
 
 [![Build Status](https://travis-ci.org/bmteam/blowmorph.svg?branch=master)](https://travis-ci.org/bmteam/blowmorph)
+[![Build Status](https://ci.appveyor.com/api/projects/status/lecflmqj7erg90ps?svg=true)](https://ci.appveyor.com/project/xairy/blowmorph)
+
 
 A simple crossplatform 2D multiplayer shooter.
 
