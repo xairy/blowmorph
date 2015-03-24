@@ -12,11 +12,15 @@ namespace bm {
 
 class Map {
  public:
+  struct Terrain {
+    std::vector<std::string> sprite_names;
+  };
+
   struct Spawn {
     int32_t x, y;
   };
 
-  struct Wall {
+  struct Door {
     int32_t x, y;
     std::string entity_name;
   };
@@ -26,8 +30,9 @@ class Map {
     std::string entity_name;
   };
 
-  struct Terrain {
-    std::vector<std::string> sprite_names;
+  struct Wall {
+    int32_t x, y;
+    std::string entity_name;
   };
 
   Map();
@@ -39,23 +44,23 @@ class Map {
   int32_t GetWidth() const;
   int32_t GetHeight() const;
 
+  const Terrain& GetTerrain() const;
   const std::vector<Spawn>& GetSpawns() const;
 
-  const std::vector<Wall>& GetWalls() const;
   const std::vector<Kit>& GetKits() const;
-
-  const Terrain& GetTerrain() const;
+  const std::vector<Door>& GetDoors() const;
+  const std::vector<Wall>& GetWalls() const;
 
  private:
   float32_t block_size_;
   int32_t width_;
   int32_t height_;
 
-  std::vector<Spawn> spawns_;
-  std::vector<Wall> walls_;
-  std::vector<Kit> kits_;
-
   Terrain terrain_;
+  std::vector<Spawn> spawns_;
+  std::vector<Door> doors_;
+  std::vector<Kit> kits_;
+  std::vector<Wall> walls_;
 };
 
 }  // namespace bm

@@ -1032,6 +1032,28 @@
             "entity": "health_kit"
         }
     ],
+    "doors": [
+        {
+            "y": 5,
+            "x": 3,
+            "entity": "door"
+        },
+        {
+            "y": 5,
+            "x": 7,
+            "entity": "door"
+        },
+        {
+            "y": 5,
+            "x": 12,
+            "entity": "door"
+        },
+        {
+            "y": 5,
+            "x": 16,
+            "entity": "door"
+        }
+    ],
     "spawns": [
         {
             "y": 10,
