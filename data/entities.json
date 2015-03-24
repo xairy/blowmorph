@@ -68,14 +68,14 @@
       "sprite": "rocket",
       "speed": 800.0,
       "type": "rocket",
-      "explosion_radius": 50.0,
+      "explosion_radius": 30.0,
       "explosion_damage": 30
     },
     {
       "name": "slime",
       "body": "rocket",
       "sprite": "slime",
-      "speed": 400.0,
+      "speed": 700.0,
       "type": "slime",
       "explosion_radius": 2
     }
@@ -109,8 +109,8 @@
     },
     {
       "name": "morphed_wall",
-      "body": "wall",
-      "sprite": "wall_uldr",
+      "body": "small_block",
+      "sprite": "small_block",
       "type": "ordinary"
     }
   ]

@@ -53,6 +53,13 @@
 
     // Walls.
     {
+      "name": "small_block",
+      "texture": "small_blocks",
+      "mode": {
+        "tiles": [1]
+      }
+    },
+    {
       "name": "wall_ud",
       "texture": "walls",
       "mode": {

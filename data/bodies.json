@@ -48,11 +48,20 @@
     },
 
     {
-      "name": "wall",
+      "name": "block",
       "shape": {
         "type": "box",
         "width": 96.0,
         "height": 96.0
+      },
+      "dynamic": false
+    },
+    {
+      "name": "small_block",
+      "shape": {
+        "type": "box",
+        "width": 16.0,
+        "height": 16.0
       },
       "dynamic": false
     },

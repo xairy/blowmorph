@@ -467,7 +467,7 @@ void Controller::MakeRocketExplosion(const b2Vec2& location, float radius,
 }
 
 void Controller::MakeSlimeExplosion(const b2Vec2& location, int radius) {
-  float block_size = world_.GetBlockSize();
+  float block_size = 16.0f;
   int lx = static_cast<int>(round(location.x / block_size));
   int ly = static_cast<int>(round(location.y / block_size));
   for (int x = -radius; x <= radius; x++) {

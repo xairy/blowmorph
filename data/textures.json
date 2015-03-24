@@ -60,6 +60,19 @@
       }
     },
     {
+      "name": "small_blocks",
+      "image": "data/images/small_blocks.png",
+      "transparent_color": 0,
+      "tile": {
+        "start_x": 1,
+        "start_y": 1,
+        "step_x": 17,
+        "step_y": 17,
+        "width": 16,
+        "height": 16
+      }
+    },
+    {
       "name": "door",
       "image": "data/images/door.png"
     },
