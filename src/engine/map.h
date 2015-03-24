@@ -22,16 +22,19 @@ class Map {
 
   struct Door {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
   };
 
   struct Kit {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
   };
 
   struct Wall {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
   };
 

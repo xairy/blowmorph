@@ -109,6 +109,7 @@ bool Map::Load(const std::string& file) {
 
   for (int i = 0; i < doors.size(); i++) {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
 
     if (!GetInt32(doors[i]["x"], &x)) {
@@ -121,13 +122,16 @@ bool Map::Load(const std::string& file) {
           i, "int", file.c_str());
       return false;
     }
+    if (!GetInt32(doors[i]["rotation"], &rotation)) {
+      rotation = 0;
+    }
     if (!GetString(doors[i]["entity"], &entity_name)) {
       REPORT_ERROR("Config 'doors[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }
 
-    doors_.push_back(Door{x, y, entity_name});
+    doors_.push_back(Door{x, y, rotation, entity_name});
   }
 
   // Load kits.
@@ -141,6 +145,7 @@ bool Map::Load(const std::string& file) {
 
   for (int i = 0; i < kits.size(); i++) {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
 
     if (!GetInt32(kits[i]["x"], &x)) {
@@ -153,13 +158,16 @@ bool Map::Load(const std::string& file) {
           i, "int", file.c_str());
       return false;
     }
+    if (!GetInt32(kits[i]["rotation"], &rotation)) {
+      rotation = 0;
+    }
     if (!GetString(kits[i]["entity"], &entity_name)) {
       REPORT_ERROR("Config 'kits[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }
 
-    kits_.push_back(Kit{x, y, entity_name});
+    kits_.push_back(Kit{x, y, rotation, entity_name});
   }
 
   // Load walls.
@@ -173,6 +181,7 @@ bool Map::Load(const std::string& file) {
 
   for (int i = 0; i < walls.size(); i++) {
     int32_t x, y;
+    int32_t rotation;
     std::string entity_name;
 
     if (!GetInt32(walls[i]["x"], &x)) {
@@ -185,13 +194,16 @@ bool Map::Load(const std::string& file) {
           i, "int", file.c_str());
       return false;
     }
+    if (!GetInt32(walls[i]["rotation"], &rotation)) {
+      rotation = 0;
+    }
     if (!GetString(walls[i]["entity"], &entity_name)) {
       REPORT_ERROR("Config 'walls[%d].entity' of type '%s' not found in '%s'.",
           i, "string", file.c_str());
       return false;
     }
 
-    walls_.push_back(Wall{x, y, entity_name});
+    walls_.push_back(Wall{x, y, rotation, entity_name});
   }
 
   return true;

@@ -407,621 +407,745 @@
         {
             "y": 0,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 1,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 2,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 3,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 4,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 5,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 6,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 7,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 8,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 9,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 10,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 11,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 12,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 13,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 14,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 15,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 16,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 17,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 18,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 0,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 1,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 1,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 2,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 2,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 3,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 3,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 4,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 6,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 13,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 15,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 3,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 4,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 4,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 4,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 4,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 4,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 4,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 5,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 5,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 6,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 6,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 6,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 6,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 6,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 6,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 7,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 7,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 4,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 6,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 13,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 15,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 7,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 8,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 8,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 9,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 9,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 10,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 10,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 11,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 11,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 12,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 12,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 4,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 6,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 13,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 15,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 12,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 13,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 13,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 13,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 13,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 13,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 13,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 14,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 14,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 15,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 15,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 15,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 15,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 15,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 15,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 16,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 16,
             "x": 3,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 4,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 6,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 7,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 12,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 13,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 15,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 16,
+            "rotation": 0,
             "entity": "ordinary_wall"
         },
         {
             "y": 16,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 17,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 17,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 18,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 18,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 0,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 1,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 2,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 3,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 4,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 5,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 6,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 7,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 8,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 9,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 10,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 11,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 12,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 13,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 14,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 15,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 16,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 17,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 18,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         },
         {
             "y": 19,
             "x": 19,
+            "rotation": 0,
             "entity": "unbreakable_wall"
         }
     ],
@@ -1034,23 +1158,99 @@
     ],
     "doors": [
         {
+            "y": 3,
+            "x": 5,
+            "rotation": 90,
+            "entity": "door"
+        },
+        {
+            "y": 3,
+            "x": 14,
+            "rotation": 90,
+            "entity": "door"
+        },
+        {
             "y": 5,
             "x": 3,
+            "rotation": 0,
             "entity": "door"
         },
         {
             "y": 5,
             "x": 7,
+            "rotation": 180,
             "entity": "door"
         },
         {
             "y": 5,
             "x": 12,
+            "rotation": 0,
             "entity": "door"
         },
         {
             "y": 5,
             "x": 16,
+            "rotation": 180,
+            "entity": "door"
+        },
+        {
+            "y": 7,
+            "x": 5,
+            "rotation": 270,
+            "entity": "door"
+        },
+        {
+            "y": 7,
+            "x": 14,
+            "rotation": 270,
+            "entity": "door"
+        },
+        {
+            "y": 12,
+            "x": 5,
+            "rotation": 90,
+            "entity": "door"
+        },
+        {
+            "y": 12,
+            "x": 14,
+            "rotation": 90,
+            "entity": "door"
+        },
+        {
+            "y": 14,
+            "x": 3,
+            "rotation": 0,
+            "entity": "door"
+        },
+        {
+            "y": 14,
+            "x": 7,
+            "rotation": 180,
+            "entity": "door"
+        },
+        {
+            "y": 14,
+            "x": 12,
+            "rotation": 0,
+            "entity": "door"
+        },
+        {
+            "y": 14,
+            "x": 16,
+            "rotation": 180,
+            "entity": "door"
+        },
+        {
+            "y": 16,
+            "x": 5,
+            "rotation": 270,
+            "entity": "door"
+        },
+        {
+            "y": 16,
+            "x": 14,
+            "rotation": 270,
             "entity": "door"
         }
     ],

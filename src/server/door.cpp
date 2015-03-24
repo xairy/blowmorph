@@ -50,10 +50,10 @@ float Door::GetActivationDistance() const {
 void Door::Activate(Entity* activator) {
   printf("Player %d activated door %d\n", activator->GetId(), GetId());
   if (door_closed_) {
-    SetRotation(M_PI / 2);
+    SetRotation(GetRotation() + M_PI / 2);
     door_closed_ = false;
   } else {
-    SetRotation(0.0f);
+    SetRotation(GetRotation() - M_PI / 2);
     door_closed_ = true;
   }
   SetUpdatedFlag(true);

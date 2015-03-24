@@ -71,11 +71,29 @@ m['walls'] = []
 for i, id in enumerate(get_layer(tm, 'Entity')['data']):
   if id == 0:
     continue
+
+  flipped_hori = False if id & 0x80000000 == 0 else True
+  flipped_vert = False if id & 0x40000000 == 0 else True
+  flipped_diag = False if id & 0x20000000 == 0 else True
+  # FFF => 0, TFT => 90, TTF => 180, FTT => 270
+  if (flipped_hori, flipped_vert, flipped_diag) == (False, False, False):
+    rotation = 0;
+  elif (flipped_hori, flipped_vert, flipped_diag) == (True, False, True):
+    rotation = 90
+  elif (flipped_hori, flipped_vert, flipped_diag) == (True, True, False):
+    rotation = 180
+  elif (flipped_hori, flipped_vert, flipped_diag) == (False, True, True):
+    rotation = 270
+  else:
+    assert False
+  id &= ~(0x80000000 | 0x40000000 | 0x20000000)
+
   x = i % m['width']
   y = i / m['width']
   tileset_name, tile_id = id_to_tile(id, tm)
   entity_name = entity_tile_to_entity_name(tileset_name, tile_id)
-  entity = {'entity': entity_name, 'x': x, 'y': y}
+  entity = {'entity': entity_name, 'x': x, 'y': y, 'rotation': rotation}
+
   if tileset_name in door_tilesets.keys():
     m['doors'].append(entity)
   elif tileset_name in wall_tilesets.keys():
