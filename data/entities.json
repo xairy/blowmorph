@@ -1,13 +1,5 @@
 {
-  // Available types: door.
   "activators": [
-    {
-      "name": "door",
-      "body": "door",
-      "sprite": "door",
-      "activation_distance": 150.0,
-      "type": "door"
-    }
   ],
 
   // Available types: zombie.
@@ -19,6 +11,15 @@
       "speed": 100.0,
       "damage": 10,
       "type": "zombie"
+    }
+  ],
+
+  "doors": [
+    {
+      "name": "door",
+      "body": "door",
+      "sprite": "door",
+      "activation_distance": 150.0
     }
   ],
 

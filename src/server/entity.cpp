@@ -22,10 +22,11 @@
 #include "server/controller.h"
 
 #include "server/activator.h"
-#include "server/projectile.h"
 #include "server/critter.h"
+#include "server/door.h"
 #include "server/kit.h"
 #include "server/player.h"
+#include "server/projectile.h"
 #include "server/wall.h"
 
 namespace bm {
@@ -79,6 +80,28 @@ void ServerEntity::GetSnapshot(int64_t time, EntitySnapshot* output) {
 void ServerEntity::Damage(int damage, uint32_t source_id) { }
 
 // Double dispatch.
+
+void ServerEntity::Collide(Door* first, Door* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Activator* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Kit* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Wall* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Player* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Critter* second) {
+  first->GetController()->OnCollision(first, second);
+}
+void ServerEntity::Collide(Door* first, Projectile* second) {
+  first->GetController()->OnCollision(first, second);
+}
 
 void ServerEntity::Collide(Activator* first, Activator* second) {
   first->GetController()->OnCollision(first, second);

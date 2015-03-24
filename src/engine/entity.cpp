@@ -43,6 +43,11 @@ Entity::Entity(
       CHECK(config.count(entity_name) == 1);
       body_name = config.at(entity_name).body_name;
     } break;
+    case TYPE_DOOR: {
+      auto config = Config::GetInstance()->GetDoorsConfig();
+      CHECK(config.count(entity_name) == 1);
+      body_name = config.at(entity_name).body_name;
+    } break;
     case TYPE_KIT: {
       auto config = Config::GetInstance()->GetKitsConfig();
       CHECK(config.count(entity_name) == 1);
@@ -91,7 +96,8 @@ Entity::Type Entity::GetType() const {
 }
 
 bool Entity::IsStatic() const {
-  if (type_ == TYPE_ACTIVATOR || type_ == TYPE_KIT || type_ == TYPE_WALL) {
+  if (type_ == TYPE_ACTIVATOR || type_ == TYPE_DOOR ||
+      type_ == TYPE_KIT || type_ == TYPE_WALL) {
     return true;
   }
   return false;

@@ -24,6 +24,7 @@
 
 #include "server/activator.h"
 #include "server/critter.h"
+#include "server/door.h"
 #include "server/kit.h"
 #include "server/projectile.h"
 #include "server/player.h"
@@ -63,7 +64,7 @@ void Controller::Update(int64_t time, int64_t time_delta) {
 
 Player* Controller::OnPlayerConnected() {
   // FIXME(xairy): Temporary.
-  world_.CreateActivator(b2Vec2(400.0f, 400.0f), "door");
+  world_.CreateDoor(b2Vec2(400.0f, 400.0f), "door");
 
   Player* player = world_.CreatePlayer(b2Vec2(0.0f, 0.0f), "player");
   RespawnPlayer(player);
@@ -183,82 +184,101 @@ void Controller::OnPlayerAction(Player* player, const PlayerAction& event) {
       return;
     }
 
-    // Check entity type.
-    if (entity->GetType() != Entity::TYPE_ACTIVATOR) {
-      return;
-    }
-    Activator* activator = static_cast<Activator*>(entity);
+    if (entity->GetType() == Entity::TYPE_ACTIVATOR) {
+      Activator* activator = static_cast<Activator*>(entity);
 
-    // Check distance.
-    if (Length(entity->GetPosition() - player->GetPosition()) >
-        activator->GetActivationDistance()) {
-      return;
-    }
+      // Check distance.
+      if (Length(entity->GetPosition() - player->GetPosition()) >
+          activator->GetActivationDistance()) {
+        return;
+      }
 
-    activator->Activate(player);
+      activator->Activate(player);
+    } else if (entity->GetType() == Entity::TYPE_DOOR) {
+      Door* door = static_cast<Door*>(entity);
+
+      // Check distance.
+      if (Length(entity->GetPosition() - player->GetPosition()) >
+          door->GetActivationDistance()) {
+        return;
+      }
+
+      door->Activate(player);
+    }
   }
 }
 
 // Collisions.
 
-void Controller::OnCollision(Activator* activator1, Activator* activator2) { }
-void Controller::OnCollision(Activator* activator, Kit* kit) { }
-void Controller::OnCollision(Activator* activator, Wall* wall) { }
-void Controller::OnCollision(Activator* activator, Player* player) { }
-void Controller::OnCollision(Activator* activator, Critter* critter) { }
+void Controller::OnCollision(Door* first, Door* second) { }
+void Controller::OnCollision(Door* first, Activator* second) { }
+void Controller::OnCollision(Door* first, Kit* second) { }
+void Controller::OnCollision(Door* first, Wall* second) { }
+void Controller::OnCollision(Door* first, Player* second) { }
+void Controller::OnCollision(Door* first, Critter* second) { }
 
-void Controller::OnCollision(Activator* activator, Projectile* projectile) {
-  DestroyProjectile(projectile);
+void Controller::OnCollision(Door* first, Projectile* second) {
+  DestroyProjectile(second);
 }
 
-void Controller::OnCollision(Kit* kit1, Kit* kit2) { }
-void Controller::OnCollision(Kit* kit, Wall* wall) { }
+void Controller::OnCollision(Activator* first, Activator* second) { }
+void Controller::OnCollision(Activator* first, Kit* second) { }
+void Controller::OnCollision(Activator* first, Wall* second) { }
+void Controller::OnCollision(Activator* first, Player* second) { }
+void Controller::OnCollision(Activator* first, Critter* second) { }
 
-void Controller::OnCollision(Kit* kit, Player* player) {
-  player->AddHealth(kit->GetHealthRegeneration());
-  player->AddEnergy(kit->GetEnergyRegeneration());
-  kit->Destroy();
+void Controller::OnCollision(Activator* first, Projectile* second) {
+  DestroyProjectile(second);
 }
 
-void Controller::OnCollision(Kit* kit, Critter* critter) { }
-void Controller::OnCollision(Kit* kit, Projectile* projectile) { }
+void Controller::OnCollision(Kit* first, Kit* second) { }
+void Controller::OnCollision(Kit* first, Wall* second) { }
 
-void Controller::OnCollision(Wall* wall1, Wall* wall2) { }
-void Controller::OnCollision(Wall* wall, Player* player) { }
-
-void Controller::OnCollision(Wall* wall, Critter* critter) {
-  critter->Destroy();
+void Controller::OnCollision(Kit* first, Player* second) {
+  second->AddHealth(first->GetHealthRegeneration());
+  second->AddEnergy(first->GetEnergyRegeneration());
+  first->Destroy();
 }
 
-void Controller::OnCollision(Wall* wall, Projectile* projectile) {
-  DestroyProjectile(projectile);
+void Controller::OnCollision(Kit* first, Critter* second) { }
+void Controller::OnCollision(Kit* first, Projectile* second) { }
+
+void Controller::OnCollision(Wall* first, Wall* second) { }
+void Controller::OnCollision(Wall* first, Player* second) { }
+
+void Controller::OnCollision(Wall* first, Critter* second) {
+  second->Destroy();
 }
 
-void Controller::OnCollision(Player* player1, Player* player2) { }
+void Controller::OnCollision(Wall* first, Projectile* second) {
+  DestroyProjectile(second);
+}
 
-void Controller::OnCollision(Player* player, Critter* critter) {
+void Controller::OnCollision(Player* first, Player* second) { }
+
+void Controller::OnCollision(Player* first, Critter* second) {
   // FIXME(xairy): load damage from config.
-  player->Damage(30, critter->GetId());
-  critter->Destroy();
+  first->Damage(30, second->GetId());
+  second->Destroy();
 }
 
-void Controller::OnCollision(Player* player, Projectile* projectile) {
-  if (projectile->GetOwnerId() == player->GetId()) {
+void Controller::OnCollision(Player* first, Projectile* second) {
+  if (second->GetOwnerId() == first->GetId()) {
     return;
   }
-  DestroyProjectile(projectile);
+  DestroyProjectile(second);
 }
 
-void Controller::OnCollision(Critter* critter1, Critter* critter2) { }
+void Controller::OnCollision(Critter* first, Critter* second) { }
 
-void Controller::OnCollision(Critter* critter, Projectile* projectile) {
-  DestroyProjectile(projectile);
-  critter->Destroy();
+void Controller::OnCollision(Critter* first, Projectile* second) {
+  DestroyProjectile(second);
+  first->Destroy();
 }
 
-void Controller::OnCollision(Projectile* projectile1, Projectile* projectile2) {
-  DestroyProjectile(projectile1);
-  DestroyProjectile(projectile2);
+void Controller::OnCollision(Projectile* first, Projectile* second) {
+  DestroyProjectile(first);
+  DestroyProjectile(second);
 }
 
 // Updating.

@@ -120,6 +120,13 @@ class Config : public Singleton<Config> {
     Type type;
   };
 
+  struct DoorConfig {
+    std::string name;
+    std::string body_name;
+    std::string sprite_name;
+    float32_t activation_distance;
+  };
+
   struct KitConfig {
     std::string name;
     std::string body_name;
@@ -196,6 +203,7 @@ class Config : public Singleton<Config> {
 
   const std::map<std::string, ActivatorConfig>& GetActivatorsConfig() const;
   const std::map<std::string, CritterConfig>& GetCrittersConfig() const;
+  const std::map<std::string, DoorConfig>& GetDoorsConfig() const;
   const std::map<std::string, KitConfig>& GetKitsConfig() const;
   const std::map<std::string, PlayerConfig>& GetPlayersConfig() const;
   const std::map<std::string, ProjectileConfig>& GetProjectilesConfig() const;
@@ -214,6 +222,7 @@ class Config : public Singleton<Config> {
 
   bool LoadActivatorsConfig();
   bool LoadCrittersConfig();
+  bool LoadDoorsConfig();
   bool LoadKitsConfig();
   bool LoadPlayersConfig();
   bool LoadProjectilesConfig();
@@ -231,6 +240,7 @@ class Config : public Singleton<Config> {
 
   std::map<std::string, ActivatorConfig> activators_;
   std::map<std::string, CritterConfig> critters_;
+  std::map<std::string, DoorConfig> doors_;
   std::map<std::string, KitConfig> kits_;
   std::map<std::string, PlayerConfig> players_;
   std::map<std::string, ProjectileConfig> projectiles_;

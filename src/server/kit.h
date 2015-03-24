@@ -37,12 +37,13 @@ class Kit : public ServerEntity {
 
   // Double dispatch. Collision detection.
   virtual void Collide(ServerEntity* entity);
-  virtual void Collide(Player* other);
+  virtual void Collide(Activator* other);
   virtual void Collide(Critter* other);
+  virtual void Collide(Door* other);
+  virtual void Collide(Kit* other);
+  virtual void Collide(Player* other);
   virtual void Collide(Projectile* other);
   virtual void Collide(Wall* other);
-  virtual void Collide(Kit* other);
-  virtual void Collide(Activator* other);
 
  protected:
   int _health_regeneration;

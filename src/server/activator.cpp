@@ -27,7 +27,7 @@ Activator::Activator(
   const b2Vec2& position,
   const std::string& entity_name
 ) : ServerEntity(controller, id, Entity::TYPE_ACTIVATOR, entity_name, position,
-                 Entity::FILTER_WALL, Entity::FILTER_ALL) {
+                 Entity::FILTER_ACTIVATOR, Entity::FILTER_ALL) {
   auto config = Config::GetInstance()->GetActivatorsConfig();
   CHECK(config.count(entity_name) == 1);
   activation_distance_ = config.at(entity_name).activation_distance;
@@ -56,22 +56,25 @@ void Activator::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
-void Activator::Collide(Player* other) {
+void Activator::Collide(Activator* other) {
   ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Critter* other) {
+  ServerEntity::Collide(this, other);
+}
+void Activator::Collide(Door* other) {
+  ServerEntity::Collide(other, this);
+}
+void Activator::Collide(Kit* other) {
+  ServerEntity::Collide(this, other);
+}
+void Activator::Collide(Player* other) {
   ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Projectile* other) {
   ServerEntity::Collide(this, other);
 }
 void Activator::Collide(Wall* other) {
-  ServerEntity::Collide(this, other);
-}
-void Activator::Collide(Kit* other) {
-  ServerEntity::Collide(this, other);
-}
-void Activator::Collide(Activator* other) {
   ServerEntity::Collide(this, other);
 }
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Blowmorph Team
 
-#ifndef SERVER_WALL_H_
-#define SERVER_WALL_H_
+#ifndef SERVER_DOOR_H_
+#define SERVER_DOOR_H_
 
 #include <string>
 
@@ -18,24 +18,24 @@ namespace bm {
 
 class Controller;
 
-class Wall : public ServerEntity {
+class Door : public ServerEntity {
   friend class ServerEntity;
 
  public:
-  enum Type {
-    TYPE_ORDINARY,
-    TYPE_UNBREAKABLE,
-  };
-
-  Wall(
+  Door(
     Controller* controller,
     uint32_t id,
     const b2Vec2& position,
     const std::string& entity_name);
-  virtual ~Wall();
+  virtual ~Door();
 
+  // Inherited from Entity.
   virtual void GetSnapshot(int64_t time, EntitySnapshot* output);
   virtual void Damage(int damage, uint32_t source_id);
+
+  float GetActivationDistance() const;
+
+  void Activate(Entity* activator);
 
   // Double dispatch. Collision detection.
   virtual void Collide(ServerEntity* entity);
@@ -48,11 +48,12 @@ class Wall : public ServerEntity {
   virtual void Collide(Wall* other);
 
  private:
-  Type _type;
+  float activation_distance_;
+  bool door_closed_;
 
-  DISALLOW_COPY_AND_ASSIGN(Wall);
+  DISALLOW_COPY_AND_ASSIGN(Door);
 };
 
 }  // namespace bm
 
-#endif  // SERVER_WALL_H_
+#endif  // SERVER_DOOR_H_

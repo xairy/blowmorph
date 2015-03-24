@@ -231,22 +231,25 @@ void Player::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
-void Player::Collide(Player* other) {
+void Player::Collide(Activator* other) {
   ServerEntity::Collide(other, this);
 }
 void Player::Collide(Critter* other) {
   ServerEntity::Collide(this, other);
 }
-void Player::Collide(Projectile* other) {
-  ServerEntity::Collide(this, other);
-}
-void Player::Collide(Wall* other) {
+void Player::Collide(Door* other) {
   ServerEntity::Collide(other, this);
 }
 void Player::Collide(Kit* other) {
   ServerEntity::Collide(other, this);
 }
-void Player::Collide(Activator* other) {
+void Player::Collide(Player* other) {
+  ServerEntity::Collide(other, this);
+}
+void Player::Collide(Projectile* other) {
+  ServerEntity::Collide(this, other);
+}
+void Player::Collide(Wall* other) {
   ServerEntity::Collide(other, this);
 }
 

@@ -66,22 +66,25 @@ void Critter::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
-void Critter::Collide(Player* other) {
+void Critter::Collide(Activator* other) {
   ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Critter* other) {
+  ServerEntity::Collide(other, this);
+}
+void Critter::Collide(Door* other) {
+  ServerEntity::Collide(other, this);
+}
+void Critter::Collide(Kit* other) {
+  ServerEntity::Collide(other, this);
+}
+void Critter::Collide(Player* other) {
   ServerEntity::Collide(other, this);
 }
 void Critter::Collide(Projectile* other) {
   ServerEntity::Collide(this, other);
 }
 void Critter::Collide(Wall* other) {
-  ServerEntity::Collide(other, this);
-}
-void Critter::Collide(Kit* other) {
-  ServerEntity::Collide(other, this);
-}
-void Critter::Collide(Activator* other) {
   ServerEntity::Collide(other, this);
 }
 

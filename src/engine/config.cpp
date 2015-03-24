@@ -27,8 +27,9 @@ bool Config::Initialize() {
   if (!LoadBodiesConfig() || !LoadTexturesConfig() || !LoadSpritesConfig()) {
     return false;
   }
-  if (!LoadActivatorsConfig() || !LoadCrittersConfig() || !LoadKitsConfig() ||
-      !LoadPlayersConfig() || !LoadProjectilesConfig() || !LoadWallsConfig()) {
+  if (!LoadActivatorsConfig() || !LoadCrittersConfig() || !LoadDoorsConfig() ||
+      !LoadKitsConfig() || !LoadPlayersConfig() || !LoadProjectilesConfig() ||
+      !LoadWallsConfig()) {
     return false;
   }
   if (!LoadGunsConfig()) {
@@ -81,6 +82,12 @@ const std::map<std::string, Config::CritterConfig>&
 Config::GetCrittersConfig() const {
   CHECK(state_ == STATE_INITIALIZED);
   return critters_;
+}
+
+const std::map<std::string, Config::DoorConfig>&
+Config::GetDoorsConfig() const {
+  CHECK(state_ == STATE_INITIALIZED);
+  return doors_;
 }
 
 const std::map<std::string, Config::KitConfig>&
@@ -503,10 +510,6 @@ bool Config::LoadActivatorsConfig() {
         "activators", "array", file.c_str());
     return false;
   }
-  if (activators.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "activators", file.c_str());
-    return false;
-  }
 
   for (int i = 0; i < activators.size(); i++) {
     std::string name;
@@ -557,10 +560,6 @@ bool Config::LoadCrittersConfig() {
   if (critters == Json::Value::null || !critters.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "critters", "array", file.c_str());
-    return false;
-  }
-  if (critters.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "critters", file.c_str());
     return false;
   }
 
@@ -617,6 +616,58 @@ bool Config::LoadCrittersConfig() {
   return true;
 }
 
+bool Config::LoadDoorsConfig() {
+  std::string file = "data/entities.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value doors = root["doors"];
+  if (doors == Json::Value::null || !doors.isArray()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "doors", "array", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < doors.size(); i++) {
+    std::string name;
+    if (!GetString(doors[i]["name"], &name)) {
+      REPORT_ERROR("Config 'doors[%d].%s' of type '%s' not found in '%s'.",
+          i, "name", "string", file.c_str());
+      return false;
+    }
+    if (doors_.count(name) != 0) {
+      REPORT_ERROR("Door '%s' defined twice in '%s'.",
+          name.c_str(), file.c_str());
+      return false;
+    }
+    doors_[name].name = name;
+
+    if (!GetString(doors[i]["body"], &doors_[name].body_name)) {
+      REPORT_ERROR("Config 'doors[%d].%s' of type '%s' not found in '%s'.",
+          i, "body", "string", file.c_str());
+      return false;
+    }
+    if (!GetString(doors[i]["sprite"], &doors_[name].sprite_name)) {
+      REPORT_ERROR("Config 'doors[%d].%s' of type '%s' not found in '%s'.",
+          i, "sprite", "string", file.c_str());
+      return false;
+    }
+    if (!GetFloat32(doors[i]["activation_distance"],
+                    &doors_[name].activation_distance)) {
+      REPORT_ERROR("Config 'doors[%d].%s' of type '%s' not found in '%s'.",
+          i, "activation_distance", "float", file.c_str());
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool Config::LoadKitsConfig() {
   std::string file = "data/entities.json";
   Json::Reader reader;
@@ -631,10 +682,6 @@ bool Config::LoadKitsConfig() {
   if (kits == Json::Value::null || !kits.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "kits", "array", file.c_str());
-    return false;
-  }
-  if (kits.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "kits", file.c_str());
     return false;
   }
 
@@ -691,10 +738,6 @@ bool Config::LoadPlayersConfig() {
   if (players == Json::Value::null || !players.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "players", "array", file.c_str());
-    return false;
-  }
-  if (players.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "players", file.c_str());
     return false;
   }
 
@@ -766,10 +809,6 @@ bool Config::LoadProjectilesConfig() {
   if (projectiles == Json::Value::null || !projectiles.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "projectiles", "array", file.c_str());
-    return false;
-  }
-  if (projectiles.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "projectiles", file.c_str());
     return false;
   }
 
@@ -854,10 +893,6 @@ bool Config::LoadWallsConfig() {
   if (walls == Json::Value::null || !walls.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "walls", "array", file.c_str());
-    return false;
-  }
-  if (walls.size() == 0) {
-    REPORT_ERROR("Array '%s' is empty in '%s'.", "walls", file.c_str());
     return false;
   }
 

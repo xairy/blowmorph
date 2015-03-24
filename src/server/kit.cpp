@@ -55,10 +55,19 @@ void Kit::Collide(ServerEntity* entity) {
   entity->Collide(this);
 }
 
-void Kit::Collide(Player* other) {
-  ServerEntity::Collide(this, other);
+void Kit::Collide(Activator* other) {
+  ServerEntity::Collide(other, this);
 }
 void Kit::Collide(Critter* other) {
+  ServerEntity::Collide(this, other);
+}
+void Kit::Collide(Door* other) {
+  ServerEntity::Collide(other, this);
+}
+void Kit::Collide(Kit* other) {
+  ServerEntity::Collide(other, this);
+}
+void Kit::Collide(Player* other) {
   ServerEntity::Collide(this, other);
 }
 void Kit::Collide(Projectile* other) {
@@ -66,12 +75,6 @@ void Kit::Collide(Projectile* other) {
 }
 void Kit::Collide(Wall* other) {
   ServerEntity::Collide(this, other);
-}
-void Kit::Collide(Kit* other) {
-  ServerEntity::Collide(other, this);
-}
-void Kit::Collide(Activator* other) {
-  ServerEntity::Collide(other, this);
 }
 
 }  // namespace bm

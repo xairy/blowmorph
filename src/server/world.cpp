@@ -20,6 +20,7 @@
 
 #include "server/activator.h"
 #include "server/critter.h"
+#include "server/door.h"
 #include "server/kit.h"
 #include "server/projectile.h"
 #include "server/player.h"
@@ -58,6 +59,17 @@ Critter* ServerWorld::CreateCritter(
   CHECK(critter != NULL);
   AddEntity(id, critter);
   return critter;
+}
+
+Door* ServerWorld::CreateDoor(
+  const b2Vec2& position,
+  const std::string& entity_name
+) {
+  uint32_t id = id_manager_.NewId();
+  Door* door = new Door(controller_, id, position, entity_name);
+  CHECK(door != NULL);
+  AddEntity(id, door);
+  return door;
 }
 
 Kit* ServerWorld::CreateKit(

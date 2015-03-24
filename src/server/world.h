@@ -16,12 +16,13 @@
 
 #include "server/entity.h"
 
-#include "server/activator.h"
-#include "server/projectile.h"
-#include "server/critter.h"
-#include "server/kit.h"
-#include "server/player.h"
-#include "server/wall.h"
+class Activator;
+class Critter;
+class Door;
+class Kit;
+class Player;
+class Projectile;
+class Wall;
 
 namespace bm {
 
@@ -44,6 +45,10 @@ class ServerWorld : public World {
     const std::string& entity_name);
 
   Critter* CreateCritter(
+    const b2Vec2& position,
+    const std::string& entity_name);
+
+  Door* CreateDoor(
     const b2Vec2& position,
     const std::string& entity_name);
 

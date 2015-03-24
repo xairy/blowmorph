@@ -16,14 +16,15 @@
 #include "server/entity.h"
 #include "server/world.h"
 
-#include "server/activator.h"
-#include "server/projectile.h"
-#include "server/critter.h"
-#include "server/kit.h"
-#include "server/player.h"
-#include "server/wall.h"
-
 namespace bm {
+
+class Activator;
+class Critter;
+class Door;
+class Kit;
+class Player;
+class Projectile;
+class Wall;
 
 class Controller {
  public:
@@ -52,32 +53,40 @@ class Controller {
 
   // Collisions.
 
-  void OnCollision(Activator* activator1, Activator* activator2);
-  void OnCollision(Activator* activator, Kit* kit);
-  void OnCollision(Activator* activator, Wall* wall);
-  void OnCollision(Activator* activator, Player* player);
-  void OnCollision(Activator* activator, Critter* critter);
-  void OnCollision(Activator* activator, Projectile* projectile);
+  void OnCollision(Door* first, Door* second);
+  void OnCollision(Door* first, Activator* second);
+  void OnCollision(Door* first, Kit* second);
+  void OnCollision(Door* first, Wall* second);
+  void OnCollision(Door* first, Player* second);
+  void OnCollision(Door* first, Critter* second);
+  void OnCollision(Door* first, Projectile* second);
 
-  void OnCollision(Kit* kit1, Kit* kit2);
-  void OnCollision(Kit* kit, Wall* wall);
-  void OnCollision(Kit* kit, Player* player);
-  void OnCollision(Kit* kit, Critter* critter);
-  void OnCollision(Kit* kit, Projectile* projectile);
+  void OnCollision(Activator* first, Activator* second);
+  void OnCollision(Activator* first, Kit* second);
+  void OnCollision(Activator* first, Wall* second);
+  void OnCollision(Activator* first, Player* second);
+  void OnCollision(Activator* first, Critter* second);
+  void OnCollision(Activator* first, Projectile* second);
 
-  void OnCollision(Wall* wall1, Wall* wall2);
-  void OnCollision(Wall* wall, Player* player);
-  void OnCollision(Wall* wall, Critter* critter);
-  void OnCollision(Wall* wall, Projectile* projectile);
+  void OnCollision(Kit* first, Kit* second);
+  void OnCollision(Kit* first, Wall* second);
+  void OnCollision(Kit* first, Player* second);
+  void OnCollision(Kit* first, Critter* second);
+  void OnCollision(Kit* first, Projectile* second);
 
-  void OnCollision(Player* player1, Player* player2);
-  void OnCollision(Player* player, Critter* critter);
-  void OnCollision(Player* player, Projectile* projectile);
+  void OnCollision(Wall* first, Wall* second);
+  void OnCollision(Wall* first, Player* second);
+  void OnCollision(Wall* first, Critter* second);
+  void OnCollision(Wall* first, Projectile* second);
 
-  void OnCollision(Critter* critter1, Critter* critter2);
-  void OnCollision(Critter* critter, Projectile* projectile);
+  void OnCollision(Player* first, Player* second);
+  void OnCollision(Player* first, Critter* second);
+  void OnCollision(Player* first, Projectile* second);
 
-  void OnCollision(Projectile* projectile1, Projectile* projectile2);
+  void OnCollision(Critter* first, Critter* second);
+  void OnCollision(Critter* first, Projectile* second);
+
+  void OnCollision(Projectile* first, Projectile* second);
 
  private:
   // Updating.

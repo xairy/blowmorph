@@ -21,6 +21,7 @@ class Controller;
 
 class Activator;
 class Critter;
+class Door;
 class Kit;
 class Player;
 class Projectile;
@@ -63,6 +64,14 @@ class ServerEntity : public Entity {
   virtual void Collide(Wall* other) = 0;
   virtual void Collide(Kit* other) = 0;
   virtual void Collide(Activator* other) = 0;
+
+  static void Collide(Door* first, Door* second);
+  static void Collide(Door* first, Activator* second);
+  static void Collide(Door* first, Kit* second);
+  static void Collide(Door* first, Wall* second);
+  static void Collide(Door* first, Player* second);
+  static void Collide(Door* first, Critter* second);
+  static void Collide(Door* first, Projectile* second);
 
   static void Collide(Activator* first, Activator* second);
   static void Collide(Activator* first, Kit* second);

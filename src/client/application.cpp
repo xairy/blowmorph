@@ -709,16 +709,16 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
         GetCrittersConfig().at(entity_name).sprite_name;
     } break;
 
+    case EntitySnapshot::ENTITY_TYPE_DOOR: {
+      type = Entity::TYPE_DOOR;
+      sprite_name = Config::GetInstance()->
+        GetDoorsConfig().at(entity_name).sprite_name;
+    } break;
+
     case EntitySnapshot::ENTITY_TYPE_KIT: {
       type = Entity::TYPE_KIT;
       sprite_name = Config::GetInstance()->
         GetKitsConfig().at(entity_name).sprite_name;
-    } break;
-
-    case EntitySnapshot::ENTITY_TYPE_WALL: {
-      type = Entity::TYPE_WALL;
-      sprite_name = Config::GetInstance()->
-        GetWallsConfig().at(entity_name).sprite_name;
     } break;
 
     case EntitySnapshot::ENTITY_TYPE_PROJECTILE: {
@@ -731,6 +731,12 @@ void Application::OnEntityAppearance(const EntitySnapshot* snapshot) {
       type = Entity::TYPE_PLAYER;
       sprite_name = Config::GetInstance()->
         GetPlayersConfig().at(entity_name).sprite_name;
+    } break;
+
+    case EntitySnapshot::ENTITY_TYPE_WALL: {
+      type = Entity::TYPE_WALL;
+      sprite_name = Config::GetInstance()->
+        GetWallsConfig().at(entity_name).sprite_name;
     } break;
 
     default:
@@ -760,6 +766,7 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
 
   // FIXME(xairy): add is_static flag.
   if (snapshot->type == EntitySnapshot::ENTITY_TYPE_ACTIVATOR ||
+      snapshot->type == EntitySnapshot::ENTITY_TYPE_DOOR ||
       snapshot->type == EntitySnapshot::ENTITY_TYPE_KIT ||
       snapshot->type == EntitySnapshot::ENTITY_TYPE_WALL) {
     CHECK(entity->IsStatic() == true);

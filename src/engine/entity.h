@@ -20,6 +20,7 @@ class Entity {
   enum Type {
     TYPE_ACTIVATOR,
     TYPE_CRITTER,
+    TYPE_DOOR,
     TYPE_KIT,
     TYPE_PLAYER,
     TYPE_PROJECTILE,
@@ -31,10 +32,11 @@ class Entity {
     FILTER_DEFAULT    = 0x0001,
     FILTER_ACTIVATOR  = 0x0002,
     FILTER_CRITTER    = 0x0004,
-    FILTER_KIT        = 0x0008,
-    FILTER_PLAYER     = 0x0010,
-    FILTER_PROJECTILE = 0x0020,
-    FILTER_WALL       = 0x0040,
+    FILTER_DOOR       = 0x0008,
+    FILTER_KIT        = 0x0010,
+    FILTER_PLAYER     = 0x0020,
+    FILTER_PROJECTILE = 0x0040,
+    FILTER_WALL       = 0x0080,
     FILTER_ALL        = 0xffff,
     FILTER_NONE       = 0x0000
   };
