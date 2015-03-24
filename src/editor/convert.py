@@ -15,7 +15,7 @@ door_tilesets = {
 }
 
 wall_tilesets = {
-  'walls': [None, 'morphed_wall', 'unbreakable_wall', 'ordinary_wall']
+  'walls': ['wall_ud', 'wall_ul', 'wall_uld', 'wall_uldr']
 }
 
 def merge_dicts(*dict_args):

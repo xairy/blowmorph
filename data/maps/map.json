@@ -407,746 +407,746 @@
         {
             "y": 0,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ul"
         },
         {
             "y": 0,
             "x": 1,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 2,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 3,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 4,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 5,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 6,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 7,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 8,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 9,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 10,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 11,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 12,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 13,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 14,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 15,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 16,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 17,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 18,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ud"
         },
         {
             "y": 0,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 270,
+            "entity": "wall_ul"
         },
         {
             "y": 1,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 1,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 2,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 2,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ul"
         },
         {
             "y": 3,
             "x": 4,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 6,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 270,
+            "entity": "wall_ul"
         },
         {
             "y": 3,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ul"
         },
         {
             "y": 3,
             "x": 13,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 15,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 3,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 270,
+            "entity": "wall_ul"
         },
         {
             "y": 3,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 4,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 5,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 5,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 6,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ul"
         },
         {
             "y": 7,
             "x": 4,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 6,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 7,
             "rotation": 0,
-            "entity": "ordinary_wall"
+            "entity": "wall_ul"
         },
         {
             "y": 7,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ul"
         },
         {
             "y": 7,
             "x": 13,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 15,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 7,
             "x": 16,
             "rotation": 0,
-            "entity": "ordinary_wall"
+            "entity": "wall_ul"
         },
         {
             "y": 7,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 8,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 8,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 9,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 9,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ud"
         },
         {
             "y": 10,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 10,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 11,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 11,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ul"
         },
         {
             "y": 12,
             "x": 4,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 6,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 270,
+            "entity": "wall_ul"
         },
         {
             "y": 12,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ul"
         },
         {
             "y": 12,
             "x": 13,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 15,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 12,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 270,
+            "entity": "wall_ul"
         },
         {
             "y": 12,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 13,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 14,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 14,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 7,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 16,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 15,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 3,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ul"
         },
         {
             "y": 16,
             "x": 4,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 6,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 7,
             "rotation": 0,
-            "entity": "ordinary_wall"
+            "entity": "wall_ul"
         },
         {
             "y": 16,
             "x": 12,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ul"
         },
         {
             "y": 16,
             "x": 13,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 15,
-            "rotation": 0,
-            "entity": "ordinary_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 16,
             "x": 16,
             "rotation": 0,
-            "entity": "ordinary_wall"
+            "entity": "wall_ul"
         },
         {
             "y": 16,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 17,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 17,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 18,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 18,
             "x": 19,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 180,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 0,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ul"
         },
         {
             "y": 19,
             "x": 1,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 2,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 3,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 4,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 5,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 6,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 7,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 8,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 9,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 10,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 11,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 12,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 13,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 14,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 15,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 16,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 17,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 18,
-            "rotation": 0,
-            "entity": "unbreakable_wall"
+            "rotation": 90,
+            "entity": "wall_ud"
         },
         {
             "y": 19,
             "x": 19,
             "rotation": 0,
-            "entity": "unbreakable_wall"
+            "entity": "wall_ul"
         }
     ],
     "kits": [

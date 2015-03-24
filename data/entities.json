@@ -84,21 +84,33 @@
   // Available types: ordinary, unbreakable.
   "walls": [
     {
-      "name": "ordinary_wall",
+      "name": "wall_ud",
       "body": "wall",
-      "sprite": "ordinary_wall",
+      "sprite": "wall_ud",
       "type": "unbreakable"
     },
     {
-      "name": "unbreakable_wall",
+      "name": "wall_ul",
       "body": "wall",
-      "sprite": "unbreakable_wall",
+      "sprite": "wall_ul",
+      "type": "unbreakable"
+    },
+    {
+      "name": "wall_uld",
+      "body": "wall",
+      "sprite": "wall_uld",
+      "type": "unbreakable"
+    },
+    {
+      "name": "wall_uldr",
+      "body": "wall",
+      "sprite": "wall_uldr",
       "type": "unbreakable"
     },
     {
       "name": "morphed_wall",
       "body": "wall",
-      "sprite": "morphed_wall",
+      "sprite": "wall_uldr",
       "type": "ordinary"
     }
   ]

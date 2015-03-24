@@ -1,32 +1,18 @@
 {
   "sprites": [
-    // Entities.
-
-    {
-      "name": "man",
-      "texture": "man"
-    },
-    {
-      "name": "rocket",
-      "texture": "rocket"
-    },
-    {
-      "name": "slime",
-      "texture": "slime"
-    },
+    // Critters.
     {
       "name": "zombie",
       "texture": "zombie"
     },
+
+    // Doors.
     {
-      "name": "explosion",
-      "texture": "explosion",
-      "mode": {
-        "tiles": [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0],
-        "timeout": 30,
-        "cyclic": false
-      }
+      "name": "door",
+      "texture": "door"
     },
+
+    // Kits.
     {
       "name": "health_kit",
       "texture": "kits",
@@ -48,34 +34,66 @@
         "tiles": [3]
       }
     },
+
+    // Players.
     {
-      "name": "ordinary_wall",
+      "name": "man",
+      "texture": "man"
+    },
+
+    // Projectiles.
+    {
+      "name": "rocket",
+      "texture": "rocket"
+    },
+    {
+      "name": "slime",
+      "texture": "slime"
+    },
+
+    // Walls.
+    {
+      "name": "wall_ud",
       "texture": "walls",
       "mode": {
-        "tiles": [3]
+        "tiles": [0]
       }
     },
     {
-      "name": "unbreakable_wall",
-      "texture": "walls",
-      "mode": {
-        "tiles": [2]
-      }
-    },
-    {
-      "name": "morphed_wall",
+      "name": "wall_ul",
       "texture": "walls",
       "mode": {
         "tiles": [1]
       }
     },
     {
-      "name": "door",
-      "texture": "door"
+      "name": "wall_uld",
+      "texture": "walls",
+      "mode": {
+        "tiles": [2]
+      }
+    },
+    {
+      "name": "wall_uldr",
+      "texture": "walls",
+      "mode": {
+        "tiles": [3]
+      }
     },
 
-    // Terrain.
+    // Animations.
+    {
+      "name": "explosion",
+      "texture": "explosion",
+      "mode": {
+        "tiles": [0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0],
+        "timeout": 30,
+        "cyclic": false
+      }
+    },
 
+
+    // Terrain.
     {
       "name": "land_grass",
       "texture": "land",
