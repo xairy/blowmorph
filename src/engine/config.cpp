@@ -293,24 +293,59 @@ bool Config::LoadBodiesConfig() {
     if (type == "box") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_BOX;
       if (!GetFloat32(shape["width"], &bodies_[name].box_config.width)) {
-        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+        REPORT_ERROR("Config '%s[%d].%s..%s' of type '%s' not found in '%s'.",
             "bodies", i, "shape", "width", "float", file.c_str());
         return false;
       }
       if (!GetFloat32(shape["height"], &bodies_[name].box_config.height)) {
-        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+        REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
             "bodies", i, "shape", "height", "float", file.c_str());
         return false;
       }
     } else if (type == "circle") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_CIRCLE;
       if (!GetFloat32(shape["radius"], &bodies_[name].circle_config.radius)) {
-        REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+        REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
             "bodies", i, "shape", "radius", "float", file.c_str());
         return false;
       }
+    } else if (type == "polygon") {
+      bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_POLYGON;
+      Json::Value vertices = shape["vertices"];
+      if (vertices == Json::Value::null || !vertices.isArray()) {
+        REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
+            "bodies", i, "shape", "vectices", "array", file.c_str());
+        return false;
+      }
+      if (vertices.size() == 0) {
+        REPORT_ERROR("Array '%s[%d].%s.%s' is empty in '%s'.",
+          "bodies", i, "shape", "vectices", file.c_str());
+        return false;
+      }
+      for (int v = 0; v < vertices.size(); v++) {
+        float32_t x, y;
+        if (!vertices[v].isObject()) {
+          REPORT_ERROR("Array '%s[%d].%s.%s' must contain a list of objects.",
+            "bodies", v, "shape", "vectices", file.c_str());
+          return false;
+        }
+        if (!GetFloat32(vertices[v]["x"], &x)) {
+          REPORT_ERROR(
+              "Config '%s[%d].%s.%s[%d].x' of type '%s' not found in '%s'.",
+              "bodies", i, "shape", "vertices", v, "float", file.c_str());
+          return false;
+        }
+        if (!GetFloat32(vertices[v]["y"], &y)) {
+          REPORT_ERROR(
+              "Config '%s[%d].%s.%s[%d].y' of type '%s' not found in '%s'.",
+              "bodies", i, "shape", "vertices", v, "float", file.c_str());
+          return false;
+        }
+        bodies_[name].polygon_config.vertices.push_back(
+          BodyConfig::PolygonConfig::Vertice{x, y});
+      }
     } else {
-      REPORT_ERROR("Config bodies[%d][%s].%s must be 'box' or 'circle' in %s.",
+      REPORT_ERROR("Config bodies[%d].%s.%s must be 'box' or 'circle' in %s.",
           i, "shape", "type", file.c_str());
       return false;
     }
@@ -377,32 +412,32 @@ bool Config::LoadTexturesConfig() {
     textures_[name].tiled = true;
 
     if (!GetInt32(tile["start_x"], &textures_[name].tile_start_x)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "start_x", "int", file.c_str());
       return false;
     }
     if (!GetInt32(tile["start_y"], &textures_[name].tile_start_y)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "start_y", "int", file.c_str());
       return false;
     }
     if (!GetInt32(tile["step_x"], &textures_[name].tile_step_x)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "step_x", "int", file.c_str());
       return false;
     }
     if (!GetInt32(tile["step_y"], &textures_[name].tile_step_y)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "step_y", "int", file.c_str());
       return false;
     }
     if (!GetInt32(tile["width"], &textures_[name].tile_width)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "width", "int", file.c_str());
       return false;
     }
     if (!GetInt32(tile["height"], &textures_[name].tile_height)) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "textures", i, "tile", "height", "int", file.c_str());
       return false;
     }
@@ -468,7 +503,7 @@ bool Config::LoadSpritesConfig() {
 
     Json::Value tiles = mode["tiles"];
     if (tiles == Json::Value::null || !tiles.isArray()) {
-      REPORT_ERROR("Config '%s[%d][%s].%s' of type '%s' not found in '%s'.",
+      REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "sprites", i, "mode", "tiles", "array", file.c_str());
       return false;
     }
@@ -476,7 +511,7 @@ bool Config::LoadSpritesConfig() {
       int tile;
       if (!GetInt32(tiles[j], &tile)) {
         REPORT_ERROR(
-            "Config '%s[%d][%s][%s][%d]' of type '%s' not found in '%s'.",
+            "Config '%s[%d].%s.%s[%d]' of type '%s' not found in '%s'.",
             "textures", i, "mode", "tiles", j, "int", file.c_str());
         return false;
       }

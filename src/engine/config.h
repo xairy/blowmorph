@@ -57,6 +57,7 @@ class Config : public Singleton<Config> {
     enum ShapeType {
       SHAPE_TYPE_BOX,
       SHAPE_TYPE_CIRCLE,
+      SHAPE_TYPE_POLYGON,
     };
 
     struct BoxConfig {
@@ -68,11 +69,19 @@ class Config : public Singleton<Config> {
       float32_t radius;
     };
 
+    struct PolygonConfig {
+      struct Vertice {
+        float32_t x, y;
+      };
+      std::vector<Vertice> vertices;
+    };
+
     std::string name;
     bool dynamic;
     ShapeType shape_type;
     BoxConfig box_config;
     CircleConfig circle_config;
+    PolygonConfig polygon_config;
   };
 
   struct TextureConfig {

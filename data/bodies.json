@@ -8,6 +8,7 @@
       },
       "dynamic": true
     },
+
     {
       "name": "door",
       "shape": {
@@ -17,6 +18,7 @@
       },
       "dynamic": false
     },
+
     {
       "name": "kit",
       "shape": {
@@ -26,6 +28,7 @@
       },
       "dynamic": false
     },
+
     {
       "name": "man",
       "shape": {
@@ -34,6 +37,7 @@
       },
       "dynamic": true
     },
+
     {
       "name": "rocket",
       "shape": {
@@ -42,12 +46,75 @@
       },
       "dynamic": true
     },
+
     {
       "name": "wall",
       "shape": {
         "type": "box",
         "width": 96.0,
         "height": 96.0
+      },
+      "dynamic": false
+    },
+    {
+      "name": "wall_ud",
+      "shape": {
+        "type": "box",
+        "width": 32.0,
+        "height": 96.0
+      },
+      "dynamic": false
+    },
+    {
+      "name": "wall_ul",
+      "shape": {
+        "type": "polygon",
+        "vertices": [
+          { "x": -16.0, "y": -48.0 },
+          { "x": -16.0, "y": -16.0 },
+          { "x": -48.0, "y": -16.0 },
+          { "x": -48.0, "y":  16.0 },
+          { "x":  16.0, "y":  16.0 },
+          { "x":  16.0, "y": -48.0 }
+        ]
+      },
+      "dynamic": false
+    },
+    {
+      "name": "wall_uld",
+      "shape": {
+        "type": "polygon",
+        "vertices": [
+          { "x": -16.0, "y": -48.0 },
+          { "x": -16.0, "y": -16.0 },
+          { "x": -48.0, "y": -16.0 },
+          { "x": -48.0, "y":  16.0 },
+          { "x": -16.0, "y":  16.0 },
+          { "x": -16.0, "y":  48.0 },
+          { "x":  16.0, "y":  48.0 },
+          { "x":  16.0, "y": -48.0 }
+        ]
+      },
+      "dynamic": false
+    },
+    {
+      "name": "wall_uldr",
+      "shape": {
+        "type": "polygon",
+        "vertices": [
+          { "x": -16.0, "y": -48.0 },
+          //{ "x": -16.0, "y": -16.0 },
+          { "x": -48.0, "y": -16.0 },
+          { "x": -48.0, "y":  16.0 },
+          //{ "x": -16.0, "y":  16.0 },
+          { "x": -16.0, "y":  48.0 },
+          { "x":  16.0, "y":  48.0 },
+          //{ "x":  16.0, "y":  16.0 },
+          { "x":  48.0, "y":  16.0 },
+          { "x":  48.0, "y": -16.0 },
+          //{ "x":  16.0, "y": -16.0 },
+          { "x":  16.0, "y": -48.0 }
+        ]
       },
       "dynamic": false
     }

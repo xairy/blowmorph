@@ -68,7 +68,7 @@
       "sprite": "rocket",
       "speed": 800.0,
       "type": "rocket",
-      "explosion_radius": 200.0,
+      "explosion_radius": 50.0,
       "explosion_damage": 30
     },
     {
@@ -85,25 +85,25 @@
   "walls": [
     {
       "name": "wall_ud",
-      "body": "wall",
+      "body": "wall_ud",
       "sprite": "wall_ud",
       "type": "unbreakable"
     },
     {
       "name": "wall_ul",
-      "body": "wall",
+      "body": "wall_ul",
       "sprite": "wall_ul",
       "type": "unbreakable"
     },
     {
       "name": "wall_uld",
-      "body": "wall",
+      "body": "wall_uld",
       "sprite": "wall_uld",
       "type": "unbreakable"
     },
     {
       "name": "wall_uldr",
-      "body": "wall",
+      "body": "wall_uldr",
       "sprite": "wall_uldr",
       "type": "unbreakable"
     },

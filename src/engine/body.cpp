@@ -54,6 +54,17 @@ void Body::Create(b2World* world, const std::string& body_name) {
     shape.m_radius = config.circle_config.radius / BOX2D_SCALE;
     fixture_def.shape = &shape;
     body_->CreateFixture(&fixture_def);
+  } else if (config.shape_type == Config::BodyConfig::SHAPE_TYPE_POLYGON) {
+    // TODO(xairy): support concave polygons.
+    std::vector<b2Vec2> vertices;
+    for (auto vertice : config.polygon_config.vertices) {
+      vertices.push_back(b2Vec2(vertice.x / BOX2D_SCALE,
+                                vertice.y / BOX2D_SCALE));
+    }
+    b2PolygonShape shape;
+    shape.Set(&vertices[0], vertices.size());
+    fixture_def.shape = &shape;
+    body_->CreateFixture(&fixture_def);
   } else {
     CHECK(false);  // Incorrect shape type.
   }

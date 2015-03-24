@@ -62,7 +62,7 @@ m['terrain'] = []
 for id in get_layer(tm, 'Terrain')['data']:
   m['terrain'].append(terrain_tile_to_sprite_name(*id_to_tile(id, tm)))
 
-m['spawns'] = [{'x': 10, 'y': 10}]
+m['spawns'] = [{'x': 10, 'y': 18}]
 
 m['kits'] = [{'entity': 'health_kit', 'x': 1, 'y': 1}]
 
