@@ -36,7 +36,10 @@ To run the master server configure blowmorph/data/master-server.cfg and run:
 
 2. Install Box2D-2.3.0 from http://box2d.org/. See the instructions below.
 
-3. Install ENetPlus from https://github.com/xairy/enet-plus.
+3. Install ENet:
+    ```
+    sudo apt-get install libenet-dev libenet2a
+    ```
 
 4. Install libjsoncpp:
     ```

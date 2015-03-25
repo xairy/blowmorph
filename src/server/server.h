@@ -9,13 +9,13 @@
 #include <string>
 #include <vector>
 
-#include <enet-plus/enet.h>
-
 #include "base/error.h"
 #include "base/id_manager.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/timer.h"
+
+#include "net/enet.h"
 
 #include "engine/protocol.h"
 
@@ -62,9 +62,9 @@ class Server {
   int64_t update_timeout_;
   int64_t last_update_;
 
-  enet::Enet enet_;
-  enet::ServerHost* host_;
-  enet::Event* event_;
+  Enet enet_;
+  ServerHost* host_;
+  Event* event_;
 
   IdManager id_manager_;
   Controller controller_;

@@ -1,20 +1,20 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#include "base/net.h"
+#include "net/utils.h"
 
 #include <vector>
 
-#include <enet-plus/enet.h>
-
 #include "base/time.h"
+
+#include "net/enet.h"
 
 namespace bm {
 
 // Attempts to synchronously disconnect the peer.
 bool DisconnectPeer(
-  enet::Peer* peer,
-  enet::Event* event,
-  enet::ClientHost* host,
+  Peer* peer,
+  Event* event,
+  ClientHost* host,
   uint32_t timeout
 ) {
   CHECK(peer != NULL);
@@ -31,7 +31,7 @@ bool DisconnectPeer(
       return false;
     }
 
-    if (event != NULL && event->GetType() == enet::Event::TYPE_DISCONNECT) {
+    if (event != NULL && event->GetType() == Event::TYPE_DISCONNECT) {
       return true;
     }
   }

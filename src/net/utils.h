@@ -1,17 +1,17 @@
-// Copyright (c) 2013 Blowmorph Team
+// Copyright (c) 2015 Blowmorph Team
 
-#ifndef BASE_NET_H_
-#define BASE_NET_H_
+#ifndef NET_UTILS_H_
+#define NET_UTILS_H_
 
 #include <vector>
 
 #include <cstring>
 
-#include <enet-plus/enet.h>
-
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
+
+#include "net/enet.h"
 
 namespace bm {
 
@@ -55,7 +55,7 @@ void AppendPacketToBuffer(
 
 template<class PacketType, class DataType>
 bool SendPacket(
-    enet::Peer* peer,
+    Peer* peer,
     PacketType packet_type,
     const DataType& data,
     bool reliable = false
@@ -73,7 +73,7 @@ bool SendPacket(
 
 template<class PacketType, class DataType>
 bool BroadcastPacket(
-    enet::ServerHost* host,
+    ServerHost* host,
     PacketType packet_type,
     const DataType& data,
     bool reliable = false
@@ -91,12 +91,12 @@ bool BroadcastPacket(
 
 // Attempts to synchronously disconnect the peer.
 bool DisconnectPeer(
-  enet::Peer* peer,
-  enet::Event* event,
-  enet::ClientHost* host,
+  Peer* peer,
+  Event* event,
+  ClientHost* host,
   uint32_t timeout
 );
 
 }  // namespace bm
 
-#endif  // BASE_NET_H_
+#endif  // NET_UTILS_H_

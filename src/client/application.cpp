@@ -15,14 +15,14 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <enet-plus/enet.h>
-
 #include "base/error.h"
 #include "base/macros.h"
-#include "base/net.h"
 #include "base/pstdint.h"
 #include "base/time.h"
 #include "base/utils.h"
+
+#include "net/enet.h"
+#include "net/utils.h"
 
 #include "engine/config.h"
 #include "engine/map.h"
@@ -215,12 +215,12 @@ bool Application::InitializeNetwork() {
     return false;
   }
 
-  std::auto_ptr<enet::ClientHost> client(enet_.CreateClientHost());
+  std::auto_ptr<ClientHost> client(enet_.CreateClientHost());
   if (client.get() == NULL) {
     return false;
   }
 
-  std::auto_ptr<enet::Event> event(enet_.CreateEvent());
+  std::auto_ptr<Event> event(enet_.CreateEvent());
   if (event.get() == NULL) {
     return false;
   }
@@ -248,7 +248,7 @@ bool Application::Connect() {
   if (rv == false) {
     return false;
   }
-  if (event_->GetType() != enet::Event::TYPE_CONNECT) {
+  if (event_->GetType() != Event::TYPE_CONNECT) {
     REPORT_ERROR("Could not connect to server %s:%d.",
         config.server_host.c_str(), static_cast<int>(config.server_port));
     return false;
@@ -302,7 +302,7 @@ bool Application::Synchronize() {
     if (rv == false) {
       return false;
     }
-    if (event_->GetType() != enet::Event::TYPE_RECEIVE) {
+    if (event_->GetType() != Event::TYPE_RECEIVE) {
       continue;
     }
 
@@ -356,7 +356,7 @@ bool Application::Synchronize() {
     if (rv == false) {
       return false;
     }
-    if (event_->GetType() != enet::Event::TYPE_RECEIVE) {
+    if (event_->GetType() != Event::TYPE_RECEIVE) {
       continue;
     }
 
@@ -574,7 +574,7 @@ bool Application::PumpPackets() {
     }
 
     switch (event_->GetType()) {
-      case enet::Event::TYPE_RECEIVE: {
+      case Event::TYPE_RECEIVE: {
         event_->GetData(&buffer);
         bool rv = ProcessPacket(buffer);
         if (rv == false) {
@@ -582,20 +582,20 @@ bool Application::PumpPackets() {
         }
       } break;
 
-      case enet::Event::TYPE_CONNECT: {
+      case Event::TYPE_CONNECT: {
         REPORT_WARNING("Got EVENT_CONNECT while being already connected.");
       } break;
 
-      case enet::Event::TYPE_DISCONNECT: {
+      case Event::TYPE_DISCONNECT: {
         network_state_ = NETWORK_STATE_DISCONNECTED;
         REPORT_ERROR("Connection lost.");
         return false;
       } break;
 
-      case enet::Event::TYPE_NONE:
+      case Event::TYPE_NONE:
         break;
     }
-  } while (event_->GetType() != enet::Event::TYPE_NONE);
+  } while (event_->GetType() != Event::TYPE_NONE);
 
   return true;
 }

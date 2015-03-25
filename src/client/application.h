@@ -11,10 +11,10 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 
-#include <enet-plus/enet.h>
-
 #include "base/macros.h"
 #include "base/pstdint.h"
+
+#include "net/enet.h"
 
 #include "engine/config.h"
 #include "engine/map.h"
@@ -81,10 +81,10 @@ class Application {
 
   ResourceManager resource_manager_;
 
-  enet::Enet enet_;
-  enet::ClientHost* client_;
-  enet::Event* event_;
-  enet::Peer* peer_;
+  Enet enet_;
+  ClientHost* client_;
+  Event* event_;
+  Peer* peer_;
 
   int tick_rate_;
 

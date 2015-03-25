@@ -104,88 +104,6 @@ solution "blowmorph"
     defines { "NDEBUG" }
     flags { "Optimize" }
 
-  project "client"
-    kind "ConsoleApp"
-    language "C++"
-    targetname "client"
-
-    includedirs { "src" }
-    files { "src/client/**.cpp",
-            "src/client/**.h" }
-
-    links { "base", "engine" }
-
-    configuration "windows"
-      resource("data", "data")
-
-    -- SFML
-    configuration "windows"
-      includedirs { "third-party/SFML/include" }
-      windows_libdir("third-party/SFML/bin")
-      windows_binary("third-party/SFML/bin", "sfml-system-d-2.dll", "sfml-system-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-window-d-2.dll", "sfml-window-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-graphics-d-2.dll", "sfml-graphics-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-audio-d-2.dll", "sfml-audio-2.dll")
-      configuration { "windows", "debug" }
-        links { "sfml-system-d" }
-        links { "sfml-window-d" }
-        links { "sfml-graphics-d" }
-        links { "sfml-audio-d" }
-      configuration { "windows", "release" }
-        links { "sfml-system" }
-        links { "sfml-window" }
-        links { "sfml-graphics" }
-        links { "sfml-audio" }
-    configuration "linux"
-      links { "sfml-system" }
-      links { "sfml-window" }
-      links { "sfml-graphics" }
-      links { "sfml-audio" }
-
-    -- ENetPlus
-    configuration "windows"
-      includedirs { "third-party/enet-plus/include" }
-      windows_libdir("third-party/enet-plus/bin")
-      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
-      links { "enet-plus" }
-    configuration "linux"
-      links { "enet-plus" }
-
-    -- Box2D
-    configuration "windows"
-      -- TODO
-    configuration "linux"
-      links { "Box2D" }
-
-  project "server"
-    kind "ConsoleApp"
-    language "C++"
-    targetname "server"
-
-    includedirs { "src" }
-    files { "src/server/**.cpp",
-            "src/server/**.h" }
-
-    links { "base", "engine" }
-
-    configuration "windows"
-      resource("data", "data")
-
-    -- ENetPlus
-    configuration "windows"
-      includedirs { "third-party/enet-plus/include" }
-      windows_libdir("third-party/enet-plus/bin")
-      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
-      links { "enet-plus" }
-    configuration "linux"
-      links { "enet-plus" }
-
-    -- Box2D
-    configuration "windows"
-      -- TODO
-    configuration "linux"
-      links { "Box2D" }
-
   project "base"
     kind "SharedLib"
     language "C++"
@@ -213,14 +131,24 @@ solution "blowmorph"
     configuration "linux"
       links { "config" }
 
-    -- ENetPlus
-    configuration "windows"
-      includedirs { "third-party/enet-plus/include" }
-      windows_libdir("third-party/enet-plus/bin")
-      windows_binary("third-party/enet-plus/bin", "enet-plus.dll")
-      links { "enet-plus" }
+  project "net"
+    kind "SharedLib"
+    language "C++"
+
+    defines { "BM_NET_DLL" }
+    includedirs { "src" }
+    files { "src/net/**.cpp",
+            "src/net/**.h" }
+
+    links { "base" }
+
     configuration "linux"
-      links { "enet-plus" }
+      links { "enet" }
+    configuration "windows"
+      includedirs { "third-party/enet/include" }      
+      windows_libdir("third-party/enet/bin")
+      links { "ws2_32", "winmm" }
+      links { "enet" }
 
   project "engine"
     kind "SharedLib"
@@ -238,6 +166,70 @@ solution "blowmorph"
       -- TODO
     configuration "linux"
       links { "jsoncpp" }
+
+    -- Box2D
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "Box2D" }
+
+  project "server"
+    kind "ConsoleApp"
+    language "C++"
+    targetname "server"
+
+    includedirs { "src" }
+    files { "src/server/**.cpp",
+            "src/server/**.h" }
+
+    links { "base", "engine", "net" }
+
+    configuration "windows"
+      resource("data", "data")
+
+    -- Box2D
+    configuration "windows"
+      -- TODO
+    configuration "linux"
+      links { "Box2D" }
+
+  project "client"
+    kind "ConsoleApp"
+    language "C++"
+    targetname "client"
+
+    includedirs { "src" }
+    files { "src/client/**.cpp",
+            "src/client/**.h" }
+
+    links { "base", "engine", "net" }
+
+    configuration "windows"
+      resource("data", "data")
+
+    -- SFML
+    configuration "windows"
+      includedirs { "third-party/SFML/include" }
+      windows_libdir("third-party/SFML/bin")
+      windows_binary("third-party/SFML/bin", "sfml-system-d-2.dll", "sfml-system-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-window-d-2.dll", "sfml-window-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-graphics-d-2.dll", "sfml-graphics-2.dll")
+      windows_binary("third-party/SFML/bin", "sfml-audio-d-2.dll", "sfml-audio-2.dll")
+      configuration { "windows", "debug" }
+        links { "sfml-system-d" }
+        links { "sfml-window-d" }
+        links { "sfml-graphics-d" }
+        links { "sfml-audio-d" }
+      configuration { "windows", "release" }
+        links { "sfml-system" }
+        links { "sfml-window" }
+        links { "sfml-graphics" }
+        links { "sfml-audio" }
+    configuration "linux"
+      links { "sfml-system" }
+      links { "sfml-window" }
+      links { "sfml-graphics" }
+      links { "sfml-audio" }
 
     -- Box2D
     configuration "windows"

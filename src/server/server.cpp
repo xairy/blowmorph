@@ -13,14 +13,15 @@
 #include <string>
 #include <vector>
 
-#include <enet-plus/enet.h>
-
 #include "base/error.h"
 #include "base/id_manager.h"
 #include "base/macros.h"
-#include "base/net.h"
+
 #include "base/pstdint.h"
 #include "base/time.h"
+
+#include "net/enet.h"
+#include "net/utils.h"
 
 #include "engine/config.h"
 #include "engine/protocol.h"
@@ -76,12 +77,12 @@ bool Server::Initialize() {
     return false;
   }
 
-  std::auto_ptr<enet::ServerHost> host(enet_.CreateServerHost(config.port));
+  std::auto_ptr<ServerHost> host(enet_.CreateServerHost(config.port));
   if (host.get() == NULL) {
     return false;
   }
 
-  std::auto_ptr<enet::Event> event(enet_.CreateEvent());
+  std::auto_ptr<Event> event(enet_.CreateEvent());
   if (event.get() == NULL) {
     return false;
   }
@@ -200,35 +201,35 @@ bool Server::PumpEvents() {
     }
 
     switch (event_->GetType()) {
-      case enet::Event::TYPE_CONNECT: {
+      case Event::TYPE_CONNECT: {
         OnConnect();
         break;
       }
 
-      case enet::Event::TYPE_RECEIVE: {
+      case Event::TYPE_RECEIVE: {
         if (!OnReceive()) {
           return false;
         }
         break;
       }
 
-      case enet::Event::TYPE_DISCONNECT: {
+      case Event::TYPE_DISCONNECT: {
         if (!OnDisconnect()) {
           return false;
         }
         break;
       }
 
-      case enet::Event::TYPE_NONE:
+      case Event::TYPE_NONE:
         break;
     }
-  } while (event_->GetType() != enet::Event::TYPE_NONE);
+  } while (event_->GetType() != Event::TYPE_NONE);
 
   return true;
 }
 
 void Server::OnConnect() {
-  CHECK(event_->GetType() == enet::Event::TYPE_CONNECT);
+  CHECK(event_->GetType() == Event::TYPE_CONNECT);
 
   uint32_t client_id = id_manager_.NewId();
   event_->GetPeer()->SetData(reinterpret_cast<void*>(client_id));
@@ -240,7 +241,7 @@ void Server::OnConnect() {
 }
 
 bool Server::OnDisconnect() {
-  CHECK(event_->GetType() == enet::Event::TYPE_DISCONNECT);
+  CHECK(event_->GetType() == Event::TYPE_DISCONNECT);
 
   void* peer_data = event_->GetPeer()->GetData();
   // So complicated to make it work under both x32 and x64.
@@ -258,7 +259,7 @@ bool Server::OnDisconnect() {
 }
 
 bool Server::OnReceive() {
-  CHECK(event_->GetType() == enet::Event::TYPE_RECEIVE);
+  CHECK(event_->GetType() == Event::TYPE_RECEIVE);
 
   void* peer_data = event_->GetPeer()->GetData();
   // So complicated to make it work under both x32 and x64.
@@ -356,7 +357,7 @@ bool Server::OnReceive() {
 }
 
 bool Server::OnLogin(uint32_t client_id) {
-  enet::Peer* peer = event_->GetPeer();
+  Peer* peer = event_->GetPeer();
   CHECK(peer != NULL);
 
   // Receive login data.

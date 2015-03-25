@@ -6,16 +6,16 @@
 #include <string>
 #include <vector>
 
-#include <enet-plus/enet.h>
-
 #include "base/macros.h"
 #include "base/pstdint.h"
+
+#include "net/enet.h"
 
 #include "server/entity.h"
 
 namespace bm {
 
-Client::Client(enet::Peer* peer, Player* entity, const std::string& login)
+Client::Client(Peer* peer, Player* entity, const std::string& login)
     : peer(peer), entity(entity), login(login) {
   CHECK(peer != NULL);
 }

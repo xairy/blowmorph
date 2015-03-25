@@ -7,19 +7,19 @@
 #include <string>
 #include <vector>
 
-#include <enet-plus/enet.h>
-
 #include "base/pstdint.h"
+
+#include "net/enet.h"
 
 #include "server/entity.h"
 
 namespace bm {
 
 struct Client {
-  Client(enet::Peer* peer, Player* entity, const std::string& login);
+  Client(Peer* peer, Player* entity, const std::string& login);
   ~Client();
 
-  enet::Peer* peer;
+  Peer* peer;
   Player* entity;
   std::string login;
 };
