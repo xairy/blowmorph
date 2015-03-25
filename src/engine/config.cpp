@@ -130,7 +130,7 @@ bool Config::LoadMasterServerConfig() {
   }
 
   Json::Value master_server = root["master-server"];
-  if (master_server == Json::Value::null || !master_server.isObject()) {
+  if (master_server.isNull() || !master_server.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "master-server", "object", file.c_str());
     return false;
@@ -159,7 +159,7 @@ bool Config::LoadServerConfig() {
   }
 
   Json::Value server = root["server"];
-  if (server == Json::Value::null || !server.isObject()) {
+  if (server.isNull() || !server.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "server", "object", file.c_str());
     return false;
@@ -194,7 +194,7 @@ bool Config::LoadServerConfig() {
   }
 
   Json::Value master_server = root["master-server"];
-  if (master_server == Json::Value::null || !master_server.isObject()) {
+  if (master_server.isNull() || !master_server.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "master-server", "object", file.c_str());
     return false;
@@ -226,7 +226,7 @@ bool Config::LoadClientConfig() {
   }
 
   Json::Value server = root["server"];
-  if (server == Json::Value::null || !server.isObject()) {
+  if (server.isNull() || !server.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "server", "object", file.c_str());
     return false;
@@ -246,7 +246,7 @@ bool Config::LoadClientConfig() {
   client_.server_port = static_cast<uint16_t>(port);
 
   Json::Value master_server = root["master-server"];
-  if (master_server == Json::Value::null || !master_server.isObject()) {
+  if (master_server.isNull() || !master_server.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "master-server", "object", file.c_str());
     return false;
@@ -265,7 +265,7 @@ bool Config::LoadClientConfig() {
   client_.master_server_port = static_cast<uint16_t>(port);
 
   Json::Value player = root["player"];
-  if (player == Json::Value::null || !player.isObject()) {
+  if (player.isNull() || !player.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "player", "object", file.c_str());
     return false;
@@ -277,7 +277,7 @@ bool Config::LoadClientConfig() {
   }
 
   Json::Value graphics = root["graphics"];
-  if (graphics == Json::Value::null || !graphics.isObject()) {
+  if (graphics.isNull() || !graphics.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "graphics", "object", file.c_str());
     return false;
@@ -299,7 +299,7 @@ bool Config::LoadClientConfig() {
   }
 
   Json::Value net = root["net"];
-  if (net == Json::Value::null || !net.isObject()) {
+  if (net.isNull() || !net.isObject()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "net", "object", file.c_str());
     return false;
@@ -345,7 +345,7 @@ bool Config::LoadBodiesConfig() {
   }
 
   Json::Value bodies = root["bodies"];
-  if (bodies == Json::Value::null || !bodies.isArray()) {
+  if (bodies.isNull() || !bodies.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "bodies", "array", file.c_str());
     return false;
@@ -355,7 +355,7 @@ bool Config::LoadBodiesConfig() {
     return false;
   }
 
-  for (int i = 0; i < bodies.size(); i++) {
+  for (int i = 0; i < static_cast<int>(bodies.size()); i++) {
     std::string name;
     if (!GetString(bodies[i]["name"], &name)) {
       REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
@@ -376,7 +376,7 @@ bool Config::LoadBodiesConfig() {
     }
 
     Json::Value shape = bodies[i]["shape"];
-    if (shape == Json::Value::null) {
+    if (shape.isNull()) {
       REPORT_ERROR("Config 'bodies[%d].%s' of type '%s' not found in '%s'.",
           i, "shape", "array", file.c_str());
       return false;
@@ -410,7 +410,7 @@ bool Config::LoadBodiesConfig() {
     } else if (type == "polygon") {
       bodies_[name].shape_type = Config::BodyConfig::SHAPE_TYPE_POLYGON;
       Json::Value vertices = shape["vertices"];
-      if (vertices == Json::Value::null || !vertices.isArray()) {
+      if (vertices.isNull() || !vertices.isArray()) {
         REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
             "bodies", i, "shape", "vectices", "array", file.c_str());
         return false;
@@ -420,7 +420,7 @@ bool Config::LoadBodiesConfig() {
           "bodies", i, "shape", "vectices", file.c_str());
         return false;
       }
-      for (int v = 0; v < vertices.size(); v++) {
+	  for (int v = 0; v < static_cast<int>(vertices.size()); v++) {
         float32_t x, y;
         if (!vertices[v].isObject()) {
           REPORT_ERROR("Array '%s[%d].%s.%s' must contain a list of objects.",
@@ -463,7 +463,7 @@ bool Config::LoadTexturesConfig() {
   }
 
   Json::Value textures = root["textures"];
-  if (textures == Json::Value::null || !textures.isArray()) {
+  if (textures.isNull() || !textures.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "textures", "array", file.c_str());
     return false;
@@ -473,7 +473,7 @@ bool Config::LoadTexturesConfig() {
     return false;
   }
 
-  for (int i = 0; i < textures.size(); i++) {
+  for (int i = 0; i < static_cast<int>(textures.size()); i++) {
     std::string name;
     if (!GetString(textures[i]["name"], &name)) {
       REPORT_ERROR("Config 'textures[%d].%s' of type '%s' not found in '%s'.",
@@ -498,7 +498,7 @@ bool Config::LoadTexturesConfig() {
     }
 
     Json::Value tile = textures[i]["tile"];
-    if (tile == Json::Value::null) {
+    if (tile.isNull()) {
       textures_[name].tiled = false;
       continue;
     }
@@ -555,7 +555,7 @@ bool Config::LoadSpritesConfig() {
   }
 
   Json::Value sprites = root["sprites"];
-  if (sprites == Json::Value::null || !sprites.isArray()) {
+  if (sprites.isNull() || !sprites.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "sprites", "array", file.c_str());
     return false;
@@ -565,7 +565,7 @@ bool Config::LoadSpritesConfig() {
     return false;
   }
 
-  for (int i = 0; i < sprites.size(); i++) {
+  for (int i = 0; i < static_cast<int>(sprites.size()); i++) {
     std::string name;
     if (!GetString(sprites[i]["name"], &name)) {
       REPORT_ERROR("Config 'sprites[%d].%s' of type '%s' not found in '%s'.",
@@ -586,7 +586,7 @@ bool Config::LoadSpritesConfig() {
     }
 
     Json::Value mode = sprites[i]["mode"];
-    if (mode == Json::Value::null) {
+    if (mode.isNull()) {
       sprites_[name].has_modes = false;
       sprites_[name].mode.timeout = 0;
       sprites_[name].mode.cyclic = false;
@@ -600,12 +600,12 @@ bool Config::LoadSpritesConfig() {
     sprites_[name].has_modes = true;
 
     Json::Value tiles = mode["tiles"];
-    if (tiles == Json::Value::null || !tiles.isArray()) {
+    if (tiles.isNull() || !tiles.isArray()) {
       REPORT_ERROR("Config '%s[%d].%s.%s' of type '%s' not found in '%s'.",
           "sprites", i, "mode", "tiles", "array", file.c_str());
       return false;
     }
-    for (int j = 0; j < tiles.size(); j++) {
+	for (int j = 0; j < static_cast<int>(tiles.size()); j++) {
       int tile;
       if (!GetInt32(tiles[j], &tile)) {
         REPORT_ERROR(
@@ -638,13 +638,13 @@ bool Config::LoadActivatorsConfig() {
   }
 
   Json::Value activators = root["activators"];
-  if (activators == Json::Value::null || !activators.isArray()) {
+  if (activators.isNull() || !activators.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "activators", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < activators.size(); i++) {
+  for (int i = 0; i < static_cast<int>(activators.size()); i++) {
     std::string name;
     if (!GetString(activators[i]["name"], &name)) {
       REPORT_ERROR("Config 'activators[%d].%s' of type '%s' not found in '%s'.",
@@ -690,13 +690,13 @@ bool Config::LoadCrittersConfig() {
   }
 
   Json::Value critters = root["critters"];
-  if (critters == Json::Value::null || !critters.isArray()) {
+  if (critters.isNull() || !critters.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "critters", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < critters.size(); i++) {
+  for (int i = 0; i < static_cast<int>(critters.size()); i++) {
     std::string name;
     if (!GetString(critters[i]["name"], &name)) {
       REPORT_ERROR("Config 'critters[%d].%s' of type '%s' not found in '%s'.",
@@ -760,13 +760,13 @@ bool Config::LoadDoorsConfig() {
   }
 
   Json::Value doors = root["doors"];
-  if (doors == Json::Value::null || !doors.isArray()) {
+  if (doors.isNull() || !doors.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "doors", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < doors.size(); i++) {
+  for (int i = 0; i < static_cast<int>(doors.size()); i++) {
     std::string name;
     if (!GetString(doors[i]["name"], &name)) {
       REPORT_ERROR("Config 'doors[%d].%s' of type '%s' not found in '%s'.",
@@ -812,13 +812,13 @@ bool Config::LoadKitsConfig() {
   }
 
   Json::Value kits = root["kits"];
-  if (kits == Json::Value::null || !kits.isArray()) {
+  if (kits.isNull() || !kits.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "kits", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < kits.size(); i++) {
+  for (int i = 0; i < static_cast<int>(kits.size()); i++) {
     std::string name;
     if (!GetString(kits[i]["name"], &name)) {
       REPORT_ERROR("Config 'kits[%d].%s' of type '%s' not found in '%s'.",
@@ -868,13 +868,13 @@ bool Config::LoadPlayersConfig() {
   }
 
   Json::Value players = root["players"];
-  if (players == Json::Value::null || !players.isArray()) {
+  if (players.isNull() || !players.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "players", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < players.size(); i++) {
+  for (int i = 0; i < static_cast<int>(players.size()); i++) {
     std::string name;
     if (!GetString(players[i]["name"], &name)) {
       REPORT_ERROR("Config 'players[%d].%s' of type '%s' not found in '%s'.",
@@ -939,13 +939,13 @@ bool Config::LoadProjectilesConfig() {
   }
 
   Json::Value projectiles = root["projectiles"];
-  if (projectiles == Json::Value::null || !projectiles.isArray()) {
+  if (projectiles.isNull() || !projectiles.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "projectiles", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < projectiles.size(); i++) {
+  for (int i = 0; i < static_cast<int>(projectiles.size()); i++) {
     std::string name;
     if (!GetString(projectiles[i]["name"], &name)) {
       REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
@@ -1023,13 +1023,13 @@ bool Config::LoadWallsConfig() {
   }
 
   Json::Value walls = root["walls"];
-  if (walls == Json::Value::null || !walls.isArray()) {
+  if (walls.isNull() || !walls.isArray()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "walls", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < walls.size(); i++) {
+  for (int i = 0; i < static_cast<int>(walls.size()); i++) {
     std::string name;
     if (!GetString(walls[i]["name"], &name)) {
       REPORT_ERROR("Config 'walls[%d].%s' of type '%s' not found in '%s'.",
@@ -1085,7 +1085,7 @@ bool Config::LoadGunsConfig() {
   }
 
   Json::Value guns = root["guns"];
-  if (guns == Json::Value::null) {
+  if (guns.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "guns", "array", file.c_str());
     return false;
@@ -1095,7 +1095,7 @@ bool Config::LoadGunsConfig() {
     return false;
   }
 
-  for (int i = 0; i < guns.size(); i++) {
+  for (int i = 0; i < static_cast<int>(guns.size()); i++) {
     std::string name;
     if (!GetString(guns[i]["name"], &name)) {
       REPORT_ERROR("Config 'guns[%d].%s' of type '%s' not found in '%s'.",

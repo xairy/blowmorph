@@ -63,7 +63,7 @@ void Body::Create(b2World* world, const std::string& body_name) {
                                 vertice.y / BOX2D_SCALE));
     }
     b2PolygonShape shape;
-    shape.Set(&vertices[0], vertices.size());
+    shape.Set(&vertices[0], static_cast<int>(vertices.size()));
     fixture_def.shape = &shape;
     body_->CreateFixture(&fixture_def);
   } else {

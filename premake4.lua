@@ -153,16 +153,20 @@ solution "blowmorph"
     links { "base" }
 
     -- JsonCpp
-    configuration "windows"
-      -- TODO
     configuration "linux"
       links { "jsoncpp" }
-
-    -- Box2D
     configuration "windows"
-      -- TODO
+      includedirs { "third-party/jsoncpp/include" }      
+      windows_libdir("third-party/jsoncpp/bin")
+	  links { "jsoncpp" }
+	  
+    -- Box2D
     configuration "linux"
       links { "Box2D" }
+    configuration "windows"
+      includedirs { "third-party/box2d/include" }      
+      windows_libdir("third-party/box2d/bin")
+	  links { "Box2D" }
 
   project "server"
     kind "ConsoleApp"
@@ -179,10 +183,10 @@ solution "blowmorph"
       resource("data", "data")
 
     -- Box2D
-    configuration "windows"
-      -- TODO
     configuration "linux"
       links { "Box2D" }
+    configuration "windows"
+      -- TODO
 
   project "client"
     kind "ConsoleApp"

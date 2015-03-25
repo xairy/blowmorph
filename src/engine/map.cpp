@@ -47,7 +47,7 @@ bool Map::Load(const std::string& file) {
   // Load terrain.
 
   Json::Value terrain = root["terrain"];
-  if (terrain == Json::Value::null) {
+  if (terrain.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "terrain", "array", file.c_str());
     return false;
@@ -58,7 +58,7 @@ bool Map::Load(const std::string& file) {
     return false;
   }
 
-  for (int i = 0; i < terrain.size(); i++) {
+  for (int i = 0; i < static_cast<int>(terrain.size()); i++) {
     std::string sprite_name;
 
     if (!GetString(terrain[i], &sprite_name)) {
@@ -73,7 +73,7 @@ bool Map::Load(const std::string& file) {
   // Load spawns.
 
   Json::Value spawns = root["spawns"];
-  if (spawns == Json::Value::null) {
+  if (spawns.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "spawns", "array", file.c_str());
     return false;
@@ -83,7 +83,7 @@ bool Map::Load(const std::string& file) {
     return false;
   }
 
-  for (int i = 0; i < spawns.size(); i++) {
+  for (int i = 0; i < static_cast<int>(spawns.size()); i++) {
     int32_t x, y;
     if (!GetInt32(spawns[i]["x"], &x)) {
       REPORT_ERROR("Config 'spawns[%d].x' of type '%s' not found in '%s'.",
@@ -101,13 +101,13 @@ bool Map::Load(const std::string& file) {
   // Load doors.
 
   Json::Value doors = root["doors"];
-  if (doors == Json::Value::null) {
+  if (doors.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "doors", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < doors.size(); i++) {
+  for (int i = 0; i < static_cast<int>(doors.size()); i++) {
     int32_t x, y;
     int32_t rotation;
     std::string entity_name;
@@ -137,13 +137,13 @@ bool Map::Load(const std::string& file) {
   // Load kits.
 
   Json::Value kits = root["kits"];
-  if (kits == Json::Value::null) {
+  if (kits.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "kits", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < kits.size(); i++) {
+  for (int i = 0; i < static_cast<int>(kits.size()); i++) {
     int32_t x, y;
     int32_t rotation;
     std::string entity_name;
@@ -173,13 +173,13 @@ bool Map::Load(const std::string& file) {
   // Load walls.
 
   Json::Value walls = root["walls"];
-  if (walls == Json::Value::null) {
+  if (walls.isNull()) {
     REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
         "walls", "array", file.c_str());
     return false;
   }
 
-  for (int i = 0; i < walls.size(); i++) {
+  for (int i = 0; i < static_cast<int>(walls.size()); i++) {
     int32_t x, y;
     int32_t rotation;
     std::string entity_name;
