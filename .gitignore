@@ -1,7 +1,10 @@
 bin/*
 build/*
-*.pyc
 
+third-party/*
+premake5.exe
+
+*.pyc
 *.swp
 
 *.sublime-workspace

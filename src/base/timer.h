@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "base/base.h"
+#include "base/dll.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 

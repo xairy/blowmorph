@@ -32,7 +32,7 @@ function windows_libdir(basePath)
   --XXX: merge configurations?
   for _,arch in pairs({"x32", "x64"}) do
     for _,conf in pairs({"debug", "release"}) do
-      for _, plat in pairs({"vs2008"}) do
+      for _, plat in pairs({"vs2013"}) do
         local confpath = plat .. "/" .. arch .. "/" .. conf
         configuration { "windows", arch, conf, plat }
           libdirs { path.join(basePath, confpath) }
@@ -51,7 +51,7 @@ function windows_binary(basePath, debugDllName, releaseDllName)
   save_config()
 
   for _,arch in pairs({"x32", "x64"}) do
-    for _, plat in pairs({"vs2008"}) do
+    for _, plat in pairs({"vs2013"}) do
       local confpath = plat .. "/" .. arch .. "/" .. "debug"
       configuration { "windows", arch, "debug", plat }
         resource(path.join(path.join(basePath, confpath), debugDllName), debugDllName, true)
@@ -114,10 +114,12 @@ solution "blowmorph"
             "src/base/**.h" }
 
     -- JsonCpp
-    configuration "windows"
-      -- TODO
     configuration "linux"
       links { "jsoncpp" }
+    configuration "windows"
+      includedirs { "third-party/jsoncpp/include" }      
+      windows_libdir("third-party/jsoncpp/bin")
+	  links { "jsoncpp" }
 
   project "net"
     kind "SharedLib"

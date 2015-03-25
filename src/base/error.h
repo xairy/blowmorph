@@ -13,7 +13,7 @@
 #include <sstream>
 #include <string>
 
-#include "base/base.h"
+#include "base/dll.h"
 #include "base/macros.h"
 
 namespace bm {

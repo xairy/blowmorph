@@ -22,7 +22,7 @@ bool ParseFile(const std::string& file,
 
   bool success = reader->parse(stream, *root, false);
   if (!success) {
-      std::string error = reader->getFormatedErrorMessages();
+	  std::string error = reader->getFormattedErrorMessages();
       REPORT_ERROR("Can't parse '%s':\n%s", file.c_str(), error.c_str());
       return false;
   }
@@ -31,7 +31,7 @@ bool ParseFile(const std::string& file,
 }
 
 bool GetInt32(const Json::Value& value, int32_t* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!value.isInt()) {
@@ -42,7 +42,7 @@ bool GetInt32(const Json::Value& value, int32_t* out) {
 }
 
 bool GetUInt32(const Json::Value& value, uint32_t* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!(value.isInt() || value.isUInt())) {
@@ -53,7 +53,7 @@ bool GetUInt32(const Json::Value& value, uint32_t* out) {
 }
 
 bool GetFloat32(const Json::Value& value, float32_t* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!value.isDouble()) {
@@ -64,7 +64,7 @@ bool GetFloat32(const Json::Value& value, float32_t* out) {
 }
 
 bool GetFloat64(const Json::Value& value, float64_t* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!value.isDouble()) {
@@ -75,7 +75,7 @@ bool GetFloat64(const Json::Value& value, float64_t* out) {
 }
 
 bool GetString(const Json::Value& value, std::string* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!value.isString()) {
@@ -86,7 +86,7 @@ bool GetString(const Json::Value& value, std::string* out) {
 }
 
 bool GetBool(const Json::Value& value, bool* out) {
-  if (value == Json::Value::null) {
+  if (value.isNull()) {
     return false;
   }
   if (!value.isBool()) {
