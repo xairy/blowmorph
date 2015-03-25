@@ -159,3 +159,16 @@ On x64 system:
     ```
     sudo apt-get install wxformbuilder
     ```
+
+### Tiled
+
+1. Add Tiled PPA:
+    ```
+    sudo add-apt-repository ppa:mapeditor.org/tiled
+    sudo apt-get update
+    ```
+
+2. Install Tiled:
+    ```
+    sudo apt-get install tiled
+    ```
