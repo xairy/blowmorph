@@ -132,6 +132,7 @@ solution "blowmorph"
 
     links { "base" }
 
+	-- ENet
     configuration "linux"
       links { "enet" }
     configuration "windows"

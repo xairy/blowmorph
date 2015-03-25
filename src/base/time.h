@@ -3,12 +3,13 @@
 #ifndef BASE_TIME_H_
 #define BASE_TIME_H_
 
+#include "base/dll.h"
 #include "base/pstdint.h"
 
 namespace bm {
 
 // Returns time since some moment in ms.
-int64_t Timestamp();
+BM_BASE_DECL int64_t Timestamp();
 
 }  // namespace bm
 
