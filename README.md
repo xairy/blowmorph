@@ -51,26 +51,19 @@ To run the master server configure blowmorph/data/master-server.cfg and run:
     sudo apt-get install python-wxtools
     ```
 
-6. Install libconfig:
-    ```
-    sudo apt-get install libconfig-dev libconfig++-dev
-    sudo apt-get install libboost-python1.54-dev
-    sudo pip install git+https://github.com/cnangel/python-libconfig.git
-    ```
-
-7. Install premake4:
+6. Install premake4:
     ```
     sudo apt-get install premake4
     ```
     
     If the packet is not available, get the binary from http://industriousone.com/premake/download.
 
-8. Generate project files:
+7. Generate project files:
     ```
     premake4 gmake
     ```
 
-9. On x32 system:
+8. On x32 system:
     ```
     cd build; make config=release32
     ```

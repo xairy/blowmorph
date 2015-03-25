@@ -1,19 +1,10 @@
 #-*- coding: utf-8 -*-
-# Copyright (c) 2014 Blowmorph Team
+# Copyright (c) 2015 Blowmorph Team
 
 from __future__ import unicode_literals
-import time, BaseHTTPServer
-from pylibconfig import Config
+import json, time, BaseHTTPServer
 
 game_servers = {}
-
-def load_config(config, name):
-    value = config.value(name.encode("utf8"))
-    assert value[1] == True
-    value = value[0]
-    if type(value) == str:
-        value = value.decode("utf8")
-    return value
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):
@@ -41,14 +32,15 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         print game_servers
 
         self.send_response(200)
-        
+
     def do_GET(self):
         self.wfile.write(str(game_servers))
-        
+
 if __name__ == '__main__':
-    config = Config()
-    config.readFile("data/master-server.cfg".encode("utf8"))
-    port = load_config(config, "master-server.port")
+    config_file = open('data/master-server.json')
+    config = json.loads(config_file.read())
+    config_file.close()
+    port = config["master-server"]["port"]
 
     http_server = BaseHTTPServer.HTTPServer(("0.0.0.0", port), RequestHandler)
     print "[%s] Server started on port %d." % (str(time.asctime()), port)

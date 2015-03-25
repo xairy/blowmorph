@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "base/config_reader.h"
 #include "base/macros.h"
 #include "base/pstdint.h"
 #include "base/singleton.h"

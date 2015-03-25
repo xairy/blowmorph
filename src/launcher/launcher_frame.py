@@ -1,23 +1,9 @@
 #-*- coding: utf-8 -*-
-# Copyright (c) 2014 Blowmorph Team
+# Copyright (c) 2015 Blowmorph Team
 
 from __future__ import unicode_literals
-import ast, requests, subprocess, sys, wx
-from pylibconfig import Config
+import ast, json, requests, subprocess, sys, wx
 from launcher_frame_base import LauncherFrameBase
-
-def load_config(config, name):
-    value = config.value(name.encode("utf8"))
-    assert value[1] == True
-    value = value[0]
-    if type(value) == str:
-        value = value.decode("utf8")
-    return value
-
-def save_config(config, name, value):
-    if type(value) == unicode:
-        value = value.encode("utf8")
-    config.setValue(name.encode("utf8"), value)
 
 ##############################################################################
 class LauncherFrame(LauncherFrameBase):
@@ -44,7 +30,7 @@ class LauncherFrame(LauncherFrameBase):
         column_names = ["Name", "Address"]
         for i in xrange(len(column_names)):
             self.server_list.InsertColumn(i, column_names[i])
-            
+
         self.RefreshGameServerList()
 
         # Bind list events.
@@ -55,7 +41,7 @@ class LauncherFrame(LauncherFrameBase):
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED,
             self.OnItemActivated, self.server_list)
 
-        self.nickname_text.SetValue(self.cfg_login)
+        self.nickname_text.SetValue(self.cfg_name)
 
         # Set resolution choice.
         item_count = self.resolution_choice.GetCount()
@@ -117,28 +103,24 @@ class LauncherFrame(LauncherFrameBase):
 
     #-----------------------------------------------------------------------------
     def LoadConfig(self):
-        self.config = Config()
-        self.config.readFile("data/client.cfg".encode("utf8"))
+        config_file = open('data/client.json')
+        config = json.loads(config_file.read())
+        config_file.close()
 
-        self.cfg_width = load_config(self.config, "graphics.width")
-        self.cfg_height = load_config(self.config, "graphics.height")
-        self.cfg_fullscreen = load_config(self.config, "graphics.fullscreen")
+        self.cfg_width = config["graphics"]["width"]
+        self.cfg_height = config["graphics"]["height"]
+        self.cfg_fullscreen = config["graphics"]["fullscreen"]
 
-        self.cfg_login = load_config(self.config, "player.login")
+        self.cfg_name = config["player"]["name"]
 
-        self.cfg_ms_host = load_config(self.config, "master-server.host")
-        self.cfg_ms_port = load_config(self.config, "master-server.port")
+        self.cfg_ms_host = config["master-server"]["host"]
+        self.cfg_ms_port = config["master-server"]["port"]
 
-        self.cfg_connection_timeout = \
-            load_config(self.config, "client.connect_timeout")
-        self.cfg_sync_timeout = \
-            load_config(self.config, "client.sync_timeout")
-        self.cfg_max_misposition = \
-            load_config(self.config, "client.max_player_misposition")
-        self.cfg_interpolation_offset = \
-            load_config(self.config, "client.interpolation_offset")
-        self.cfg_tick_rate = \
-            load_config(self.config, "client.tick_rate")
+        self.cfg_connection_timeout = config["net"]["connect_timeout"]
+        self.cfg_sync_timeout =  config["net"]["sync_timeout"]
+        self.cfg_max_misposition = config["net"]["max_player_misposition"]
+        self.cfg_interpolation_offset = config["net"]["interpolation_offset"]
+        self.cfg_tick_rate = config["net"]["tick_rate"]
 
     #-----------------------------------------------------------------------------
     def RefreshGameServerList(self):
@@ -148,7 +130,7 @@ class LauncherFrame(LauncherFrameBase):
             r = requests.get(address)
             servers = ast.literal_eval(r.text)
         except requests.exceptions.ConnectionError:
-            print "Could connect to master server: %s:%d!" % \
+            print "Couldn't connect to master server: %s:%d!" % \
               (self.cfg_ms_host, self.cfg_ms_port)
             return
 
@@ -159,38 +141,46 @@ class LauncherFrame(LauncherFrameBase):
             addr = "%s:%d" % (value["host"], value["port"])
             index = self.server_list.InsertStringItem(sys.maxint, name)
             self.server_list.SetStringItem(index, 1, addr)
-        
+
         for i in xrange(self.server_list.GetColumnCount()):
             self.server_list.SetColumnWidth(i, self.server_list.GetSize()[0] / 2)
 
     #-------------------------------------------------------------------------
     def SaveConfig(self):
+        config = {
+            "server": {},
+            "master-server": {},
+            "graphics": {},
+            "player": {},
+            "net": {}
+        }
+
         if self.selected_address != None:
             address = self.selected_address.split(":")
             host, port = address[0], int(address[1])
 
-            save_config(self.config, "server.host", host)
-            save_config(self.config, "server.port", port)
+            config["server"]["host"] = host
+            config["server"]["port"] = port
 
-        selection = self.resolution_choice.GetSelection() 
+        selection = self.resolution_choice.GetSelection()
         resolution = self.resolution_choice.GetString(selection)
         resolution = resolution.split('(')[0].split('x')
         width, height = int(resolution[0]), int(resolution[1])
         fullscreen = self.fullscreen_checkbox.GetValue()
 
-        save_config(self.config, "graphics.width", width)
-        save_config(self.config, "graphics.height", height)
-        save_config(self.config, "graphics.fullscreen", fullscreen)
+        config["graphics"]["width"] = width
+        config["graphics"]["height"] = height
+        config["graphics"]["fullscreen"] = fullscreen
 
         nickname = self.nickname_text.GetValue()
 
-        save_config(self.config, "player.login", nickname)
+        config["player"]["name"] = nickname
 
         ms_addr = self.master_server_text.GetValue().split(':')
         ms_host, ms_port = ms_addr[0], int(ms_addr[1])
 
-        save_config(self.config, "master-server.host", ms_host)
-        save_config(self.config, "master-server.port", ms_port)
+        config["master-server"]["host"] = ms_host
+        config["master-server"]["port"] = ms_port
 
         connection_timeout = self.connection_timeout_spin.GetValue()
         sync_timeout = self.sync_timeout_spin.GetValue()
@@ -198,12 +188,14 @@ class LauncherFrame(LauncherFrameBase):
         inter_offset = self.interpolation_offset_spin.GetValue()
         tick_rate = self.tick_rate_spin.GetValue()
 
-        save_config(self.config, "client.connect_timeout", connection_timeout)
-        save_config(self.config, "client.sync_timeout", sync_timeout)
-        save_config(self.config, "client.max_player_misposition", max_misp)
-        save_config(self.config, "client.interpolation_offset", inter_offset)
-        save_config(self.config, "client.tick_rate", tick_rate)
+        config["net"]["connect_timeout"] = connection_timeout
+        config["net"]["sync_timeout"] = sync_timeout
+        config["net"]["max_player_misposition"] = max_misp
+        config["net"]["interpolation_offset"] = inter_offset
+        config["net"]["tick_rate"] = tick_rate
 
-        self.config.writeFile("data/client.cfg".encode("utf8"))
+        config_file = open('data/client.json', 'w')
+        config_file.write(json.dumps(config, indent=4, separators=(',', ': ')))
+        config_file.close()
     #-------------------------------------------------------------------------
 ##############################################################################

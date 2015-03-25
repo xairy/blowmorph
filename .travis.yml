@@ -48,9 +48,6 @@ install:
   # libjsoncpp
   - sudo apt-get install libjsoncpp-dev
 
-  # libconfig
-  - sudo apt-get install libconfig-dev libconfig++-dev
-
 before_script:
   - sudo add-apt-repository ppa:codegear/release -y
   - sudo apt-get update -q

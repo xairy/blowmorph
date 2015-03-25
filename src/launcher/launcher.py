@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-# Copyright (c) 2014 Blowmorph Team
+# Copyright (c) 2015 Blowmorph Team
 
 from __future__ import unicode_literals
 import wx
@@ -17,7 +17,7 @@ class Launcher(wx.App):
         self.frame.Center()
         self.frame.Show()
         self.SetTopWindow(self.frame)
-        return True        
+        return True
     #-------------------------------------------------------------------------
 ##############################################################################
 

@@ -1,0 +1,29 @@
+{
+  "server": { 
+    "host": "127.0.0.1",
+    "port": 4242
+  },
+
+  "master-server": {
+    "host": "andreyknvl.com",
+    "port": 4243
+  },
+
+  "player": {
+    "name": "xairy"
+  },
+
+  "graphics": {
+    "width": 1920,
+    "height": 1080,
+    "fullscreen": false
+  },
+
+  "net": {
+    "tick_rate": 30,
+    "connect_timeout": 2000,
+    "sync_timeout": 2000,
+    "max_player_misposition": 50.0,
+    "interpolation_offset": 200
+  }
+}

@@ -7,7 +7,6 @@
 #include <fstream>  // NOLINT
 #include <vector>
 
-#include "base/config_reader.h"
 #include "base/error.h"
 #include "base/json.h"
 #include "base/macros.h"
@@ -121,115 +120,214 @@ Config::GetGunsConfig() const {
 }
 
 bool Config::LoadMasterServerConfig() {
-  ConfigReader reader;
-  const char* file = "data/master-server.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/master-server.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value master_server = root["master-server"];
+  if (master_server == Json::Value::null || !master_server.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "master-server", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupUInt16("master-server.port", &master_server_.port)) {
-    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+
+  // FIXME(xairy): use GetUInt16.
+  uint32_t port;
+  if (!GetUInt32(master_server["port"], &port)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "master_server", "port", "int", file.c_str());
     return false;
   }
+  master_server_.port = static_cast<uint16_t>(port);
+
   return true;
 }
 
 bool Config::LoadServerConfig() {
-  ConfigReader reader;
-  const char* file = "data/server.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/server.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value server = root["server"];
+  if (server == Json::Value::null || !server.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "server", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupUInt16("server.port", &server_.port)) {
-    REPORT_ERROR("Unable to load 'server.port' from '%s'.", file);
+  // FIXME(xairy): use GetUInt16.
+  uint32_t port;
+  if (!GetUInt32(server["port"], &port)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "port", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("server.broadcast_rate", &server_.broadcast_rate)) {
-    REPORT_ERROR("Unable to load 'server.broadcast_rate' from '%s'.", file);
+  server_.port = static_cast<uint16_t>(port);
+  if (!GetInt32(server["broadcast_rate"], &server_.broadcast_rate)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "broadcast_rate", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("server.tick_rate", &server_.tick_rate)) {
-    REPORT_ERROR("Unable to load 'server.tick_rate' from '%s'.", file);
+  if (!GetInt32(server["tick_rate"], &server_.tick_rate)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "tick_rate", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupString("server.map", &server_.map)) {
-    REPORT_ERROR("Unable to load 'server.map' from '%s'.", file);
+  if (!GetString(server["map"], &server_.map)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "map", "string", file.c_str());
     return false;
   }
-  if (!reader.LookupString("server.name", &server_.name)) {
-    REPORT_ERROR("Unable to load 'server.name' from '%s'.", file);
+  if (!GetString(server["name"], &server_.name)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "name", "string", file.c_str());
     return false;
   }
-  if (!reader.LookupString("master-server.host", &server_.master_server_host)) {
-    REPORT_ERROR("Unable to load 'master-server.host' from '%s'.", file);
+
+  Json::Value master_server = root["master-server"];
+  if (master_server == Json::Value::null || !master_server.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "master-server", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupUInt16("master-server.port", &server_.master_server_port)) {
-    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+  if (!GetString(master_server["host"], &server_.master_server_host)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "master-server", "host", "string", file.c_str());
     return false;
   }
+  // FIXME(xairy): use GetUInt16.
+  if (!GetUInt32(master_server["port"], &port)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "master-server", "port", "int", file.c_str());
+    return false;
+  }
+  server_.master_server_port = static_cast<uint16_t>(port);
+
   return true;
 }
 
 bool Config::LoadClientConfig() {
-  ConfigReader reader;
-  const char* file = "data/client.cfg";
-  if (!reader.Open(file)) {
+  std::string file = "data/client.json";
+  Json::Reader reader;
+  Json::Value root;
+
+  if (!ParseFile(file, &reader, &root)) {
+      REPORT_ERROR("Can't parse file '%s'.", file.c_str());
+      return false;
+  }
+
+  Json::Value server = root["server"];
+  if (server == Json::Value::null || !server.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "server", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupString("server.host", &client_.server_host)) {
-    REPORT_ERROR("Unable to load 'server.host' from '%s'.", file);
+  if (!GetString(server["host"], &client_.server_host)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "host", "string", file.c_str());
     return false;
   }
-  if (!reader.LookupUInt16("server.port", &client_.server_port)) {
-    REPORT_ERROR("Unable to load 'server.port' from '%s'.", file);
+  // FIXME(xairy): use GetUInt16.
+  uint32_t port;
+  if (!GetUInt32(server["port"], &port)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "server", "port", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupString("master-server.host", &client_.master_server_host)) {
-    REPORT_ERROR("Unable to load 'master-server.host' from '%s'.", file);
+  client_.server_port = static_cast<uint16_t>(port);
+
+  Json::Value master_server = root["master-server"];
+  if (master_server == Json::Value::null || !master_server.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "master-server", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupUInt16("master-server.port", &client_.master_server_port)) {
-    REPORT_ERROR("Unable to load 'master-server.port' from '%s'.", file);
+  if (!GetString(master_server["host"], &client_.master_server_host)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "master-server", "host", "string", file.c_str());
     return false;
   }
-  if (!reader.LookupString("player.login", &client_.player_name)) {
-    REPORT_ERROR("Unable to load 'player.login' from '%s'.", file);
+  // FIXME(xairy): use GetUInt16.
+  if (!GetUInt32(master_server["port"], &port)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "master-server", "port", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("graphics.width", &client_.screen_width)) {
-    REPORT_ERROR("Unable to load 'graphics.width' from '%s'.", file);
+  client_.master_server_port = static_cast<uint16_t>(port);
+
+  Json::Value player = root["player"];
+  if (player == Json::Value::null || !player.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "player", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("graphics.height", &client_.screen_height)) {
-    REPORT_ERROR("Unable to load 'graphics.height' from '%s'.", file);
+  if (!GetString(player["name"], &client_.player_name)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "player", "name", "string", file.c_str());
     return false;
   }
-  if (!reader.LookupBool("graphics.fullscreen", &client_.fullscreen)) {
-    REPORT_ERROR("Unable to load 'fullscreen' from '%s'.", file);
+
+  Json::Value graphics = root["graphics"];
+  if (graphics == Json::Value::null || !graphics.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "graphics", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("client.tick_rate", &client_.tick_rate)) {
-    REPORT_ERROR("Unable to load 'client.tick_rate' from '%s'.", file);
+  if (!GetInt32(graphics["width"], &client_.screen_width)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "graphics", "width", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("client.connect_timeout", &client_.connect_timeout)) {
-    REPORT_ERROR("Unable to load 'client.connect_timeout' from '%s'.", file);
+  if (!GetInt32(graphics["height"], &client_.screen_height)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "graphics", "height", "int", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("client.sync_timeout", &client_.sync_timeout)) {
-    REPORT_ERROR("Unable to load 'client.sync_timeout' from '%s'.", file);
+  if (!GetBool(graphics["fullscreen"], &client_.fullscreen)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "graphics", "fullscreen", "bool", file.c_str());
     return false;
   }
-  if (!reader.LookupFloat("client.max_player_misposition",
-        &client_.max_player_misposition)) {
-    REPORT_ERROR("Unable to load 'client.max_player_misposition' from '%s'.",
-                file);
+
+  Json::Value net = root["net"];
+  if (net == Json::Value::null || !net.isObject()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "net", "object", file.c_str());
     return false;
   }
-  if (!reader.LookupInt32("client.interpolation_offset",
-        &client_.interpolation_offset)) {
-    REPORT_ERROR("Unable to load 'client.interpolation_offset' from '%s'.",
-                file);
+  if (!GetInt32(net["tick_rate"], &client_.tick_rate)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "net", "tick_rate", "int", file.c_str());
+    return false;
+  }
+  if (!GetInt32(net["connect_timeout"], &client_.connect_timeout)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "net", "connect_timeout", "int", file.c_str());
+    return false;
+  }
+  if (!GetInt32(net["sync_timeout"], &client_.sync_timeout)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "net", "sync_timeout", "int", file.c_str());
+    return false;
+  }
+  if (!GetFloat32(net["max_player_misposition"],
+                &client_.max_player_misposition)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "net", "max_player_misposition", "float", file.c_str());
+    return false;
+  }
+  if (!GetInt32(net["interpolation_offset"], &client_.interpolation_offset)) {
+    REPORT_ERROR("Config '%s.%s' of type '%s' not found in '%s'.",
+        "net", "interpolation_offset", "int", file.c_str());
     return false;
   }
 

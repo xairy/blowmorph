@@ -119,18 +119,6 @@ solution "blowmorph"
     configuration "linux"
       links { "jsoncpp" }
 
-    -- libconfig
-    configuration "windows"
-      includedirs { "third-party/libconfig/include" }
-      windows_libdir("third-party/libconfig/bin")
-      windows_binary("third-party/libconfig/bin", "libconfig_d.dll", "libconfig.dll")
-      configuration { "windows", "debug" }
-        links { "libconfig_d" }
-      configuration { "windows", "release" }
-        links { "libconfig" }
-    configuration "linux"
-      links { "config" }
-
   project "net"
     kind "SharedLib"
     language "C++"
