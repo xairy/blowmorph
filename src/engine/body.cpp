@@ -3,6 +3,7 @@
 #include "engine/body.h"
 
 #include <string>
+#include <vector>
 
 #include <Box2D/Box2D.h>
 

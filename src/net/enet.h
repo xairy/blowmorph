@@ -1,7 +1,7 @@
 // Copyright (c) 2015 Andrey Konovalov
 
-#ifndef NET_ENET_HPP_
-#define NET_ENET_HPP_
+#ifndef NET_ENET_H_
+#define NET_ENET_H_
 
 #include "base/macros.h"
 #include "base/pstdint.h"
@@ -71,4 +71,4 @@ class Enet {
 
 }  // namespace bm
 
-#endif  // NET_ENET_HPP_
+#endif  // NET_ENET_H_

@@ -342,7 +342,7 @@ bool Config::LoadBodiesConfig() {
           return false;
         }
         bodies_[name].polygon_config.vertices.push_back(
-          BodyConfig::PolygonConfig::Vertice{x, y});
+          BodyConfig::PolygonConfig::Vertice {x, y});
       }
     } else {
       REPORT_ERROR("Config bodies[%d].%s.%s must be 'box' or 'circle' in %s.",
@@ -850,8 +850,8 @@ bool Config::LoadProjectilesConfig() {
   for (int i = 0; i < projectiles.size(); i++) {
     std::string name;
     if (!GetString(projectiles[i]["name"], &name)) {
-      REPORT_ERROR("Config 'projectiles[%d].%s' of type '%s' not found in '%s'.",
-          i, "name", "string", file.c_str());
+      REPORT_ERROR("Config '%s[%d].%s' of type '%s' not found in '%s'.",
+          "projectiles", i, "name", "string", file.c_str());
       return false;
     }
     if (projectiles_.count(name) != 0) {

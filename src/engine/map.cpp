@@ -95,7 +95,7 @@ bool Map::Load(const std::string& file) {
           i, "int", file.c_str());
       return false;
     }
-    spawns_.push_back(Spawn{x, y});
+    spawns_.push_back(Spawn {x, y});
   }
 
   // Load doors.
@@ -131,7 +131,7 @@ bool Map::Load(const std::string& file) {
       return false;
     }
 
-    doors_.push_back(Door{x, y, rotation, entity_name});
+    doors_.push_back(Door {x, y, rotation, entity_name});
   }
 
   // Load kits.
@@ -167,7 +167,7 @@ bool Map::Load(const std::string& file) {
       return false;
     }
 
-    kits_.push_back(Kit{x, y, rotation, entity_name});
+    kits_.push_back(Kit {x, y, rotation, entity_name});
   }
 
   // Load walls.
@@ -203,7 +203,7 @@ bool Map::Load(const std::string& file) {
       return false;
     }
 
-    walls_.push_back(Wall{x, y, rotation, entity_name});
+    walls_.push_back(Wall {x, y, rotation, entity_name});
   }
 
   return true;
