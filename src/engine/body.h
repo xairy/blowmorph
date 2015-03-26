@@ -9,9 +9,11 @@
 
 #include "base/macros.h"
 
+#include "engine/dll.h"
+
 namespace bm {
 
-class Body {
+class BM_ENGINE_DECL Body {
  public:
   Body();
   virtual ~Body();

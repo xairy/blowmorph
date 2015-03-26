@@ -11,6 +11,7 @@
 #include "base/pstdint.h"
 
 #include "engine/body.h"
+#include "engine/dll.h"
 #include "engine/protocol.h"
 
 namespace bm {
@@ -42,7 +43,7 @@ class Entity {
   };
 
  public:
-  Entity(
+  BM_ENGINE_DECL Entity(
     b2World* world,
     uint32_t id,
     Type type,
@@ -50,24 +51,24 @@ class Entity {
     b2Vec2 position,
     uint16_t collision_category,
     uint16_t collision_mask);
-  virtual ~Entity();
+  BM_ENGINE_DECL virtual ~Entity();
 
-  uint32_t GetId() const;
-  Type GetType() const;
-  bool IsStatic() const;
+  BM_ENGINE_DECL uint32_t GetId() const;
+  BM_ENGINE_DECL Type GetType() const;
+  BM_ENGINE_DECL bool IsStatic() const;
 
-  b2Vec2 GetPosition() const;
-  void SetPosition(const b2Vec2& position);
+  BM_ENGINE_DECL b2Vec2 GetPosition() const;
+  BM_ENGINE_DECL void SetPosition(const b2Vec2& position);
 
-  float GetRotation() const;
-  void SetRotation(float angle);
+  BM_ENGINE_DECL float GetRotation() const;
+  BM_ENGINE_DECL void SetRotation(float angle);
 
-  b2Vec2 GetVelocity() const;
-  void SetVelocity(const b2Vec2& velocity);
+  BM_ENGINE_DECL b2Vec2 GetVelocity() const;
+  BM_ENGINE_DECL void SetVelocity(const b2Vec2& velocity);
 
-  float GetMass() const;
-  void ApplyImpulse(const b2Vec2& impulse);
-  void SetImpulse(const b2Vec2& impulse);
+  BM_ENGINE_DECL float GetMass() const;
+  BM_ENGINE_DECL void ApplyImpulse(const b2Vec2& impulse);
+  BM_ENGINE_DECL void SetImpulse(const b2Vec2& impulse);
 
  protected:
   uint32_t id_;

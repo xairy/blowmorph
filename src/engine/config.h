@@ -9,13 +9,14 @@
 
 #include "base/macros.h"
 #include "base/pstdint.h"
-#include "base/singleton.h"
+
+#include "engine/dll.h"
 
 namespace bm {
 
 // FIXME(xairy): remove dynamic config from cfg files.
 
-class Config : public Singleton<Config> {
+class Config {
  public:
   struct MasterServerConfig {
     uint16_t port;
@@ -196,28 +197,30 @@ class Config : public Singleton<Config> {
     int32_t energy_consumption;
   };
 
-  Config();
-  ~Config();
+  BM_ENGINE_DECL static Config* GetInstance();
 
-  bool Initialize();
+  BM_ENGINE_DECL Config();
+  BM_ENGINE_DECL ~Config();
 
-  const MasterServerConfig& GetMasterServerConfig() const;
-  const ServerConfig& GetServerConfig() const;
-  const ClientConfig& GetClientConfig() const;
+  BM_ENGINE_DECL bool Initialize();
 
-  const std::map<std::string, BodyConfig>& GetBodiesConfig() const;
-  const std::map<std::string, TextureConfig>& GetTexturesConfig() const;
-  const std::map<std::string, SpriteConfig>& GetSpritesConfig() const;
+  BM_ENGINE_DECL const MasterServerConfig& GetMasterServerConfig() const;
+  BM_ENGINE_DECL const ServerConfig& GetServerConfig() const;
+  BM_ENGINE_DECL const ClientConfig& GetClientConfig() const;
 
-  const std::map<std::string, ActivatorConfig>& GetActivatorsConfig() const;
-  const std::map<std::string, CritterConfig>& GetCrittersConfig() const;
-  const std::map<std::string, DoorConfig>& GetDoorsConfig() const;
-  const std::map<std::string, KitConfig>& GetKitsConfig() const;
-  const std::map<std::string, PlayerConfig>& GetPlayersConfig() const;
-  const std::map<std::string, ProjectileConfig>& GetProjectilesConfig() const;
-  const std::map<std::string, WallConfig>& GetWallsConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, BodyConfig>& GetBodiesConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, TextureConfig>& GetTexturesConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, SpriteConfig>& GetSpritesConfig() const;
 
-  const std::map<std::string, GunConfig>& GetGunsConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, ActivatorConfig>& GetActivatorsConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, CritterConfig>& GetCrittersConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, DoorConfig>& GetDoorsConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, KitConfig>& GetKitsConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, PlayerConfig>& GetPlayersConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, ProjectileConfig>& GetProjectilesConfig() const;
+  BM_ENGINE_DECL const std::map<std::string, WallConfig>& GetWallsConfig() const;
+
+  BM_ENGINE_DECL const std::map<std::string, GunConfig>& GetGunsConfig() const;
 
  private:
   bool LoadMasterServerConfig();

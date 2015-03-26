@@ -147,21 +147,21 @@ bool ServerWorld::LoadMap(const std::string& file) {
     float x = kit.x * block_size_;
     float y = kit.y * block_size_;
     Kit* entity = CreateKit(b2Vec2(x, y), kit.entity_name);
-    entity->SetRotation(M_PI * kit.rotation / 180);
+    entity->SetRotation(static_cast<float>(M_PI) * kit.rotation / 180);
   }
 
   for (auto door : map.GetDoors()) {
     float x = door.x * block_size_;
     float y = door.y * block_size_;
     Door* entity = CreateDoor(b2Vec2(x, y), door.entity_name);
-    entity->SetRotation(M_PI * door.rotation / 180);
+	entity->SetRotation(static_cast<float>(M_PI) * door.rotation / 180);
   }
 
   for (auto wall : map.GetWalls()) {
     float x = wall.x * block_size_;
     float y = wall.y * block_size_;
     Wall* entity = CreateWall(b2Vec2(x, y), wall.entity_name);
-    entity->SetRotation(M_PI * wall.rotation / 180);
+	entity->SetRotation(static_cast<float>(M_PI) * wall.rotation / 180);
   }
 
   return true;

@@ -157,11 +157,11 @@ Player::KeyboardState* Player::GetKeyboardState() {
 }
 
 void Player::Regenerate(int64_t delta_time) {
-  _health += delta_time * _health_regeneration;
+  _health += static_cast<int>(delta_time) * _health_regeneration;
   if (_health > _max_health) {
     _health = _max_health;
   }
-  _energy += delta_time * _energy_regeneration;
+  _energy += static_cast<int>(delta_time) * _energy_regeneration;
   if (_energy > _energy_capacity) {
     _energy = _energy_capacity;
   }

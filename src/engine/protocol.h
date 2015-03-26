@@ -6,6 +6,8 @@
 #include "base/macros.h"
 #include "base/pstdint.h"
 
+#include "engine/dll.h"
+
 namespace bm {
 
 class Packet {

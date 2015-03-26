@@ -8,6 +8,8 @@
 
 #include "base/pstdint.h"
 
+#include "engine/dll.h"
+
 namespace bm {
 
 class Map {
@@ -38,21 +40,21 @@ class Map {
     std::string entity_name;
   };
 
-  Map();
-  ~Map();
+  BM_ENGINE_DECL Map();
+  BM_ENGINE_DECL ~Map();
 
-  bool Load(const std::string& file);
+  BM_ENGINE_DECL bool Load(const std::string& file);
 
-  float32_t GetBlockSize() const;
-  int32_t GetWidth() const;
-  int32_t GetHeight() const;
+  BM_ENGINE_DECL float32_t GetBlockSize() const;
+  BM_ENGINE_DECL int32_t GetWidth() const;
+  BM_ENGINE_DECL int32_t GetHeight() const;
 
-  const Terrain& GetTerrain() const;
-  const std::vector<Spawn>& GetSpawns() const;
+  BM_ENGINE_DECL const Terrain& GetTerrain() const;
+  BM_ENGINE_DECL const std::vector<Spawn>& GetSpawns() const;
 
-  const std::vector<Kit>& GetKits() const;
-  const std::vector<Door>& GetDoors() const;
-  const std::vector<Wall>& GetWalls() const;
+  BM_ENGINE_DECL const std::vector<Kit>& GetKits() const;
+  BM_ENGINE_DECL const std::vector<Door>& GetDoors() const;
+  BM_ENGINE_DECL const std::vector<Wall>& GetWalls() const;
 
  private:
   float32_t block_size_;

@@ -10,24 +10,25 @@
 #include "base/id_manager.h"
 #include "base/pstdint.h"
 
+#include "engine/dll.h"
 #include "engine/entity.h"
 
 namespace bm {
 
 class World {
  public:
-  explicit World();
-  virtual ~World();
+  BM_ENGINE_DECL explicit World();
+  BM_ENGINE_DECL virtual ~World();
 
-  b2World* GetBox2DWorld();
+  BM_ENGINE_DECL b2World* GetBox2DWorld();
 
-  Entity* GetEntity(uint32_t id);
-  std::map<uint32_t, Entity*>* GetStaticEntities();
-  std::map<uint32_t, Entity*>* GetDynamicEntities();
+  BM_ENGINE_DECL Entity* GetEntity(uint32_t id);
+  BM_ENGINE_DECL std::map<uint32_t, Entity*>* GetStaticEntities();
+  BM_ENGINE_DECL std::map<uint32_t, Entity*>* GetDynamicEntities();
 
   // 'RemoveEntity()' doesn't delete the entity object.
-  void AddEntity(uint32_t id, Entity* entity);
-  void RemoveEntity(uint32_t id);
+  BM_ENGINE_DECL void AddEntity(uint32_t id, Entity* entity);
+  BM_ENGINE_DECL void RemoveEntity(uint32_t id);
 
  private:
   b2World world_;

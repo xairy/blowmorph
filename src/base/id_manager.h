@@ -7,6 +7,8 @@
 
 #include <base/pstdint.h>
 
+#include "base/dll.h"
+
 namespace bm {
 
 class IdManager {
@@ -14,10 +16,10 @@ class IdManager {
   static const uint32_t BAD_ID = UINT_MAX;
 
  public:
-  IdManager();
-  ~IdManager();
+  BM_BASE_DECL IdManager();
+  BM_BASE_DECL ~IdManager();
 
-  uint32_t NewId();
+  BM_BASE_DECL uint32_t NewId();
 
  private:
   uint32_t max_id_;

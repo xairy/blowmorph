@@ -95,6 +95,7 @@ solution "blowmorph"
     includedirs { "src/windows" }
     defines { "WIN32", "_WIN32" }
     defines { "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS" }
+	defines { "_USE_MATH_DEFINES" }
 
   configuration { "debug" }
     defines { "DEBUG" }
@@ -119,6 +120,7 @@ solution "blowmorph"
     configuration "windows"
       includedirs { "third-party/jsoncpp/include" }      
       windows_libdir("third-party/jsoncpp/bin")
+	  windows_binary("third-party/jsoncpp/bin", "jsoncpp.dll", "jsoncpp.dll")
 	  links { "jsoncpp" }
 
   project "net"
@@ -158,6 +160,7 @@ solution "blowmorph"
     configuration "windows"
       includedirs { "third-party/jsoncpp/include" }      
       windows_libdir("third-party/jsoncpp/bin")
+	  windows_binary("third-party/jsoncpp/bin", "jsoncpp.dll", "jsoncpp.dll")
 	  links { "jsoncpp" }
 	  
     -- Box2D
@@ -186,7 +189,9 @@ solution "blowmorph"
     configuration "linux"
       links { "Box2D" }
     configuration "windows"
-      -- TODO
+      includedirs { "third-party/box2d/include" }      
+      windows_libdir("third-party/box2d/bin")
+	  links { "Box2D" }
 
   project "client"
     kind "ConsoleApp"

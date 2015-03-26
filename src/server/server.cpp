@@ -2,8 +2,6 @@
 
 #include "server/server.h"
 
-#include <unistd.h>
-
 #include <cstdio>
 #include <cstring>
 

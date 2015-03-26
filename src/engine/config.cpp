@@ -15,6 +15,11 @@
 
 namespace bm {
 
+Config* Config::GetInstance() {
+  static Config instance;
+  return &instance;
+}
+
 Config::Config() : state_(STATE_FINALIZED) { }
 Config::~Config() { }
 

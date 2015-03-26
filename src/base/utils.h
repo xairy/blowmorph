@@ -5,12 +5,14 @@
 
 #include <string>
 
+#include "base/dll.h"
+
 namespace bm {
 
 // Returns random number in the range [0, max).
-size_t Random(size_t max);
+BM_BASE_DECL size_t Random(size_t max);
 
-std::string IntToStr(int value);
+BM_BASE_DECL std::string IntToStr(int value);
 
 }  // namespace bm
 
