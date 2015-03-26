@@ -95,7 +95,7 @@ void RenderWindow::RenderEntity(ClientEntity* entity) {
 
   Sprite* sprite = entity->GetSprite();
   sprite->SetPosition(position);
-  sprite->SetRotation(entity->GetRotation() / M_PI * 180.0f);
+  sprite->SetRotation(entity->GetRotation() / static_cast<float>(M_PI) * 180.0f);
   RenderSprite(sprite);
 
   if (entity->HasCaption()) {

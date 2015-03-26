@@ -110,8 +110,8 @@ class Application {
   std::map<uint32_t, int> player_scores_;
   std::map<uint32_t, std::string> player_names_;
 
-  float player_health_;
-  float player_energy_;
+  int player_health_;
+  int player_energy_;
 
   float max_player_misposition_;
   int64_t interpolation_offset_;

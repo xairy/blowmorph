@@ -953,11 +953,12 @@ b2Vec2 Application::GetMousePosition() const {
   sf::Vector2i mouse_position = render_window_.GetMousePosition();
   int screen_width = render_window_.GetWindowSize().x;
   int screen_height = render_window_.GetWindowSize().y;
-  mouse_position.x = (mouse_position.x - screen_width / 2) +
+  b2Vec2 translated_position;
+  translated_position.x = static_cast<float>((mouse_position.x - screen_width / 2)) +
     player_->GetPosition().x;
-  mouse_position.y = (mouse_position.y - screen_height / 2) +
+  translated_position.y = static_cast<float>((mouse_position.y - screen_height / 2)) +
     player_->GetPosition().y;
-  return b2Vec2(mouse_position.x, mouse_position.y);
+  return translated_position;
 }
 
 }  // namespace bm

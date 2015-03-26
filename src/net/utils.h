@@ -11,6 +11,7 @@
 #include "base/macros.h"
 #include "base/pstdint.h"
 
+#include "net/dll.h"
 #include "net/enet.h"
 
 namespace bm {
@@ -90,7 +91,7 @@ bool BroadcastPacket(
 }
 
 // Attempts to synchronously disconnect the peer.
-bool DisconnectPeer(
+BM_NET_DECL bool DisconnectPeer(
   Peer* peer,
   Event* event,
   ClientHost* host,

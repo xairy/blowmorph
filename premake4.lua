@@ -209,22 +209,17 @@ solution "blowmorph"
 
     -- SFML
     configuration "windows"
-      includedirs { "third-party/SFML/include" }
-      windows_libdir("third-party/SFML/bin")
-      windows_binary("third-party/SFML/bin", "sfml-system-d-2.dll", "sfml-system-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-window-d-2.dll", "sfml-window-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-graphics-d-2.dll", "sfml-graphics-2.dll")
-      windows_binary("third-party/SFML/bin", "sfml-audio-d-2.dll", "sfml-audio-2.dll")
-      configuration { "windows", "debug" }
-        links { "sfml-system-d" }
-        links { "sfml-window-d" }
-        links { "sfml-graphics-d" }
-        links { "sfml-audio-d" }
-      configuration { "windows", "release" }
-        links { "sfml-system" }
-        links { "sfml-window" }
-        links { "sfml-graphics" }
-        links { "sfml-audio" }
+      includedirs { "third-party/sfml/include" }
+      windows_libdir("third-party/sfml/bin")
+      -- TODO(xairy): support debug.
+	  windows_binary("third-party/sfml/bin", "sfml-system-2.dll", "sfml-system-2.dll")
+	  windows_binary("third-party/sfml/bin", "sfml-window-2.dll", "sfml-window-2.dll")
+	  windows_binary("third-party/sfml/bin", "sfml-graphics-2.dll", "sfml-graphics-2.dll")
+	  windows_binary("third-party/sfml/bin", "sfml-audio-2.dll", "sfml-audio-2.dll")
+	  links { "sfml-system" }
+	  links { "sfml-window" }
+	  links { "sfml-graphics" }
+	  links { "sfml-audio" }
     configuration "linux"
       links { "sfml-system" }
       links { "sfml-window" }
@@ -232,10 +227,12 @@ solution "blowmorph"
       links { "sfml-audio" }
 
     -- Box2D
-    configuration "windows"
-      -- TODO
     configuration "linux"
       links { "Box2D" }
+    configuration "windows"
+      includedirs { "third-party/box2d/include" }      
+      windows_libdir("third-party/box2d/bin")
+	  links { "Box2D" }
 
   project "interpolator"
     kind "StaticLib"
