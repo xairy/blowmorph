@@ -74,13 +74,13 @@ On x64 system:
 
 ### Windows
 
-1. Install Python 2.7.6.
+1. Install Python 2.7.9.
 
 2. Download third-party.zip and extract in the blowmorph folder.
 
-3. Download premake4.exe from http://industriousone.com/premake/download.
+3. Download premake5.exe from http://industriousone.com/premake/download.
 
-4. Run `premake4.exe vs2008`.
+4. Run `premake5.exe vs2013`.
 
 5. Build build\blowmorph.sln.
     
