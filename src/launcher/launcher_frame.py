@@ -122,6 +122,9 @@ class LauncherFrame(LauncherFrameBase):
         self.cfg_interpolation_offset = config["net"]["interpolation_offset"]
         self.cfg_tick_rate = config["net"]["tick_rate"]
 
+        self.cfg_server_host = config["server"]["host"]
+        self.cfg_server_port = config["server"]["port"]
+
     #-----------------------------------------------------------------------------
     def RefreshGameServerList(self):
         servers = {}
@@ -161,6 +164,9 @@ class LauncherFrame(LauncherFrameBase):
 
             config["server"]["host"] = host
             config["server"]["port"] = port
+        else: 
+            config["server"]["host"] = self.cfg_server_host
+            config["server"]["port"] = self.cfg_server_port
 
         selection = self.resolution_choice.GetSelection()
         resolution = self.resolution_choice.GetString(selection)
