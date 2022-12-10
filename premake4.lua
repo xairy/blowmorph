@@ -1,6 +1,6 @@
 function copy(src, dst, always)
   local action = "python"
-  local script = "\"" ..  path.join(os.getcwd(), "copy-data.py")  .. "\""
+  local script = "\"" ..  path.join(os.getcwd(), "scripts/copy-data.py")  .. "\""
   src = "\"" .. src .. "\""
   dst = "\"" .. dst .. "\""
   cwd = "\"" .. os.getcwd() .. "\""
