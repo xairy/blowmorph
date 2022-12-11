@@ -3,7 +3,7 @@
     {
       "name": "bazooka",      
       "projectile": "rocket",
-      "energy_consumption": 250
+      "energy_consumption": 500
     },
     {
       "name": "morpher",
