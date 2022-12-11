@@ -127,6 +127,10 @@ std::vector<b2Vec2>* ServerWorld::GetSpawnPositions() {
   return &spawn_positions_;
 }
 
+std::vector<b2Vec2>* ServerWorld::GetZombieSpawnPositions() {
+  return &zombie_spawn_positions_;
+}
+
 bool ServerWorld::LoadMap(const std::string& file) {
   Map map;
   if (!map.Load(file)) {
@@ -141,6 +145,12 @@ bool ServerWorld::LoadMap(const std::string& file) {
     float x = spawn.x * block_size_;
     float y = spawn.y * block_size_;
     spawn_positions_.push_back(b2Vec2(x, y));
+  }
+
+  for (auto spawn : map.GetZombieSpawns()) {
+    float x = spawn.x * block_size_;
+    float y = spawn.y * block_size_;
+    zombie_spawn_positions_.push_back(b2Vec2(x, y));
   }
 
   for (auto kit : map.GetKits()) {

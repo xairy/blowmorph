@@ -51,6 +51,7 @@ class Map {
 
   BM_ENGINE_DECL const Terrain& GetTerrain() const;
   BM_ENGINE_DECL const std::vector<Spawn>& GetSpawns() const;
+  BM_ENGINE_DECL const std::vector<Spawn>& GetZombieSpawns() const;
 
   BM_ENGINE_DECL const std::vector<Kit>& GetKits() const;
   BM_ENGINE_DECL const std::vector<Door>& GetDoors() const;
@@ -63,6 +64,7 @@ class Map {
 
   Terrain terrain_;
   std::vector<Spawn> spawns_;
+  std::vector<Spawn> zombie_spawns_;
   std::vector<Door> doors_;
   std::vector<Kit> kits_;
   std::vector<Wall> walls_;

@@ -98,6 +98,30 @@ bool Map::Load(const std::string& file) {
     spawns_.push_back(Spawn {x, y});
   }
 
+  // Load zombie spawns.
+
+  Json::Value zombie_spawns = root["zombie_spawns"];
+  if (zombie_spawns.isNull()) {
+    REPORT_ERROR("Config '%s' of type '%s' not found in '%s'.",
+        "zombie_spawns", "array", file.c_str());
+    return false;
+  }
+
+  for (int i = 0; i < static_cast<int>(zombie_spawns.size()); i++) {
+    int32_t x, y;
+    if (!GetInt32(zombie_spawns[i]["x"], &x)) {
+      REPORT_ERROR("Config 'zombie_spawns[%d].x' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    if (!GetInt32(zombie_spawns[i]["y"], &y)) {
+      REPORT_ERROR("Config 'zombie_spawns[%d].y' of type '%s' not found in '%s'.",
+          i, "int", file.c_str());
+      return false;
+    }
+    zombie_spawns_.push_back(Spawn {x, y});
+  }
+
   // Load doors.
 
   Json::Value doors = root["doors"];
@@ -227,6 +251,10 @@ const Map::Terrain& Map::GetTerrain() const {
 
 const std::vector<Map::Spawn>& Map::GetSpawns() const {
   return spawns_;
+}
+
+const std::vector<Map::Spawn>& Map::GetZombieSpawns() const {
+  return zombie_spawns_;
 }
 
 const std::vector<Map::Door>& Map::GetDoors() const {

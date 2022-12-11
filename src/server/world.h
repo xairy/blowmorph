@@ -71,12 +71,14 @@ class ServerWorld : public World {
     const std::string& entity_name);
 
   std::vector<b2Vec2>* GetSpawnPositions();
+  std::vector<b2Vec2>* GetZombieSpawnPositions();
 
  private:
   float block_size_;
   float bound_;
 
   std::vector<b2Vec2> spawn_positions_;
+  std::vector<b2Vec2> zombie_spawn_positions_;
 
   IdManager id_manager_;
   Controller* controller_;  // !refactor

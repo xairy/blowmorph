@@ -63,6 +63,7 @@ for id in get_layer(tm, 'Terrain')['data']:
   m['terrain'].append(terrain_tile_to_sprite_name(*id_to_tile(id, tm)))
 
 m['spawns'] = []
+m['zombie_spawns'] = []
 for i, id in enumerate(get_layer(tm, 'Control')['data']):
   if id == 0:
     continue
@@ -70,8 +71,11 @@ for i, id in enumerate(get_layer(tm, 'Control')['data']):
   y = i / m['width']
   tileset_name, tile_id = id_to_tile(id, tm)
   assert tileset_name == 'control'
-  assert tile_id == 0
-  m['spawns'].append({'x': x, 'y': y})
+  assert tile_id <= 1
+  if tile_id == 0:
+    m['spawns'].append({'x': x, 'y': y})
+  else:
+    m['zombie_spawns'].append({'x': x, 'y': y})
 
 m['kits'] = [{'entity': 'health_kit', 'x': 1, 'y': 1}]
 

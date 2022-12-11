@@ -281,12 +281,24 @@ void Controller::OnCollision(Projectile* first, Projectile* second) {
 // Updating.
 
 void Controller::SpawnZombies() {
+
   static int counter = 0;
   if (counter == 300) {
-    float x = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    float y = -250.0f + static_cast<float>(rand()) / RAND_MAX * 500.0f;  // NOLINT
-    Critter* critter = world_.CreateCritter(b2Vec2(x, y), "zombie");
-    OnEntityAppearance(critter);
+    bool player_found = false;
+    for (auto i : *world_.GetDynamicEntities()) {
+      ServerEntity* entity = static_cast<ServerEntity*>(i.second);
+      if (entity->GetType() == Entity::TYPE_PLAYER) {
+        player_found = true;
+	break;
+      }
+    }
+    if (!player_found) {
+      return;
+    }
+    for (auto spawn : *world_.GetZombieSpawnPositions()) {
+      Critter* critter = world_.CreateCritter(spawn, "zombie");
+      OnEntityAppearance(critter);
+    }
     counter = 0;
   }
   counter++;
