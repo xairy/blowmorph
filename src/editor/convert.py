@@ -18,6 +18,10 @@ wall_tilesets = {
   'walls': ['wall_ud', 'wall_ul', 'wall_uld', 'wall_uldr']
 }
 
+kits_tilesets = {
+  'kits': ['health_kit', 'energy_kit', None, 'composite_kit']
+}
+
 def merge_dicts(*dict_args):
   result = {}
   for dictionary in dict_args:
@@ -28,7 +32,7 @@ def terrain_tile_to_sprite_name(tileset_name, tile_id):
   return terrain_tilesets[tileset_name][tile_id]
 
 def entity_tile_to_entity_name(tileset_name, tile_id):
-  entity_tilesets = merge_dicts(door_tilesets, wall_tilesets)
+  entity_tilesets = merge_dicts(door_tilesets, wall_tilesets, kits_tilesets)
   return entity_tilesets[tileset_name][tile_id]
 
 def id_to_tile(id, tm):
@@ -77,10 +81,9 @@ for i, id in enumerate(get_layer(tm, 'Control')['data']):
   else:
     m['zombie_spawns'].append({'x': x, 'y': y})
 
-m['kits'] = [{'entity': 'health_kit', 'x': 1, 'y': 1}]
-
 m['doors'] = []
 m['walls'] = []
+m['kits'] = []
 for i, id in enumerate(get_layer(tm, 'Entity')['data']):
   if id == 0:
     continue
@@ -111,6 +114,8 @@ for i, id in enumerate(get_layer(tm, 'Entity')['data']):
     m['doors'].append(entity)
   elif tileset_name in wall_tilesets.keys():
     m['walls'].append(entity)
+  elif tileset_name in kits_tilesets.keys():
+    m['kits'].append(entity)
   else:
     assert False
 

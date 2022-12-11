@@ -24,7 +24,7 @@
       "name": "energy_kit",
       "texture": "kits",
       "mode": {
-        "tiles": [2]
+        "tiles": [1]
       }
     },
     {
