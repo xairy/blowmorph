@@ -673,7 +673,7 @@ bool Application::ProcessPacket(const std::vector<char>& buffer) {
       player_names_[player_info.id] = player_name;
       ClientEntity* entity = static_cast<ClientEntity*>(
           world_.GetEntity(player_info.id));
-      if (entity != NULL) {
+      if (entity != NULL && !entity->HasCaption()) {
         entity->EnableCaption(player_name, *render_window_.GetFont());
       }
     } break;
@@ -785,6 +785,10 @@ void Application::OnEntityUpdate(const EntitySnapshot* snapshot) {
     // TODO(xairy): use SetInterpolationRotation.
     // dynamic_entities_[snapshot->id]->SetInterpolationRotation(
     //   snapshot->angle, snapshot->time, interpolation_offset_, server_time);
+  }
+
+  if (snapshot->type == EntitySnapshot::ENTITY_TYPE_PLAYER && !entity->HasCaption()) {
+    entity->EnableCaption(player_names_[snapshot->id], *render_window_.GetFont());
   }
 }
 
